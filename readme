@@ -1,0 +1,68 @@
+PaintField - A Cross-platform Digital Painting Tool
+========
+
+This app is currently under development. The source files are licensed under LGPL.
+The project name and the license might be changed in the future.
+
+## - To Build -
+
+PaintField depends on the following libraries: libzip, libmalachite (Malachite[http://github.com/iofg2100/Malachite], my project in GitHub).
+Also, libmalachite depends on libfreeimage.
+
+To build PaintField, follow these steps:
+
+	1. Install libzip and libfreeimage.
+	2. Build Malachite.
+	3. Make PaintField refer to Malachite's binary and headers. (e.g., use QMake's LIBS and INCLUDEPATH)
+	4. Build PaintField.
+
+Now you can start using PaintField!!
+(sorry PaintField is still UNDER DEVELOPMENT and very useless ><)
+
+
+## - Planned Features -
+
+### System:
+v	Multi-window editing
+v	Hierarchical layer structure
+	Cusomizable key config
+	Plugin system
+
+### GUI:
+	Tool selection panel
+v	Color picker panel
+	Navigator
+	Grid
+	Gradient editor
+	Tool editor
+	Content library
+
+### Tools:
+v	Layer move
+	Rectangular selection
+	Polygonal selection
+	Elliptic selection
+	Freehand selection
+	Painting selection
+	Selection move
+	Simple brush
+	Customizable brush
+	Gradient
+	Shapes
+
+### General Features:
+	Filters
+	Non-destructive filters
+	Color to opacity
+	Opacity to selection
+
+### Input & Output:
+v	Save & load documents
+v	Image file import
+	Image file export
+	PSD file import
+	PSD file export
+	ORA file import
+	ORA file export
+	Print documents
+	Scan images
