@@ -202,6 +202,18 @@ void FSLayer::updateThumbnailRecursive(const QSize &size)
 	}
 }
 
+void FSLayer::updateDirtyThumbnailRecursive(const QSize &size)
+{
+	if (_isThumbnailDirty)
+	{
+		updateThumbnail(size);
+		_isThumbnailDirty = false;
+	}
+	foreach (FSLayer *child, _childrenList) {
+		child->updateDirtyThumbnailRecursive(size);
+	}
+}
+
 QPointSet FSLayer::tileKeysRecursive() const
 {
 	QPointSet keys;

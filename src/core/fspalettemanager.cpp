@@ -7,7 +7,7 @@ FSPaletteManager::FSPaletteManager(QObject *parent) :
 	_colors.reserve(ColorCount);
 	
 	for (int i = 0; i < ColorCount; ++i) {
-		_colors << MLColor::fromRgb(1.0, 1.0, 1.0);
+		_colors << MLColor::fromRgbValue(1.0, 1.0, 1.0);
 	}
 }
 

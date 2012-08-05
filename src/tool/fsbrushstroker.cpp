@@ -6,7 +6,7 @@
 
 FSBrushStroker::FSBrushStroker(MLSurface *surface) :
 	_surface(surface),
-	_radius(10)
+	_radius(5)
 {
 }
 
@@ -131,7 +131,7 @@ void FSBrushStroker::drawDab(const FSTabletInputData &data)
 {
 	//qDebug() << "drawing dab pressure =" << data.pressure;
 	MLSurfacePainter painter(_surface);
-	painter.setColor(MLColor::fromRgb(0, 0, 0, 1));
+	painter.setColor(MLColor::black());
 	painter.drawEllipse(data.pos, _radius * data.pressure, _radius * data.pressure);
 	painter.flush();
 	_lastEditedKeys |= painter.editedKeys();
@@ -140,7 +140,7 @@ void FSBrushStroker::drawDab(const FSTabletInputData &data)
 void FSBrushStroker::drawSimpleDab(const QPointF &pos)
 {
 	MLSurfacePainter painter(_surface);
-	painter.setColor(MLColor::fromRgb(0, 0, 0, 1));
+	painter.setColor(MLColor::black());
 	painter.drawEllipse(pos, _radius, _radius);
 	painter.flush();
 	_lastEditedKeys |= painter.editedKeys();

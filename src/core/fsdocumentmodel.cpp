@@ -79,7 +79,8 @@ void FSDocumentEditCommand::redo()
 {
 	FSLayer *layer = layerForPath(_path);
 	_edit->redo(layer);
-	layer->updateThumbnail(document()->size());
+	//layer->updateThumbnail(document()->size());
+	layer->setThumbnailDirty(true);
 	emitDataChanged(layer);
 	
 	if (_edit->modifiedKeys().isEmpty())
@@ -92,7 +93,8 @@ void FSDocumentEditCommand::undo()
 {
 	FSLayer *layer = layerForPath(_path);
 	_edit->undo(layer);
-	layer->updateThumbnail(document()->size());
+	//layer->updateThumbnail(document()->size());
+	layer->setThumbnailDirty(true);
 	emitDataChanged(layer);
 	
 	if (_edit->modifiedKeys().isEmpty())
@@ -319,7 +321,8 @@ FSDocumentModel::FSDocumentModel(const QString &tempName, const QSize &size, QOb
     _modified(false),
 	_rootLayer(new FSDocumentRootLayer(this) ),
     _selectionModel(new QItemSelectionModel(this, this) ),
-    _undoStack(new QUndoStack(this) )
+    _undoStack(new QUndoStack(this) ),
+	_mutex(QMutex::Recursive)
 {
 	_tileKeys = MLSurface::keysForRect(QRect(QPoint(), size));
 	
@@ -568,11 +571,14 @@ bool FSDocumentModel::loadLayerRecursive(FSLayer *parent, FSZip *archive, QXmlSt
 
 void FSDocumentModel::editLayer(const QModelIndex &index, FSLayerEdit *edit)
 {
+	QMutexLocker locker(&_mutex);
 	_undoStack->push(new FSDocumentEditCommand(pathForIndex(index), edit, this));
 }
 
 void FSDocumentModel::addLayers(QList<FSLayer *> layers, const QModelIndex &parent, int row, const QString &description)
 {
+	QMutexLocker locker(&_mutex);
+	
 	QUndoCommand *command = new QUndoCommand(description);
 	
 	for (int i = 0; i < layers.size(); ++i) {
@@ -584,6 +590,8 @@ void FSDocumentModel::addLayers(QList<FSLayer *> layers, const QModelIndex &pare
 
 void FSDocumentModel::newLayer(FSLayer::Type type, const QModelIndex &parent, int row)
 {
+	QMutexLocker locker(&_mutex);
+	
 	FSLayer *layer;
 	QString layerName, editName;
 	
@@ -614,6 +622,8 @@ void FSDocumentModel::newLayer(FSLayer::Type type, const QModelIndex &parent, in
 
 void FSDocumentModel::removeLayers(const QModelIndexList &indexes)
 {
+	QMutexLocker locker(&_mutex);
+	
 	QUndoCommand *command = new QUndoCommand(tr("Remove Layers"));
 	
 	foreach (const QModelIndex &index, indexes) {
@@ -629,6 +639,8 @@ void FSDocumentModel::removeLayers(const QModelIndexList &indexes)
 
 void FSDocumentModel::copyOrMoveLayers(const QModelIndexList &indexes, const QModelIndex &parent, int row, bool copy)
 {
+	QMutexLocker locker(&_mutex);
+	
 	QUndoCommand *command = new QUndoCommand(copy ? tr("Copy Layers") : tr("Move Layers"));
 	
 	FSLayerPath newParentPath = pathForIndex(parent);
@@ -679,6 +691,8 @@ void FSDocumentModel::copyOrMoveLayers(const QModelIndexList &indexes, const QMo
 
 void FSDocumentModel::renameLayer(const QModelIndex &index, const QString &newName)
 {
+	QMutexLocker locker(&_mutex);
+	
 	QString unduplicatedName = unduplicatedChildName(index.parent(), newName);
 	
 	FSLayerPath oldPath = pathForIndex(index);
@@ -691,7 +705,7 @@ void FSDocumentModel::renameLayer(const QModelIndex &index, const QString &newNa
 	_undoStack->push(command);
 }
 
-QString FSDocumentModel::unduplicatedChildName(const QModelIndex &index, const QString &name)
+QString FSDocumentModel::unduplicatedChildName(const QModelIndex &index, const QString &name) const
 {
 	const FSLayer *layer = layerForIndex(index);
 	if (!layer) return QString();
@@ -722,6 +736,8 @@ QVariant FSDocumentModel::data(const QModelIndex &index, int role) const
 
 bool FSDocumentModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
+	QMutexLocker locker(&_mutex);
+	
 	if (!index.isValid() )
 		return false;
 	
@@ -804,6 +820,8 @@ QMimeData *FSDocumentModel::mimeData(const QModelIndexList &indexes) const
 
 bool FSDocumentModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
 {
+	QMutexLocker locker(&_mutex);
+	
 	Q_UNUSED(column);
 	
 	if (action == Qt::IgnoreAction)
@@ -893,6 +911,8 @@ FSLayerPath FSDocumentModel::pathForLayer(const FSLayer *layer) const
 
 void FSDocumentModel::setModified(bool modified)
 {
+	QMutexLocker locker(&_mutex);
+	
 	if (_modified == modified)
 		return;
 	_modified = modified;
@@ -901,6 +921,8 @@ void FSDocumentModel::setModified(bool modified)
 
 void FSDocumentModel::setFilePath(const QString &filePath)
 {
+	QMutexLocker locker(&_mutex);
+	
 	if (_filePath == filePath)
 		return;
 	_filePath = filePath;
@@ -909,6 +931,8 @@ void FSDocumentModel::setFilePath(const QString &filePath)
 
 void FSDocumentModel::undoStackIndexChanged(int /*index*/)
 {
+	QMutexLocker locker(&_mutex);
+	
 	emit tilesUpdated(_updatedTiles);
 	_updatedTiles.clear();
 	

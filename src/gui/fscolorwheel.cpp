@@ -20,7 +20,7 @@ FSColorWheel::FSColorWheel(QWidget *parent) :
 			if (degree < 0)
 				degree += 360.0;
 			
-			*p++ = MLColor::fromHsv(degree, 1, 1).toQRgb();
+			*p++ = MLColor::fromHsvValue(degree, 1, 1).toQRgb();
 		}
 	}
 	
@@ -86,7 +86,7 @@ void FSColorWheel::updateHsv()
 			double s = (double)x / (double)(CenterSquareRadius * 2 + 1);
 			double v = 1.0 - (double)y / (double)(CenterSquareRadius * 2 + 1);
 			
-			*p++ = MLColor::fromHsv(_color.hue(), s, v).toQRgb();
+			*p++ = MLColor::fromHsvValue(_color.hue(), s, v).toQRgb();
 		}
 	}
 	

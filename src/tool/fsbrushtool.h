@@ -37,6 +37,7 @@ private:
 	QScopedPointer<FSBrushStroker> _stroker;
 	const FSLayer *_layer;
 	MLSurface _surface;
+	int _inputCount;
 };
 
 class FSBrushToolFactory : public FSToolFactory

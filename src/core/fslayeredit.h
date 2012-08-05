@@ -53,7 +53,6 @@ public:
 	
 private:
 	MLSurface _surface;
-	QPointSet _keys;
 	MLSurface _oldSurface;
 };
 

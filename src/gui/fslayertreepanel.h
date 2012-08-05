@@ -8,7 +8,7 @@ class FSCanvasView;
 class FSDocumentModel;
 class QModelIndex;
 
-class QTreeView;
+class FSLayerTreeView;
 class FSDoubleSlider;
 class FSDoubleEdit;
 class QComboBox;
@@ -45,6 +45,7 @@ private slots:
 	
 	void updatePropertyView();
 	void setOpacityPercentage(double value);
+	void viewFocused();
 	
 private:
 	
@@ -61,7 +62,7 @@ private:
 	
 	// forms
 	
-	QTreeView *_treeView;
+	FSLayerTreeView *_treeView;
 	
 	FSDoubleSlider *_opacitySlider;
 	FSDoubleEdit *_opacityEdit;

@@ -5,6 +5,7 @@
 #include "fstabletevent.h"
 #include "fsbrushtool.h"
 #include "fsbrushstroker.h"
+#include "fsscopedtimer.h"
 
 
 FSBrushTool::FSBrushTool(FSCanvasView *parent) :
@@ -56,6 +57,7 @@ void FSBrushTool::beginStroke(const FSTabletInputData &data)
 	_surface = _layer->surface();
 	_stroker.reset(new FSBrushStroker(&_surface));
 	_stroker->moveTo(data);
+	_inputCount = 0;
 	
 	setDelegatesRender(true);
 }
@@ -69,9 +71,11 @@ void FSBrushTool::drawStroke(const FSTabletInputData &data)
 	qDebug() << "brush stroke to" << data.pos;
 #endif
 	
+	_inputCount++;
 	_stroker->lineTo(data);
 	
-	canvas()->updateView(_stroker->lastEditedKeys());
+	//if (_inputCount % 2 == 0)
+		canvas()->updateView(_stroker->lastEditedKeys());
 }
 
 void FSBrushTool::endStroke()
@@ -86,7 +90,9 @@ void FSBrushTool::endStroke()
 #endif
 	
 	FSLayerSurfaceEdit *edit = new FSLayerSurfaceEdit(_surface, _stroker->totalEditedKeys());
+	
 	documentModel()->editLayer(documentModel()->indexForLayer(_layer), edit);
+	
 	_stroker.reset();
 	_layer = 0;
 }

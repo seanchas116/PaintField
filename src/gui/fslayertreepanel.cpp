@@ -1,5 +1,6 @@
 #include <QtGui>
 
+#include "fslayertreeview.h"
 #include "fsdoubleedit.h"
 #include "fsdoubleslider.h"
 #include "fssimplebutton.h"
@@ -131,14 +132,20 @@ void FSLayerTreePanel::removeLayer()
 	_document->removeLayers(_document->selectionModel()->selectedIndexes());
 }
 
+void FSLayerTreePanel::viewFocused()
+{
+	_document->updateDirtyThumbnails();
+}
+
 void FSLayerTreePanel::createForms()
 {
-	_treeView = new QTreeView();
+	_treeView = new FSLayerTreeView();
 	_treeView->setHeaderHidden(true);
 	_treeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
 	_treeView->setDragDropMode(QAbstractItemView::DragDrop);
 	_treeView->setDefaultDropAction(Qt::MoveAction);
 	_treeView->setDropIndicatorShown(true);
+	connect(_treeView, SIGNAL(windowFocused()), this, SLOT(viewFocused()));
 	
 	_opacitySlider = new FSDoubleSlider();
 	_opacitySlider->setOrientation(Qt::Horizontal);

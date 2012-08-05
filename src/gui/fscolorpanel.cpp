@@ -78,7 +78,7 @@ FSColorSliderPanel::FSColorSliderPanel(QWidget *parent) :
 	
 	setLayout(_layout);
 	
-	setColor(MLColor::fromRgb(1, 1, 1));
+	setColor(MLColor::white());
 	
 	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
 }
@@ -217,7 +217,7 @@ FSColorPanel::FSColorPanel(QWidget *parent) :
 	for (int i = 0; i < 7; ++i)
 	{
 		FSColorButton *button = new FSColorButton();
-		button->setColor(MLColor::fromRgb(1, 1, 1));
+		button->setColor(MLColor::white());
 		_colorButtons << button;
 		_colorButtonLayout->addWidget(button);
 		_colorButtonGroup->addButton(button);

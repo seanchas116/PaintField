@@ -4,6 +4,7 @@
 #include <QAbstractItemModel>
 #include <QItemSelection>
 #include <QUndoStack>
+#include <QMutex>
 
 #include "fslayer.h"
 
@@ -102,6 +103,12 @@ public:
 	QItemSelectionModel *selectionModel() const { return _selectionModel; }
 	QModelIndex currentIndex() const { return _selectionModel->currentIndex(); }
 	
+	/**
+	  Returns the document's mutex.
+	  Note that 
+	 */
+	QMutex *mutex() const { return &_mutex; }
+	
 signals:
 	
 	void modified();
@@ -118,6 +125,7 @@ public slots:
 	
 	void undo() { _undoStack->undo(); }
 	void redo() { _undoStack->redo(); }
+	void updateDirtyThumbnails() { _rootLayer->updateDirtyThumbnailRecursive(size()); }
 	
 protected:
 	
@@ -136,7 +144,7 @@ private:
 	
 	void copyOrMoveLayers(const QModelIndexList &indexes, const QModelIndex &parent, int row, bool copy);
 	
-	QString unduplicatedChildName(const QModelIndex &index, const QString &name);
+	QString unduplicatedChildName(const QModelIndex &index, const QString &name) const;
 	
 	FSLayer *nonConstLayer(const FSLayer *layer) { return const_cast<FSLayer *>(layer); }
 	
@@ -154,6 +162,8 @@ private:
 	QUndoStack *_undoStack;
 	
 	QPointSet _updatedTiles;
+	
+	mutable QMutex _mutex;
 };
 
 #endif // FSDOCUMENTMODEL_H

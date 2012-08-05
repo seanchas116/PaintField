@@ -6,7 +6,7 @@
 
 FSColorSlider::FSColorSlider(QWidget *parent) :
 	QWidget(parent),
-	_color(MLColor::fromRgb(1, 1, 1)),
+	_color(MLColor::white()),
 	_component(MLColor::Red),
 	_stepCount(100),
 	_mouseTracked(false)
@@ -16,7 +16,7 @@ FSColorSlider::FSColorSlider(QWidget *parent) :
 
 FSColorSlider::FSColorSlider(MLColor::Component component, QWidget *parent) :
 	QWidget(parent),
-	_color(MLColor::fromRgb(1, 1, 1)),
+	_color(MLColor::white()),
 	_component(component),
 	_stepCount(100),
 	_mouseTracked(false)

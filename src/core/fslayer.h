@@ -83,8 +83,12 @@ public:
 	void setBlendMode(MLBlendMode mode) { _blendMode = mode; }
 	MLBlendMode blendMode() const { return _blendMode; }
 	
+	void setThumbnailDirty(bool x) { _isThumbnailDirty = x; }
+	bool isThumbnailDirty() const { return _isThumbnailDirty; }
+	
 	virtual void updateThumbnail(const QSize &size);
 	void updateThumbnailRecursive(const QSize &size);
+	void updateDirtyThumbnailRecursive(const QSize &size);
 	
 	QPointSet tileKeys() const { return surface().keys(); }
 	QPointSet tileKeysRecursive() const;
@@ -105,6 +109,8 @@ private:
 	double _opacity;
 	MLBlendMode _blendMode;
 	QPixmap _thumbnail;
+	
+	bool _isThumbnailDirty;
 };
 
 #endif // FSLAYER_H
