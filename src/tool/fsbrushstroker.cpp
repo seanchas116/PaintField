@@ -27,7 +27,7 @@ void FSBrushStroker::lineTo(const FSTabletInputData &data)
 	Q_ASSERT(1 <= _stackCount && _stackCount <= 3);
 	
 	if (_stackCount != 1) {
-		QPolygonF polygon;
+		MLPolygon polygon;
 		if (_stackCount == 3)
 			polygon = MLCurveSubdivision(MLCurve4::fromCatmullRom(_posPrevious, _dataStart.pos, _dataEnd.pos, data.pos)).polygon();
 		
@@ -56,7 +56,7 @@ void FSBrushStroker::end()
 	
 }
 
-double FSBrushStroker::drawInterval(const QPolygonF &polygon, const FSTabletInputData &dataStart, const FSTabletInputData &dataEnd, double carryOver)
+double FSBrushStroker::drawInterval(const MLPolygon &polygon, const FSTabletInputData &dataStart, const FSTabletInputData &dataEnd, double carryOver)
 {
 	int count = polygon.size() - 1;
 	if (count < 1)
@@ -68,17 +68,18 @@ double FSBrushStroker::drawInterval(const QPolygonF &polygon, const FSTabletInpu
 	lengths.reserve(count);
 	
 	for (int i = 0; i < count; ++i) {
-		QPointF delta = polygon.at(i+1) - polygon.at(i);
-		double length = hypot(delta.x(), delta.y());
+		MLVec2D delta = polygon.at(i+1) - polygon.at(i);
+		double length = mlLength(delta);
 		totalLength += length;
 		lengths << length;
 	}
 	
-	double pressureNDelta = (dataEnd.pressure - dataStart.pressure) / totalLength;
-	double rotationNDelta = (dataEnd.rotation - dataStart.rotation) / totalLength;
-	double tangentialPressureNDelta = (dataEnd.tangentialPressure - dataStart.tangentialPressure) / totalLength;
-	double xTiltNDelta = (dataEnd.xTilt - dataStart.xTilt) / totalLength;
-	double yTiltNDelta = (dataEnd.yTilt - dataStart.yTilt) / totalLength;
+	double totalNormalizeFactor = 1.0 / totalLength;
+	
+	double pressureNDelta = (dataEnd.pressure - dataStart.pressure) * totalNormalizeFactor;
+	double rotationNDelta = (dataEnd.rotation - dataStart.rotation) * totalNormalizeFactor;
+	double tangentialPressureNDelta = (dataEnd.tangentialPressure - dataStart.tangentialPressure) * totalNormalizeFactor;
+	MLVec2D tiltNDelta = (dataEnd.tilt - dataStart.tilt) * totalNormalizeFactor;
 	
 	FSTabletInputData data = dataStart;
 	
@@ -95,14 +96,13 @@ double FSBrushStroker::drawInterval(const QPolygonF &polygon, const FSTabletInpu
 		}
 		
 		data.pos = polygon.at(i);
-		QPointF nDelta = (polygon.at(i+1) - polygon.at(i)) / length;
+		MLVec2D nDelta = (polygon.at(i+1) - polygon.at(i)) / length;
 		
 		data.pos += nDelta * carryOver;
 		data.pressure += pressureNDelta;
 		data.rotation += rotationNDelta;
 		data.tangentialPressure += tangentialPressureNDelta;
-		data.xTilt += xTiltNDelta;
-		data.yTilt += yTiltNDelta;
+		data.tilt += tiltNDelta;
 		
 		drawDab(data);
 		
@@ -115,8 +115,7 @@ double FSBrushStroker::drawInterval(const QPolygonF &polygon, const FSTabletInpu
 			data.pressure += pressureNDelta;
 			data.rotation += rotationNDelta;
 			data.tangentialPressure += tangentialPressureNDelta;
-			data.xTilt += xTiltNDelta;
-			data.yTilt += yTiltNDelta;
+			data.tilt += tiltNDelta;
 			
 			drawDab(data);
 		}
@@ -129,7 +128,7 @@ double FSBrushStroker::drawInterval(const QPolygonF &polygon, const FSTabletInpu
 
 void FSBrushStroker::drawDab(const FSTabletInputData &data)
 {
-	//qDebug() << "drawing dab pressure =" << data.pressure;
+	//qDebug() << "drawing dab" << data.pos.x << data.pos.y;
 	MLSurfacePainter painter(_surface);
 	painter.setColor(MLColor::black());
 	painter.drawEllipse(data.pos, _radius * data.pressure, _radius * data.pressure);

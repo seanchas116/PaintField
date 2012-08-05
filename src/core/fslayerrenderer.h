@@ -19,7 +19,7 @@ public:
 	
 	void render(MLPainter *painter, const FSLayer *parent, const QPoint &tileKey)
 	{
-		renderRecursive(painter, parent, tileKey, false);
+		renderRecursive(painter, parent, tileKey, 1, false);
 	}
 
 	void render(MLPainter *painter, const FSLayer *parent, const QPointSet &tileKeys)
@@ -35,7 +35,7 @@ public:
 	
 private:
 	
-	void renderRecursive(MLPainter *painter, const FSLayer *parent, const QPoint &tileKey, bool inDelegateTarget);
+	void renderRecursive(MLPainter *painter, const FSLayer *parent, const QPoint &tileKey, double opacity, bool inDelegateTarget);
 	
 	FSLayerRenderDelegate *_delegate;
 };

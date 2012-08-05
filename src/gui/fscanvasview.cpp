@@ -23,7 +23,7 @@ bool FSCanvasScene::event(QEvent *event)
 	}
 	
 	FSTabletEvent *tabletEvent = static_cast<FSTabletEvent *>(event);
-	QPointF pos = tabletEvent->data.pos;
+	QPointF pos = tabletEvent->data.pos.toQPointF();
 	FSCanvasItem *item = static_cast<FSCanvasItem *>(itemAt(pos));
 	if (item) {
 		tabletEvent->data.pos = item->mapToScene(pos);

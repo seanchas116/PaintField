@@ -65,7 +65,7 @@ bool FSTabletEventFilter::sendTabletEventRecursive(QWidget *widget, FSTabletEven
 	if (!widget->rect().contains(relativePos))
 		return false;
 	
-	event->data.pos = event->globalPos + QPointF(delta);
+	event->data.pos = event->globalPos + MLVec2D(delta);
 	event->setAccepted(false);
 	QCoreApplication::sendEvent(widget, event);
 	

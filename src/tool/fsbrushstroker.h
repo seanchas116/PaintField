@@ -18,7 +18,7 @@ public:
 	
 private:
 	// returns next carry-over
-	double drawInterval(const QPolygonF &polygon, const FSTabletInputData &dataStart, const FSTabletInputData &dataEnd, double carryOver);
+	double drawInterval(const MLPolygon &polygon, const FSTabletInputData &dataStart, const FSTabletInputData &dataEnd, double carryOver);
 	void drawDab(const FSTabletInputData &data);
 	void drawSimpleDab(const QPointF &pos);
 	
@@ -26,7 +26,7 @@ private:
 	QPointSet _lastEditedKeys, _totalEditedKeys;
 	
 	FSTabletInputData _dataStart, _dataEnd;
-	QPointF _posPrevious;
+	MLVec2D _posPrevious;
 	int _stackCount;
 	double _carryOver;
 	

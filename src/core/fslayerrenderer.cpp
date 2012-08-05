@@ -1,6 +1,6 @@
 #include "fslayerrenderer.h"
 
-void FSLayerRenderer::renderRecursive(MLPainter *painter, const FSLayer *parent, const QPoint &tileKey, bool inDelegateTarget)
+void FSLayerRenderer::renderRecursive(MLPainter *painter, const FSLayer *parent, const QPoint &tileKey, double opacity, bool inDelegateTarget)
 {
 	QListIterator<const FSLayer *> iter(parent->children());
 	iter.toBack();
@@ -13,14 +13,15 @@ void FSLayerRenderer::renderRecursive(MLPainter *painter, const FSLayer *parent,
 			continue;
 		
 		bool useDelegate = (_delegate &&  _delegate->target() == layer) || inDelegateTarget;
-		painter->setOpacity(painter->opacity() * layer->opacity());
 		
 		if (layer->type() == FSLayer::TypeGroup && layer->blendMode().index() == MLGlobal::BlendModePassThrough)
 		{
-			renderRecursive(painter, layer, tileKey, useDelegate);
+			renderRecursive(painter, layer, tileKey, opacity * layer->opacity(), useDelegate);
 		}
 		else
 		{
+			painter->setOpacity(opacity * layer->opacity());
+			
 			painter->setBlendMode(layer->blendMode());
 			
 			if (layer->type() == FSLayer::TypeRaster && useDelegate)
@@ -35,7 +36,7 @@ void FSLayerRenderer::renderRecursive(MLPainter *painter, const FSLayer *parent,
 				{
 					src = MLSurface::DefaultTile;
 					MLPainter childPainter(&src);
-					renderRecursive(&childPainter, layer, tileKey, useDelegate);
+					renderRecursive(&childPainter, layer, tileKey, 1, useDelegate);
 				}
 				else
 				{

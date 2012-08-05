@@ -14,10 +14,10 @@ public:
 		QInputEvent(static_cast<QEvent::Type>(type), keyState),
 		globalPos(globalPos),
 		globalPosInt(globalPosInt),
-		data(posF, pressure, rotation, tangentialPressure, xTilt, yTilt)
+		data(posF, pressure, rotation, tangentialPressure, MLVec2D(xTilt, yTilt))
 	{}
 	
-	QPointF globalPos;
+	MLVec2D globalPos;
 	QPoint globalPosInt;
 	FSTabletInputData data;
 };

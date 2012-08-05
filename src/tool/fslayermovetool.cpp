@@ -58,7 +58,7 @@ void FSLayerMoveTool::render(MLPainter *painter, const FSLayer *layer, const QPo
 void FSLayerMoveTool::cursorMoveEvent(FSTabletEvent *event)
 {
 	if (!_layerIsDragged) return;
-	_offset = event->data.pos.toPoint() - _dragStartPoint;
+	_offset = event->data.pos.toQPoint() - _dragStartPoint;
 	canvas()->updateView();
 }
 
@@ -69,7 +69,7 @@ void FSLayerMoveTool::cursorPressEvent(FSTabletEvent *event)
 	{
 		_layerIsDragged = true;
 		setDelegatesRender(true);
-		_dragStartPoint = event->data.pos.toPoint();
+		_dragStartPoint = event->data.pos.toQPoint();
 	}
 }
 
@@ -79,7 +79,7 @@ void FSLayerMoveTool::cursorReleaseEvent(FSTabletEvent *event)
 	{
 		_layerIsDragged = false;
 		setDelegatesRender(false);
-		_offset = event->data.pos.toPoint() - _dragStartPoint;
+		_offset = event->data.pos.toQPoint() - _dragStartPoint;
 		documentModel()->editLayer(currentLayerIndex(), new FSLayerMoveEdit(_offset));
 	}
 }

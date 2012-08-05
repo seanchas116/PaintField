@@ -1,7 +1,7 @@
 #ifndef FSTABLETINPUTDATA_H
 #define FSTABLETINPUTDATA_H
 
-#include <QPointF>
+#include "mlvector.h"
 #include <QTransform>
 
 struct FSTabletInputData
@@ -9,19 +9,19 @@ struct FSTabletInputData
 	FSTabletInputData()
 	{}
 	
-	FSTabletInputData(const QPointF &pos, double pressure, double rotation, double tangentialPressure, double xTilt, double yTilt) :
+	FSTabletInputData(const MLVec2D &pos, double pressure, double rotation, double tangentialPressure, const MLVec2D &tilt) :
 		pos(pos),
+		tilt(tilt),
 		pressure(pressure),
 		rotation(rotation),
-		tangentialPressure(tangentialPressure),
-		xTilt(xTilt),
-		yTilt(yTilt)
+		tangentialPressure(tangentialPressure)
 	{}
 	
-	QPointF pos;
-	double pressure, rotation, tangentialPressure, xTilt, yTilt;
+	MLVec2D pos, tilt;
+	double pressure, rotation, tangentialPressure;
 };
 
+/*
 inline FSTabletInputData operator+(const FSTabletInputData &data1, const FSTabletInputData &data2)
 {
 	FSTabletInputData result;
@@ -68,6 +68,6 @@ inline FSTabletInputData operator/(const FSTabletInputData &data, double divisor
 	result.xTilt /= divisor;
 	result.yTilt /= divisor;
 	return result;
-}
+}*/
 
 #endif // FSTABLETINPUTDATA_H
