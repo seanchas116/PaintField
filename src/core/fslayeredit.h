@@ -8,6 +8,7 @@ class FSLayerEdit
 {
 public:
 	FSLayerEdit() {}
+	virtual ~FSLayerEdit() {}
 	
 	virtual void saveUndoState(const FSLayer *layer);
 	virtual void redo(FSLayer *layer);

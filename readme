@@ -27,6 +27,7 @@ v	Multi-window editing
 v	Hierarchical layer structure
 	Cusomizable key config
 	Plugin system
+	Infinite undo/redo
 
 ### GUI:
 	Tool selection panel
@@ -55,6 +56,7 @@ v	Layer move
 	Non-destructive filters
 	Color to opacity
 	Opacity to selection
+	Post to Twitter
 
 ### Input & Output:
 v	Save & load documents

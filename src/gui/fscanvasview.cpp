@@ -13,7 +13,7 @@ class FSCanvasItem : public QGraphicsItem
 
 bool FSCanvasScene::event(QEvent *event)
 {
-	switch (event->type()) {
+	switch ((int)event->type()) {
 	case FSGlobal::EventTabletMove:
 	case FSGlobal::EventTabletPress:
 	case FSGlobal::EventTabletRelease:
@@ -23,7 +23,7 @@ bool FSCanvasScene::event(QEvent *event)
 	}
 	
 	FSTabletEvent *tabletEvent = static_cast<FSTabletEvent *>(event);
-	QPointF pos = tabletEvent->data.pos.toQPointF();
+	MLVec2D pos = tabletEvent->data.pos;
 	FSCanvasItem *item = static_cast<FSCanvasItem *>(itemAt(pos));
 	if (item) {
 		tabletEvent->data.pos = item->mapToScene(pos);
@@ -144,7 +144,7 @@ void FSCanvasView::fsTabletEvent(FSTabletEvent *event)
 	//qDebug() << "tablet event at" << event->data.pos << "pressure" << event->data.pressure << "modifier" << (int)event->modifiers();
 	event->data.pos = event->data.pos * transform();
 	
-	switch (event->type())
+	switch ((int)event->type())
 	{
 	case FSGlobal::EventTabletMove:
 		_tool->cursorMoveEvent(event);
@@ -203,7 +203,7 @@ void FSCanvasView::closeEvent(QCloseEvent *event)
 
 bool FSCanvasView::event(QEvent *event)
 {
-	switch (event->type()) {
+	switch ((int)event->type()) {
 	case FSGlobal::EventTabletMove:
 	case FSGlobal::EventTabletPress:
 	case FSGlobal::EventTabletRelease:

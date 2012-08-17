@@ -9,19 +9,18 @@ bool FSTabletEventFilter::eventFilter(QObject *watched, QEvent *event)
 	
 	if (event->type() == QEvent::TabletMove || event->type() == QEvent::TabletPress || event->type() == QEvent::TabletRelease) {
 		
-		QElapsedTimer timer;
-		timer.start();
-		
 		QTabletEvent *tabletEvent = static_cast<QTabletEvent *>(event);
 		
 		QWidget *widget = QApplication::topLevelAt(tabletEvent->globalPos());
-		if (!widget) {
+		if (!widget)
+		{
 			event->ignore();
 			return true;
 		}
 		
 		FSGlobal::Event newEventType;
-		switch (event->type()) {
+		switch (event->type())
+		{
 		case QEvent::TabletMove:
 			newEventType = FSGlobal::EventTabletMove;
 			break;
@@ -49,8 +48,6 @@ bool FSTabletEventFilter::eventFilter(QObject *watched, QEvent *event)
 		
 		bool result = sendTabletEventRecursive(widget, &newEvent);
 		event->setAccepted(result);
-		
-		qDebug() << "tablet event handling took" << timer.elapsed() << "ms";
 		
 		return true;
 	} else {

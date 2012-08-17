@@ -11,7 +11,7 @@ FSLayer::FSLayer(const QString &name)
       _isLocked(false),
       _isVisible(true),
       _opacity(1.0),
-      _blendMode(MLGlobal::BlendModeNormal)
+      _blendMode(ML::BlendModeNormal)
 {}
 
 FSLayer::FSLayer(const FSLayer &other)

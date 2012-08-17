@@ -9,8 +9,12 @@ QT       += core gui
 TARGET = PaintField
 TEMPLATE = app
 
-QMAKE_CXXFLAGS += -fopenmp
-CONFIG += x86_64
+QMAKE_CFLAGS_X86_64 = 
+QMAKE_CXXFLAGS_X86_64 = 
+QMAKE_OBJECTIVE_CFLAGS_X86_64 = 
+QMAKE_LFLAGS_X86_64 = 
+
+QMAKE_CXXFLAGS += -fopenmp -std=c++0x -m64
 #QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.6
 
 CONFIG(release) {
@@ -40,6 +44,12 @@ mac {
 
 INCLUDEPATH += src/core src/dialog src/graphics src/graphics/include src/gui lib/include
 LIBS += -lzip -lfreeimage -lmalachite
+
+CONFIG(debug, debug|release) {
+	DEFINES += QT_DEBUG
+} else {
+	DEFINES += QT_NO_DEBUG
+}
 
 FORMS    += \
     src/dialog/fsnewdocumentdialog.ui

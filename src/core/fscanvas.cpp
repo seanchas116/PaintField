@@ -167,10 +167,7 @@ FSCanvas::FSCanvas(FSDocumentModel *document, QObject *parent)
 
 void FSCanvas::updateView(const QPointSet &tiles)
 {
-	FSScopedTimer timer(__PRETTY_FUNCTION__);
-	
 	QPointSet renderTiles = tiles & _document->tileKeys();
-	qDebug() << Q_FUNC_INFO << ": rendering" << renderTiles.size() << "tiles";
 	
 	FSLayerRenderer renderer;
 	renderer.setDelegate(tool());

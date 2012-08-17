@@ -4,6 +4,7 @@
 #include <QObject>
 #include "fstool.h"
 #include "fscanvas.h"
+#include "fsbrushsetting.h"
 
 class FSBrushStroker;
 class FSTabletInputData;
@@ -16,6 +17,9 @@ public:
 	~FSBrushTool();
 	
 	void render(MLPainter *painter, const FSLayer *layer, const QPoint &tileKey);
+	
+	void setBrushSetting(const FSBrushSetting *setting) { _brushSetting = setting; }
+	const FSBrushSetting *brushSetting() const { return _brushSetting; }
 	
 signals:
 	
@@ -33,11 +37,15 @@ protected:
 	void drawStroke(const FSTabletInputData &data);
 	void endStroke();
 	
+	void updateTiles();
+	
 private:
 	QScopedPointer<FSBrushStroker> _stroker;
+	FSTabletInputData _data;
+	bool _dataIsSet;
+	const FSBrushSetting *_brushSetting;
 	const FSLayer *_layer;
 	MLSurface _surface;
-	int _inputCount;
 };
 
 class FSBrushToolFactory : public FSToolFactory
@@ -46,13 +54,18 @@ class FSBrushToolFactory : public FSToolFactory
 public:
 	explicit FSBrushToolFactory(QObject *parent = 0);
 	
-	FSTool *createTool(FSCanvasView *view) { return new FSBrushTool(view); }
+	FSTool *createTool(FSCanvasView *view);
 	bool isTypeSupported(FSLayer::Type type) const;
+	
+	FSBrushSetting *setting() { return &_setting; }
+	const FSBrushSetting *setting() const { return &_setting; }
 	
 signals:
 	
 public slots:
 	
+private:
+	FSBrushSetting _setting;
 };
 
 #endif // FSBRUSHTOOL_H

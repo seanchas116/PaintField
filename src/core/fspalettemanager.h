@@ -12,7 +12,7 @@ class FSPaletteManager : public QObject
 public:
 	
 	enum {
-		ColorCount = 7,
+		ColorCount = 7
 	};
 	
 	explicit FSPaletteManager(QObject *parent = 0);

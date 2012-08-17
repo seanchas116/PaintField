@@ -608,6 +608,7 @@ void FSDocumentModel::newLayer(FSLayer::Type type, const QModelIndex &parent, in
 		break;
 	default:
 		Q_ASSERT(0);
+		return;
 	}
 	
 	const FSLayer *parentLayer = layerForIndex(parent);

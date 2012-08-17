@@ -14,7 +14,7 @@ void FSLayerRenderer::renderRecursive(MLPainter *painter, const FSLayer *parent,
 		
 		bool useDelegate = (_delegate &&  _delegate->target() == layer) || inDelegateTarget;
 		
-		if (layer->type() == FSLayer::TypeGroup && layer->blendMode().index() == MLGlobal::BlendModePassThrough)
+		if (layer->type() == FSLayer::TypeGroup && layer->blendMode().index() == ML::BlendModePassThrough)
 		{
 			renderRecursive(painter, layer, tileKey, opacity * layer->opacity(), useDelegate);
 		}
