@@ -158,7 +158,7 @@ FSCanvas::FSCanvas(FSDocumentModel *document, QObject *parent)
 	document->setParent(this);
 	
 	connect(document, SIGNAL(tilesUpdated(QPointSet)), this, SLOT(updateView(QPointSet)));
-	connect(document, SIGNAL(modified()), this, SLOT(updateThumbnail()));
+	//connect(document, SIGNAL(modified()), this, SLOT(updateThumbnail()));
 	
 	updateView();
 	updateThumbnail();

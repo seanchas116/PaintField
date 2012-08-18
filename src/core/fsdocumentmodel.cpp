@@ -6,315 +6,9 @@
 #include "fsrandomstring.h"
 #include "mlblendmode.h"
 #include "mlsurfacepainter.h"
+#include "fsdocumentcommand.h"
 
 #include "fsdocumentmodel.h"
-
-class FSDocumentCommand : public QUndoCommand
-{
-public:
-	FSDocumentCommand(FSDocumentModel *model, QUndoCommand *parent)
-	    : QUndoCommand(parent),
-	      _model(model)
-	{
-		Q_ASSERT(_model);
-	}
-	
-protected:
-	
-	void beginInsertLayers(FSLayer *parent, int start, int end) { Q_ASSERT(parent); _model->beginInsertRows(_model->indexForLayer(parent), start, end); }
-	void endInsertLayers() { _model->endInsertRows(); }
-	void beginRemoveLayers(FSLayer *parent, int start, int end) { Q_ASSERT(parent); _model->beginRemoveRows(_model->indexForLayer(parent), start, end); }
-	void endRemoveLayers() { _model->endRemoveRows(); }
-	
-	void emitDataChanged(FSLayer *layer)
-	{
-		Q_ASSERT(layer);
-		QModelIndex index = _model->indexForLayer(layer);
-		_model->emitDataChanged(index, index);
-	}
-	
-	void queueTileUpdate(const QPointSet &tileKeys) { _model->queueTileUpdate(tileKeys); }
-	
-	FSDocumentModel *document() { return _model; }
-	
-	FSLayer *layerForPath(const FSLayerPath &path) { return _model->nonConstLayer(_model->layerForPath(path)); }
-	
-	FSLayerPath parentPath(const FSLayerPath &path)
-	{
-		Q_ASSERT(path.size());
-		
-		FSLayerPath result = path;
-		result.removeLast();
-		return result;
-	}
-	
-private:
-	FSDocumentModel *_model;
-};
-
-class FSDocumentEditCommand : public FSDocumentCommand
-{
-public:
-	FSDocumentEditCommand(const FSLayerPath &path, FSLayerEdit *edit, FSDocumentModel *document, QUndoCommand *parent = 0) :
-		FSDocumentCommand(document, parent),
-		_path(path),
-		_edit(edit)
-	{
-		const FSLayer *layer = document->layerForPath(path);
-		Q_ASSERT(layer);
-		Q_ASSERT(edit);
-		setText(edit->name());
-		edit->saveUndoState(layer);
-	}
-	
-	void redo();
-	void undo();
-	
-private:
-	FSLayerPath _path;
-	QScopedPointer<FSLayerEdit> _edit;
-};
-
-void FSDocumentEditCommand::redo()
-{
-	FSLayer *layer = layerForPath(_path);
-	_edit->redo(layer);
-	//layer->updateThumbnail(document()->size());
-	layer->setThumbnailDirty(true);
-	emitDataChanged(layer);
-	
-	if (_edit->modifiedKeys().isEmpty())
-		queueTileUpdate(document()->tileKeys());
-	else
-		queueTileUpdate(_edit->modifiedKeys());
-}
-
-void FSDocumentEditCommand::undo()
-{
-	FSLayer *layer = layerForPath(_path);
-	_edit->undo(layer);
-	//layer->updateThumbnail(document()->size());
-	layer->setThumbnailDirty(true);
-	emitDataChanged(layer);
-	
-	if (_edit->modifiedKeys().isEmpty())
-		queueTileUpdate(document()->tileKeys());
-	else
-		queueTileUpdate(_edit->modifiedKeys());
-}
-
-class FSDocumentAddCommand : public FSDocumentCommand
-{
-public:
-	FSDocumentAddCommand(const FSLayer *layer, const FSLayerPath &newParentPath, int newRow, FSDocumentModel *document, QUndoCommand *parent = 0) : 
-		FSDocumentCommand(document, parent),
-		_newParentPath(newParentPath),
-		_newRow(newRow)
-	{
-		Q_ASSERT(layer);
-		_layer.reset(layer->clone());
-	}
-	
-	void redo();
-	void undo();
-	
-private:
-	QScopedPointer<FSLayer> _layer;
-	FSLayerPath _newParentPath;
-	int _newRow;
-};
-
-void FSDocumentAddCommand::redo()
-{
-	FSLayer *parent = layerForPath(_newParentPath);
-	FSLayer *newLayer = _layer->clone();
-	
-	beginInsertLayers(parent, _newRow, _newRow);
-	parent->insertChild(_newRow, newLayer);
-	newLayer->updateThumbnail(document()->size());
-	endInsertLayers();
-	
-	queueTileUpdate(_layer->surface().keys());
-}
-
-void FSDocumentAddCommand::undo()
-{
-	FSLayer *parent = layerForPath(_newParentPath);
-	
-	beginRemoveLayers(parent, _newRow, _newRow);
-	delete parent->takeChild(_newRow);
-	endRemoveLayers();
-	
-	queueTileUpdate(_layer->tileKeysRecursive());
-}
-
-
-class FSDocumentRemoveCommand : public FSDocumentCommand
-{
-public:
-	FSDocumentRemoveCommand(const FSLayerPath &path, FSDocumentModel *document, QUndoCommand *parent) :
-		FSDocumentCommand(document, parent),
-		_path(path)
-	{}
-	
-	void redo();
-	void undo();
-	
-private:
-	FSLayerPath _path;
-	QScopedPointer<FSLayer> _layer;
-	int _row;
-};
-
-void FSDocumentRemoveCommand::redo()
-{
-	_layer.reset(layerForPath(_path));
-	_row = _layer->row();
-	FSLayer *parent = _layer->parent();
-	
-	beginRemoveLayers(parent, _row, _row);
-	parent->takeChild(_row);
-	endRemoveLayers();
-	
-	queueTileUpdate(_layer->tileKeysRecursive());
-}
-
-void FSDocumentRemoveCommand::undo()
-{
-	FSLayerPath parentPath = _path;
-	parentPath.removeLast();
-	FSLayer *parent = layerForPath(parentPath);
-	
-	FSLayer *layer = _layer.take();
-	
-	beginInsertLayers(parent, _row, _row);
-	parent->insertChild(_row, layer);
-	endInsertLayers();
-	
-	queueTileUpdate(layer->tileKeysRecursive());
-}
-
-
-class FSDocumentMoveCommand : public FSDocumentCommand
-{
-public:
-	FSDocumentMoveCommand(const FSLayerPath &oldPath, const FSLayerPath &newPath, int newRow, FSDocumentModel *document, QUndoCommand *parent) :
-		FSDocumentCommand(document, parent),
-		_newRow(newRow)
-	{
-		FSLayer *layer = layerForPath(oldPath);
-		_oldRow = layer->row();
-		
-		_oldParentPath = oldPath;
-		_oldParentPath.removeLast();
-		_oldName = oldPath.last();
-		
-		_newParentPath = newPath;
-		_newParentPath.removeLast();
-		_newName = newPath.last();
-		
-		if (_newParentPath == _oldParentPath && _newRow > _oldRow)
-			_newRow--;
-	}
-	
-	void redo();
-	void undo();
-	
-private:
-	FSLayerPath _newParentPath, _oldParentPath;
-	int _newRow, _oldRow;
-	QString _newName, _oldName;
-};
-
-void FSDocumentMoveCommand::redo()
-{
-	//if (_newParentPath == _oldParentPath && _newRow == _oldRow)
-	//	return;
-	
-	FSLayer *oldParent = layerForPath(_oldParentPath);
-	FSLayer *newParent = layerForPath(_newParentPath);
-	
-	beginRemoveLayers(oldParent, _oldRow, _oldRow);
-	FSLayer *layer = oldParent->takeChild(_oldRow);
-	endRemoveLayers();
-	
-	layer->setName(_newName);
-	
-	beginInsertLayers(newParent, _newRow, _newRow);
-	newParent->insertChild(_newRow, layer);
-	endInsertLayers();
-	
-	queueTileUpdate(layer->tileKeysRecursive());
-}
-
-void FSDocumentMoveCommand::undo()
-{
-	if (_newParentPath == _oldParentPath && _newRow == _oldRow)
-		return;
-	
-	FSLayer *oldParent = layerForPath(_oldParentPath);
-	FSLayer *newParent = layerForPath(_newParentPath);
-	
-	beginRemoveLayers(newParent, _newRow, _newRow);
-	FSLayer *layer = newParent->takeChild(_newRow);
-	endRemoveLayers();
-	
-	layer->setName(_oldName);
-	
-	beginInsertLayers(oldParent, _oldRow, _oldRow);
-	oldParent->insertChild(_oldRow, layer);
-	endInsertLayers();
-	
-	queueTileUpdate(layer->tileKeysRecursive());
-}
-
-
-class FSDocumentCopyCommand : public FSDocumentCommand
-{
-public:
-	FSDocumentCopyCommand(const FSLayerPath &path, const FSLayerPath &newPath, int newRow, FSDocumentModel *document, QUndoCommand *parent = 0) :
-		FSDocumentCommand(document, parent),
-		_path(path),
-		_newRow(newRow)
-	{
-		_newParentPath = newPath;
-		_newParentPath.removeLast();
-		_newName = newPath.last();
-	}
-	
-	void redo();
-	void undo();
-	
-private:
-	FSLayerPath _path;
-	FSLayerPath _newParentPath;
-	QString _newName;
-	int _newRow;
-};
-
-void FSDocumentCopyCommand::redo()
-{
-	FSLayer *layer = layerForPath(_path);
-	FSLayer *parent = layerForPath(_newParentPath);
-	FSLayer *clone = layer->cloneRecursive();
-	clone->setName(_newName);
-	beginInsertLayers(parent, _newRow, _newRow);
-	parent->insertChild(_newRow, clone);
-	endInsertLayers();
-	queueTileUpdate(clone->tileKeysRecursive());
-}
-
-void FSDocumentCopyCommand::undo()
-{
-	FSLayer *parent = layerForPath(_newParentPath);
-	beginRemoveLayers(parent, _newRow, _newRow);
-	FSLayer *layer = parent->takeChild(_newRow);
-	endRemoveLayers();
-	queueTileUpdate(layer->tileKeysRecursive());
-	delete layer;
-}
-
-
 
 FSDocumentModel::FSDocumentModel(const QString &tempName, const QSize &size, const FSLayerList &layers,  QObject *parent) :
     QAbstractItemModel(parent),
@@ -324,13 +18,13 @@ FSDocumentModel::FSDocumentModel(const QString &tempName, const QSize &size, con
 	_rootLayer(new FSDocumentRootLayer(this) ),
     _selectionModel(new QItemSelectionModel(this, this) ),
     _undoStack(new QUndoStack(this) ),
-	_mutex(QMutex::Recursive)
+	_skipNextUpdate(false)
 {
 	_tileKeys = MLSurface::keysForRect(QRect(QPoint(), size));
 	
 	connect(_undoStack, SIGNAL(redoTextChanged(QString)), this, SIGNAL(redoTextChangdd(QString)));
 	connect(_undoStack, SIGNAL(undoTextChanged(QString)), this, SIGNAL(undoTextChanged(QString)));
-	connect(_undoStack, SIGNAL(indexChanged(int)), this, SLOT(undoStackIndexChanged(int)));
+	connect(_undoStack, SIGNAL(indexChanged(int)), this, SLOT(onUndoneOrRedone()));
 	connect(_selectionModel, SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SIGNAL(currentIndexChanged(QModelIndex,QModelIndex)));
 	connect(this, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SIGNAL(layerMetadataChanged(QModelIndex)));
 	
@@ -576,8 +270,6 @@ bool FSDocumentModel::loadLayerRecursive(FSLayer *parent, FSZip *archive, QXmlSt
 
 void FSDocumentModel::editLayer(const QModelIndex &index, FSLayerEdit *edit, const QString &description)
 {
-	QMutexLocker locker(&_mutex);
-	
 	QUndoCommand *command = new FSDocumentEditCommand(pathForIndex(index), edit, this);
 	command->setText(description);
 	
@@ -586,8 +278,6 @@ void FSDocumentModel::editLayer(const QModelIndex &index, FSLayerEdit *edit, con
 
 void FSDocumentModel::addLayers(QList<FSLayer *> layers, const QModelIndex &parent, int row, const QString &description)
 {
-	QMutexLocker locker(&_mutex);
-	
 	QUndoCommand *command = new QUndoCommand(description);
 	
 	for (int i = 0; i < layers.size(); ++i) {
@@ -599,8 +289,6 @@ void FSDocumentModel::addLayers(QList<FSLayer *> layers, const QModelIndex &pare
 
 void FSDocumentModel::newLayer(FSLayer::Type type, const QModelIndex &parent, int row)
 {
-	QMutexLocker locker(&_mutex);
-	
 	FSLayer *layer;
 	QString layerName, editName;
 	
@@ -632,8 +320,6 @@ void FSDocumentModel::newLayer(FSLayer::Type type, const QModelIndex &parent, in
 
 void FSDocumentModel::removeLayers(const QModelIndexList &indexes)
 {
-	QMutexLocker locker(&_mutex);
-	
 	QUndoCommand *command = new QUndoCommand(tr("Remove Layers"));
 	
 	foreach (const QModelIndex &index, indexes) {
@@ -649,8 +335,6 @@ void FSDocumentModel::removeLayers(const QModelIndexList &indexes)
 
 void FSDocumentModel::copyOrMoveLayers(const QModelIndexList &indexes, const QModelIndex &parent, int row, bool copy)
 {
-	QMutexLocker locker(&_mutex);
-	
 	QUndoCommand *command = new QUndoCommand(copy ? tr("Copy Layers") : tr("Move Layers"));
 	
 	FSLayerPath newParentPath = pathForIndex(parent);
@@ -701,8 +385,6 @@ void FSDocumentModel::copyOrMoveLayers(const QModelIndexList &indexes, const QMo
 
 void FSDocumentModel::renameLayer(const QModelIndex &index, const QString &newName)
 {
-	QMutexLocker locker(&_mutex);
-	
 	QString unduplicatedName = unduplicatedChildName(index.parent(), newName);
 	
 	FSLayerPath oldPath = pathForIndex(index);
@@ -751,8 +433,6 @@ bool FSDocumentModel::setData(const QModelIndex &index, const QVariant &value, i
 
 bool FSDocumentModel::setData(const QModelIndex &index, const QVariant &value, int role, const QString &description)
 {
-	QMutexLocker locker(&_mutex);
-	
 	QString text = description;
 	
 	if (!index.isValid() )
@@ -841,8 +521,6 @@ QMimeData *FSDocumentModel::mimeData(const QModelIndexList &indexes) const
 
 bool FSDocumentModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
 {
-	QMutexLocker locker(&_mutex);
-	
 	Q_UNUSED(column);
 	
 	if (action == Qt::IgnoreAction)
@@ -932,8 +610,6 @@ FSLayerPath FSDocumentModel::pathForLayer(const FSLayer *layer) const
 
 void FSDocumentModel::setModified(bool modified)
 {
-	QMutexLocker locker(&_mutex);
-	
 	if (_modified == modified)
 		return;
 	_modified = modified;
@@ -942,19 +618,19 @@ void FSDocumentModel::setModified(bool modified)
 
 void FSDocumentModel::setFilePath(const QString &filePath)
 {
-	QMutexLocker locker(&_mutex);
-	
 	if (_filePath == filePath)
 		return;
 	_filePath = filePath;
 	emit filePathChanged(filePath);
 }
 
-void FSDocumentModel::undoStackIndexChanged(int /*index*/)
+void FSDocumentModel::onUndoneOrRedone()
 {
-	QMutexLocker locker(&_mutex);
+	if (_skipNextUpdate)
+		_skipNextUpdate = false;
+	else
+		emit tilesUpdated(_updatedTiles);
 	
-	emit tilesUpdated(_updatedTiles);
 	_updatedTiles.clear();
 	
 	emit modified();

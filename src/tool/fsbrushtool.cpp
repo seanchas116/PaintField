@@ -107,6 +107,7 @@ void FSBrushTool::endStroke(const FSTabletInputData &data)
 	setDelegatesRender(false);
 	
 	//documentModel()->setData(documentModel()->indexForLayer(_layer), QVariant::fromValue(_surface), FSGlobal::RoleSurface, tr("Brush"));
+	documentModel()->makeSkipNextUpdate();
 	documentModel()->editLayer(documentModel()->indexForLayer(_layer), new FSLayerSurfaceEdit(_surface, _stroker->totalEditedKeys()), tr("Brush"));
 	
 	_stroker.reset();

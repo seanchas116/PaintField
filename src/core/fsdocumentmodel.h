@@ -64,6 +64,8 @@ public:
 	bool canRedo() const { return _undoStack->canRedo(); }
 	bool canUndo() const { return _undoStack->canUndo(); }
 	
+	void makeSkipNextUpdate() { _skipNextUpdate = true; }
+	
 	void editLayer(const QModelIndex &index, FSLayerEdit *edit, const QString &description);
 	void addLayer(FSLayer *layer, const QModelIndex &parent, int row, const QString &description) {
 		QList<FSLayer *> layers;
@@ -109,12 +111,6 @@ public:
 	
 	QUndoStack *undoStack() { return _undoStack; }
 	
-	/**
-	  Returns the document's mutex.
-	  Note that 
-	 */
-	QMutex *mutex() const { return &_mutex; }
-	
 signals:
 	
 	void modified();
@@ -138,13 +134,13 @@ protected:
 	void setModified(bool modified);
 	void setFilePath(const QString &filePath);
 	void emitDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight) { emit dataChanged(topLeft, bottomRight); }
-	void queueTileUpdate(const QPointSet &tileKeys) { _updatedTiles |= tileKeys; }
+	void enqueueTileUpdate(const QPointSet &tileKeys) { _updatedTiles |= tileKeys; }
 	
 	FSLayer *rootLayer() { return _rootLayer.data(); }
 	const FSLayer *rootLayer() const { return _rootLayer.data(); }
 	
 private slots:
-	void undoStackIndexChanged(int index);
+	void onUndoneOrRedone();
 	
 private:
 	
@@ -167,9 +163,8 @@ private:
 	mutable QItemSelectionModel *_selectionModel;
 	QUndoStack *_undoStack;
 	
+	bool _skipNextUpdate;
 	QPointSet _updatedTiles;
-	
-	mutable QMutex _mutex;
 };
 
 #endif // FSDOCUMENTMODEL_H
