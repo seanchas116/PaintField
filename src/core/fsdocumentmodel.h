@@ -42,7 +42,9 @@ class FSDocumentModel : public QAbstractItemModel
 	
 public:
 	
-	explicit FSDocumentModel(const QString &tempName, const QSize &size, QObject *parent = 0);
+	FSDocumentModel(const QString &tempName, const QSize &size, const FSLayerList &layers, QObject *parent = 0);
+	FSDocumentModel(const QString &tempName, const QSize &size, FSLayer *layer, QObject *parent = 0) :
+		FSDocumentModel(tempName, size, mlListFromValue(layer), parent) {}
 	
 	static FSDocumentModel *open(const QString &filePath, QObject *parent = 0);
 	bool saveAs(const QString &filePath);

@@ -57,9 +57,11 @@ public:
 	int row() const { return _parent ? _parent->rowForChild(this) : 0; }
 	
 	bool insertChild(int row, FSLayer *child);
+	bool insertChildren(int row, const FSLayerList &children);
 	void prependChild(FSLayer *child) { insertChild(0, child); }
 	void appendChild(FSLayer *child) { insertChild(childCount(), child); }
 	FSLayer *takeChild(int row);
+	FSLayerList takeChildren();
 	FSLayer *replaceChild(int row, FSLayer *child);
 	bool removeChild(int row);
 	

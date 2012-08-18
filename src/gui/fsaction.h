@@ -19,6 +19,7 @@ protected:
 private slots:
 	
 	void onAssociatedActionChanged();
+	void onAssociatedActionDeleted();
 	
 private:
 	

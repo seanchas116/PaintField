@@ -316,7 +316,7 @@ void FSDocumentCopyCommand::undo()
 
 
 
-FSDocumentModel::FSDocumentModel(const QString &tempName, const QSize &size, QObject *parent) :
+FSDocumentModel::FSDocumentModel(const QString &tempName, const QSize &size, const FSLayerList &layers,  QObject *parent) :
     QAbstractItemModel(parent),
     _size(size),
     _tempName(tempName),
@@ -334,13 +334,14 @@ FSDocumentModel::FSDocumentModel(const QString &tempName, const QSize &size, QOb
 	connect(_selectionModel, SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SIGNAL(currentIndexChanged(QModelIndex,QModelIndex)));
 	connect(this, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SIGNAL(layerMetadataChanged(QModelIndex)));
 	
-	_rootLayer->insertChild(0, new FSRasterLayer(tr("Untitled")));
+	_rootLayer->insertChildren(0, layers);
+	
 	_rootLayer->updateThumbnailRecursive(size);
 	
 	_selectionModel->setCurrentIndex(index(0, QModelIndex()), QItemSelectionModel::Current);
 }
 
-FSDocumentModel *FSDocumentModel:: open(const QString &filePath, QObject *parent)
+FSDocumentModel *FSDocumentModel::open(const QString &filePath, QObject *parent)
 {
 	if (filePath.isEmpty()) {
 		qWarning() << __PRETTY_FUNCTION__ << "file path is unknown";
@@ -368,35 +369,35 @@ FSDocumentModel *FSDocumentModel:: open(const QString &filePath, QObject *parent
 		return 0;
 	}
 	
-	FSDocumentModel *documentModel = new FSDocumentModel(QString(), QSize(), parent);	// create a new document
-	documentModel->_filePath = filePath;
-	
 	QXmlStreamAttributes attributes = xmlReader.attributes();
-	documentModel->_size.rwidth() = attributes.value("width").toString().toInt();
-	documentModel->_size.rheight() = attributes.value("height").toString().toInt();
 	
 	if (attributes.value("version") != "1.0") {
 		qWarning() << __PRETTY_FUNCTION__ << "incompatible file version";
-		delete documentModel;
 		return 0;
 	}
 	
+	FSGroupLayer group;
+	QSize size;
+	
+	size.rwidth() = attributes.value("width").toString().toInt();
+	size.rheight() = attributes.value("height").toString().toInt();
+	
 	while (xmlReader.readNextStartElement() ) {
 		if (xmlReader.name() == "stack") {
-			if (!loadLayerRecursive(documentModel->rootLayer(), &archive, &xmlReader) ) {
+			if (!loadLayerRecursive(&group, &archive, &xmlReader) ) {
 				qWarning() << __PRETTY_FUNCTION__ << "file is corrupt";
-				delete documentModel;
 				return 0;
 			}
 			// succeeded to open file
-			documentModel->rootLayer()->updateThumbnailRecursive(documentModel->size());
+			
+			FSDocumentModel *documentModel = new FSDocumentModel(QString(), size, group.takeChildren(), parent);
+			documentModel->setFilePath(filePath);
 			return documentModel;
 		}
 		xmlReader.skipCurrentElement();
 	}
 	
 	qWarning() << __PRETTY_FUNCTION__ << "file is corrupt";
-	delete documentModel;
 	return 0;
 }
 

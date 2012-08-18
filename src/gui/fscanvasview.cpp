@@ -2,6 +2,7 @@
 #include "fscore.h"
 #include "fstabletevent.h"
 #include "fsnewdocumentdialog.h"
+#include "fsrasterlayer.h"
 
 #include "fscanvasview.h"
 
@@ -13,7 +14,8 @@ class FSCanvasItem : public QGraphicsItem
 
 bool FSCanvasScene::event(QEvent *event)
 {
-	switch ((int)event->type()) {
+	switch ((int)event->type())
+	{
 	case FSGlobal::EventTabletMove:
 	case FSGlobal::EventTabletPress:
 	case FSGlobal::EventTabletRelease:
@@ -25,10 +27,14 @@ bool FSCanvasScene::event(QEvent *event)
 	FSTabletEvent *tabletEvent = static_cast<FSTabletEvent *>(event);
 	MLVec2D pos = tabletEvent->data.pos;
 	FSCanvasItem *item = static_cast<FSCanvasItem *>(itemAt(pos));
-	if (item) {
+	
+	if (item) 
+	{
 		tabletEvent->data.pos = item->mapToScene(pos);
 		return item->sceneEvent(tabletEvent);
-	} else {
+	}
+	else
+	{
 		event->ignore();
 		return false;
 	}
@@ -221,7 +227,11 @@ FSCanvasView *FSCanvasView::newFile()
 	if (dialog.exec() != QDialog::Accepted) {
 		return 0;
 	}
-	FSDocumentModel *document = new FSDocumentModel(tr("Untitled"), dialog.documentSize());
+	
+	FSRasterLayer *layer = new FSRasterLayer(tr("Untitled Layer"));
+	
+	FSDocumentModel *document = new FSDocumentModel(tr("Untitled"), dialog.documentSize(), layer);
+	
 	return new FSCanvasView(new FSCanvas(document));
 }
 

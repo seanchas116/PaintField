@@ -16,6 +16,7 @@ void FSAction::associateAction(QAction *action)
 	if (action)
 	{
 		connect(action, SIGNAL(changed()), this, SLOT(onAssociatedActionChanged()));
+		connect(action, SIGNAL(destroyed()), this, SLOT(onAssociatedActionDeleted()));
 		
 		connect(this, SIGNAL(toggled(bool)), action, SLOT(setChecked(bool)));
 		connect(this, SIGNAL(triggered()), action, SLOT(trigger()));
@@ -29,6 +30,11 @@ void FSAction::onAssociatedActionChanged()
 {
 	setEnabled(_associatedAction->isEnabled());
 	setText(_associatedAction->text());
+}
+
+void FSAction::onAssociatedActionDeleted()
+{
+	_associatedAction = 0;
 }
 
 FSCanvasViewAction::FSCanvasViewAction(QObject *parent) :

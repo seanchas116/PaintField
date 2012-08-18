@@ -78,6 +78,21 @@ bool FSLayer::insertChild(int row, FSLayer *child)
 	return true;
 }
 
+bool FSLayer::insertChildren(int row, const FSLayerList &children)
+{
+	if (!insertable(row))
+		return false;
+	
+	int count = children.size();
+	
+	for (int i = 0; i < count; ++i)
+	{
+		insertChild(row + i, children.at(i));
+	}
+	
+	return true;
+}
+
 FSLayer *FSLayer::takeChild(int row)
 {
 	if (!contains(row))
@@ -87,6 +102,19 @@ FSLayer *FSLayer::takeChild(int row)
 	child->_parent = 0;
 	
 	return child;
+}
+
+FSLayerList FSLayer::takeChildren()
+{
+	FSLayerList children = _childrenList;
+	_childrenList.clear();
+	
+	foreach (FSLayer *child, children)
+	{
+		child->_parent = 0;
+	}
+	
+	return children;
 }
 
 FSLayer *FSLayer::replaceChild(int row, FSLayer *child)

@@ -32,7 +32,9 @@ void FSBrushTool::cursorPressEvent(FSTabletEvent *event)
 
 void FSBrushTool::cursorMoveEvent(FSTabletEvent *event)
 {
+#ifdef QT_DEBUG
 	qDebug() << "tablet event x:" << event->data.pos.x << "y:" << event->data.pos.y << "pressure:" << event->data.pressure;
+#endif
 	
 	if (_stroker)
 	{
