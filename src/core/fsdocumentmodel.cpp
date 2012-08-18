@@ -573,10 +573,14 @@ bool FSDocumentModel::loadLayerRecursive(FSLayer *parent, FSZip *archive, QXmlSt
 	return true;
 }
 
-void FSDocumentModel::editLayer(const QModelIndex &index, FSLayerEdit *edit)
+void FSDocumentModel::editLayer(const QModelIndex &index, FSLayerEdit *edit, const QString &description)
 {
 	QMutexLocker locker(&_mutex);
-	_undoStack->push(new FSDocumentEditCommand(pathForIndex(index), edit, this));
+	
+	QUndoCommand *command = new FSDocumentEditCommand(pathForIndex(index), edit, this);
+	command->setText(description);
+	
+	_undoStack->push(command);
 }
 
 void FSDocumentModel::addLayers(QList<FSLayer *> layers, const QModelIndex &parent, int row, const QString &description)
@@ -741,7 +745,14 @@ QVariant FSDocumentModel::data(const QModelIndex &index, int role) const
 
 bool FSDocumentModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
+	return setData(index, value, role, QString());
+}
+
+bool FSDocumentModel::setData(const QModelIndex &index, const QVariant &value, int role, const QString &description)
+{
 	QMutexLocker locker(&_mutex);
+	
+	QString text = description;
 	
 	if (!index.isValid() )
 		return false;
@@ -750,6 +761,10 @@ bool FSDocumentModel::setData(const QModelIndex &index, const QVariant &value, i
 	case Qt::EditRole:
 	case Qt::DisplayRole:
 		role = FSGlobal::RoleName;
+		
+		if (description.isNull())
+			text = tr("Rename Layer");
+		
 		break;
 	default:
 		break;
@@ -761,8 +776,8 @@ bool FSDocumentModel::setData(const QModelIndex &index, const QVariant &value, i
 	if (role == FSGlobal::RoleName)
 		renameLayer(index, value.toString());
 	else
-		editLayer(index, new FSLayerPropertyEdit(value, role) );
-	
+		editLayer(index, new FSLayerPropertyEdit(value, role), text);
+	 
 	return true;
 }
 

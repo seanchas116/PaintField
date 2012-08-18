@@ -12,27 +12,25 @@ public:
 	FSStroker(MLSurface *surface, const FSBrushSetting *setting);
 	virtual ~FSStroker() {}
 	
-	QPointSet lastEditedKeys() const { return _lastEditedKeys; }
-	QPointSet totalEditedKeys() const { return _totalEditedKeys; }
-	
 	void moveTo(const FSTabletInputData &data);
 	void lineTo(const FSTabletInputData &data);
 	void end();
 	
+	QPointSet lastEditedKeys() const { return _lastEditedKeys; }
+	QPointSet totalEditedKeys() const { return _totalEditedKeys; }
+	
 	void clearLastEditedKeys() { _lastEditedKeys.clear(); }
 	
 	const FSBrushSetting *setting() const { return _setting; }
+	MLVec4F argb() const { return _argb; }
+	MLSurface *surface() { return _surface; }
 	
 protected:
-	
-	MLVec4F argb() const { return _argb; }
-	
-	MLSurface *surface() { return _surface; }
 	
 	virtual void drawFirst(const FSTabletInputData &data) = 0;
 	virtual void drawInterval(const MLPolygon &polygon, const FSTabletInputData &dataStart, const FSTabletInputData &dataEnd) = 0;
 	
-	void addEditedKeys(const QPointSet &keys) { _lastEditedKeys |= keys; }
+	void addEditedKeys(const QPointSet &keys);
 	
 private:
 	

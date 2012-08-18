@@ -16,70 +16,41 @@ void FSStroker::moveTo(const FSTabletInputData &data)
 	_argb = fsPaletteManager()->currentColor().toArgb();
 	_lastEditedKeys.clear();
 	
-	drawFirst(data);
-	
-	_count = 0;
+	_count = 1;
 	_dataEnd = data;
-	
-	_totalEditedKeys |= _lastEditedKeys;
 }
 
 void FSStroker::lineTo(const FSTabletInputData &data)
 {
 	_count++;
 	
-	if (_count == 1)
+	
+	if (_count == 4)
 	{
-		_dataStart = _dataEnd;
-		_dataEnd = data;
-		return;
-	}
-	else if (_count  == 2)
-	{
-		MLVec2D p1 = mlCartesianToPolar(_dataEnd.pos - _dataStart.pos);
-		MLVec2D p2 = mlCartesianToPolar(data.pos - _dataEnd.pos);
-		
-		_posPrevious = _dataStart.pos - mlPolarToCartesian(2*p1 - p2);
+		drawFirst(data);
 	}
 	
-	MLPolygon polygon = MLCurveSubdivision(MLCurve4::fromCatmullRom(_posPrevious, _dataStart.pos, _dataEnd.pos, data.pos)).polygon();
-	drawInterval(polygon, _dataStart, _dataEnd);
+	if (_count > 3)
+	{
+		MLPolygon polygon = MLCurveSubdivision(MLCurve4::fromCatmullRom(_posPrevious, _dataStart.pos, _dataEnd.pos, data.pos)).polygon();
+		drawInterval(polygon, _dataStart, _dataEnd);
+	}
 	
-	_posPrevious = _dataStart.pos;
+	if (_count > 2)
+		_posPrevious = _dataStart.pos;
+	
 	_dataStart = _dataEnd;
 	_dataEnd = data;
-	
-	_totalEditedKeys |= _lastEditedKeys;
 }
 
 void FSStroker::end()
 {
-	if (_count == 0)
-		return;
-	
-	if (_count == 1)
-	{
-		MLPolygon polygon(2);
-		polygon[0] = _dataStart.pos;
-		polygon[1] = _dataEnd.pos;
-		
-		drawInterval(polygon, _dataStart, _dataEnd);
-		
-		_totalEditedKeys |= _lastEditedKeys;
-		
-		return;
-	}
-	
-	MLVec2D posNext;
-	
-	MLVec2D p1 = mlCartesianToPolar(_dataEnd.pos - _dataStart.pos);
-	MLVec2D p2 = mlCartesianToPolar(_dataStart.pos - _posPrevious);
-	posNext = _dataEnd.pos + mlPolarToCartesian(2*p1 - p2);
-	
-	MLPolygon polygon = MLCurveSubdivision(MLCurve4::fromCatmullRom(_posPrevious, _dataStart.pos, _dataEnd.pos, posNext)).polygon();
-	drawInterval(polygon, _dataStart, _dataEnd);
-	
-	_totalEditedKeys |= _lastEditedKeys;
+}
+
+void FSStroker::addEditedKeys(const QPointSet &keys)
+{
+	_lastEditedKeys |= keys;
+	_totalEditedKeys |= keys;
 }
 
 MLPolygon mlTangentQuadrangle(double radius1, const MLVec2D &center1, double radius2, const MLVec2D &center2)
@@ -291,7 +262,7 @@ MLImage FSBrushStroker::drawDabImage(const FSTabletInputData &data, QRect *rect)
 	
 	_lastMinorRadius = radiusVec.y;
 	
-	qDebug() << "radius" << radiusVec.x << radiusVec.y;
+	//qDebug() << "radius" << radiusVec.x << radiusVec.y;
 	
 	QPainterPath ellipse;
 	ellipse.addEllipse(data.pos, radiusVec.x, radiusVec.y);

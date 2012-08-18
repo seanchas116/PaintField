@@ -35,14 +35,17 @@ protected:
 	
 	void beginStroke(const FSTabletInputData &data);
 	void drawStroke(const FSTabletInputData &data);
-	void endStroke();
+	void endStroke(const FSTabletInputData &data);
 	
 	void updateTiles();
 	
 private:
+	
+	void setPrevData(const FSTabletInputData &data);
+	
 	QScopedPointer<FSBrushStroker> _stroker;
-	FSTabletInputData _data;
-	bool _dataIsSet;
+	FSTabletInputData _dataPrev, _dataBeforePrev;
+	bool _dataPrevSet, _trailing;
 	const FSBrushSetting *_brushSetting;
 	const FSLayer *_layer;
 	MLSurface _surface;

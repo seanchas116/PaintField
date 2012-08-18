@@ -10,7 +10,8 @@
 
 FSBrushTool::FSBrushTool(FSCanvasView *parent) :
 	FSTool(parent),
-	_dataIsSet(false),
+	_dataPrevSet(false),
+	_trailing(false),
 	_brushSetting(0),
 	_layer(0)
 {}
@@ -26,98 +27,108 @@ void FSBrushTool::render(MLPainter *painter, const FSLayer *layer, const QPoint 
 
 void FSBrushTool::cursorPressEvent(FSTabletEvent *event)
 {
-	beginStroke(event->data);
 	event->accept();
 }
 
 void FSBrushTool::cursorMoveEvent(FSTabletEvent *event)
 {
-	drawStroke(event->data);
+	qDebug() << "tablet event x:" << event->data.pos.x << "y:" << event->data.pos.y << "pressure:" << event->data.pressure;
+	
+	if (_stroker)
+	{
+		if (_trailing)
+		{
+			_trailing = false;
+			endStroke(event->data);
+		}
+		else
+		{
+			drawStroke(event->data);
+			if (event->data.pressure == 0)
+				_trailing = true;
+		}
+	}
+	else if (event->data.pressure)
+	{
+		if (!_dataPrevSet)
+			setPrevData(event->data);
+		
+		beginStroke(event->data);
+	}
+	
+	setPrevData(event->data);
+	
 	event->accept();
 }
 
 void FSBrushTool::cursorReleaseEvent(FSTabletEvent *event)
 {
-	endStroke();
 	event->accept();
 }
 
 void FSBrushTool::beginStroke(const FSTabletInputData &data)
 {
-	if (_layer)
-		return;
+	FSScopedTimer timer(Q_FUNC_INFO);
 	
 	_layer = currentLayer();
-	if (_layer->type() != FSLayer::TypeRaster) {
-		_layer = 0;
+	if (_layer->type() != FSLayer::TypeRaster)
+	{
 		return;
 	}
-	
-#ifdef QT_DEBUG
-	qDebug() << "brush stroke start";
-#endif
 	
 	_surface = _layer->surface();
 	_stroker.reset(new FSBrushStroker(&_surface, _brushSetting));
 	
 	setDelegatesRender(true);
 	
-	if (_dataIsSet)
-	{
-		_stroker->moveTo(_data);
-		updateTiles();
-		drawStroke(data);
-	}
-	else
-	{
-		_stroker->moveTo(data);
-		updateTiles();
-	}
+	_stroker->moveTo(_dataBeforePrev);
+	_stroker->lineTo(_dataPrev);
+	_stroker->lineTo(data);
 }
 
 void FSBrushTool::drawStroke(const FSTabletInputData &data)
 {
-	if (!_layer)
-	{
-		_data = data;
-		_dataIsSet = true;
-		return;
-	}
-	
-#ifdef QT_DEBUG
-	qDebug() << "brush stroke to" << (QPointF)data.pos;
-#endif
+	FSScopedTimer timer(Q_FUNC_INFO);
 	
 	_stroker->lineTo(data);
 	updateTiles();
 }
 
-void FSBrushTool::endStroke()
+void FSBrushTool::endStroke(const FSTabletInputData &data)
 {
-	if (!_layer)
-		return;
+	FSScopedTimer timer(Q_FUNC_INFO);
 	
+	_stroker->lineTo(data);
 	_stroker->end();
 	updateTiles();
 	
 	setDelegatesRender(false);
 	
-#ifdef QT_DEBUG
-	qDebug() << "brush stroke end";
-#endif
-	
-	FSLayerSurfaceEdit *edit = new FSLayerSurfaceEdit(_surface, _stroker->totalEditedKeys());
-	
-	documentModel()->editLayer(documentModel()->indexForLayer(_layer), edit);
+	//documentModel()->setData(documentModel()->indexForLayer(_layer), QVariant::fromValue(_surface), FSGlobal::RoleSurface, tr("Brush"));
+	documentModel()->editLayer(documentModel()->indexForLayer(_layer), new FSLayerSurfaceEdit(_surface, _stroker->totalEditedKeys()), tr("Brush"));
 	
 	_stroker.reset();
-	_layer = 0;
 }
 
 void FSBrushTool::updateTiles()
 {
 	canvas()->updateView(_stroker->lastEditedKeys());
 	_stroker->clearLastEditedKeys();
+}
+
+void FSBrushTool::setPrevData(const FSTabletInputData &data)
+{
+	if (_dataPrevSet)
+	{
+		_dataBeforePrev = _dataPrev;
+		_dataPrev = data;
+	}
+	else
+	{
+		_dataBeforePrev = data;
+		_dataPrev = data;
+		_dataPrevSet = true;
+	}
 }
 
 FSBrushToolFactory::FSBrushToolFactory(QObject *parent) :

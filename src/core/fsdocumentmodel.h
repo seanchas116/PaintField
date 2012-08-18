@@ -62,7 +62,7 @@ public:
 	bool canRedo() const { return _undoStack->canRedo(); }
 	bool canUndo() const { return _undoStack->canUndo(); }
 	
-	void editLayer(const QModelIndex &index, FSLayerEdit *edit);
+	void editLayer(const QModelIndex &index, FSLayerEdit *edit, const QString &description);
 	void addLayer(FSLayer *layer, const QModelIndex &parent, int row, const QString &description) {
 		QList<FSLayer *> layers;
 		layers << layer;
@@ -76,6 +76,7 @@ public:
 	void renameLayer(const QModelIndex &index, const QString &newName);
 	
 	QVariant data(const QModelIndex &index, int role) const;
+	bool setData(const QModelIndex &index, const QVariant &value, int role, const QString &description);
 	bool setData(const QModelIndex &index, const QVariant &value, int role);
 	Qt::ItemFlags flags(const QModelIndex &index) const;
 	QModelIndex index(int row, int column, const QModelIndex &parent) const;

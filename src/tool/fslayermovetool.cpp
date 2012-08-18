@@ -80,7 +80,7 @@ void FSLayerMoveTool::cursorReleaseEvent(FSTabletEvent *event)
 		_layerIsDragged = false;
 		setDelegatesRender(false);
 		_offset = event->data.pos.toQPoint() - _dragStartPoint;
-		documentModel()->editLayer(currentLayerIndex(), new FSLayerMoveEdit(_offset));
+		documentModel()->editLayer(currentLayerIndex(), new FSLayerMoveEdit(_offset), tr("Layer Move"));
 	}
 }
 
