@@ -101,7 +101,8 @@ SOURCES += \
     src/tool/fsbrushsetting.cpp \
     src/gui/fsaction.cpp \
     src/core/fslayerrenderer.cpp \
-    src/gui/fslayertreeview.cpp
+    src/gui/fslayertreeview.cpp \
+    src/gui/fsundoredoaction.cpp
 
 HEADERS += \
     src/core/fszip.h \
@@ -144,4 +145,5 @@ HEADERS += \
     src/gui/fsaction.h \
     src/core/fslayerrenderer.h \
     src/core/fsscopedtimer.h \
-    src/gui/fslayertreeview.h
+    src/gui/fslayertreeview.h \
+    src/gui/fsundoredoaction.h

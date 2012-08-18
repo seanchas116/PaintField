@@ -79,6 +79,7 @@ public:
 	bool setData(const QModelIndex &index, const QVariant &value, int role);
 	Qt::ItemFlags flags(const QModelIndex &index) const;
 	QModelIndex index(int row, int column, const QModelIndex &parent) const;
+	QModelIndex index(int row, const QModelIndex &parent) const { return index(row, 0, parent); }
 	QModelIndex parent(const QModelIndex &child) const;
 	int rowCount(const QModelIndex &parent) const;
 	int columnCount(const QModelIndex &/*parent*/) const
@@ -102,6 +103,8 @@ public:
 	
 	QItemSelectionModel *selectionModel() const { return _selectionModel; }
 	QModelIndex currentIndex() const { return _selectionModel->currentIndex(); }
+	
+	QUndoStack *undoStack() { return _undoStack; }
 	
 	/**
 	  Returns the document's mutex.

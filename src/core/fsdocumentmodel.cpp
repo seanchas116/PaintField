@@ -185,11 +185,13 @@ void FSDocumentRemoveCommand::undo()
 	parentPath.removeLast();
 	FSLayer *parent = layerForPath(parentPath);
 	
+	FSLayer *layer = _layer.take();
+	
 	beginInsertLayers(parent, _row, _row);
-	parent->insertChild(_row, _layer.take());
+	parent->insertChild(_row, layer);
 	endInsertLayers();
 	
-	queueTileUpdate(_layer->tileKeysRecursive());
+	queueTileUpdate(layer->tileKeysRecursive());
 }
 
 
@@ -326,14 +328,16 @@ FSDocumentModel::FSDocumentModel(const QString &tempName, const QSize &size, QOb
 {
 	_tileKeys = MLSurface::keysForRect(QRect(QPoint(), size));
 	
-	_rootLayer->insertChild(0, new FSRasterLayer(tr("Untitled")));
-	_rootLayer->updateThumbnailRecursive(size);
-	
 	connect(_undoStack, SIGNAL(redoTextChanged(QString)), this, SIGNAL(redoTextChangdd(QString)));
 	connect(_undoStack, SIGNAL(undoTextChanged(QString)), this, SIGNAL(undoTextChanged(QString)));
 	connect(_undoStack, SIGNAL(indexChanged(int)), this, SLOT(undoStackIndexChanged(int)));
 	connect(_selectionModel, SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SIGNAL(currentIndexChanged(QModelIndex,QModelIndex)));
 	connect(this, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SIGNAL(layerMetadataChanged(QModelIndex)));
+	
+	_rootLayer->insertChild(0, new FSRasterLayer(tr("Untitled")));
+	_rootLayer->updateThumbnailRecursive(size);
+	
+	_selectionModel->setCurrentIndex(index(0, QModelIndex()), QItemSelectionModel::Current);
 }
 
 FSDocumentModel *FSDocumentModel:: open(const QString &filePath, QObject *parent)

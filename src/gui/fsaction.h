@@ -4,12 +4,33 @@
 #include <QAction>
 #include "fscanvasview.h"
 
+class FSAction : public QAction
+{
+	Q_OBJECT
+	
+public:
+	
+	FSAction(QObject *parent) : QAction(parent), _associatedAction(0) {}
+	
+protected:
+	
+	void associateAction(QAction *action);
+	
+private slots:
+	
+	void onAssociatedActionChanged();
+	
+private:
+	
+	QAction *_associatedAction;
+};
+
 /**
   The FSCanvasViewAction class provides representation of actions which performs on a canvas view / document.
   In the default implementation, a FSCanvasViewAction will disable itself when no view is opened.
   Reimplement notifyViewChanged() if you want to customize this operation.
 */
-class FSCanvasViewAction : public QAction
+class FSCanvasViewAction : public FSAction
 {
 	Q_OBJECT
 	
@@ -23,7 +44,7 @@ protected slots:
 	  This slot is called when the current view is changed.
 	  When all view is closed, it is called with view = 0.
 	*/
-	virtual void notifyViewChanged(FSCanvasView *view);
+	virtual void onViewChanged(FSCanvasView *view);
 };
 
 /**
@@ -49,19 +70,19 @@ protected:
 	
 protected slots:
 	
-	void notifyViewChanged(FSCanvasView *view);
+	void onViewChanged(FSCanvasView *view);
 	
 	/**
 	  This slot is called when the current layer is changed.
 	  When no document is open, this slot is called with index = QModelIndex() (an invalid index).
 	*/
-	virtual void notifyCurrentLayerChanged(const QModelIndex &index);
+	virtual void onCurrentLayerChanged(const QModelIndex &index);
 	
 	/**
 	  This slot is called when the layer selection is changed.
 	  When no document is open, this slot is called with index = QItemSelection() (an empty selection).
 	*/
-	virtual void notifyLayerSelectionChanged(const QItemSelection &selection) { Q_UNUSED(selection); }
+	virtual void onLayerSelectionChanged(const QItemSelection &selection) { Q_UNUSED(selection); }
 	
 private:
 	
@@ -74,7 +95,7 @@ private:
   Then it associates itself with that action found in the widget.
   If no action that has the same name is found, it will be disabled automatically.
 */
-class FSEditAction : public QAction
+class FSEditAction : public FSAction
 {
 	Q_OBJECT
 	
@@ -84,18 +105,9 @@ public:
 	
 protected slots:
 	
-	virtual void notifyFocusWidgetChanged(QWidget *widget);
-	
-private slots:
-	
-	void actionChanged();
+	virtual void onFocusWidgetChanged(QWidget *widget);
 	
 private:
-	
-	void connectAction(QAction *action);
-	void disconnectAction();
-	
-	QAction *_action;
 };
 
 #endif // FSACTION_H

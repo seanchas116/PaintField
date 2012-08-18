@@ -6,6 +6,7 @@
 #include "fslayertreepanel.h"
 #include "fscolorpanel.h"
 #include "fsaction.h"
+#include "fsundoredoaction.h"
 
 #include "fsguimain.h"
 
@@ -29,8 +30,8 @@ FSGuiMain::FSGuiMain(QObject *parent) :
 	_actionManager->addAction(new FSCanvasViewAction(_actionManager), "closeFile", tr("Close File"), QKeySequence("Ctrl+W"));
 	_actionManager->addAction(new QAction(_actionManager), "quit", "Quit", QKeySequence("Ctrl+Q"));
 	
-	_actionManager->addAction(new FSCanvasViewAction(_actionManager), "undo", tr("Undo"), QKeySequence("Ctrl+Z"));
-	_actionManager->addAction(new FSCanvasViewAction(_actionManager), "redo", tr("Redo"), QKeySequence("Ctrl+Shift+Z"));
+	_actionManager->addAction(new FSUndoAction(_actionManager), "undo", tr("Undo"), QKeySequence("Ctrl+Z"));
+	_actionManager->addAction(new FSRedoAction(_actionManager), "redo", tr("Redo"), QKeySequence("Ctrl+Shift+Z"));
 	
 	_actionManager->addAction(new FSEditAction(_actionManager), "cut", tr("Cut"), QKeySequence("Ctrl+X"));
 	_actionManager->addAction(new FSEditAction(_actionManager), "copy", tr("Copy"), QKeySequence("Ctrl+C"));
@@ -80,6 +81,9 @@ FSGuiMain::FSGuiMain(QObject *parent) :
 	fileMenu->addSeparator();
 	fileMenu->addAction(action("quit"));
 	
+	editMenu->addAction(action("undo"));
+	editMenu->addAction(action("redo"));
+	editMenu->addSeparator();
 	editMenu->addAction(action("cut"));
 	editMenu->addAction(action("copy"));
 	editMenu->addAction(action("paste"));
