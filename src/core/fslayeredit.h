@@ -48,13 +48,11 @@ class FSLayerSurfaceEdit : public FSLayerEdit
 {
 public:
 	FSLayerSurfaceEdit(const MLSurface &surface, const QPointSet &tileKeys);
-	void saveUndoState(const FSLayer *layer);
 	void redo(FSLayer *layer);
 	void undo(FSLayer *layer);
 	
 private:
 	MLSurface _surface;
-	MLSurface _oldSurface;
 };
 
 #endif // FSLAYEREDIT_H

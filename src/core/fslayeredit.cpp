@@ -40,33 +40,23 @@ FSLayerSurfaceEdit::FSLayerSurfaceEdit(const MLSurface &surface, const QPointSet
 	setModifiedKeys(tileKeys);
 }
 
-void FSLayerSurfaceEdit::saveUndoState(const FSLayer *layer)
-{
-	if (layer->type() != FSLayer::TypeRaster) {
-		qFatal("FSLayerSurfaceEdit::saveUndoState: layer is not raster");
-	}
-	_oldSurface = layer->surface().section(modifiedKeys());
-}
-
 void FSLayerSurfaceEdit::redo(FSLayer *layer)
 {
 	FSRasterLayer *rasterLayer = dynamic_cast<FSRasterLayer *>(layer);
 	Q_ASSERT(rasterLayer);
-	MLSurface surface = rasterLayer->surface();
 	
-	MLSurfaceEditor editor(&surface);
-	editor.replace(_surface, modifiedKeys());
-	rasterLayer->setSurface(surface);
+	MLSurface surface = rasterLayer->surface();
+	rasterLayer->setSurface(_surface);
+	_surface = surface;
 }
 
 void FSLayerSurfaceEdit::undo(FSLayer *layer)
 {
 	FSRasterLayer *rasterLayer = dynamic_cast<FSRasterLayer *>(layer);
 	Q_ASSERT(rasterLayer);
-	MLSurface surface = rasterLayer->surface();
 	
-	MLSurfaceEditor editor(&surface);
-	editor.replace(_oldSurface, modifiedKeys());
-	rasterLayer->setSurface(surface);
+	MLSurface surface = rasterLayer->surface();
+	rasterLayer->setSurface(_surface);
+	_surface = surface;
 }
 
