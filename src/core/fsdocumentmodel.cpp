@@ -7,6 +7,7 @@
 #include "mlblendmode.h"
 #include "mlsurfacepainter.h"
 #include "fsdocumentcommand.h"
+#include "fslayerrenderer.h"
 
 #include "fsdocumentmodel.h"
 
@@ -606,6 +607,12 @@ FSLayerPath FSDocumentModel::pathForLayer(const FSLayer *layer) const
 		layer = layer->parent();
 	}
 	return path;
+}
+
+void FSDocumentModel::render(MLPainter *painter)
+{
+	FSLayerRenderer renderer;
+	renderer.renderMultiple(painter, rootLayer(), tileKeys());
 }
 
 void FSDocumentModel::setModified(bool modified)

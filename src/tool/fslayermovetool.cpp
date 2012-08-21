@@ -1,6 +1,7 @@
 #include "fstabletevent.h"
 #include "fsrasterlayer.h"
 #include "fslayermovetool.h"
+#include "fssimplebutton.h"
 #include "mlintdivision.h"
 
 void FSLayerMoveEdit::redo(FSLayer *layer)
@@ -89,6 +90,7 @@ FSLayerMoveToolFactory::FSLayerMoveToolFactory(QObject *parent) :
 {
 	setToolName("layerMove");
 	setText(tr("Move Layer"));
+	setIcon(fsCreateSimpleIconSet(":/icons/32x32/move.svg"));
 }
 
 bool FSLayerMoveToolFactory::isTypeSupported(FSLayer::Type type) const

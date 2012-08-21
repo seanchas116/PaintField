@@ -14,5 +14,7 @@
         <file>icons/24x24/move.svg</file>
         <file>icons/24x24/selectEllipse.svg</file>
         <file>icons/24x24/selectRect.svg</file>
+        <file>icons/32x32/brush.svg</file>
+        <file>icons/32x32/move.svg</file>
     </qresource>
 </RCC>

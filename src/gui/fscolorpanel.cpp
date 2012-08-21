@@ -5,8 +5,16 @@
 #include "fscolorwheel.h"
 #include "fsdoubleedit.h"
 #include "fssimplebutton.h"
+#include "fswidgetgroup.h"
 
 #include "fscolorpanel.h"
+
+
+inline void fsConnectMutual(QObject *object1, const char *signal, QObject *object2, const char *slot)
+{
+	QObject::connect(object1, signal, object2, slot);
+	QObject::connect(object2, signal, object1, slot);
+}
 
 FSColorSliderPanel::FSColorSliderPanel(QWidget *parent) :
 	QWidget(parent)
@@ -21,25 +29,17 @@ FSColorSliderPanel::FSColorSliderPanel(QWidget *parent) :
 	
 	_lineEdits.at(3)->setUnit(0.1);
 	
-	_sliders << new FSColorSlider(MLColor::Red);
-	_sliders << new FSColorSlider(MLColor::Green);
-	_sliders << new FSColorSlider(MLColor::Blue);
-	_sliders << new FSColorSlider(MLColor::Hue);
-	_sliders << new FSColorSlider(MLColor::Saturation);
-	_sliders << new FSColorSlider(MLColor::Value);
-	
-	foreach (FSColorSlider *slider, _sliders)
-	{
-		slider->setStepCount(1000);
-	}
-	_sliders.at(3)->setStepCount(3600);
+	_sliders << new FSColorSlider(MLColor::Red, 1000);
+	_sliders << new FSColorSlider(MLColor::Green, 1000);
+	_sliders << new FSColorSlider(MLColor::Blue, 10000);
+	_sliders << new FSColorSlider(MLColor::Hue, 3600);
+	_sliders << new FSColorSlider(MLColor::Saturation, 1000);
+	_sliders << new FSColorSlider(MLColor::Value, 1000);
 	
 	for (int i = 0; i < 6; ++i)
 	{
-		connect(_sliders.at(i), SIGNAL(colorChanged(MLColor)), this, SLOT(setColor(MLColor)));
-		connect(this, SIGNAL(colorChanged(MLColor)), _sliders.at(i), SLOT(setColor(MLColor)));
-		connect(_sliders.at(i), SIGNAL(valueChanged(double)), _lineEdits.at(i), SLOT(setValue(double)));
-		connect(_lineEdits.at(i), SIGNAL(valueChanged(double)), _sliders.at(i), SLOT(setValue(double)));
+		fsConnectMutual(_sliders.at(i), SIGNAL(colorChanged(MLColor)), this, SLOT(setColor(MLColor)));
+		fsConnectMutual(_sliders.at(i), SIGNAL(valueChanged(double)), _lineEdits.at(i), SLOT(setValue(double)));
 	}
 	
 	_labels << new QLabel("R");
@@ -53,10 +53,10 @@ FSColorSliderPanel::FSColorSliderPanel(QWidget *parent) :
 	_comboBox->addItem(tr("RGB"));
 	_comboBox->addItem(tr("HSV"));
 	
-	connect(_comboBox, SIGNAL(activated(int)), this, SLOT(notifyComboBoxActivated(int)));
+	connect(_comboBox, SIGNAL(activated(int)), this, SLOT(onComboBoxActivated(int)));
 	
 	_comboBox->setCurrentIndex(0);
-	notifyComboBoxActivated(0);
+	onComboBoxActivated(0);
 	
 	_comboBoxLayout = new QHBoxLayout();
 	_comboBoxLayout->addWidget(_comboBox);
@@ -93,28 +93,26 @@ void FSColorSliderPanel::setColor(const MLColor &color)
 	emit colorChanged(color);
 }
 
-void FSColorSliderPanel::notifyComboBoxActivated(int index)
+void FSColorSliderPanel::onComboBoxActivated(int index)
 {
 	switch (index)
 	{
 	case 0:
-		
-		for (int i = 0; i < 3; ++i)
-		{
-			_labels.at(i)->setVisible(true);
-			_sliders.at(i)->setVisible(true);
-			_lineEdits.at(i)->setVisible(true);
-		}
 		for (int i = 3; i < 6; ++i)
 		{
 			_labels.at(i)->setVisible(false);
 			_sliders.at(i)->setVisible(false);
 			_lineEdits.at(i)->setVisible(false);
 		}
+		for (int i = 0; i < 3; ++i)
+		{
+			_labels.at(i)->setVisible(true);
+			_sliders.at(i)->setVisible(true);
+			_lineEdits.at(i)->setVisible(true);
+		}
 		
 		break;
 	case 1:
-		
 		for (int i = 0; i < 3; ++i)
 		{
 			_labels.at(i)->setVisible(false);
@@ -130,7 +128,7 @@ void FSColorSliderPanel::notifyComboBoxActivated(int index)
 		
 		break;
 	default:
-		break;
+			break;
 	}
 }
 
@@ -147,7 +145,7 @@ FSWebColorPanel::FSWebColorPanel(QWidget *parent) :
 	
 	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
 	
-	connect(_lineEdit, SIGNAL(editingFinished()), this, SLOT(notifyLineEditEditingFinished()));
+	connect(_lineEdit, SIGNAL(editingFinished()), this, SLOT(onLineEditEditingFinished()));
 }
 
 void FSWebColorPanel::setColor(const MLColor &color)
@@ -161,16 +159,23 @@ void FSWebColorPanel::setColor(const MLColor &color)
 	emit colorChanged(color);
 }
 
-void FSWebColorPanel::notifyLineEditEditingFinished()
+void FSWebColorPanel::onLineEditEditingFinished()
 {
 	bool ok;
 	MLColor newColor = MLColor::fromWebColor(_lineEdit->text(), &ok);
+	
 	if (ok)
+	{
 		setColor(newColor);
+	}
+	else
+	{
+		_lineEdit->setText(color().toWebColor());
+	}
 }
 
 FSColorPanel::FSColorPanel(QWidget *parent) :
-	FSPanel(parent)
+	QWidget(parent)
 {
 	setWindowTitle(tr("Color"));
 	
@@ -183,9 +188,6 @@ FSColorPanel::FSColorPanel(QWidget *parent) :
 	_sliderButton = new FSSimpleButton(":/icons/24x24/colorSlider.svg");
 	_webButton = new FSSimpleButton(":/icons/24x24/webColor.svg");
 	_dialogButton = new FSSimpleButton(":/icons/24x24/colorDialog.svg");
-	//_wheelButton = new FSSimpleButton(":/icons/24x24/colorWheel.svg", ":/icons/24x24/colorWheelOn.svg", ":/icons/24x24/colorWheelActive.svg", ":/icons/24x24/colorWheelActiveOn.svg");
-	//_sliderButton = new FSSimpleButton(":/icons/24x24/colorSlider.svg", ":/icons/24x24/colorSliderOn.svg", ":/icons/24x24/colorSliderActive.svg", ":/icons/24x24/colorSliderActiveOn.svg");
-	//_webButton = new FSSimpleButton(":/icons/24x24/webColor.svg", ":/icons/24x24/webColorOn.svg", ":/icons/24x24/webColorActive.svg", ":/icons/24x24/webColorActiveOn.svg");
 	
 	_wheelButton->setCheckable(true);
 	_sliderButton->setCheckable(true);
@@ -221,7 +223,7 @@ FSColorPanel::FSColorPanel(QWidget *parent) :
 		_colorButtons << button;
 		_colorButtonLayout->addWidget(button);
 		_colorButtonGroup->addButton(button);
-		connect(button, SIGNAL(pressed()), this, SLOT(notifyColorButtonPressed()));
+		connect(button, SIGNAL(pressed()), this, SLOT(onColorButtonPressed()));
 	}
 	_colorButtonLayout->addStretch(1);
 	
@@ -281,7 +283,7 @@ FSColorPanel::FSColorPanel(QWidget *parent) :
 	_sliderPanel->setVisible(_sliderButton->isChecked());
 	_webColorPanel->setVisible(_webButton->isChecked());
 	
-	fsApplyMacSmallSize(this);
+	//fsApplyMacSmallSize(this);
 	
 	resize(0, 0);
 }
@@ -299,7 +301,7 @@ void FSColorPanel::setCurrentIndex(int index)
 	_colorButtons.at(index)->setChecked(true);
 }
 
-void FSColorPanel::notifyColorButtonPressed()
+void FSColorPanel::onColorButtonPressed()
 {
 	int index = _colorButtons.indexOf(reinterpret_cast<FSColorButton *>(sender()));
 	if (index >= 0)

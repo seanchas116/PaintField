@@ -19,7 +19,7 @@ class QVBoxLayout;
 class QMenu;
 class QItemSelection;
 
-class FSLayerTreePanel : public FSPanel
+class FSLayerTreePanel : public QWidget
 {
 	Q_OBJECT
 	
@@ -30,7 +30,8 @@ public:
 	
 public slots:
 	
-	void documentChanged(FSDocumentModel *document);
+	void onDocumentChanged(FSDocumentModel *document);
+	void onDocumentDeleted();
 	
 	void addImage();
 	void newLayer() { newLayerItem(FSLayer::TypeRaster); }

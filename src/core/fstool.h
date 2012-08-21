@@ -97,6 +97,7 @@ public:
 	explicit FSToolFactory(QObject *parent = 0) : QObject(parent) {}
 	
 	virtual FSTool *createTool(FSCanvasView *view) = 0;
+	virtual QWidget *createSettingWidget() { return 0; }
 	virtual bool isTypeSupported(FSLayer::Type type) const = 0;
 	
 	void setToolName(const QString &name) { _name = name; }

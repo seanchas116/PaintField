@@ -73,6 +73,8 @@ protected slots:
 	
 	void onViewChanged(FSCanvasView *view);
 	
+	void onViewDeleted();
+	
 	/**
 	  This slot is called when the current layer is changed.
 	  When no document is open, this slot is called with index = QModelIndex() (an invalid index).

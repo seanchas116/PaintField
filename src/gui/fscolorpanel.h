@@ -17,6 +17,7 @@ class QLineEdit;
 class QComboBox;
 class QGridLayout;
 class QLabel;
+class FSWidgetGroup;
 
 class FSColorSliderPanel : public QWidget
 {
@@ -33,12 +34,16 @@ signals:
 	void colorChanged(const MLColor &color);
 	
 private slots:
-	void notifyComboBoxActivated(int index);
+	void onComboBoxActivated(int index);
 	
 private:
+	
 	QGridLayout *_layout;
 	QHBoxLayout *_comboBoxLayout;
 	QComboBox *_comboBox;
+	
+	FSWidgetGroup *_groupRgb, *_groupRgb8, *_groupHsv;
+	
 	QList<QLabel *> _labels;
 	QList<FSColorSlider *> _sliders;
 	QList<FSDoubleEdit *> _lineEdits;
@@ -61,7 +66,7 @@ signals:
 	void colorChanged(const MLColor &color);
 	
 private slots:
-	void notifyLineEditEditingFinished();
+	void onLineEditEditingFinished();
 	
 private:
 	QFormLayout *_layout;
@@ -70,7 +75,7 @@ private:
 	MLColor _color;
 };
 
-class FSColorPanel : public FSPanel
+class FSColorPanel : public QWidget
 {
 	Q_OBJECT
 public:
@@ -83,7 +88,7 @@ public slots:
 	void setCurrentIndex(int index);
 	
 private slots:
-	void notifyColorButtonPressed();
+	void onColorButtonPressed();
 	
 private:
 	QVBoxLayout *_mainLayout;

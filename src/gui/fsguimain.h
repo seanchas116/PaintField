@@ -2,13 +2,11 @@
 #define FSGUIMAIN_H
 
 #include <QObject>
-#include "fsmainpanel.h"
 #include "fsactionmanager.h"
 #include "fscanvasview.h"
 
 class QMenuBar;
-class FSEditActionHandler;
-
+class FSPanel;
 
 class FSGuiMain : public QObject
 {
@@ -16,10 +14,8 @@ class FSGuiMain : public QObject
 public:
 	explicit FSGuiMain(QObject *parent = 0);
 	
-	FSMainPanel *mainPanel() { return _mainPanel; }
-	
 	void addPanel(QWidget *panel);
-	QWidgetList panels();
+	QList<FSPanel *> panels();
 	
 	void addCanvasView(FSCanvasView *view);
 	FSCanvasView *currentView() { return _currentView; }
@@ -48,6 +44,7 @@ private slots:
 	void saveFile();
 	void saveAsFile();
 	void closeFile();
+	void exportFile();
 	
 	void minimizeCurrentWindow();
 	void zoomCurrentWindow();
@@ -59,18 +56,13 @@ private slots:
 	
 private:
 	
-	FSMainPanel *_mainPanel;
-	QWidgetList _panels;
+	QList<FSPanel *> _panels;
 	
 	QList<FSCanvasView *> _views;
 	FSCanvasView *_currentView;
 	
 	QMenuBar *_mainMenu;
 	FSActionManager *_actionManager;
-	
-	QStringList _editActionNames;
-	QHash<QWidget *, FSEditActionHandler *> _editActionHandlerHash;
-	FSEditActionHandler *_currentEditActionHandler;
 	
 	static FSGuiMain *_instance;
 };

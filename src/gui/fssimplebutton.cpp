@@ -24,20 +24,21 @@ QIcon fsCreateSimpleIconSet(const QPixmap &basePixmap)
 	}
 	
 	QPixmap pixmapOff = basePixmap;
-	QPixmap pixmapActiveOff = basePixmap;
+	//QPixmap pixmapActiveOff = basePixmap;
 	QPixmap pixmapOn = basePixmap;
-	QPixmap pixmapActiveOn = basePixmap;
+	//QPixmap pixmapActiveOn = basePixmap;
 	
 	fsPaintPixmapWithColor(&pixmapOff, QColor(102, 102, 102));
-	fsPaintPixmapWithColor(&pixmapActiveOff, QColor(77, 77, 77));
+	//fsPaintPixmapWithColor(&pixmapActiveOff, QColor(77, 77, 77));
 	fsPaintPixmapWithColor(&pixmapOn, QColor(39, 96, 209));
-	fsPaintPixmapWithColor(&pixmapActiveOn, QColor(35, 84, 184));
+	//fsPaintPixmapWithColor(&pixmapOn, QColor(255, 60, 60));
+	//fsPaintPixmapWithColor(&pixmapActiveOn, QColor(35, 84, 184));
 	
 	QIcon icon;
 	icon.addPixmap(pixmapOff, QIcon::Normal, QIcon::Off);
-	icon.addPixmap(pixmapActiveOff, QIcon::Active, QIcon::Off);
+	//icon.addPixmap(pixmapActiveOff, QIcon::Active, QIcon::Off);
 	icon.addPixmap(pixmapOn, QIcon::Normal, QIcon::On);
-	icon.addPixmap(pixmapActiveOn, QIcon::Active, QIcon::On);
+	//icon.addPixmap(pixmapActiveOn, QIcon::Active, QIcon::On);
 	
 	return icon;
 }

@@ -59,6 +59,8 @@ void FSLayerAction::onViewChanged(FSCanvasView *view)
 	_view = view;
 	if (_view)
 	{
+		connect(_view, SIGNAL(destroyed()), this, SLOT(onViewDeleted()));
+		
 		connect(documentModel(), SIGNAL(currentIndexChanged(QModelIndex,QModelIndex)), this, SLOT(onCurrentLayerChanged(QModelIndex)));
 		onCurrentLayerChanged(documentModel()->currentIndex());
 		connect(documentModel()->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(onLayerSelectionChanged(QItemSelection)));
@@ -69,6 +71,11 @@ void FSLayerAction::onViewChanged(FSCanvasView *view)
 		onCurrentLayerChanged(QModelIndex());
 		onLayerSelectionChanged(QItemSelection());
 	}
+}
+
+void FSLayerAction::onViewDeleted()
+{
+	_view = 0;
 }
 
 void FSLayerAction::onCurrentLayerChanged(const QModelIndex &index)

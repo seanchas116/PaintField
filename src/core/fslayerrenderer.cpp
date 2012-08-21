@@ -43,7 +43,7 @@ void FSLayerRenderer::renderRecursive(MLPainter *painter, const FSLayer *parent,
 					src = layer->surface().tileForKey(tileKey);
 				}
 				
-				painter->drawImage(0, 0, src);
+				painter->drawImage(_pos, src);
 			}
 		}
 	}

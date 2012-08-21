@@ -2,7 +2,9 @@
 #include "fscore.h"
 #include "fstabletevent.h"
 #include "fsnewdocumentdialog.h"
+#include "fsexportdialog.h"
 #include "fsrasterlayer.h"
+#include "mlimageio.h"
 
 #include "fscanvasview.h"
 
@@ -240,7 +242,7 @@ FSCanvasView *FSCanvasView::openFile()
 	QString filePath = QFileDialog::getOpenFileName(0,
 	                                                QObject::tr("Open"),
 	                                                QDir::homePath(),
-	                                                QObject::tr("PixBrush File (*.pbi)"));
+	                                                QObject::tr("PaintField Project (*.pfproj)"));
 	if (filePath.isEmpty())	// cancelled
 		return 0;
 	FSDocumentModel *document = FSDocumentModel::open(filePath);
@@ -305,9 +307,9 @@ bool FSCanvasView::saveFile()
 bool FSCanvasView::saveAsFile()
 {
 	QString filePath = QFileDialog::getSaveFileName(0,
-	                                                QObject::tr("Save As"),
+	                                                tr("Save As"),
 	                                                QDir::homePath(),
-	                                                QObject::tr("PixBrush File (*.pbi)"));
+	                                                tr("PaintField Project (*.pfproj)"));
 	if (filePath.isEmpty())
 		return false;
 	
@@ -332,5 +334,28 @@ bool FSCanvasView::saveAsFile()
 		return false;
 	}
 	return true;
+}
+
+bool FSCanvasView::exportFile()
+{
+	FSExportDialog dialog;
+	if (dialog.exec() != QDialog::Accepted)
+		return false;
+	
+	QString filePath = QFileDialog::getSaveFileName(0,
+	                                                QObject::tr("Export"),
+	                                                QDir::homePath(),
+	                                                dialog.currentText());
+	if (filePath.isEmpty())
+		return false;
+	
+	MLImage image(documentModel()->size());
+	image.fill(MLColor::white().toArgb());
+	MLPainter painter(&image);
+	documentModel()->render(&painter);
+	painter.end();
+	
+	MLImageExporter exporter(image, dialog.currentFormat());
+	return exporter.save(filePath, dialog.currentQuality());
 }
 

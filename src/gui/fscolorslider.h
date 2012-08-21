@@ -15,7 +15,7 @@ public:
 	};
 	
 	explicit FSColorSlider(QWidget *parent = 0);
-	FSColorSlider(MLColor::Component component, QWidget *parent = 0);
+	FSColorSlider(MLColor::Component component, int stepCount, QWidget *parent = 0);
 	
 	QSize sizeHint() const;
 	

@@ -17,6 +17,7 @@ class FSLayerEdit;
 class FSDocumentCommand;
 class FSZip;
 class FSSurfacePainter;
+class MLPainter;
 
 
 class FSDocumentRootLayer : public FSLayer
@@ -110,6 +111,8 @@ public:
 	QModelIndex currentIndex() const { return _selectionModel->currentIndex(); }
 	
 	QUndoStack *undoStack() { return _undoStack; }
+	
+	void render(MLPainter *painter);
 	
 signals:
 	

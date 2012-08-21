@@ -14,11 +14,11 @@ FSColorSlider::FSColorSlider(QWidget *parent) :
 	init();
 }
 
-FSColorSlider::FSColorSlider(MLColor::Component component, QWidget *parent) :
+FSColorSlider::FSColorSlider(MLColor::Component component, int stepCount, QWidget *parent) :
 	QWidget(parent),
 	_color(MLColor::white()),
 	_component(component),
-	_stepCount(100),
+	_stepCount(stepCount),
 	_mouseTracked(false)
 {
 	init();

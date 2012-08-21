@@ -52,7 +52,9 @@ CONFIG(debug, debug|release) {
 }
 
 FORMS    += \
-    src/dialog/fsnewdocumentdialog.ui
+    src/dialog/fsnewdocumentdialog.ui \
+    src/dialog/fsexportdialog.ui \
+    src/tool/fsbrushsettingwidget.ui
 
 RESOURCES += \
     resources/resources.qrc
@@ -83,7 +85,6 @@ SOURCES += \
     src/dialog/fsnewdocumentdialog.cpp \
     src/gui/fssimplebutton.cpp \
     src/gui/fspanel.cpp \
-    src/gui/fsmainpanel.cpp \
     src/gui/fslayertreeviewdelegate.cpp \
     src/gui/fslayertreepanel.cpp \
     src/gui/fsguimain.cpp \
@@ -103,7 +104,13 @@ SOURCES += \
     src/core/fslayerrenderer.cpp \
     src/gui/fslayertreeview.cpp \
     src/gui/fsundoredoaction.cpp \
-    src/core/fsdocumentcommand.cpp
+    src/core/fsdocumentcommand.cpp \
+    src/dialog/fsexportdialog.cpp \
+    src/gui/fswidgetgroup.cpp \
+    src/gui/fstoolpanel.cpp \
+    src/gui/fsborderwidget.cpp \
+    src/tool/fsbrushsettingwidget.cpp \
+    src/gui/fstoolsettingpanel.cpp
 
 HEADERS += \
     src/core/fszip.h \
@@ -127,7 +134,6 @@ HEADERS += \
     src/dialog/fsnewdocumentdialog.h \
     src/gui/fssimplebutton.h \
     src/gui/fspanel.h \
-    src/gui/fsmainpanel.h \
     src/gui/fslayertreeviewdelegate.h \
     src/gui/fslayertreepanel.h \
     src/gui/fsguimain.h \
@@ -148,4 +154,10 @@ HEADERS += \
     src/core/fsscopedtimer.h \
     src/gui/fslayertreeview.h \
     src/gui/fsundoredoaction.h \
-    src/core/fsdocumentcommand.h
+    src/core/fsdocumentcommand.h \
+    src/dialog/fsexportdialog.h \
+    src/gui/fswidgetgroup.h \
+    src/gui/fstoolpanel.h \
+    src/gui/fsborderwidget.h \
+    src/tool/fsbrushsettingwidget.h \
+    src/gui/fstoolsettingpanel.h

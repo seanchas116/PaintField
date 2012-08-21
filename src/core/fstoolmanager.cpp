@@ -25,7 +25,9 @@ void FSToolManager::addToolFactory(FSToolFactory *factory)
 	factory->setParent(this);
 	_toolFactoryList << factory;
 	_toolNameList << factory->toolName();
+	
 	QAction *action = new QAction(factory->icon(), factory->text(), this);
+	action->setCheckable(true);
 	action->setObjectName(factory->toolName());
 	_actionGroup->addAction(action);
 	_actionList << action;

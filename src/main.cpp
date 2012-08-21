@@ -5,8 +5,6 @@
 #include "fsguimain.h"
 #include "fstableteventfilter.h"
 
-#include "fsmainpanel.h"
-
 int main(int argc, char *argv[])
 {
 	QApplication application(argc, argv);

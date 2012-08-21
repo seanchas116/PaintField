@@ -5,7 +5,6 @@
 #include "fsdoubleslider.h"
 #include "fssimplebutton.h"
 #include "fsguimain.h"
-#include "fsmainpanel.h"
 #include "fscanvasview.h"
 #include "fsrasterlayer.h"
 #include "mlpainter.h"
@@ -14,7 +13,7 @@
 #include "fslayertreepanel.h"
 
 FSLayerTreePanel::FSLayerTreePanel(QWidget *parent) :
-    FSPanel(parent),
+    QWidget(parent),
 	_document(0)
 {
 	createForms();
@@ -40,8 +39,8 @@ FSLayerTreePanel::FSLayerTreePanel(QWidget *parent) :
 	
 	connect(_removeButton, SIGNAL(pressed()), this, SLOT(removeLayer()));
 	
-	connect(fsGuiMain(), SIGNAL(currentDocumentChanged(FSDocumentModel*)), this, SLOT(documentChanged(FSDocumentModel*)));
-	documentChanged(fsGuiMain()->currentDocument());
+	connect(fsGuiMain(), SIGNAL(currentDocumentChanged(FSDocumentModel*)), this, SLOT(onDocumentChanged(FSDocumentModel*)));
+	onDocumentChanged(fsGuiMain()->currentDocument());
 	
 	setWindowTitle(tr("Layer"));
 }
@@ -76,7 +75,7 @@ void FSLayerTreePanel::setOpacityPercentage(double value)
 	_document->setData(_document->currentIndex(), value / 100.0, FSGlobal::RoleOpacity);
 }
 
-void FSLayerTreePanel::documentChanged(FSDocumentModel *document)
+void FSLayerTreePanel::onDocumentChanged(FSDocumentModel *document)
 {
 	if (_document)
 		disconnect(_document, 0, this, 0);
@@ -86,6 +85,7 @@ void FSLayerTreePanel::documentChanged(FSDocumentModel *document)
 	_treeView->setModel(_document);
 	if (_document)
 	{
+		connect(_document, SIGNAL(destroyed()), this, SLOT(onDocumentDeleted()));
 		connect(_document, SIGNAL(modified()), this, SLOT(updatePropertyView()));
 		connect(_document, SIGNAL(currentIndexChanged(QModelIndex,QModelIndex)), this, SLOT(updatePropertyView()));
 		updatePropertyView();
@@ -93,6 +93,11 @@ void FSLayerTreePanel::documentChanged(FSDocumentModel *document)
 	}
 	
 	updatePropertyView();
+}
+
+void FSLayerTreePanel::onDocumentDeleted()
+{
+	_document = 0;
 }
 
 void FSLayerTreePanel::addImage()
@@ -104,7 +109,7 @@ void FSLayerTreePanel::addImage()
 	if (filePath.isEmpty())
 		return;
 	
-	MLImageIO imageIO(filePath);
+	MLImageImporter imageIO(filePath);
 	
 	MLSurface surface = imageIO.toSurface();
 	if (surface.isNull())
@@ -206,6 +211,6 @@ void FSLayerTreePanel::createForms()
 	
 	setLayout(_mainLayout);
 	
-	fsApplyMacSmallSize(this);
+	//fsApplyMacSmallSize(this);
 }
 

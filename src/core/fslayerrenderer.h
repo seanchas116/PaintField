@@ -17,16 +17,17 @@ public:
 	
 	FSLayerRenderer() : _delegate(0) {}
 	
-	void render(MLPainter *painter, const FSLayer *parent, const QPoint &tileKey)
+	void render(MLPainter *painter, const FSLayer *parent, const QPoint &tileKey, const QPoint &pos = QPoint())
 	{
+		_pos = pos;
 		renderRecursive(painter, parent, tileKey, 1, false);
 	}
 
-	void render(MLPainter *painter, const FSLayer *parent, const QPointSet &tileKeys)
+	void renderMultiple(MLPainter *painter, const FSLayer *parent, const QPointSet &tileKeys)
 	{
 		foreach (const QPoint &tileKey, tileKeys)
 		{
-			render(painter, parent, tileKey);
+			render(painter, parent, tileKey, tileKey * MLSurface::TileSize);
 		}
 	}
 	
@@ -38,6 +39,7 @@ private:
 	void renderRecursive(MLPainter *painter, const FSLayer *parent, const QPoint &tileKey, double opacity, bool inDelegateTarget);
 	
 	FSLayerRenderDelegate *_delegate;
+	QPoint _pos;
 };
 
 #endif // FSLAYERRENDERER_H

@@ -30,6 +30,7 @@ public:
 	bool closeFile();
 	bool saveFile();
 	bool saveAsFile();
+	bool exportFile();
 	
 signals:
 	

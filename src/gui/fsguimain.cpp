@@ -5,6 +5,8 @@
 #include "fscanvasview.h"
 #include "fslayertreepanel.h"
 #include "fscolorpanel.h"
+#include "fstoolpanel.h"
+#include "fstoolsettingpanel.h"
 #include "fsaction.h"
 #include "fsundoredoaction.h"
 
@@ -13,9 +15,7 @@
 
 FSGuiMain::FSGuiMain(QObject *parent) :
 	QObject(parent),
-	_mainPanel(0),
-	_currentView(0),
-	_currentEditActionHandler(0)
+	_currentView(0)
 {
 	_instance = this;
 	
@@ -28,6 +28,7 @@ FSGuiMain::FSGuiMain(QObject *parent) :
 	_actionManager->addAction(new FSCanvasViewAction(_actionManager), "saveFile", tr("Save"), QKeySequence("Ctrl+S"));
 	_actionManager->addAction(new FSCanvasViewAction(_actionManager), "saveAsFile", tr("Save As..."), QKeySequence("Ctrl+Shift+S"));
 	_actionManager->addAction(new FSCanvasViewAction(_actionManager), "closeFile", tr("Close File"), QKeySequence("Ctrl+W"));
+	_actionManager->addAction(new FSCanvasViewAction(_actionManager), "exportFile", tr("Export..."));
 	_actionManager->addAction(new QAction(_actionManager), "quit", "Quit", QKeySequence("Ctrl+Q"));
 	
 	_actionManager->addAction(new FSUndoAction(_actionManager), "undo", tr("Undo"), QKeySequence("Ctrl+Z"));
@@ -57,6 +58,7 @@ FSGuiMain::FSGuiMain(QObject *parent) :
 	_actionManager->connectTriggered("saveFile", this, SLOT(saveFile()));
 	_actionManager->connectTriggered("saveAsFile", this, SLOT(saveAsFile()));
 	_actionManager->connectTriggered("closeFile", this, SLOT(closeFile()));
+	_actionManager->connectTriggered("exportFile", this, SLOT(exportFile()));
 	_actionManager->connectTriggered("quit", this, SLOT(quit()));
 	
 	_actionManager->connectTriggered("minimizeWindow", this, SLOT(minimizeCurrentWindow()));
@@ -76,8 +78,11 @@ FSGuiMain::FSGuiMain(QObject *parent) :
 	fileMenu->addAction(action("newFile"));
 	fileMenu->addAction(action("openFile"));
 	fileMenu->addSeparator();
+	fileMenu->addAction(action("closeFile"));
 	fileMenu->addAction(action("saveFile"));
 	fileMenu->addAction(action("saveAsFile"));
+	fileMenu->addSeparator();
+	fileMenu->addAction(action("exportFile"));
 	fileMenu->addSeparator();
 	fileMenu->addAction(action("quit"));
 	
@@ -116,15 +121,19 @@ FSGuiMain::FSGuiMain(QObject *parent) :
 	
 	// adding panels
 	
-	_mainPanel = new FSMainPanel;
-	_mainPanel->show();
+	//_mainPanel = new FSMainPanel;
+	//_mainPanel->show();
 	
 	addPanel(new FSLayerTreePanel());
 	addPanel(new FSColorPanel());
+	addPanel(new FSToolPanel());
+	addPanel(new FSToolSettingPanel());
 }
 
-void FSGuiMain::addPanel(QWidget *panel)
+void FSGuiMain::addPanel(QWidget *widget)
 {
+	FSPanel *panel = new FSPanel;
+	panel->setWidget(widget);
 	panel->show();
 	_panels << panel;
 }
@@ -191,6 +200,15 @@ void FSGuiMain::closeFile()
 	FSCanvasView *view = currentView();
 	if (view)
 		view->closeFile();
+	
+	_views.removeOne(view);
+}
+
+void FSGuiMain::exportFile()
+{
+	FSCanvasView *view = currentView();
+	if (view)
+		view->exportFile();
 }
 
 void FSGuiMain::minimizeCurrentWindow()

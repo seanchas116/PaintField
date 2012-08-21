@@ -6,6 +6,8 @@
 #include "fsbrushtool.h"
 #include "fsbrushstroker.h"
 #include "fsscopedtimer.h"
+#include "fssimplebutton.h"
+#include "fsbrushsettingwidget.h"
 
 
 FSBrushTool::FSBrushTool(FSCanvasView *parent) :
@@ -139,6 +141,7 @@ FSBrushToolFactory::FSBrushToolFactory(QObject *parent) :
 {
 	setToolName("brush");
 	setText(tr("Brush"));
+	setIcon(fsCreateSimpleIconSet(":/icons/32x32/brush.svg"));
 }
 
 FSTool *FSBrushToolFactory::createTool(FSCanvasView *view)
@@ -146,6 +149,13 @@ FSTool *FSBrushToolFactory::createTool(FSCanvasView *view)
 	FSBrushTool *tool = new FSBrushTool(view);
 	tool->setBrushSetting(&_setting);
 	return tool;
+}
+
+QWidget *FSBrushToolFactory::createSettingWidget()
+{
+	FSBrushSettingWidget *widget = new FSBrushSettingWidget();
+	widget->setBrushSetting(&_setting);
+	return widget;
 }
 
 bool FSBrushToolFactory::isTypeSupported(FSLayer::Type type) const
