@@ -3,8 +3,9 @@
 #include "fscolorbutton.h"
 #include "fscolorslider.h"
 #include "fscolorwheel.h"
-#include "fsdoubleedit.h"
+#include "fsmodulardoublespinbox.h"
 #include "fssimplebutton.h"
+#include "fsloosespinbox.h"
 #include "fswidgetgroup.h"
 
 #include "fscolorpanel.h"
@@ -19,68 +20,161 @@ inline void fsConnectMutual(QObject *object1, const char *signal, QObject *objec
 FSColorSliderPanel::FSColorSliderPanel(QWidget *parent) :
 	QWidget(parent)
 {
-	for (int i = 0; i < 6; ++i)
+	QList<FSLooseSpinBox *> rgbSpins, hsvSpins;
+	QList<QSpinBox *> rgb8Spins;
+	
+	for (int i = 0; i < 3; ++i)
 	{
-		FSDoubleEdit *edit = new FSDoubleEdit();
-		edit->setUnit(0.001);
-		edit->setMaximumWidth(60);
-		_lineEdits << edit;
+		FSLooseSpinBox *spin = new FSLooseSpinBox();
+		spin->setDecimals(3);
+		spin->setSingleStep(0.01);
+		spin->setMinimum(0);
+		spin->setMaximum(1);
+		spin->setMinimumWidth(60);
+		rgbSpins << spin;
 	}
 	
-	_lineEdits.at(3)->setUnit(0.1);
-	
-	_sliders << new FSColorSlider(MLColor::Red, 1000);
-	_sliders << new FSColorSlider(MLColor::Green, 1000);
-	_sliders << new FSColorSlider(MLColor::Blue, 10000);
-	_sliders << new FSColorSlider(MLColor::Hue, 3600);
-	_sliders << new FSColorSlider(MLColor::Saturation, 1000);
-	_sliders << new FSColorSlider(MLColor::Value, 1000);
-	
-	for (int i = 0; i < 6; ++i)
 	{
-		fsConnectMutual(_sliders.at(i), SIGNAL(colorChanged(MLColor)), this, SLOT(setColor(MLColor)));
-		fsConnectMutual(_sliders.at(i), SIGNAL(valueChanged(double)), _lineEdits.at(i), SLOT(setValue(double)));
+		FSLooseSpinBox *spin = new FSLooseSpinBox();
+		spin->setDecimals(1);
+		spin->setSingleStep(1);
+		spin->setMinimum(0);
+		spin->setMaximum(360);
+		spin->setWrapping(true);
+		spin->setMinimumWidth(60);
+		hsvSpins << spin;
 	}
 	
-	_labels << new QLabel("R");
-	_labels << new QLabel("G");
-	_labels << new QLabel("B");
-	_labels << new QLabel("H");
-	_labels << new QLabel("S");
-	_labels << new QLabel("V");
-	
-	_comboBox = new QComboBox();
-	_comboBox->addItem(tr("RGB"));
-	_comboBox->addItem(tr("HSV"));
-	
-	connect(_comboBox, SIGNAL(activated(int)), this, SLOT(onComboBoxActivated(int)));
-	
-	_comboBox->setCurrentIndex(0);
-	onComboBoxActivated(0);
-	
-	_comboBoxLayout = new QHBoxLayout();
-	_comboBoxLayout->addWidget(_comboBox);
-	_comboBoxLayout->addStretch(1);
-	_comboBoxLayout->setContentsMargins(0, 0, 0, 0);
-	
-	_layout = new QGridLayout();
-	
-	_layout->addLayout(_comboBoxLayout, 0, 1, 1, 2);
-	
-	for (int i = 0; i < 6; ++i)
+	for (int i = 0; i < 2; ++i)
 	{
-		_layout->addWidget(_labels.at(i), i + 1, 0);
-		_layout->addWidget(_sliders.at(i), i + 1, 1);
-		_layout->addWidget(_lineEdits.at(i), i + 1, 2);
+		FSLooseSpinBox *spin = new FSLooseSpinBox();
+		spin->setDecimals(3);
+		spin->setSingleStep(0.01);
+		spin->setMinimum(0);
+		spin->setMaximum(1);
+		spin->setMinimumWidth(60);
+		hsvSpins << spin;
 	}
 	
-	_layout->setContentsMargins(0, 0, 0, 0);
+	for (int i = 0; i < 3; ++i)
+	{
+		QSpinBox *spin = new QSpinBox();
+		spin->setSingleStep(1);
+		spin->setMinimum(0);
+		spin->setMaximum(255);
+		spin->setMinimumWidth(60);
+		rgb8Spins << spin;
+	}
 	
-	setLayout(_layout);
+	QList<FSColorSlider *> rgbSliders, hsvSliders, rgb8Sliders;
 	
-	setColor(MLColor::white());
+	rgbSliders << new FSColorSlider(MLColor::Red, 1000);
+	rgbSliders << new FSColorSlider(MLColor::Green, 1000);
+	rgbSliders << new FSColorSlider(MLColor::Blue, 1000);
+	
+	hsvSliders << new FSColorSlider(MLColor::Hue, 3600);
+	hsvSliders << new FSColorSlider(MLColor::Saturation, 1000);
+	hsvSliders << new FSColorSlider(MLColor::Value, 1000);
+	
+	rgb8Sliders << new FSColorSlider(MLColor::Red, 1000);
+	rgb8Sliders << new FSColorSlider(MLColor::Green, 1000);
+	rgb8Sliders << new FSColorSlider(MLColor::Blue, 1000);
+	
+	for (int i = 0; i < 3; ++i)
+	{
+		fsConnectMutual(rgbSliders.at(i), SIGNAL(colorChanged(MLColor)), this, SLOT(setColor(MLColor)));
+		fsConnectMutual(rgbSliders.at(i), SIGNAL(valueChanged(double)), rgbSpins.at(i), SLOT(setValue(double)));
+		rgbSpins.at(i)->setValue(rgbSliders.at(i)->value());
+	}
+	
+	for (int i = 0; i < 3; ++i)
+	{
+		fsConnectMutual(hsvSliders.at(i), SIGNAL(colorChanged(MLColor)), this, SLOT(setColor(MLColor)));
+		fsConnectMutual(hsvSliders.at(i), SIGNAL(valueChanged(double)), hsvSpins.at(i), SLOT(setValue(double)));
+		hsvSpins.at(i)->setValue(hsvSliders.at(i)->value());
+	}
+	
+	for (int i = 0; i < 3; ++i)
+	{
+		fsConnectMutual(rgb8Sliders.at(i), SIGNAL(colorChanged(MLColor)), this, SLOT(setColor(MLColor)));
+		connect(rgb8Sliders.at(i), SIGNAL(value8BitChanged(int)), rgb8Spins.at(i), SLOT(setValue(int)));
+		connect(rgb8Spins.at(i), SIGNAL(valueChanged(int)), rgb8Sliders.at(i), SLOT(setValue8Bit(int)));
+		rgb8Spins.at(i)->setValue(rgb8Sliders.at(i)->value8Bit());
+	}
+	
+	QList<QLabel *> rgbLabels, hsvLabels, rgb8Labels;
+	
+	rgbLabels << new QLabel("R");
+	rgbLabels << new QLabel("G");
+	rgbLabels << new QLabel("B");
+	hsvLabels << new QLabel("H");
+	hsvLabels << new QLabel("S");
+	hsvLabels << new QLabel("V");
+	rgb8Labels << new QLabel("R");
+	rgb8Labels << new QLabel("G");
+	rgb8Labels << new QLabel("B");
+	
+	QComboBox *comboBox = new QComboBox();
+	comboBox->addItem(tr("RGB"));
+	comboBox->addItem(tr("HSV"));
+	comboBox->addItem(tr("RGB (0..255)"));
+	
+	connect(comboBox, SIGNAL(activated(int)), this, SLOT(onComboBoxActivated(int)));
+	
+	QHBoxLayout *comboBoxLayout = new QHBoxLayout();
+	comboBoxLayout->addWidget(comboBox);
+	comboBoxLayout->addStretch(1);
+	comboBoxLayout->setContentsMargins(0, 0, 0, 0);
+	
+	QGridLayout *layout = new QGridLayout();
+	layout->addLayout(comboBoxLayout, 0, 1, 1, 2);
+	
+	for (int i = 0; i < 3; ++i)
+	{
+		layout->addWidget(rgbLabels.at(i), i+1, 0);
+		layout->addWidget(rgbSliders.at(i), i+1, 1);
+		layout->addWidget(rgbSpins.at(i), i+1, 2);
+	}
+	
+	for (int i = 0; i < 3; ++i)
+	{
+		layout->addWidget(hsvLabels.at(i), i+4, 0);
+		layout->addWidget(hsvSliders.at(i), i+4, 1);
+		layout->addWidget(hsvSpins.at(i), i+4, 2);
+	}
+	
+	for (int i = 0; i < 3; ++i)
+	{
+		layout->addWidget(rgb8Labels.at(i), i+7, 0);
+		layout->addWidget(rgb8Sliders.at(i), i+7, 1);
+		layout->addWidget(rgb8Spins.at(i), i+7, 2);
+	}
+	
+	layout->setContentsMargins(0, 0, 0, 0);
+	
+	_groupRgb = new FSWidgetGroup(this);
+	_groupHsv = new FSWidgetGroup(this);
+	_groupRgb8 = new FSWidgetGroup(this);
+	
+	_groupRgb->addWidgets(rgbLabels);
+	_groupRgb->addWidgets(rgbSliders);
+	_groupRgb->addWidgets(rgbSpins);
+	
+	_groupHsv->addWidgets(hsvLabels);
+	_groupHsv->addWidgets(hsvSliders);
+	_groupHsv->addWidgets(hsvSpins);
+	
+	_groupRgb8->addWidgets(rgb8Labels);
+	_groupRgb8->addWidgets(rgb8Sliders);
+	_groupRgb8->addWidgets(rgb8Spins);
+	
+	setLayout(layout);
 	
 	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
+	
+	comboBox->setCurrentIndex(0);
+	onComboBoxActivated(0);
+	setColor(MLColor::white());
 }
 
 void FSColorSliderPanel::setColor(const MLColor &color)
@@ -95,39 +189,22 @@ void FSColorSliderPanel::setColor(const MLColor &color)
 
 void FSColorSliderPanel::onComboBoxActivated(int index)
 {
+	_groupRgb->setVisible(false);
+	_groupHsv->setVisible(false);
+	_groupRgb8->setVisible(false);
+	
 	switch (index)
 	{
-	case 0:
-		for (int i = 3; i < 6; ++i)
-		{
-			_labels.at(i)->setVisible(false);
-			_sliders.at(i)->setVisible(false);
-			_lineEdits.at(i)->setVisible(false);
-		}
-		for (int i = 0; i < 3; ++i)
-		{
-			_labels.at(i)->setVisible(true);
-			_sliders.at(i)->setVisible(true);
-			_lineEdits.at(i)->setVisible(true);
-		}
-		
-		break;
-	case 1:
-		for (int i = 0; i < 3; ++i)
-		{
-			_labels.at(i)->setVisible(false);
-			_sliders.at(i)->setVisible(false);
-			_lineEdits.at(i)->setVisible(false);
-		}
-		for (int i = 3; i < 6; ++i)
-		{
-			_labels.at(i)->setVisible(true);
-			_sliders.at(i)->setVisible(true);
-			_lineEdits.at(i)->setVisible(true);
-		}
-		
-		break;
-	default:
+		case 0:
+			_groupRgb->setVisible(true);
+			break;
+		case 1:
+			_groupHsv->setVisible(true);
+			break;
+		case 2:
+			_groupRgb8->setVisible(true);
+			break;
+		default:
 			break;
 	}
 }
@@ -175,10 +252,9 @@ void FSWebColorPanel::onLineEditEditingFinished()
 }
 
 FSColorPanel::FSColorPanel(QWidget *parent) :
-	QWidget(parent)
+	FSPanelWidget(parent)
 {
 	setWindowTitle(tr("Color"));
-	
 	
 	// buttons
 	
@@ -283,9 +359,12 @@ FSColorPanel::FSColorPanel(QWidget *parent) :
 	_sliderPanel->setVisible(_sliderButton->isChecked());
 	_webColorPanel->setVisible(_webButton->isChecked());
 	
-	//fsApplyMacSmallSize(this);
-	
-	resize(0, 0);
+	fsApplyMacSmallSize(this);
+}
+
+QSize FSColorPanel::sizeHint() const
+{
+	return QSize(DefaultWidth, 1);
 }
 
 void FSColorPanel::setColor(int index, const MLColor &color)

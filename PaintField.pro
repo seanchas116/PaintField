@@ -53,8 +53,7 @@ CONFIG(debug, debug|release) {
 
 FORMS    += \
     src/dialog/fsnewdocumentdialog.ui \
-    src/dialog/fsexportdialog.ui \
-    src/tool/fsbrushsettingwidget.ui
+    src/dialog/fsexportdialog.ui
 
 RESOURCES += \
     resources/resources.qrc
@@ -89,7 +88,6 @@ SOURCES += \
     src/gui/fslayertreepanel.cpp \
     src/gui/fsguimain.cpp \
     src/gui/fsdoubleslider.cpp \
-    src/gui/fsdoubleedit.cpp \
     src/gui/fscolorwheel.cpp \
     src/gui/fscolorslider.cpp \
     src/gui/fscolorpanel.cpp \
@@ -110,7 +108,9 @@ SOURCES += \
     src/gui/fstoolpanel.cpp \
     src/gui/fsborderwidget.cpp \
     src/tool/fsbrushsettingwidget.cpp \
-    src/gui/fstoolsettingpanel.cpp
+    src/gui/fstoolsettingpanel.cpp \
+    src/gui/fsmodulardoublespinbox.cpp \
+    src/gui/fsloosespinbox.cpp
 
 HEADERS += \
     src/core/fszip.h \
@@ -138,7 +138,6 @@ HEADERS += \
     src/gui/fslayertreepanel.h \
     src/gui/fsguimain.h \
     src/gui/fsdoubleslider.h \
-    src/gui/fsdoubleedit.h \
     src/gui/fscolorwheel.h \
     src/gui/fscolorslider.h \
     src/gui/fscolorpanel.h \
@@ -160,4 +159,6 @@ HEADERS += \
     src/gui/fstoolpanel.h \
     src/gui/fsborderwidget.h \
     src/tool/fsbrushsettingwidget.h \
-    src/gui/fstoolsettingpanel.h
+    src/gui/fstoolsettingpanel.h \
+    src/gui/fsmodulardoublespinbox.h \
+    src/gui/fsloosespinbox.h

@@ -4,9 +4,11 @@
 #include <QObject>
 #include "fsactionmanager.h"
 #include "fscanvasview.h"
+#include "fscore.h"
 
 class QMenuBar;
 class FSPanel;
+class FSPanelWidget;
 
 class FSGuiMain : public QObject
 {
@@ -14,7 +16,7 @@ class FSGuiMain : public QObject
 public:
 	explicit FSGuiMain(QObject *parent = 0);
 	
-	void addPanel(QWidget *panel);
+	void addPanel(FSPanelWidget *panel);
 	QList<FSPanel *> panels();
 	
 	void addCanvasView(FSCanvasView *view);

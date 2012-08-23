@@ -2,7 +2,7 @@
 #include "fsrasterlayer.h"
 #include "fslayermovetool.h"
 #include "fssimplebutton.h"
-#include "mlintdivision.h"
+#include "mldivision.h"
 
 void FSLayerMoveEdit::redo(FSLayer *layer)
 {
@@ -35,7 +35,7 @@ void FSLayerMoveTool::render(MLPainter *painter, const FSLayer *layer, const QPo
 {
 	const MLSurface surface = layer->surface();
 	QPoint offsetTile, offsetRemainder;
-	MLIntDivision::dividePoint(_offset, MLSurface::TileSize, &offsetTile, &offsetRemainder);
+	mlDividePoint(_offset, MLSurface::TileSize, &offsetTile, &offsetRemainder);
 	
 	QPoint srcTileKey = tileKey - offsetTile;
 	

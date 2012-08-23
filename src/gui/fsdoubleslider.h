@@ -26,8 +26,8 @@ public slots:
 	
 private slots:
 	
-	void notifyRangeChanged();
-	void notifyIntValueChanged(int x);
+	void onRangeChanged();
+	void onIntValueChanged(int x);
 	
 private:
 	

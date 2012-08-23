@@ -22,6 +22,7 @@ public:
 	MLColor color() const { return _color; }
 	MLColor::Component component() const { return _component; }
 	double value() const { return _color.component(_component); }
+	int value8Bit() const { return round(value() * 255); }
 	int stepCount() const { return _stepCount; }
 	
 	void setComponent(MLColor::Component component);
@@ -31,10 +32,12 @@ public slots:
 	
 	void setColor(const MLColor &color);
 	void setValue(double x);
+	void setValue8Bit(int x);
 	
 signals:
 	
 	void valueChanged(double x);
+	void value8BitChanged(int x);
 	void colorChanged(const MLColor &color);
 	
 protected:

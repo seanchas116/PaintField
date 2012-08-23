@@ -3,14 +3,17 @@
 
 #include <QWidget>
 #include <QVBoxLayout>
+#include "fspanel.h"
 
 class FSToolFactory;
 
-class FSToolSettingPanel : public QWidget
+class FSToolSettingPanel : public FSPanelWidget
 {
 	Q_OBJECT
 public:
 	explicit FSToolSettingPanel(QWidget *parent = 0);
+	
+	QSize sizeHint() const;
 	
 signals:
 	

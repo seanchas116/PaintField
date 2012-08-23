@@ -151,13 +151,6 @@ FSTool *FSBrushToolFactory::createTool(FSCanvasView *view)
 	return tool;
 }
 
-QWidget *FSBrushToolFactory::createSettingWidget()
-{
-	FSBrushSettingWidget *widget = new FSBrushSettingWidget();
-	widget->setBrushSetting(&_setting);
-	return widget;
-}
-
 bool FSBrushToolFactory::isTypeSupported(FSLayer::Type type) const
 {
 	switch (type) {

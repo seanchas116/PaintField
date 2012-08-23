@@ -1,7 +1,6 @@
 #include <QtGui>
 
 #include "fslayertreeview.h"
-#include "fsdoubleedit.h"
 #include "fsdoubleslider.h"
 #include "fssimplebutton.h"
 #include "fsguimain.h"
@@ -13,7 +12,7 @@
 #include "fslayertreepanel.h"
 
 FSLayerTreePanel::FSLayerTreePanel(QWidget *parent) :
-    QWidget(parent),
+    FSPanelWidget(parent),
 	_document(0)
 {
 	createForms();
@@ -49,6 +48,11 @@ FSLayerTreePanel::~FSLayerTreePanel()
 {
 }
 
+QSize FSLayerTreePanel::sizeHint() const
+{
+	return QSize(DefaultWidth, 300);
+}
+
 void FSLayerTreePanel::updatePropertyView()
 {
 	if (_document)
@@ -57,7 +61,7 @@ void FSLayerTreePanel::updatePropertyView()
 		if (_document->currentIndex().isValid())
 		{
 			_formWidget->setEnabled(true);
-			_opacityEdit->setValue(_document->currentIndex().data(FSGlobal::RoleOpacity).toDouble() * 100.0);
+			_opacitySpinBox->setValue(_document->currentIndex().data(FSGlobal::RoleOpacity).toDouble() * 100.0);
 		}
 		else
 		{
@@ -157,18 +161,19 @@ void FSLayerTreePanel::createForms()
 	_opacitySlider->setDoubleMinimum(0.0);
 	_opacitySlider->setDoubleMaximum(100.0);
 	
-	_opacityEdit = new FSDoubleEdit();
-	_opacityEdit->setUnit(1.0);
-	_opacityEdit->setMaximumWidth(40);
-	_opacityEdit->setMinimumWidth(40);
+	_opacitySpinBox = new FSLooseSpinBox();
+	_opacitySpinBox->setDecimals(0);
+	_opacitySpinBox->setMinimum(0);
+	_opacitySpinBox->setMaximum(100);
+	_opacitySpinBox->setSingleStep(1.0);
 	
-	connect(_opacitySlider, SIGNAL(doubleValueChanged(double)), _opacityEdit, SLOT(setValue(double)));
-	connect(_opacityEdit, SIGNAL(valueChanged(double)), _opacitySlider, SLOT(setDoubleValue(double)));
+	connect(_opacitySlider, SIGNAL(doubleValueChanged(double)), _opacitySpinBox, SLOT(setValue(double)));
+	connect(_opacitySpinBox, SIGNAL(valueChanged(double)), _opacitySlider, SLOT(setDoubleValue(double)));
 	connect(_opacitySlider, SIGNAL(doubleValueChanged(double)), this, SLOT(setOpacityPercentage(double)));
 	
 	_opacityLayout = new QHBoxLayout();
 	_opacityLayout->addWidget(_opacitySlider);
-	_opacityLayout->addWidget(_opacityEdit);
+	_opacityLayout->addWidget(_opacitySpinBox);
 	_opacityLayout->addWidget(new QLabel("%"));
 	
 	_blendModeComboBox = new QComboBox();
@@ -211,6 +216,6 @@ void FSLayerTreePanel::createForms()
 	
 	setLayout(_mainLayout);
 	
-	//fsApplyMacSmallSize(this);
+	fsApplyMacSmallSize(this);
 }
 

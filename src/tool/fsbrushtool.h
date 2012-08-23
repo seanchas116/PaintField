@@ -58,7 +58,6 @@ public:
 	explicit FSBrushToolFactory(QObject *parent = 0);
 	
 	FSTool *createTool(FSCanvasView *view);
-	QWidget *createSettingWidget();
 	
 	bool isTypeSupported(FSLayer::Type type) const;
 	

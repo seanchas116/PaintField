@@ -3,6 +3,7 @@
 
 #include "fspanel.h"
 #include "fslayer.h"
+#include "fsloosespinbox.h"
 
 class FSCanvasView;
 class FSDocumentModel;
@@ -10,7 +11,6 @@ class QModelIndex;
 
 class FSLayerTreeView;
 class FSDoubleSlider;
-class FSDoubleEdit;
 class QComboBox;
 class QFormLayout;
 class FSSimpleButton;
@@ -19,7 +19,7 @@ class QVBoxLayout;
 class QMenu;
 class QItemSelection;
 
-class FSLayerTreePanel : public QWidget
+class FSLayerTreePanel : public FSPanelWidget
 {
 	Q_OBJECT
 	
@@ -37,6 +37,8 @@ public slots:
 	void newLayer() { newLayerItem(FSLayer::TypeRaster); }
 	void newGroup() { newLayerItem(FSLayer::TypeGroup); }
 	void removeLayer();
+	
+	QSize sizeHint() const;
 	
 signals:
 	
@@ -66,7 +68,7 @@ private:
 	FSLayerTreeView *_treeView;
 	
 	FSDoubleSlider *_opacitySlider;
-	FSDoubleEdit *_opacityEdit;
+	FSLooseSpinBox *_opacitySpinBox;
 	
 	QHBoxLayout *_opacityLayout;
 	

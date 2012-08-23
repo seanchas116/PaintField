@@ -2,14 +2,6 @@
 
 #include "fswidgetgroup.h"
 
-void FSWidgetGroup::addWidgets(const QList<QWidget *> &widgets)
-{
-	foreach (QWidget *widget, widgets)
-	{
-		addWidget(widget);
-	}
-}
-
 void FSWidgetGroup::setVisible(bool visible)
 {
 	foreach (QWidget *widget, _widgets)

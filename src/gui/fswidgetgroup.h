@@ -10,7 +10,13 @@ public:
 	explicit FSWidgetGroup(QObject *parent = 0) : QObject(parent) {}
 	
 	void addWidget(QWidget *widget) { _widgets << widget; }
-	void addWidgets(const QList<QWidget *> &widgets);
+	
+	template <class Widget>
+	void addWidgets(const QList<Widget *> &widgets)
+	{
+		foreach (Widget *widget, widgets)
+			addWidget(widget);
+	}
 	
 signals:
 	

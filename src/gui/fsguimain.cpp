@@ -9,6 +9,7 @@
 #include "fstoolsettingpanel.h"
 #include "fsaction.h"
 #include "fsundoredoaction.h"
+#include "src/tool/fsbrushsettingwidget.h"
 
 #include "fsguimain.h"
 
@@ -127,10 +128,11 @@ FSGuiMain::FSGuiMain(QObject *parent) :
 	addPanel(new FSLayerTreePanel());
 	addPanel(new FSColorPanel());
 	addPanel(new FSToolPanel());
-	addPanel(new FSToolSettingPanel());
+	//addPanel(new FSToolSettingPanel());
+	addPanel(new FSBrushSettingWidget());
 }
 
-void FSGuiMain::addPanel(QWidget *widget)
+void FSGuiMain::addPanel(FSPanelWidget *widget)
 {
 	FSPanel *panel = new FSPanel;
 	panel->setWidget(widget);

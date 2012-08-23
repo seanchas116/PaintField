@@ -8,21 +8,23 @@ class QLabel;
 
 void fsApplyMacSmallSize(QWidget *widget);
 
-class FSPanelItem : public QWidget
+class FSPanelWidget : public QWidget
 {
 	Q_OBJECT
 public:
 	
-	enum 
+	enum
 	{
-		
+		DefaultWidth = 200
 	};
 	
-	FSPanelItem(QWidget *parent = 0) : QWidget(parent) {}
+	FSPanelWidget(QWidget *parent = 0) : QWidget(parent) {}
 	
+protected:
+	
+	void applyMacSmallSize() { fsApplyMacSmallSize(this); }
 	
 private:
-	
 };
 
 class FSPanel : public QWidget
@@ -31,8 +33,8 @@ class FSPanel : public QWidget
 public:
 	FSPanel(QWidget *parent = 0);
 	
-	void setWidget(QWidget *widget);
-	QWidget *widget() { return _widget; }
+	void setWidget(FSPanelWidget *widget);
+	FSPanelWidget *widget() { return _widget; }
 	
 signals:
 	
@@ -47,7 +49,7 @@ protected:
 	
 private:
 	
-	QWidget *_widget;
+	FSPanelWidget *_widget;
 	QLabel *_label;
 	QVBoxLayout *_layout;
 	

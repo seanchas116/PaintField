@@ -6,8 +6,8 @@ FSDoubleSlider::FSDoubleSlider(QWidget *parent) :
 	_doubleMax(1.0),
 	_doubleMin(0.0)
 {
-	connect(this, SIGNAL(valueChanged(int)), this, SLOT(notifyIntValueChanged(int)));
-	connect(this, SIGNAL(rangeChanged(int,int)), this, SLOT(notifyRangeChanged()));
+	connect(this, SIGNAL(valueChanged(int)), this, SLOT(onIntValueChanged(int)));
+	connect(this, SIGNAL(rangeChanged(int,int)), this, SLOT(onRangeChanged()));
 	setDoubleValue(_doubleValue);
 }
 
@@ -36,21 +36,22 @@ void FSDoubleSlider::setDoubleValue(double x)
 	x = qBound(_doubleMin, x, _doubleMax);
 	
 	int i = minimum() + qRound((double)(maximum() - minimum()) / (_doubleMax - _doubleMin) * (x - _doubleMin));
+	
+	if (i == value())
+		return;
+	
 	setValue(i);
 	
-	if (_doubleValue != x)
-	{
-		_doubleValue = x;
-		emit doubleValueChanged(_doubleValue);
-	}
+	_doubleValue = x;
+	emit doubleValueChanged(_doubleValue);
 }
 
-void FSDoubleSlider::notifyRangeChanged()
+void FSDoubleSlider::onRangeChanged()
 {
 	setDoubleValue(_doubleValue);
 }
 
-void FSDoubleSlider::notifyIntValueChanged(int x)
+void FSDoubleSlider::onIntValueChanged(int x)
 {
 	_doubleValue = _doubleMin + (_doubleMax - _doubleMin) / (double)(maximum() - minimum()) * (double)(x - minimum());
 	

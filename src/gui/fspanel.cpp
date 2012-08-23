@@ -44,12 +44,12 @@ FSPanel::FSPanel(QWidget *parent) :
 	_layout->addWidget(border);
 }
 
-void FSPanel::setWidget(QWidget *widget)
+void FSPanel::setWidget(FSPanelWidget *widget)
 {
 	if (_widget)
 		return;
 	
-	fsApplyMacSmallSize(widget);
+	//fsApplyMacSmallSize(widget);
 	
 	_layout->addWidget(widget);
 	_layout->addStretch(1);

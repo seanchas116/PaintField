@@ -6,7 +6,7 @@
 #include "fstoolpanel.h"
 
 FSToolPanel::FSToolPanel(QWidget *parent) :
-    QWidget(parent)
+    FSPanelWidget(parent)
 {
 	resize(QSize(1, 1));
 	
@@ -41,7 +41,8 @@ FSToolPanel::FSToolPanel(QWidget *parent) :
 	menuButton->setStyleSheet("QToolButton { background-color: transparent; }");
 	menuButton->setIconSize(QSize(16, 16));
 	
-	hlayout->addStretch(1);
+	//hlayout->addStretch(1);
+	hlayout->setAlignment(Qt::AlignRight);
 	hlayout->addWidget(menuButton);
 	hlayout->setContentsMargins(0, 0, 0, 0);
 	hlayout->setSpacing(0);
@@ -49,5 +50,4 @@ FSToolPanel::FSToolPanel(QWidget *parent) :
 	vlayout->addStretch(1);
 	vlayout->addLayout(hlayout);
 	
-	setLayout(vlayout);
-}
+	setLayout(vlayout);}

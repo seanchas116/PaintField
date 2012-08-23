@@ -4,7 +4,7 @@
 #include <QWidget>
 #include "fspanel.h"
 
-class FSToolPanel : public QWidget
+class FSToolPanel : public FSPanelWidget
 {
 	Q_OBJECT
 public:

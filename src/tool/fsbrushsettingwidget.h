@@ -1,29 +1,24 @@
 #ifndef FSBRUSHSETTINGWIDGET_H
 #define FSBRUSHSETTINGWIDGET_H
 
-#include <QWidget>
+#include "fspanel.h"
 
 #include "fsbrushsetting.h"
 
-namespace Ui {
-class FSBrushSettingWidget;
-}
-
-class FSBrushSettingWidget : public QWidget
+class FSBrushSettingWidget : public FSPanelWidget
 {
 	Q_OBJECT
 	
 public:
 	explicit FSBrushSettingWidget(QWidget *parent = 0);
-	~FSBrushSettingWidget();
 	
-	void setBrushSetting(FSBrushSetting *setting) { _setting = setting; }
+	QSize sizeHint() const;
 	
 private slots:
-	void on_spinBox_valueChanged(int arg1);
+	
+	void onDiameterValueChanged(double value);
 	
 private:
-	Ui::FSBrushSettingWidget *ui;
 	
 	FSBrushSetting *_setting;
 };

@@ -11,7 +11,7 @@ public:
 	
 	enum
 	{
-		ButtonSize = 22,
+		ButtonSize = 20,
 		ButtonMargin = 2
 	};
 	

@@ -1,6 +1,8 @@
 #ifndef FSCOLORPANEL_H
 #define FSCOLORPANEL_H
 
+#include <QtGui>
+
 #include "fspanel.h"
 #include "mlcolor.h"
 
@@ -12,7 +14,7 @@ class FSSimpleButton;
 class FSColorButton;
 class FSColorWheel;
 class FSColorSlider;
-class FSDoubleEdit;
+class FSLooseSpinBox;
 class QLineEdit;
 class QComboBox;
 class QGridLayout;
@@ -38,16 +40,7 @@ private slots:
 	
 private:
 	
-	QGridLayout *_layout;
-	QHBoxLayout *_comboBoxLayout;
-	QComboBox *_comboBox;
-	
 	FSWidgetGroup *_groupRgb, *_groupRgb8, *_groupHsv;
-	
-	QList<QLabel *> _labels;
-	QList<FSColorSlider *> _sliders;
-	QList<FSDoubleEdit *> _lineEdits;
-	
 	MLColor _color;
 };
 
@@ -75,11 +68,13 @@ private:
 	MLColor _color;
 };
 
-class FSColorPanel : public QWidget
+class FSColorPanel : public FSPanelWidget
 {
 	Q_OBJECT
 public:
 	explicit FSColorPanel(QWidget *parent = 0);
+	
+	QSize sizeHint() const;
 	
 signals:
 	

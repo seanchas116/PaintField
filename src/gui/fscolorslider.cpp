@@ -1,6 +1,6 @@
 #include <QtGui>
 
-#include "mlintdivision.h"
+#include "mldivision.h"
 
 #include "fscolorslider.h"
 
@@ -57,7 +57,10 @@ void FSColorSlider::setColor(const MLColor &color)
 	emit colorChanged(color);
 	
 	if (componentChanged)
-		emit valueChanged(color.component(_component));
+	{
+		emit valueChanged(value());
+		emit value8BitChanged(value8Bit());
+	}
 	
 	updateImage();
 	update();
@@ -68,6 +71,11 @@ void FSColorSlider::setValue(double x)
 	MLColor color = _color;
 	color.setComponent(_component, x);
 	setColor(color);
+}
+
+void FSColorSlider::setValue8Bit(int x)
+{
+	setValue(double(x) * (1.0 / 255.0));
 }
 
 void FSColorSlider::resizeEvent(QResizeEvent *)
@@ -93,7 +101,7 @@ void FSColorSlider::mouseMoveEvent(QMouseEvent *event)
 	
 	
 	MLColor color = _color;
-	color.setIntervaledComponent(_component, mlAlign(x, 1.0 / (double)_stepCount));
+	color.setNormalizedComponent(_component, mlAlign(x, 1.0 / (double)_stepCount));
 	setColor(color);
 }
 
@@ -139,7 +147,7 @@ void FSColorSlider::updateImage()
 		double value = ((double)x + 0.5) / (double)width;
 		
 		MLColor color = _color;
-		color.setIntervaledComponent(_component, value);
+		color.setNormalizedComponent(_component, value);
 		
 		QRgb rgb = color.toQRgb();
 		
