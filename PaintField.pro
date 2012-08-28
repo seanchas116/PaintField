@@ -109,7 +109,8 @@ SOURCES += \
     src/gui/fstoolsettingpanel.cpp \
     src/gui/fsmodulardoublespinbox.cpp \
     src/gui/fsloosespinbox.cpp \
-    src/gui/fscanvas.cpp
+    src/gui/fscanvas.cpp \
+    src/gui/fsapplication.cpp
 
 HEADERS += \
     src/core/fszip.h \
@@ -159,4 +160,5 @@ HEADERS += \
     src/gui/fstoolsettingpanel.h \
     src/gui/fsmodulardoublespinbox.h \
     src/gui/fsloosespinbox.h \
-    src/gui/fscanvas.h
+    src/gui/fscanvas.h \
+    src/gui/fsapplication.h

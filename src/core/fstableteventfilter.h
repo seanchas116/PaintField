@@ -12,7 +12,7 @@ class FSTabletEventFilter : public QObject
 {
 	Q_OBJECT
 public:
-	explicit FSTabletEventFilter(QObject *parent = 0) : QObject(parent) {}
+	explicit FSTabletEventFilter(QObject *parent = 0) : QObject(parent), _targetWidget(0) {}
 	
 	bool eventFilter(QObject *watched, QEvent *event);
 	
@@ -21,7 +21,9 @@ signals:
 public slots:
 	
 private:
-	bool sendTabletEventRecursive(QWidget *widget, FSTabletEvent *event);
+	//bool sendTabletEventRecursive(QWidget *widget, FSTabletEvent *event);
+	
+	QWidget *_targetWidget;
 };
 
 #endif // FSTABLETEVENTFILTER_H

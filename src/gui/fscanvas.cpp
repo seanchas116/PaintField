@@ -294,13 +294,17 @@ FSCanvas::FSCanvas(FSDocumentModel *document, QWidget *parent) :
 	connect(_document, SIGNAL(modifiedChanged(bool)), this, SLOT(setWindowModified(bool)));
 	connect(_document, SIGNAL(filePathChanged(QString)), this, SLOT(documentPathChanged(QString)));
 	documentPathChanged(_document->filePath());
+	
+	setTransformationAnchor(QGraphicsView::NoAnchor);
+	setTransform(QTransform::fromTranslate(-document->width(), -document->height()));
 }
 
 FSCanvas::~FSCanvas() {}
 
 void FSCanvas::changeCanvasSize(const QSize &size)
 {
-	QRect rect(-size.width() - size.width()/2, -size.height() - size.height()/2, 3 * size.width(), 3 * size.height());
+	//QRect rect(-size.width() - size.width()/2, -size.height() - size.height()/2, 3 * size.width(), 3 * size.height());
+	QRect rect(-size.width(), -size.height(), size.width() * 3, size.height() * 3);
 	setSceneRect(rect);
 }
 
@@ -396,10 +400,10 @@ void FSCanvas::wheelEvent(QWheelEvent *event)
 	switch (event->orientation())
 	{
 		case Qt::Horizontal:
-			translate(event->delta(), 0);
+			translate(event->delta() / 2, 0);
 			break;
 		case Qt::Vertical:
-			translate(0, event->delta());
+			translate(0, event->delta() / 2);
 			break;
 		default:
 			break;
