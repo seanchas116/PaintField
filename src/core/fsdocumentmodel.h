@@ -23,8 +23,8 @@ class MLPainter;
 class FSDocumentRootLayer : public FSLayer
 {
 public:
-	FSDocumentRootLayer(FSDocumentModel *document) : FSLayer("root"), _document(document) {}
-	FSDocumentRootLayer(const FSDocumentRootLayer &other) : FSLayer(other), _document(other._document) {}
+	FSDocumentRootLayer(FSDocumentModel *document) : FSLayer("root"), _document(document) { setBlendMode(ML::BlendModePassThrough); }
+	FSDocumentRootLayer(const FSDocumentRootLayer &other) : FSLayer(other), _document(other._document) { setBlendMode(ML::BlendModePassThrough); }
 	
 	FSLayer *clone() const { return new FSDocumentRootLayer(*this); }
 	Type type() const { return FSLayer::TypeGroup; }

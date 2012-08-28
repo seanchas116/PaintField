@@ -6,17 +6,18 @@
 #include "fscanvas.h"
 #include "fsbrushsetting.h"
 
-class FSBrushStroker;
+class FSStroker;
 class FSTabletInputData;
+class FSBrushRenderDelegate;
 
 class FSBrushTool : public FSTool
 {
 	Q_OBJECT
 public:
-	explicit FSBrushTool(FSCanvasView *parent = 0);
+	explicit FSBrushTool(FSCanvas *parent = 0);
 	~FSBrushTool();
 	
-	void render(MLPainter *painter, const FSLayer *layer, const QPoint &tileKey);
+	FSLayerRenderDelegate *renderDelegate();
 	
 	void setBrushSetting(const FSBrushSetting *setting) { _brushSetting = setting; }
 	const FSBrushSetting *brushSetting() const { return _brushSetting; }
@@ -43,9 +44,11 @@ private:
 	
 	void setPrevData(const FSTabletInputData &data);
 	
-	QScopedPointer<FSBrushStroker> _stroker;
+	QScopedPointer<FSBrushRenderDelegate> _delegate;
+	QScopedPointer<FSStroker> _stroker;
 	FSTabletInputData _dataPrev, _dataBeforePrev;
 	bool _dataPrevSet, _trailing;
+	bool _prevDataTrail;
 	const FSBrushSetting *_brushSetting;
 	const FSLayer *_layer;
 	MLSurface _surface;
@@ -57,7 +60,7 @@ class FSBrushToolFactory : public FSToolFactory
 public:
 	explicit FSBrushToolFactory(QObject *parent = 0);
 	
-	FSTool *createTool(FSCanvasView *view);
+	FSTool *createTool(FSCanvas *parent);
 	
 	bool isTypeSupported(FSLayer::Type type) const;
 	

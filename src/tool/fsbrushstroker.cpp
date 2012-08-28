@@ -109,8 +109,8 @@ MLPolygon mlTangentQuadrangle(double radius1, const MLVec2D &center1, double rad
 	MLPolygon poly(4);
 	
 	poly[0] = k1 + k1p1;
-	poly[1] = k2 + k2p2;
-	poly[2] = k2 + k2q2;
+	poly[1] = k2 + k2q2;
+	poly[2] = k2 + k2p2;
 	poly[3] = k1 + k1q1;
 	
 	return poly;
@@ -172,7 +172,11 @@ void FSPenStroker::drawInterval(const MLPolygon &polygon, const FSTabletInputDat
 		
 		painter.drawPolygon(mlTangentQuadrangle(radiusPrev, polygon[i], radius, polygon[i+1]));
 		painter.drawEllipse(polygon[i+1], radius, radius);
+		
+		radiusPrev = radius;
 	}
+	
+	_radiusPrev = radiusPrev;
 	
 	painter.flush();
 	

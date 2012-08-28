@@ -42,9 +42,6 @@ private:
 	QActionGroup *_actionGroup;
 	
 	FSToolFactory *_currentToolFactory;
-	
-	FSCanvasView *_currentView;
-	FSLayer *_currentLayer;
 };
 
 #endif // FSTOOLMANAGER_H

@@ -75,9 +75,9 @@ public:
 	void setName(const QString &name) { _name = name; }
 	QString name() const { return _name; }
 	void setVisible(bool visible) { _isVisible = visible; }
-	bool visible() const { return _isVisible; }
+	bool isVisible() const { return _isVisible; }
 	void setLocked(bool locked) { _isLocked = locked; }
-	bool locked() const { return property(FSGlobal::RoleLocked).toBool(); }
+	bool isLocked() const { return property(FSGlobal::RoleLocked).toBool(); }
 	void setThumbnail(const QPixmap &thumbnail) { _thumbnail = thumbnail; }
 	QPixmap thumbnail() const { return _thumbnail; }
 	void setOpacity(double opacity) { _opacity = opacity; }

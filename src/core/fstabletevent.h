@@ -15,7 +15,9 @@ public:
 		globalPos(globalPos),
 		globalPosInt(globalPosInt),
 		data(posF, pressure, rotation, tangentialPressure, MLVec2D(xTilt, yTilt))
-	{}
+	{
+		setAccepted(false);
+	}
 	
 	MLVec2D globalPos;
 	QPoint globalPosInt;

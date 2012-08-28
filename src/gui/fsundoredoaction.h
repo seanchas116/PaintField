@@ -3,27 +3,27 @@
 
 #include "fsaction.h"
 
-class FSUndoAction : public FSCanvasViewAction
+class FSUndoAction : public FSCanvasAction
 {
 public:
-	FSUndoAction(QObject *parent) : FSCanvasViewAction(parent) {}
+	FSUndoAction(QObject *parent) : FSCanvasAction(parent) {}
 	
 protected:
 	
-	void onViewChanged(FSCanvasView *view);
+	void onCanvasChanged(FSCanvas *canvas);
 	
 private:
 	QScopedPointer<QAction> _undoAction;
 };
 
-class FSRedoAction : public FSCanvasViewAction
+class FSRedoAction : public FSCanvasAction
 {
 public:
-	FSRedoAction(QObject *parent) : FSCanvasViewAction(parent) {}
+	FSRedoAction(QObject *parent) : FSCanvasAction(parent) {}
 	
 protected:
 	
-	void onViewChanged(FSCanvasView *view);
+	void onCanvasChanged(FSCanvas *canvas);
 	
 private:
 	QScopedPointer<QAction> _redoAction;

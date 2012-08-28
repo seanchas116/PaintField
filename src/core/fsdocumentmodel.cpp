@@ -180,8 +180,8 @@ bool FSDocumentModel::saveLayerRecursive(const FSLayer *parent, FSZip *archive, 
 		}
 		
 		xmlWriter->writeAttribute("name", child->name() );
-		xmlWriter->writeAttribute("visible", child->visible() ? "true" : "false");
-		xmlWriter->writeAttribute("locked", child->locked() ? "true" : "false");
+		xmlWriter->writeAttribute("visible", child->isVisible() ? "true" : "false");
+		xmlWriter->writeAttribute("locked", child->isLocked() ? "true" : "false");
 		xmlWriter->writeAttribute("opacity", QString::number(child->opacity() ) );
 		xmlWriter->writeAttribute("blend_mode", child->blendMode().name() );
 		

@@ -4,7 +4,6 @@
 #include "fsdoubleslider.h"
 #include "fssimplebutton.h"
 #include "fsguimain.h"
-#include "fscanvasview.h"
 #include "fsrasterlayer.h"
 #include "mlpainter.h"
 #include "mlimageio.h"
@@ -158,11 +157,13 @@ void FSLayerTreePanel::createForms()
 	
 	_opacitySlider = new FSDoubleSlider();
 	_opacitySlider->setOrientation(Qt::Horizontal);
+	_opacitySlider->setMinimum(0);
+	_opacitySlider->setMaximum(1000);
 	_opacitySlider->setDoubleMinimum(0.0);
 	_opacitySlider->setDoubleMaximum(100.0);
 	
 	_opacitySpinBox = new FSLooseSpinBox();
-	_opacitySpinBox->setDecimals(0);
+	_opacitySpinBox->setDecimals(1);
 	_opacitySpinBox->setMinimum(0);
 	_opacitySpinBox->setMaximum(100);
 	_opacitySpinBox->setSingleStep(1.0);

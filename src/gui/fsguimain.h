@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include "fsactionmanager.h"
-#include "fscanvasview.h"
+#include "fscanvas.h"
 #include "fscore.h"
 
 class QMenuBar;
@@ -19,10 +19,10 @@ public:
 	void addPanel(FSPanelWidget *panel);
 	QList<FSPanel *> panels();
 	
-	void addCanvasView(FSCanvasView *view);
-	FSCanvasView *currentView() { return _currentView; }
-	FSDocumentModel *currentDocument() { return _currentView ? _currentView->documentModel() : 0; }
-	bool isViewSelected() const { return _currentView; }
+	void addCanvas(FSCanvas *canvas);
+	FSCanvas *currentCanvas() { return _currentCanvas; }
+	FSDocumentModel *currentDocument() { return _currentCanvas ? _currentCanvas->document() : 0; }
+	bool isViewSelected() const { return _currentCanvas; }
 	
 	FSActionManager *actionManager() { return _actionManager; }
 	QAction *action(const QString &name) { return _actionManager->action(name); }
@@ -31,12 +31,12 @@ public:
 	
 signals:
 	
-	void currentViewChanged(FSCanvasView *view);
+	void currentCanvasChanged(FSCanvas *canvas);
 	void currentDocumentChanged(FSDocumentModel *document);
 	
 public slots:
 	
-	void setCurrentView(FSCanvasView *view);
+	void setCurrentCanvas(FSCanvas *canvas);
 	bool quit();
 	
 private slots:
@@ -53,15 +53,15 @@ private slots:
 	
 private slots:
 	
-	void viewActivated();
-	void viewClosed();
+	void onCanvasActivated();
+	void onCanvasClosed();
 	
 private:
 	
 	QList<FSPanel *> _panels;
 	
-	QList<FSCanvasView *> _views;
-	FSCanvasView *_currentView;
+	QList<FSCanvas *> _canvases;
+	FSCanvas *_currentCanvas;
 	
 	QMenuBar *_mainMenu;
 	FSActionManager *_actionManager;

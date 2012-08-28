@@ -37,34 +37,34 @@ void FSAction::onAssociatedActionDeleted()
 	_associatedAction = 0;
 }
 
-FSCanvasViewAction::FSCanvasViewAction(QObject *parent) :
+FSCanvasAction::FSCanvasAction(QObject *parent) :
 	FSAction(parent)
 {
-	connect(fsGuiMain(), SIGNAL(currentViewChanged(FSCanvasView*)), this, SLOT(onViewChanged(FSCanvasView*)));
-	onViewChanged(fsGuiMain()->currentView());
+	connect(fsGuiMain(), SIGNAL(currentCanvasChanged(FSCanvas*)), this, SLOT(onCanvasChanged(FSCanvas*)));
+	onCanvasChanged(fsGuiMain()->currentCanvas());
 }
 
-void FSCanvasViewAction::onViewChanged(FSCanvasView *view)
+void FSCanvasAction::onCanvasChanged(FSCanvas *canvas)
 {
-	setEnabled(view);
+	setEnabled(canvas);
 }
 
-void FSLayerAction::onViewChanged(FSCanvasView *view)
+void FSLayerAction::onCanvasChanged(FSCanvas *canvas)
 {
-	if (_view)
+	if (_canvas)
 	{
-		disconnect(documentModel(), SIGNAL(currentIndexChanged(QModelIndex,QModelIndex)), this, SLOT(onCurrentLayerChanged(QModelIndex)));
-		disconnect(documentModel()->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(onLayerSelectionChanged(QItemSelection)));
+		disconnect(document(), SIGNAL(currentIndexChanged(QModelIndex,QModelIndex)), this, SLOT(onCurrentLayerChanged(QModelIndex)));
+		disconnect(document()->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(onLayerSelectionChanged(QItemSelection)));
 	}
-	_view = view;
-	if (_view)
+	_canvas = canvas;
+	if (_canvas)
 	{
-		connect(_view, SIGNAL(destroyed()), this, SLOT(onViewDeleted()));
+		connect(_canvas, SIGNAL(destroyed()), this, SLOT(onViewDeleted()));
 		
-		connect(documentModel(), SIGNAL(currentIndexChanged(QModelIndex,QModelIndex)), this, SLOT(onCurrentLayerChanged(QModelIndex)));
-		onCurrentLayerChanged(documentModel()->currentIndex());
-		connect(documentModel()->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(onLayerSelectionChanged(QItemSelection)));
-		onLayerSelectionChanged(documentModel()->selectionModel()->selection());
+		connect(document(), SIGNAL(currentIndexChanged(QModelIndex,QModelIndex)), this, SLOT(onCurrentLayerChanged(QModelIndex)));
+		onCurrentLayerChanged(document()->currentIndex());
+		connect(document()->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(onLayerSelectionChanged(QItemSelection)));
+		onLayerSelectionChanged(document()->selectionModel()->selection());
 	}
 	else
 	{
@@ -75,12 +75,12 @@ void FSLayerAction::onViewChanged(FSCanvasView *view)
 
 void FSLayerAction::onViewDeleted()
 {
-	_view = 0;
+	_canvas = 0;
 }
 
 void FSLayerAction::onCurrentLayerChanged(const QModelIndex &index)
 {
-	setEnabled(_view && index.isValid());
+	setEnabled(_canvas && index.isValid());
 }
 
 FSEditAction::FSEditAction(QObject *parent) :

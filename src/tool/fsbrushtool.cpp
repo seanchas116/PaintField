@@ -10,21 +10,50 @@
 #include "fsbrushsettingwidget.h"
 
 
-FSBrushTool::FSBrushTool(FSCanvasView *parent) :
+class FSBrushRenderDelegate : public FSLayerRenderDelegate
+{
+public:
+	
+	FSBrushRenderDelegate(MLSurface *surface) :
+	    FSLayerRenderDelegate(),
+	    _surface(surface)
+	{
+		setReplacingEnabled(true);
+	}
+	
+	void render(MLPainter *painter, const FSLayer *layer, const QPoint &tileKey)
+	{
+		Q_UNUSED(layer);
+		painter->drawImage(0, 0, _surface->tileForKey(tileKey));
+	}
+	
+	MLImage renderReplacing(const FSLayer *layer, const QPoint &tileKey)
+	{
+		Q_UNUSED(layer);
+		return _surface->tileForKey(tileKey);
+	}
+	
+private:
+	
+	MLSurface *_surface;
+};
+
+FSBrushTool::FSBrushTool(FSCanvas *parent) :
 	FSTool(parent),
 	_dataPrevSet(false),
 	_trailing(false),
+    _prevDataTrail(true),
 	_brushSetting(0),
 	_layer(0)
-{}
+{
+	_delegate.reset(new FSBrushRenderDelegate(&_surface));
+}
 
 FSBrushTool::~FSBrushTool() {}
 
-void FSBrushTool::render(MLPainter *painter, const FSLayer *layer, const QPoint &tileKey)
+FSLayerRenderDelegate *FSBrushTool::renderDelegate()
 {
-	Q_UNUSED(layer);
-	if (_surface.contains(tileKey))
-		painter->drawImage(0, 0, _surface.tileForKey(tileKey));
+	return _delegate.data();
 }
 
 void FSBrushTool::cursorPressEvent(FSTabletEvent *event)
@@ -40,16 +69,26 @@ void FSBrushTool::cursorMoveEvent(FSTabletEvent *event)
 	
 	if (_stroker)
 	{
-		if (_trailing)
+		if (_prevDataTrail)
 		{
-			_trailing = false;
-			endStroke(event->data);
+			if (event->data.pressure)
+				drawStroke(event->data);
+			else
+				endStroke(event->data);
 		}
 		else
 		{
-			drawStroke(event->data);
-			if (event->data.pressure == 0)
-				_trailing = true;
+			if (_trailing)
+			{
+				_trailing = false;
+				endStroke(event->data);
+			}
+			else
+			{
+				drawStroke(event->data);
+				if (event->data.pressure == 0)
+					_trailing = true;
+			}
 		}
 	}
 	else if (event->data.pressure)
@@ -81,13 +120,20 @@ void FSBrushTool::beginStroke(const FSTabletInputData &data)
 	}
 	
 	_surface = _layer->surface();
-	_stroker.reset(new FSBrushStroker(&_surface, _brushSetting));
+	_stroker.reset(new FSPenStroker(&_surface, _brushSetting));
+	_delegate->addTarget(_layer);
 	
-	setDelegatesRender(true);
-	
-	_stroker->moveTo(_dataBeforePrev);
-	_stroker->lineTo(_dataPrev);
-	_stroker->lineTo(data);
+	if (_prevDataTrail)
+	{
+		_stroker->moveTo(_dataBeforePrev);
+		_stroker->lineTo(_dataPrev);
+		_stroker->lineTo(data);
+	}
+	else
+	{
+		_stroker->moveTo(_dataPrev);
+		_stroker->lineTo(data);
+	}
 }
 
 void FSBrushTool::drawStroke(const FSTabletInputData &data)
@@ -106,18 +152,17 @@ void FSBrushTool::endStroke(const FSTabletInputData &data)
 	_stroker->end();
 	updateTiles();
 	
-	setDelegatesRender(false);
-	
 	//documentModel()->setData(documentModel()->indexForLayer(_layer), QVariant::fromValue(_surface), FSGlobal::RoleSurface, tr("Brush"));
-	documentModel()->makeSkipNextUpdate();
-	documentModel()->editLayer(documentModel()->indexForLayer(_layer), new FSLayerSurfaceEdit(_surface, _stroker->totalEditedKeys()), tr("Brush"));
+	document()->makeSkipNextUpdate();
+	document()->editLayer(document()->indexForLayer(_layer), new FSLayerSurfaceEdit(_surface, _stroker->totalEditedKeys()), tr("Brush"));
 	
 	_stroker.reset();
+	_delegate->clearTargets();
 }
 
 void FSBrushTool::updateTiles()
 {
-	canvas()->updateView(_stroker->lastEditedKeys());
+	emit requestUpdate(_stroker->lastEditedKeys());
 	_stroker->clearLastEditedKeys();
 }
 
@@ -144,9 +189,9 @@ FSBrushToolFactory::FSBrushToolFactory(QObject *parent) :
 	setIcon(fsCreateSimpleIconSet(":/icons/32x32/brush.svg"));
 }
 
-FSTool *FSBrushToolFactory::createTool(FSCanvasView *view)
+FSTool *FSBrushToolFactory::createTool(FSCanvas *parent)
 {
-	FSBrushTool *tool = new FSBrushTool(view);
+	FSBrushTool *tool = new FSBrushTool(parent);
 	tool->setBrushSetting(&_setting);
 	return tool;
 }

@@ -1,13 +1,13 @@
 #include "fsundoredoaction.h"
 
-void FSUndoAction::onViewChanged(FSCanvasView *view)
+void FSUndoAction::onCanvasChanged(FSCanvas *canvas)
 {
-	_undoAction.reset(view ? view->documentModel()->undoStack()->createUndoAction(0) : 0);
+	_undoAction.reset(canvas ? canvas->document()->undoStack()->createUndoAction(0) : 0);
 	associateAction(_undoAction.data());
 }
 
-void FSRedoAction::onViewChanged(FSCanvasView *view)
+void FSRedoAction::onCanvasChanged(FSCanvas *canvas)
 {
-	_redoAction.reset(view ? view->documentModel()->undoStack()->createRedoAction(0) : 0);
+	_redoAction.reset(canvas ? canvas->document()->undoStack()->createRedoAction(0) : 0);
 	associateAction(_redoAction.data());
 }

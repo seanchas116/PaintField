@@ -2,7 +2,7 @@
 #define FSACTION_H
 
 #include <QAction>
-#include "fscanvasview.h"
+#include "fscanvas.h"
 
 class FSAction : public QAction
 {
@@ -31,21 +31,21 @@ private:
   In the default implementation, a FSCanvasViewAction will disable itself when no view is opened.
   Reimplement notifyViewChanged() if you want to customize this operation.
 */
-class FSCanvasViewAction : public FSAction
+class FSCanvasAction : public FSAction
 {
 	Q_OBJECT
 	
 public:
 	
-	FSCanvasViewAction(QObject *parent);
+	FSCanvasAction(QObject *parent);
 	
 protected slots:
 	
 	/**
-	  This slot is called when the current view is changed.
-	  When all view is closed, it is called with view = 0.
+	  This slot is called when the current canvas is changed.
+	  When all canvas is closed, it is called with view = 0.
 	*/
-	virtual void onViewChanged(FSCanvasView *view);
+	virtual void onCanvasChanged(FSCanvas *canvas);
 };
 
 /**
@@ -53,25 +53,25 @@ protected slots:
   In the default implementation, a FSLayerAction will disable itself when no layer is selected.
   Reimplement notifyCurrentLayerChanged() or notifyLayerSelectionChanged() if you want to customize this operation.
 */
-class FSLayerAction : public FSCanvasViewAction
+class FSLayerAction : public FSCanvasAction
 {
 	Q_OBJECT
 	
 public:
 	
 	FSLayerAction(QObject *parent) :
-		FSCanvasViewAction(parent), _view(0) {}
+		FSCanvasAction(parent), _canvas(0) {}
 	
 protected:
 	
 	/**
 	  @return The current view's document model
 	*/
-	FSDocumentModel *documentModel() { return _view ? _view->documentModel() : 0; }
+	FSDocumentModel *document() { return _canvas ? _canvas->document() : 0; }
 	
 protected slots:
 	
-	void onViewChanged(FSCanvasView *view);
+	void onCanvasChanged(FSCanvas *canvas);
 	
 	void onViewDeleted();
 	
@@ -89,7 +89,7 @@ protected slots:
 	
 private:
 	
-	FSCanvasView *_view;
+	FSCanvas *_canvas;
 };
 
 /**

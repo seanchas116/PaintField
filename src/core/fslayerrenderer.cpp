@@ -1,50 +1,155 @@
 #include "fslayerrenderer.h"
 
-void FSLayerRenderer::renderRecursive(MLPainter *painter, const FSLayer *parent, const QPoint &tileKey, double opacity, bool inDelegateTarget)
+MLImage FSLayerRenderer::renderTile(const FSLayer *root, const QPoint &tileKey, const MLImage &background)
 {
-	QListIterator<const FSLayer *> iter(parent->children());
-	iter.toBack();
+	_tileKey = tileKey;
 	
-	while (iter.hasPrevious())
+	Context context;
+	
+	renderRecursive(&context, root);
+	
+	if (context.isEmpty() && background.size() == QSize(MLSurface::TileSize, MLSurface::TileSize))
+		return background;
+	
+	if (background.isValid())
 	{
-		const FSLayer *layer = iter.previous();
+		MLPainter painter(context.destImage());
 		
-		if (!layer->visible())
-			continue;
+		painter.setBlendMode(ML::BlendModeDestinationOver);
+		painter.drawImage(0, 0, background);
+	}
+	
+	return *context.destImage();
+}
+
+void FSLayerRenderer::renderRecursive(Context *context, const FSLayer *layer)
+{
+	if (layer->isVisible() == false)
+		return;
+	
+	if (layer->type() == FSLayer::TypeGroup && layer->blendMode() == ML::BlendModePassThrough)
+	{
+		//qDebug() << "layer is pass-through group. rendering children...";
 		
-		bool useDelegate = (_delegate &&  _delegate->target() == layer) || inDelegateTarget;
+		double opacity = context->opacity();
+		context->setOpacity(opacity * layer->opacity());
+		renderChildren(context, layer->children());
+		context->setOpacity(opacity);
+	}
+	else
+	{
+		MLImage src;
 		
-		if (layer->type() == FSLayer::TypeGroup && layer->blendMode().index() == ML::BlendModePassThrough)
+		double opacity = layer->opacity() * context->opacity();
+		
+		if (layer->type() == FSLayer::TypeGroup)
 		{
-			renderRecursive(painter, layer, tileKey, opacity * layer->opacity(), useDelegate);
+			//qDebug() << "layer is non pass-through group. rendering children to temporary image...";
+			
+			Context context;
+			renderChildren(&context, layer->children());
+			src = *context.constDestImage();
 		}
 		else
 		{
-			painter->setOpacity(opacity * layer->opacity());
-			
-			painter->setBlendMode(layer->blendMode());
-			
-			if (layer->type() == FSLayer::TypeRaster && useDelegate)
+			if (_delegate && _delegate->targetLayers().contains(layer))
 			{
-				_delegate->render(painter, layer, tileKey);
+				//qDebug() << "layer is delegation target.";
+				_delegate->render(context, layer, _tileKey);
+				return;
 			}
-			else
+			
+			MLBlendOp::TileCombination combination = MLBlendOp::NoTile;
+			
+			if (layer->surface().contains(_tileKey))
+				combination |= MLBlendOp::TileSource;
+			if (context->isEmpty() == false)
+				combination |= MLBlendOp::TileDestination;
+			
+			switch (layer->blendMode().op()->tileRequirement(combination))
 			{
-				MLImage src;
-				
-				if (layer->type() == FSLayer::TypeGroup)
-				{
-					src = MLSurface::DefaultTile;
-					MLPainter childPainter(&src);
-					renderRecursive(&childPainter, layer, tileKey, 1, useDelegate);
-				}
-				else
-				{
-					src = layer->surface().tileForKey(tileKey);
-				}
-				
-				painter->drawImage(_pos, src);
+				case MLBlendOp::TileSource:
+					//qDebug() << "source only";
+					*context->destImage() = layer->surface().tileForKey(_tileKey) * opacity;
+				default:
+				case MLBlendOp::NoTile:
+				case MLBlendOp::TileDestination:
+					//qDebug() << "destination only. do nothing.";
+					return;
+					
+				case MLBlendOp::TileBoth:
+					break;
 			}
+			
+			//qDebug() << "normal operation";
+			src = layer->surface().tileForKey(_tileKey);
 		}
+		
+		MLPainter painter(context->destImage());
+		painter.setOpacity(opacity);
+		painter.setBlendMode(layer->blendMode());
+		painter.drawImage(0, 0, src);
 	}
 }
+
+void FSLayerRenderer::renderChildren(Context *context, const FSLayerConstList &layers)
+{
+	QListIterator<const FSLayer *> iter(layers);
+	iter.toBack();
+	
+	while (iter.hasPrevious())
+		renderRecursive(context, iter.previous());
+}
+
+
+void FSLayerRenderDelegate::render(FSLayerRenderer::Context *context, const FSLayer *layer, const QPoint &tileKey)
+{
+	double opacity = layer->opacity() * context->opacity();
+	MLBlendOp::TileCombination combination = MLBlendOp::TileSource;
+	
+	if (context->isEmpty() == false)
+		combination |= MLBlendOp::TileDestination;
+	
+	switch (layer->blendMode().op()->tileRequirement(combination))
+	{
+		case MLBlendOp::TileSource:
+			
+			if (_replacingEnabled)
+			{
+				//qDebug() << "calling renderReplacing";
+				*context->destImage() = renderReplacing(layer, tileKey) * opacity;
+				return;
+			}
+			
+			break;
+			
+		case MLBlendOp::TileBoth:
+			break;
+			
+		default:
+			return;
+	}
+	
+	//qDebug() << "calling render";
+	MLPainter painter(context->destImage());
+	painter.setOpacity(opacity);
+	painter.setBlendMode(layer->blendMode());
+	render(&painter, layer, tileKey);
+}
+
+void FSLayerRenderDelegate::render(MLPainter *painter, const FSLayer *layer, const QPoint &tileKey)
+{
+	Q_UNUSED(painter);
+	Q_UNUSED(layer);
+	Q_UNUSED(tileKey);
+}
+
+MLImage FSLayerRenderDelegate::renderReplacing(const FSLayer *layer, const QPoint &tileKey)
+{
+	Q_UNUSED(layer);
+	Q_UNUSED(tileKey);
+	return MLSurface::DefaultTile;
+}
+
+
+

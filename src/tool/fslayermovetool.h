@@ -22,13 +22,18 @@ private:
 	QPoint _offset;
 };
 
+class FSLayerMoveRenderDelegate;
+
 class FSLayerMoveTool : public FSTool
 {
 	Q_OBJECT
 public:
-	explicit FSLayerMoveTool(FSCanvasView *parent = 0);
+	explicit FSLayerMoveTool(FSCanvas *parent = 0);
+	~FSLayerMoveTool();
 	
 	void render(MLPainter *painter, const FSLayer *layer, const QPoint &tileKey);
+	
+	FSLayerRenderDelegate *renderDelegate();
 	
 signals:
 	
@@ -45,8 +50,11 @@ protected:
 	void endMoveLayer();
 	
 private:
+	
+	QScopedPointer<FSLayerMoveRenderDelegate> _delegate;
 	const FSLayer *_layer;
-	QPoint _dragStartPoint, _offset;
+	QPoint _dragStartPoint;
+	QPointSet _lastKeys;
 	bool _layerIsDragged;
 };
 
@@ -56,7 +64,7 @@ class FSLayerMoveToolFactory : public FSToolFactory
 public:
 	explicit FSLayerMoveToolFactory(QObject *parent = 0);
 	
-	FSTool *createTool(FSCanvasView *view) { return new FSLayerMoveTool(view); }
+	FSTool *createTool(FSCanvas *view) { return new FSLayerMoveTool(view); }
 	bool isTypeSupported(FSLayer::Type type) const;
 };
 

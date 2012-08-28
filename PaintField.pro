@@ -80,7 +80,6 @@ SOURCES += \
     src/core/fsdrawutil.cpp \
     src/core/fsdocumentmodel.cpp \
     src/core/fscore.cpp \
-    src/core/fscanvas.cpp \
     src/dialog/fsnewdocumentdialog.cpp \
     src/gui/fssimplebutton.cpp \
     src/gui/fspanel.cpp \
@@ -92,7 +91,6 @@ SOURCES += \
     src/gui/fscolorslider.cpp \
     src/gui/fscolorpanel.cpp \
     src/gui/fscolorbutton.cpp \
-    src/gui/fscanvasview.cpp \
     src/gui/fsactionmanager.cpp \
     src/tool/fslayermovetool.cpp \
     src/tool/fsbrushtool.cpp \
@@ -110,7 +108,8 @@ SOURCES += \
     src/tool/fsbrushsettingwidget.cpp \
     src/gui/fstoolsettingpanel.cpp \
     src/gui/fsmodulardoublespinbox.cpp \
-    src/gui/fsloosespinbox.cpp
+    src/gui/fsloosespinbox.cpp \
+    src/gui/fscanvas.cpp
 
 HEADERS += \
     src/core/fszip.h \
@@ -130,7 +129,6 @@ HEADERS += \
     src/core/fsdrawutil.h \
     src/core/fsdocumentmodel.h \
     src/core/fscore.h \
-    src/core/fscanvas.h \
     src/dialog/fsnewdocumentdialog.h \
     src/gui/fssimplebutton.h \
     src/gui/fspanel.h \
@@ -142,7 +140,6 @@ HEADERS += \
     src/gui/fscolorslider.h \
     src/gui/fscolorpanel.h \
     src/gui/fscolorbutton.h \
-    src/gui/fscanvasview.h \
     src/gui/fsactionmanager.h \
     src/tool/fslayermovetool.h \
     src/tool/fsbrushtool.h \
@@ -161,4 +158,5 @@ HEADERS += \
     src/tool/fsbrushsettingwidget.h \
     src/gui/fstoolsettingpanel.h \
     src/gui/fsmodulardoublespinbox.h \
-    src/gui/fsloosespinbox.h
+    src/gui/fsloosespinbox.h \
+    src/gui/fscanvas.h

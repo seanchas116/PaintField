@@ -2,7 +2,6 @@
 
 #include "fscore.h"
 
-#include "fscanvasview.h"
 #include "fslayertreepanel.h"
 #include "fscolorpanel.h"
 #include "fstoolpanel.h"
@@ -16,7 +15,7 @@
 
 FSGuiMain::FSGuiMain(QObject *parent) :
 	QObject(parent),
-	_currentView(0)
+	_currentCanvas(0)
 {
 	_instance = this;
 	
@@ -26,10 +25,10 @@ FSGuiMain::FSGuiMain(QObject *parent) :
 	
 	_actionManager->addAction(new QAction(_actionManager), "newFile", tr("New File"), QKeySequence("Ctrl+Shift+N"));
 	_actionManager->addAction(new QAction(_actionManager), "openFile", tr("Open File..."), QKeySequence("Ctrl+O"));
-	_actionManager->addAction(new FSCanvasViewAction(_actionManager), "saveFile", tr("Save"), QKeySequence("Ctrl+S"));
-	_actionManager->addAction(new FSCanvasViewAction(_actionManager), "saveAsFile", tr("Save As..."), QKeySequence("Ctrl+Shift+S"));
-	_actionManager->addAction(new FSCanvasViewAction(_actionManager), "closeFile", tr("Close File"), QKeySequence("Ctrl+W"));
-	_actionManager->addAction(new FSCanvasViewAction(_actionManager), "exportFile", tr("Export..."));
+	_actionManager->addAction(new FSCanvasAction(_actionManager), "saveFile", tr("Save"), QKeySequence("Ctrl+S"));
+	_actionManager->addAction(new FSCanvasAction(_actionManager), "saveAsFile", tr("Save As..."), QKeySequence("Ctrl+Shift+S"));
+	_actionManager->addAction(new FSCanvasAction(_actionManager), "closeFile", tr("Close File"), QKeySequence("Ctrl+W"));
+	_actionManager->addAction(new FSCanvasAction(_actionManager), "exportFile", tr("Export..."));
 	_actionManager->addAction(new QAction(_actionManager), "quit", "Quit", QKeySequence("Ctrl+Q"));
 	
 	_actionManager->addAction(new FSUndoAction(_actionManager), "undo", tr("Undo"), QKeySequence("Ctrl+Z"));
@@ -41,9 +40,9 @@ FSGuiMain::FSGuiMain(QObject *parent) :
 	_actionManager->addAction(new FSEditAction(_actionManager), "delete", tr("Delete"));
 	_actionManager->addAction(new FSEditAction(_actionManager), "selectAll", tr("Select All"), QKeySequence("Ctrl+A"));
 	
-	_actionManager->addAction(new FSCanvasViewAction(_actionManager), "newLayer", tr("New Layer"), QKeySequence("Ctrl+N"));
-	_actionManager->addAction(new FSCanvasViewAction(_actionManager), "newGroup", tr("New Group"), QKeySequence("Ctrl+G"));
-	_actionManager->addAction(new FSCanvasViewAction(_actionManager), "addLayerFromFile", tr("Add Layer From Image File..."));
+	_actionManager->addAction(new FSCanvasAction(_actionManager), "newLayer", tr("New Layer"), QKeySequence("Ctrl+N"));
+	_actionManager->addAction(new FSCanvasAction(_actionManager), "newGroup", tr("New Group"), QKeySequence("Ctrl+G"));
+	_actionManager->addAction(new FSCanvasAction(_actionManager), "addLayerFromFile", tr("Add Layer From Image File..."));
 	_actionManager->addAction(new FSLayerAction(_actionManager), "mergeLayer", tr("Merge Layers"));
 	
 	foreach (QAction *action, fsCore()->toolManager()->actionList())
@@ -140,29 +139,29 @@ void FSGuiMain::addPanel(FSPanelWidget *widget)
 	_panels << panel;
 }
 
-void FSGuiMain::addCanvasView(FSCanvasView *view)
+void FSGuiMain::addCanvas(FSCanvas *canvas)
 {
-	_views << view;
-	connect(view, SIGNAL(windowFocusIn()), this, SLOT(viewActivated()));
-	connect(view, SIGNAL(windowClosed()), this, SLOT(viewClosed()));
-	view->show();
+	_canvases << canvas;
+	connect(canvas, SIGNAL(windowFocusIn()), this, SLOT(onCanvasActivated()));
+	connect(canvas, SIGNAL(windowClosed()), this, SLOT(onCanvasClosed()));
+	canvas->show();
 }
 
-void FSGuiMain::setCurrentView(FSCanvasView *view)
+void FSGuiMain::setCurrentCanvas(FSCanvas *canvas)
 {
-	if (_currentView != view)
+	if (_currentCanvas != canvas)
 	{
-		_currentView = view;
-		emit currentViewChanged(view);
-		emit currentDocumentChanged(view ? view->documentModel() : 0);
+		_currentCanvas = canvas;
+		emit currentCanvasChanged(canvas);
+		emit currentDocumentChanged(canvas ? canvas->document() : 0);
 	}
 }
 
 bool FSGuiMain::quit()
 {
-	foreach (FSCanvasView *view, _views)
+	foreach (FSCanvas *canvas, _canvases)
 	{
-		if (!view->closeFile())
+		if (!canvas->closeFile())
 			return false;
 	}
 	qApp->quit();
@@ -171,46 +170,46 @@ bool FSGuiMain::quit()
 
 void FSGuiMain::newFile()
 {
-	FSCanvasView *view = FSCanvasView::newFile();
-	if (view)
-		addCanvasView(view);
+	FSCanvas *canvas = FSCanvas::newFile();
+	if (canvas)
+		addCanvas(canvas);
 }
 
 void FSGuiMain::openFile()
 {
-	FSCanvasView *view = FSCanvasView::openFile();
-	if (view)
-		addCanvasView(view);
+	FSCanvas *canvas = FSCanvas::openFile();
+	if (canvas)
+		addCanvas(canvas);
 }
 
 void FSGuiMain::saveFile()
 {
-	FSCanvasView *view = currentView();
-	if (view)
-		view->saveFile();
+	FSCanvas *canvas = currentCanvas();
+	if (canvas)
+		canvas->saveFile();
 }
 
 void FSGuiMain::saveAsFile()
 {
-	FSCanvasView *view = currentView();
-	if (view)
-		view->saveAsFile();
+	FSCanvas *canvas = currentCanvas();
+	if (canvas)
+		canvas->saveAsFile();
 }
 
 void FSGuiMain::closeFile()
 {
-	FSCanvasView *view = currentView();
-	if (view)
-		view->closeFile();
+	FSCanvas *canvas = currentCanvas();
+	if (canvas)
+		canvas->closeFile();
 	
-	_views.removeOne(view);
+	_canvases.removeOne(canvas);
 }
 
 void FSGuiMain::exportFile()
 {
-	FSCanvasView *view = currentView();
-	if (view)
-		view->exportFile();
+	FSCanvas *canvas = currentCanvas();
+	if (canvas)
+		canvas->exportFile();
 }
 
 void FSGuiMain::minimizeCurrentWindow()
@@ -227,25 +226,25 @@ void FSGuiMain::zoomCurrentWindow()
 		window->showMaximized();
 }
 
-void FSGuiMain::viewActivated()
+void FSGuiMain::onCanvasActivated()
 {
-	FSCanvasView *view = qobject_cast<FSCanvasView *>(sender());
-	if (!view && !_views.contains(view)) return;
+	FSCanvas *canvas = qobject_cast<FSCanvas *>(sender());
+	if (!canvas && !_canvases.contains(canvas)) return;
 	
-	setCurrentView(view);
+	setCurrentCanvas(canvas);
 }
 
-void FSGuiMain::viewClosed()
+void FSGuiMain::onCanvasClosed()
 {
-	FSCanvasView *view = qobject_cast<FSCanvasView *>(sender());
-	Q_ASSERT(view);
-	Q_ASSERT(_views.contains(view));
+	FSCanvas *canvas = qobject_cast<FSCanvas *>(sender());
+	Q_ASSERT(canvas);
+	Q_ASSERT(_canvases.contains(canvas));
 	
-	_views.removeOne(view);
+	_canvases.removeOne(canvas);
 	
-	if (_currentView == view)
+	if (_currentCanvas == canvas)
 	{
-		setCurrentView(0);
+		setCurrentCanvas(0);
 	}
 }
 
