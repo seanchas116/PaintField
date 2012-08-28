@@ -50,6 +50,9 @@ public:
 	bool event(QEvent *event);
 	
 public slots:
+	
+private:
+	QGraphicsItem *_cursorItem;
 };
 
 class FSCanvas : public QGraphicsView

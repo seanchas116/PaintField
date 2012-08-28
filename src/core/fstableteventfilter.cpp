@@ -11,12 +11,7 @@ bool FSTabletEventFilter::eventFilter(QObject *watched, QEvent *event)
 	{
 		QTabletEvent *tabletEvent = static_cast<QTabletEvent *>(event);
 		
-		QWidget *widget;
-		
-		if (_targetWidget)
-			widget = _targetWidget;
-		else
-			widget = QApplication::widgetAt(tabletEvent->globalPos());
+		QWidget *widget = _targetWidget ? _targetWidget : QApplication::widgetAt(tabletEvent->globalPos());
 		
 		if (!widget)
 			return true;

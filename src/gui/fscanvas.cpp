@@ -238,7 +238,8 @@ class FSCanvasItem : public QGraphicsItem
 };
 
 FSCanvasScene::FSCanvasScene(QObject *parent) :
-    QGraphicsScene(parent)
+    QGraphicsScene(parent),
+    _cursorItem(0)
 {
 }
 
@@ -256,10 +257,19 @@ bool FSCanvasScene::event(QEvent *event)
 	
 	FSTabletEvent *tabletEvent = static_cast<FSTabletEvent *>(event);
 	MLVec2D pos = tabletEvent->data.pos;
-	FSCanvasItem *item = static_cast<FSCanvasItem *>(itemAt(pos));
+	FSCanvasItem *item = static_cast<FSCanvasItem *>(_cursorItem ? _cursorItem : itemAt(pos));
 	
-	if (item) 
+	if (item)
 	{
+		if ((int)event->type() == FSGlobal::EventTabletPress)
+		{
+			_cursorItem = item;
+		}
+		if ((int)event->type() == FSGlobal::EventTabletRelease)
+		{
+			_cursorItem = 0;
+		}
+		
 		tabletEvent->data.pos = item->mapFromScene(pos);
 		return item->sceneEvent(tabletEvent);
 	}
