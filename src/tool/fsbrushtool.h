@@ -48,7 +48,7 @@ private:
 	QScopedPointer<FSStroker> _stroker;
 	FSTabletInputData _dataPrev, _dataBeforePrev;
 	bool _dataPrevSet, _trailing;
-	bool _prevDataTrail;
+	bool _trailingEnabled;
 	const FSBrushSetting *_brushSetting;
 	const FSLayer *_layer;
 	MLSurface _surface;

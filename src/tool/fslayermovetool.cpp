@@ -10,7 +10,7 @@ void FSLayerMoveEdit::redo(FSLayer *layer)
 	Q_ASSERT(rasterLayer);
 	MLSurface surface;
 	MLPainter painter(&surface);
-	painter.drawSurface(_offset, rasterLayer->surface());
+	painter.drawTransformedSurface(_offset, rasterLayer->surface());
 	painter.end();
 	
 	rasterLayer->setSurface(surface);
@@ -22,7 +22,7 @@ void FSLayerMoveEdit::undo(FSLayer *layer)
 	Q_ASSERT(rasterLayer);
 	MLSurface surface;
 	MLPainter painter(&surface);
-	painter.drawSurface(-_offset, rasterLayer->surface());
+	painter.drawTransformedSurface(-_offset, rasterLayer->surface());
 	rasterLayer->setSurface(surface);
 }
 

@@ -271,6 +271,12 @@ bool FSDocumentModel::loadLayerRecursive(FSLayer *parent, FSZip *archive, QXmlSt
 
 void FSDocumentModel::editLayer(const QModelIndex &index, FSLayerEdit *edit, const QString &description)
 {
+	if (!checkIndex(index))
+	{
+		qDebug() << Q_FUNC_INFO << ": corrupt index";
+		return;
+	}
+	
 	QUndoCommand *command = new FSDocumentEditCommand(pathForIndex(index), edit, this);
 	command->setText(description);
 	
@@ -279,6 +285,12 @@ void FSDocumentModel::editLayer(const QModelIndex &index, FSLayerEdit *edit, con
 
 void FSDocumentModel::addLayers(QList<FSLayer *> layers, const QModelIndex &parent, int row, const QString &description)
 {
+	if (!checkIndex(parent))
+	{
+		qDebug() << Q_FUNC_INFO << ": corrupt index";
+		return;
+	}
+	
 	QUndoCommand *command = new QUndoCommand(description);
 	
 	for (int i = 0; i < layers.size(); ++i) {
@@ -290,6 +302,12 @@ void FSDocumentModel::addLayers(QList<FSLayer *> layers, const QModelIndex &pare
 
 void FSDocumentModel::newLayer(FSLayer::Type type, const QModelIndex &parent, int row)
 {
+	if (!checkIndex(parent))
+	{
+		qDebug() << Q_FUNC_INFO << ": corrupt index";
+		return;
+	}
+	
 	FSLayer *layer;
 	QString layerName, editName;
 	
@@ -324,8 +342,10 @@ void FSDocumentModel::removeLayers(const QModelIndexList &indexes)
 	QUndoCommand *command = new QUndoCommand(tr("Remove Layers"));
 	
 	foreach (const QModelIndex &index, indexes) {
-		if (!index.isValid()) {
-			qWarning() << __PRETTY_FUNCTION__ << ": indexes contains an invalid one.";
+		
+		if (!checkIndex(index) || !index.isValid())
+		{
+			qDebug() << Q_FUNC_INFO << ": corrupt index";
 			continue;
 		}
 		new FSDocumentRemoveCommand(pathForIndex(index), this, command);
@@ -336,6 +356,12 @@ void FSDocumentModel::removeLayers(const QModelIndexList &indexes)
 
 void FSDocumentModel::copyOrMoveLayers(const QModelIndexList &indexes, const QModelIndex &parent, int row, bool copy)
 {
+	if (!checkIndex(parent))
+	{
+		qDebug() << Q_FUNC_INFO << ": corrupt index";
+		return;
+	}
+	
 	QUndoCommand *command = new QUndoCommand(copy ? tr("Copy Layers") : tr("Move Layers"));
 	
 	FSLayerPath newParentPath = pathForIndex(parent);
@@ -344,9 +370,9 @@ void FSDocumentModel::copyOrMoveLayers(const QModelIndexList &indexes, const QMo
 	{
 		QModelIndex index = indexes.at(i);
 		
-		if (!index.isValid())
+		if (!checkIndex(index) || !index.isValid())
 		{
-			qWarning() << __PRETTY_FUNCTION__ << ": indexes contains an invalid one.";
+			qDebug() << Q_FUNC_INFO << ": corrupt index";
 			continue;
 		}
 		
@@ -386,6 +412,12 @@ void FSDocumentModel::copyOrMoveLayers(const QModelIndexList &indexes, const QMo
 
 void FSDocumentModel::renameLayer(const QModelIndex &index, const QString &newName)
 {
+	if (!checkIndex(index))
+	{
+		qDebug() << Q_FUNC_INFO << ": corrupt index";
+		return;
+	}
+	
 	QString unduplicatedName = unduplicatedChildName(index.parent(), newName);
 	
 	FSLayerPath oldPath = pathForIndex(index);
@@ -558,14 +590,19 @@ bool FSDocumentModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
 const FSLayer *FSDocumentModel::layerForIndex(const QModelIndex &index) const
 {
 	const FSLayer *layer;
-	if (index.isValid()) {
+	
+	if (index.isValid())
+	{
 		layer = static_cast<FSLayer *>(index.internalPointer());
-		if (layer->root() != rootLayer())
+		
+		if (!checkLayer(layer))
 		{
 			qWarning() << __PRETTY_FUNCTION__ << ": strange index";
 			return 0;
 		}
-	} else {
+	}
+	else
+	{
 		layer = rootLayer();
 	}
 	return layer;
@@ -573,7 +610,7 @@ const FSLayer *FSDocumentModel::layerForIndex(const QModelIndex &index) const
 
 QModelIndex FSDocumentModel::indexForLayer(const FSLayer *layer) const
 {
-	if (layer->root() != rootLayer())
+	if (!checkLayer(layer))
 	{
 		qWarning() << __PRETTY_FUNCTION__ << ": strange layer";
 		return QModelIndex();
@@ -584,25 +621,26 @@ QModelIndex FSDocumentModel::indexForLayer(const FSLayer *layer) const
 const FSLayer *FSDocumentModel::layerForPath(const FSLayerPath &path) const
 {
 	const FSLayer *layer = rootLayer();
-	foreach (const QString &name, path) {
+	foreach (const QString &name, path)
+	{
 		layer = layer->child(name);
-		if (!layer) {
+		if (!layer)
 			return 0;
-		}
 	}
 	return layer;
 }
 
 FSLayerPath FSDocumentModel::pathForLayer(const FSLayer *layer) const
 {
-	if (layer->root() != rootLayer())
+	if (!checkLayer(layer))
 	{
 		qWarning() << __PRETTY_FUNCTION__ << ": strange layer";
 		return FSLayerPath();
 	}
 	
 	FSLayerPath path;
-	while (layer != rootLayer()) {
+	while (layer != rootLayer())
+	{
 		path.prepend(layer->name());
 		layer = layer->parent();
 	}

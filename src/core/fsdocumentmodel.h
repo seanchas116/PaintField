@@ -98,6 +98,9 @@ public:
 	
 	FSLayer::Type layerType(const QModelIndex &index) const { return layerForIndex(index)->type(); }
 	
+	bool checkIndex(const QModelIndex &index) const { return layerForIndex(index); }
+	bool checkLayer(const FSLayer *layer) const { return _rootLayer->isAncestorOfSafe(layer); }
+	
 	const FSLayer *layerForIndex(const QModelIndex &index) const;
 	QModelIndex indexForLayer(const FSLayer *layer) const;
 	

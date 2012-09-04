@@ -42,7 +42,7 @@ FSBrushTool::FSBrushTool(FSCanvas *parent) :
 	FSTool(parent),
 	_dataPrevSet(false),
 	_trailing(false),
-    _prevDataTrail(true),
+    _trailingEnabled(false),
 	_brushSetting(0),
 	_layer(0)
 {
@@ -69,14 +69,7 @@ void FSBrushTool::cursorMoveEvent(FSTabletEvent *event)
 	
 	if (_stroker)
 	{
-		if (_prevDataTrail)
-		{
-			if (event->data.pressure)
-				drawStroke(event->data);
-			else
-				endStroke(event->data);
-		}
-		else
+		if (_trailingEnabled)
 		{
 			if (_trailing)
 			{
@@ -89,6 +82,13 @@ void FSBrushTool::cursorMoveEvent(FSTabletEvent *event)
 				if (event->data.pressure == 0)
 					_trailing = true;
 			}
+		}
+		else
+		{
+			if (event->data.pressure)
+				drawStroke(event->data);
+			else
+				endStroke(event->data);
 		}
 	}
 	else if (event->data.pressure)
@@ -123,16 +123,20 @@ void FSBrushTool::beginStroke(const FSTabletInputData &data)
 	_stroker.reset(new FSPenStroker(&_surface, _brushSetting));
 	_delegate->addTarget(_layer);
 	
-	if (_prevDataTrail)
+	// discard pressure for the 1st time to reduce overshoot
+	FSTabletInputData newData = data;
+	newData.pressure = 0;
+	
+	if (_trailingEnabled)
 	{
 		_stroker->moveTo(_dataBeforePrev);
 		_stroker->lineTo(_dataPrev);
-		_stroker->lineTo(data);
+		_stroker->lineTo(newData);
 	}
 	else
 	{
 		_stroker->moveTo(_dataPrev);
-		_stroker->lineTo(data);
+		_stroker->lineTo(newData);
 	}
 }
 

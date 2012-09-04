@@ -1,5 +1,17 @@
 #include "fsdocumentcommand.h"
 
+FSDocumentEditCommand::FSDocumentEditCommand(const FSLayerPath &path, FSLayerEdit *edit, FSDocumentModel *document, QUndoCommand *parent) :
+    FSDocumentCommand(document, parent),
+    _path(path),
+    _edit(edit)
+{
+	const FSLayer *layer = document->layerForPath(path);
+	Q_ASSERT(layer);
+	Q_ASSERT(edit);
+	setText(edit->name());
+	edit->saveUndoState(layer);
+}
+
 void FSDocumentEditCommand::redo()
 {
 	FSLayer *layer = layerForPath(_path);
@@ -28,6 +40,15 @@ void FSDocumentEditCommand::undo()
 		enqueueTileUpdate(_edit->modifiedKeys());
 }
 
+
+FSDocumentAddCommand::FSDocumentAddCommand(const FSLayer *layer, const FSLayerPath &newParentPath, int newRow, FSDocumentModel *document, QUndoCommand *parent) :
+    FSDocumentCommand(document, parent),
+    _newParentPath(newParentPath),
+    _newRow(newRow)
+{
+	Q_ASSERT(layer);
+	_layer.reset(layer->clone());
+}
 
 void FSDocumentAddCommand::redo()
 {
@@ -83,6 +104,25 @@ void FSDocumentRemoveCommand::undo()
 }
 
 
+FSDocumentMoveCommand::FSDocumentMoveCommand(const FSLayerPath &oldPath, const FSLayerPath &newPath, int newRow, FSDocumentModel *document, QUndoCommand *parent) :
+    FSDocumentCommand(document, parent),
+    _newRow(newRow)
+{
+	FSLayer *layer = layerForPath(oldPath);
+	_oldRow = layer->row();
+	
+	_oldParentPath = oldPath;
+	_oldParentPath.removeLast();
+	_oldName = oldPath.last();
+	
+	_newParentPath = newPath;
+	_newParentPath.removeLast();
+	_newName = newPath.last();
+	
+	if (_newParentPath == _oldParentPath && _newRow > _oldRow)
+		_newRow--;
+}
+
 void FSDocumentMoveCommand::redo()
 {
 	//if (_newParentPath == _oldParentPath && _newRow == _oldRow)
@@ -125,6 +165,15 @@ void FSDocumentMoveCommand::undo()
 	enqueueTileUpdate(layer->tileKeysRecursive());
 }
 
+FSDocumentCopyCommand::FSDocumentCopyCommand(const FSLayerPath &path, const FSLayerPath &newPath, int newRow, FSDocumentModel *document, QUndoCommand *parent) :
+    FSDocumentCommand(document, parent),
+    _path(path),
+    _newRow(newRow)
+{
+	_newParentPath = newPath;
+	_newParentPath.removeLast();
+	_newName = newPath.last();
+}
 
 void FSDocumentCopyCommand::redo()
 {

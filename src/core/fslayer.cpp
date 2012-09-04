@@ -64,6 +64,17 @@ bool FSLayer::isAncestorOf(const FSLayer *layer) const
 	}
 }
 
+bool FSLayer::isAncestorOfSafe(const FSLayer *layer) const
+{
+	foreach (const FSLayer *child, _childrenList)
+	{
+		if (child == layer || child->isAncestorOfSafe(layer))
+			return true;
+	}
+	
+	return false;
+}
+
 bool FSLayer::insertChild(int row, FSLayer *child)
 {
 	if (!insertable(row))

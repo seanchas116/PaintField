@@ -2,7 +2,7 @@
 
 FSBrushSetting::FSBrushSetting() :
 	diameter(10),
-	diameterGamma(1),
+	diameterGamma(0.5),
 	flattening(0),
 	rotation(0),
 	tableWidth(1),

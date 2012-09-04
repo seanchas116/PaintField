@@ -52,17 +52,7 @@ private:
 class FSDocumentEditCommand : public FSDocumentCommand
 {
 public:
-	FSDocumentEditCommand(const FSLayerPath &path, FSLayerEdit *edit, FSDocumentModel *document, QUndoCommand *parent = 0) :
-		FSDocumentCommand(document, parent),
-		_path(path),
-		_edit(edit)
-	{
-		const FSLayer *layer = document->layerForPath(path);
-		Q_ASSERT(layer);
-		Q_ASSERT(edit);
-		setText(edit->name());
-		edit->saveUndoState(layer);
-	}
+	FSDocumentEditCommand(const FSLayerPath &path, FSLayerEdit *edit, FSDocumentModel *document, QUndoCommand *parent = 0);
 	
 	void redo();
 	void undo();
@@ -76,14 +66,7 @@ private:
 class FSDocumentAddCommand : public FSDocumentCommand
 {
 public:
-	FSDocumentAddCommand(const FSLayer *layer, const FSLayerPath &newParentPath, int newRow, FSDocumentModel *document, QUndoCommand *parent = 0) : 
-		FSDocumentCommand(document, parent),
-		_newParentPath(newParentPath),
-		_newRow(newRow)
-	{
-		Q_ASSERT(layer);
-		_layer.reset(layer->clone());
-	}
+	FSDocumentAddCommand(const FSLayer *layer, const FSLayerPath &newParentPath, int newRow, FSDocumentModel *document, QUndoCommand *parent = 0);
 	
 	void redo();
 	void undo();
@@ -115,24 +98,7 @@ private:
 class FSDocumentMoveCommand : public FSDocumentCommand
 {
 public:
-	FSDocumentMoveCommand(const FSLayerPath &oldPath, const FSLayerPath &newPath, int newRow, FSDocumentModel *document, QUndoCommand *parent) :
-		FSDocumentCommand(document, parent),
-		_newRow(newRow)
-	{
-		FSLayer *layer = layerForPath(oldPath);
-		_oldRow = layer->row();
-		
-		_oldParentPath = oldPath;
-		_oldParentPath.removeLast();
-		_oldName = oldPath.last();
-		
-		_newParentPath = newPath;
-		_newParentPath.removeLast();
-		_newName = newPath.last();
-		
-		if (_newParentPath == _oldParentPath && _newRow > _oldRow)
-			_newRow--;
-	}
+	FSDocumentMoveCommand(const FSLayerPath &oldPath, const FSLayerPath &newPath, int newRow, FSDocumentModel *document, QUndoCommand *parent);
 	
 	void redo();
 	void undo();
@@ -147,15 +113,7 @@ private:
 class FSDocumentCopyCommand : public FSDocumentCommand
 {
 public:
-	FSDocumentCopyCommand(const FSLayerPath &path, const FSLayerPath &newPath, int newRow, FSDocumentModel *document, QUndoCommand *parent = 0) :
-		FSDocumentCommand(document, parent),
-		_path(path),
-		_newRow(newRow)
-	{
-		_newParentPath = newPath;
-		_newParentPath.removeLast();
-		_newName = newPath.last();
-	}
+	FSDocumentCopyCommand(const FSLayerPath &path, const FSLayerPath &newPath, int newRow, FSDocumentModel *document, QUndoCommand *parent = 0);
 	
 	void redo();
 	void undo();
