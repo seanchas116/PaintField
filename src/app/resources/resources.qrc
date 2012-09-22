@@ -1,0 +1,22 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icons/22x22/folder.png</file>
+        <file>icons/8x8/treeClosed.svg</file>
+        <file>icons/8x8/treeOpen.svg</file>
+        <file>icons/24x24/colorSlider.svg</file>
+        <file>icons/24x24/colorWheel.svg</file>
+        <file>icons/24x24/webColor.svg</file>
+        <file>icons/24x24/colorDialog.svg</file>
+        <file>icons/16x16/add.svg</file>
+        <file>icons/16x16/menuDown.svg</file>
+        <file>icons/16x16/menuRight.svg</file>
+        <file>icons/16x16/subtract.svg</file>
+        <file>icons/24x24/move.svg</file>
+        <file>icons/24x24/selectEllipse.svg</file>
+        <file>icons/24x24/selectRect.svg</file>
+        <file>icons/32x32/brush.svg</file>
+        <file>icons/32x32/move.svg</file>
+        <file>mainmenu.json</file>
+        <file>panels.json</file>
+    </qresource>
+</RCC>

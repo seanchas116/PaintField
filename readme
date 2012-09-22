@@ -30,7 +30,7 @@ v	Hierarchical layer structure
 v	Infinite undo/redo
 
 ### GUI:
-	Tool selection panel
+v	Tool selection panel
 v	Color picker panel
 	Navigator
 	Grid
@@ -46,7 +46,7 @@ v	Layer move
 	Freehand selection
 	Painting selection
 	Selection move
-	Simple brush
+v	Simple brush
 	Customizable brush
 	Gradient
 	Shapes
@@ -62,7 +62,7 @@ v	Layer move
 ### Input & Output:
 v	Save & load documents
 v	Image file import
-	Image file export
+v	Image file export
 	PSD file import
 	PSD file export
 	ORA file import

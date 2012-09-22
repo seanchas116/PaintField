@@ -1,0 +1,645 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"LayerPath",
+				"LayerPathList	typedef"
+			],
+			[
+				"LayerModel",
+				"LayerModelRemoveCommand	class"
+			],
+			[
+				"motorSet",
+				"motorSetDuty"
+			],
+			[
+				"motorS",
+				"motorSetState"
+			],
+			[
+				"motorSt",
+				"motorSetState"
+			],
+			[
+				"motor",
+				"motorSetState"
+			],
+			[
+				"left",
+				"leftState"
+			],
+			[
+				"OCR",
+				"OCR0B"
+			],
+			[
+				"OC",
+				"OCR0A"
+			],
+			[
+				"TCCR",
+				"TCCR1A"
+			],
+			[
+				"delay",
+				"delayMs"
+			],
+			[
+				"servo",
+				"servoSetPulseWidth"
+			],
+			[
+				"JLR",
+				"JLRight"
+			],
+			[
+				"motore",
+				"motorSetDuty"
+			],
+			[
+				"JlDI",
+				"JLDirection"
+			],
+			[
+				"Tracer",
+				"TracerOffsetFactor"
+			],
+			[
+				"Tra",
+				"TracerOffsetFactor"
+			],
+			[
+				"tra",
+				"tracerGoToNextCross"
+			],
+			[
+				"tracerGot",
+				"tracerGoToNextCross"
+			],
+			[
+				"tracerBra",
+				"tracerBrakeFor"
+			],
+			[
+				"uin",
+				"unsigned"
+			],
+			[
+				"tracer",
+				"tracerForward"
+			],
+			[
+				"motorSe",
+				"motorSetDuty"
+			],
+			[
+				"tracerFor",
+				"tracerForwardTurning"
+			],
+			[
+				"match",
+				"matchedname"
+			],
+			[
+				"TRA",
+				"TRACER_DEFAULT_SPEED"
+			],
+			[
+				"un",
+				"uint8_t"
+			],
+			[
+				"TRACER",
+				"TRACER_OFFSET_FACTOR"
+			],
+			[
+				"deg",
+				"debugPrintf"
+			],
+			[
+				"line",
+				"linesensor"
+			],
+			[
+				"deug",
+				"debugPrintf"
+			],
+			[
+				"dela",
+				"delayMs"
+			],
+			[
+				"lineS",
+				"lineSensorSetThreshold"
+			],
+			[
+				"maxInde",
+				"maxIndexOut"
+			],
+			[
+				"abs",
+				"absvalue"
+			],
+			[
+				"debug",
+				"debugPrintf"
+			],
+			[
+				"lineSensor",
+				"lineSensorThreshold"
+			],
+			[
+				"inc",
+				"include"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "readme",
+			"settings":
+			{
+				"buffer_size": 1529,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "src/core/application.cpp",
+			"settings":
+			{
+				"buffer_size": 344,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "PaintField.sublime-project",
+			"settings":
+			{
+				"buffer_size": 297,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/iofg2100/Library/Application Support/Sublime Text 2/Packages/User/Default (OSX).sublime-keymap",
+			"settings":
+			{
+				"buffer_size": 146,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "resources/panels.json",
+			"settings":
+			{
+				"buffer_size": 71,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "src/modules/document/layermodelcommand.h",
+			"settings":
+			{
+				"buffer_size": 4028,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "src/modules/document/layermodelcommand.cpp",
+			"settings":
+			{
+				"buffer_size": 6864,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/iofg2100/Documents/Projects/jidou/jidou.sublime-project",
+			"settings":
+			{
+				"buffer_size": 84,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"settings":
+			{
+				"buffer_size": 0,
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "",
+	"command_palette":
+	{
+		"height": 327.0,
+		"selected_items":
+		[
+			[
+				"package",
+				"Package Control: Install Package"
+			],
+			[
+				"pack",
+				"Package Control: Install Package"
+			],
+			[
+				":w",
+				":w - Save"
+			]
+		],
+		"width": 443.0
+	},
+	"console":
+	{
+		"height": 111.0
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/Users/iofg2100/Documents/Projects/PaintField/src/core/application.h",
+		"/Users/iofg2100/Documents/Projects/PaintField/PaintField.pro",
+		"/Users/iofg2100/Documents/Projects/PaintField/PaintField.sublime-project",
+		"/Users/iofg2100/Documents/Projects/PaintField/resources/icons/16x16/add.svg",
+		"/Users/iofg2100/Documents/Projects/jidou/jidoulib/debug.cpp",
+		"/Users/iofg2100/Documents/Projects/jidou/jidoulib/tracer.h",
+		"/Users/iofg2100/Documents/Projects/jidou/jidoulib/linesensor.h",
+		"/Users/iofg2100/Documents/Projects/jidou/jidoulib/jidoulib.h",
+		"/Users/iofg2100/Desktop/test.cpp",
+		"/Users/iofg2100/Library/Application Support/Sublime Text 2/Packages/User/Preferences.sublime-settings",
+		"/Users/iofg2100/Library/Application Support/Sublime Text 2/Packages/Default/Preferences.sublime-settings",
+		"/Users/iofg2100/Documents/Projects/mltest-sharedlib-install.py",
+		"/Users/iofg2100/Documents/Projects/Malachite/malachite-install.py",
+		"/Users/iofg2100/Documents/Projects/PaintField/resources/mainmenu.json",
+		"/Users/iofg2100/Desktop/fsrename.py",
+		"/Users/iofg2100/Documents/Projects/PaintField/src/modules/document/fslayermodelcommand.h",
+		"/Users/iofg2100/temp/share/PySide/typesystems/typesystem_core_common.xml",
+		"/Users/iofg2100/Desktop/Unarchived/shiboken-1.1.2/COPYING"
+	],
+	"find":
+	{
+		"height": 0.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"+ "
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 5,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "readme",
+					"settings":
+					{
+						"buffer_size": 1529,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1346,
+								1346
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 61.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "src/core/application.cpp",
+					"settings":
+					{
+						"buffer_size": 344,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								338,
+								338
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/C++/C++.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "PaintField.sublime-project",
+					"settings":
+					{
+						"buffer_size": 297,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								294,
+								294
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JSON.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "/Users/iofg2100/Library/Application Support/Sublime Text 2/Packages/User/Default (OSX).sublime-keymap",
+					"settings":
+					{
+						"buffer_size": 146,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								146,
+								146
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JSON.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "resources/panels.json",
+					"settings":
+					{
+						"buffer_size": 71,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JSON.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "src/modules/document/layermodelcommand.h",
+					"settings":
+					{
+						"buffer_size": 4028,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/C++/C++.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 1343.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				}
+			]
+		},
+		{
+			"selected": 1,
+			"sheets":
+			[
+				{
+					"buffer": 6,
+					"file": "src/modules/document/layermodelcommand.cpp",
+					"settings":
+					{
+						"buffer_size": 6864,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/C++/C++.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 838.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 7,
+					"file": "/Users/iofg2100/Documents/Projects/jidou/jidou.sublime-project",
+					"settings":
+					{
+						"buffer_size": 84,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JSON.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 8,
+					"settings":
+					{
+						"buffer_size": 0,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 0.0
+	},
+	"input":
+	{
+		"height": 29.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			],
+			[
+				1,
+				0,
+				2,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			0.5,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.clang":
+	{
+		"height": 88.0
+	},
+	"output.exec":
+	{
+		"height": 88.0
+	},
+	"replace":
+	{
+		"height": 0.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"selected_items":
+		[
+		],
+		"width": 380.0
+	},
+	"show_minimap": true,
+	"show_open_files": true,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 200.0,
+	"status_bar_visible": true
+}
