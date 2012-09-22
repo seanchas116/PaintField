@@ -24,13 +24,17 @@ public:
 	
 	QString path() const { return _path; }
 	
+	bool openUnzip();
 	unzFile unzipFile() { return _unzip; }
+	void closeUnzip();
 	
 	void saveAs(Document *document, const QString &newPath = path());
+	Document *load(QObject *parent);
 	
 private:
 	
 	bool saveLayerRecursive(const Layer *parent, AbstractDocumentDatabaseWriter *database, QVariantList *result);
+	bool loadLayerRecursive(Layer *parent, DocumentDatabase *database, const QVariantList &layerDataList);
 	
 	unzFile _unzip;
 	QString _path;
@@ -40,6 +44,8 @@ class DocumentDatabase
 {
 public:
 	DocumentDatabase(DocumentIO *documentIO);
+	
+	Malachite::Surface loadSurface(const QString &path);
 	
 	QString addSurface(const Malachite::Surface &surface);
 	
