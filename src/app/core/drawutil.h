@@ -2,7 +2,7 @@
 #define FSDRAWUTIL_H
 
 #include <QPainter>
-#include "mlsurface.h"
+#include "Malachite/mlsurface.h"
 
 namespace PaintField {
 

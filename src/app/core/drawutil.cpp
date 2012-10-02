@@ -1,6 +1,6 @@
 #include <QtGui>
 
-#include "mlgenericimage.h"
+#include "Malachite/mlgenericimage.h"
 #include "drawutil.h"
 
 namespace PaintField

@@ -2,7 +2,7 @@
 #define FSCOLORBUTTON_H
 
 #include <QAbstractButton>
-#include "mlcolor.h"
+#include "Malachite/mlcolor.h"
 
 namespace PaintField
 {

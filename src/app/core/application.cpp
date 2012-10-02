@@ -10,10 +10,18 @@ Application::Application(int &argv, char **args) :
 {
 	QTextCodec::setCodecForCStrings(QTextCodec::codecForLocale());
 	
-	_paletteManager = new PaletteManager(this);
-	_toolManager = new ToolManager(this);
-	_actionManager = new ActionManager(this);
-	_canvasManager = new CanvasManager(this);
+	_workspaceManager = new WorkspaceManager(this);
+	
+	_workspaceManager->newWorkspace();
+}
+
+void Application::addToolFactory(ToolFactory *factory)
+{
+	if (factory)
+	{
+		factory->setParent(this);
+		_toolFactories << factory;
+	}
 }
 
 

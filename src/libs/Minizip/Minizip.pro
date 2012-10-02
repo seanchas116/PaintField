@@ -5,6 +5,8 @@ TARGET = Minizip
 
 DEFINES += unix
 
+include(../../src.pri)
+
 HEADERS += \
     zip.h \
     unzip.h \

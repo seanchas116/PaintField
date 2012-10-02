@@ -21,10 +21,6 @@ public:
 	Document(const QString &tempName, const QSize &size, Layer *layer, QObject *parent = 0) :
 		Document(tempName, size, Malachite::listFromValue(layer), parent) {}
 	
-	static Document *open(const QString &filePath, QObject *parent = 0);
-	bool saveAs(const QString &filePath);
-	bool save() { return saveAs(filePath()); }
-	
 	QSize size() const { return _size; }
 	int width() const { return _size.width(); }
 	int height() const { return _size.height(); }

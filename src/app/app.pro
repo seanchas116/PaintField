@@ -40,7 +40,7 @@ mac {
 }
 
 INCLUDEPATH += $$PWD $$PWD/../libs
-LIBS += -lfreeimage libs/Malachite/libmalachite.a
+LIBS += -lfreeimage $$OUT_PWD/../libs/Malachite/libmalachite.a
 
 CONFIG(debug, debug|release) {
 	DEFINES += QT_DEBUG
@@ -71,12 +71,9 @@ HEADERS += \
     core/global.h \
     core/drawutil.h \
     core/document.h \
-    core/defaultdocumentio.h \
-    core/canvasmanager.h \
     core/canvas.h \
     core/applicationmodulebase.h \
     core/application.h \
-    core/actionmanager.h \
     core/dialogs/newdocumentdialog.h \
     core/dialogs/exportdialog.h \
     core/internal/tableteventfilter.h \
@@ -89,7 +86,11 @@ HEADERS += \
     core/widgets/colorwheel.h \
     core/widgets/colorslider.h \
     core/widgets/colorbutton.h \
-    core/documentio.h
+    core/documentio.h \
+    core/canvascontroller.h \
+    core/workspacecontroller.h \
+    core/workspaceview.h \
+    core/workspacemanager.h
 
 SOURCES += \
     core/toolmanager.cpp \
@@ -106,12 +107,9 @@ SOURCES += \
     core/layer.cpp \
     core/drawutil.cpp \
     core/document.cpp \
-    core/defaultdocumentio.cpp \
-    core/canvasmanager.cpp \
     core/canvas.cpp \
     core/applicationmodulebase.cpp \
     core/application.cpp \
-    core/actionmanager.cpp \
     core/dialogs/newdocumentdialog.cpp \
     core/dialogs/exportdialog.cpp \
     core/internal/tableteventfilter.cpp \
@@ -125,7 +123,11 @@ SOURCES += \
     core/widgets/colorslider.cpp \
     core/widgets/colorbutton.cpp \
     main.cpp \
-    core/documentio.cpp
+    core/documentio.cpp \
+    core/canvascontroller.cpp \
+    core/workspacecontroller.cpp \
+    core/workspaceview.cpp \
+    core/workspacemanager.cpp
 
 FORMS += \
     core/dialogs/newdocumentdialog.ui \

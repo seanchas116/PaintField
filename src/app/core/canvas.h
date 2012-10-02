@@ -8,6 +8,7 @@
 
 namespace PaintField {
 
+class ToolFactory;
 class Tool;
 class TabletEvent;
 
@@ -81,6 +82,8 @@ public slots:
 	bool saveCanvas();
 	bool closeCanvas();
 	
+	void setToolFactory(ToolFactory *factory);
+	
 protected:
 	
 	void mouseMoveEvent(QMouseEvent *event);
@@ -93,7 +96,6 @@ protected:
 	
 private slots:
 	
-	void updateTool();
 	void documentPathChanged(const QString &path);
 	void repaintCanvas(const QRect &rect);
 	

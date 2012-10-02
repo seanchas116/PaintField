@@ -1,5 +1,5 @@
 #include "thumbnail.h"
-#include "mlpainter.h"
+#include "Malachite/mlpainter.h"
 #include "drawutil.h"
 
 #include "layer.h"

@@ -1,6 +1,6 @@
 #include <QtGui>
 
-#include "mldivision.h"
+#include "Malachite/mldivision.h"
 
 #include "colorslider.h"
 

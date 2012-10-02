@@ -1,6 +1,6 @@
 #include <QtGui>
 
-#include "mlcolor.h"
+#include "Malachite/mlcolor.h"
 #include "colorwheel.h"
 
 namespace PaintField

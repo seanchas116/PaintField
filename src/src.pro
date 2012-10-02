@@ -1,3 +1,3 @@
 TEMPLATE = subdirs
 
-SUBDIRS = app libs
+SUBDIRS = libs app

@@ -2,7 +2,7 @@
 #define FSLAYERRENDERER_H
 
 #include "layer.h"
-#include "mlsurfacepainter.h"
+#include "Malachite/mlsurfacepainter.h"
 
 namespace PaintField {
 

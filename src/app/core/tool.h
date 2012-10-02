@@ -5,7 +5,7 @@
 #include <QString>
 #include <QIcon>
 #include "document.h"
-#include "mlpainter.h"
+#include "Malachite/mlpainter.h"
 #include "tabletevent.h"
 #include "canvas.h"
 #include "layerrenderer.h"

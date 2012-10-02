@@ -1,7 +1,7 @@
 #include <QtGui>
 
 #include "document.h"
-#include "mlpainter.h"
+#include "Malachite/mlpainter.h"
 #include "layerrenderer.h"
 #include "internal/layermodelcommand.h"
 

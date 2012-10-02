@@ -17,12 +17,9 @@ public:
 	
 	explicit ToolManager(QObject *parent = 0);
 	
-	void addToolFactory(ToolFactory *factory);
-	
 	ToolFactory *findToolFactory(const QString &name);
-	QList<QString> toolNameList() const { return _toolNameList; }
-	QList<ToolFactory *> toolFactoryList() { return _toolFactoryList; }
-	QList<QAction *> actionList() { return _actionList; }
+	QList<ToolFactory *> toolFactories() { return _toolFactoryList; }
+	QList<QAction *> actions() { return _actionList; }
 	
 	ToolFactory *currentToolFactory() { return _currentToolFactory; }
 	void setCurrentToolFactory(const QString &name);
@@ -39,7 +36,8 @@ private slots:
 	
 private:
 	
-	QList<QString> _toolNameList;
+	void createActions();
+	
 	QList<ToolFactory *> _toolFactoryList;
 	QList<QAction *> _actionList;
 	QActionGroup *_actionGroup;

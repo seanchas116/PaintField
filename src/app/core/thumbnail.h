@@ -4,7 +4,7 @@
 #include <QPixmap>
 #include <QHash>
 #include "global.h"
-#include "mlmisc.h"
+#include "Malachite/mlmisc.h"
 
 namespace PaintField {
 

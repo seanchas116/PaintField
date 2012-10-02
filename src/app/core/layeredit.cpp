@@ -1,4 +1,4 @@
-#include "mlsurfacepainter.h"
+#include "Malachite/mlsurfacepainter.h"
 #include "layer.h"
 #include "layeredit.h"
 

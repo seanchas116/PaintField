@@ -1,4 +1,4 @@
-#include "widgets/widgetgroup.h"
+#include "core/widgets/widgetgroup.h"
 
 #include "exportdialog.h"
 #include "ui_exportdialog.h"

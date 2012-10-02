@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-#include "mlcolor.h"
+#include "Malachite/mlcolor.h"
 
 namespace PaintField
 {

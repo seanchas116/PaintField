@@ -6,7 +6,7 @@
 #include "dialogs/exportdialog.h"
 #include "drawutil.h"
 #include "tool.h"
-#include "mlimageio.h"
+#include "Malachite/mlimageio.h"
 
 #include "canvas.h"
 
@@ -188,9 +188,6 @@ Canvas::Canvas(Document *document, QWidget *parent) :
 	scene()->addItem(_canvasGraphicsObject);
 	connect(_canvasGraphicsObject, SIGNAL(requireRepaint(QRect)), this, SLOT(repaintCanvas(QRect)));
 	
-	connect(app()->toolManager(), SIGNAL(currentToolFactoryChanged(ToolFactory*)), this, SLOT(updateTool()));
-	updateTool();
-	
 	connect(_document, SIGNAL(modifiedChanged(bool)), this, SLOT(setWindowModified(bool)));
 	connect(_document, SIGNAL(filePathChanged(QString)), this, SLOT(documentPathChanged(QString)));
 	documentPathChanged(_document->filePath());
@@ -199,12 +196,6 @@ Canvas::Canvas(Document *document, QWidget *parent) :
 	
 	setTransformationAnchor(QGraphicsView::NoAnchor);
 	setTransform(QTransform::fromTranslate(-document->width(), -document->height()));
-	
-	// creating actions (deleted when the canvas deleted)
-	
-	app()->actionManager()->addAction(new QAction(this), "saveDocument", this, SLOT(saveCanvas()));
-	app()->actionManager()->addAction(new QAction(this), "saveAsAction", this, SLOT(saveAsCanvas()));
-	app()->actionManager()->addAction(new QAction(this), "closeDocument", this, SLOT(closeCanvas()));
 }
 
 Canvas::~Canvas() {}
@@ -216,9 +207,8 @@ void Canvas::changeCanvasSize(const QSize &size)
 	setSceneRect(rect);
 }
 
-void Canvas::updateTool()
+void Canvas::setToolFactory(ToolFactory *factory)
 {
-	ToolFactory *factory = app()->toolManager()->currentToolFactory();
 	_tool.reset(factory ? factory->createTool(this) : 0);
 	_canvasGraphicsObject->setTool(_tool.data());
 }
@@ -329,130 +319,6 @@ bool Canvas::event(QEvent *event)
 	default:
 		return QGraphicsView::event(event);
 	}
-}
-
-Canvas *Canvas::newCanvas()
-{
-	NewDocumentDialog dialog;
-	if (dialog.exec() != QDialog::Accepted) {
-		return 0;
-	}
-	
-	RasterLayer *layer = new RasterLayer(tr("Untitled Layer"));
-	
-	Document *document = new Document(tr("Untitled"), dialog.documentSize(), layer);
-	return new Canvas(document);
-}
-
-Canvas *Canvas::openCanvas()
-{
-	QString filePath = QFileDialog::getOpenFileName(0,
-	                                                tr("Open"),
-	                                                QDir::homePath(),
-	                                                tr("PaintField Project (*.pfproj)"));
-	if (filePath.isEmpty())	// cancelled
-		return 0;
-	Document *document = Document::open(filePath);
-	if (document == 0) {	// failed to open
-		QMessageBox::warning(0, QString(), tr("Failed to open file."));
-	}
-	return new Canvas(document);
-}
-
-bool Canvas::saveAsCanvas()
-{
-	Document *document = this->document();
-	
-	QString filePath = QFileDialog::getSaveFileName(0,
-	                                                tr("Save As"),
-	                                                QDir::homePath(),
-	                                                tr("PaintField Project (*.pfproj)"));
-	if (filePath.isEmpty())
-		return false;
-	
-	QFileInfo fileInfo(filePath);
-	QFileInfo dirInfo(fileInfo.dir().path());
-	if (!dirInfo.isWritable())
-	{
-		QMessageBox messageBox;
-		messageBox.setIcon(QMessageBox::Warning);
-		messageBox.setWindowTitle(QString());
-		messageBox.setText(tr("The specified folder is not writable."));
-		messageBox.setInformativeText(tr("Save in another folder."));
-		messageBox.exec();
-		return false;
-	}
-	
-	if (!document->saveAs(filePath))
-	{
-		QMessageBox messageBox;
-		messageBox.setIcon(QMessageBox::Warning);
-		messageBox.setWindowTitle(QString());
-		messageBox.setText(tr("Failed to save the file."));
-		messageBox.exec();
-		return false;
-	}
-	return true;
-}
-
-bool Canvas::saveCanvas()
-{
-	Document *document = this->document();
-	
-	// first save
-	if (document->fileName().isEmpty())
-	{
-		return saveAsCanvas();
-	}
-	
-	// file is not modified
-	if (!document->isModified())
-		return true;
-	
-	if (!document->save())
-	{
-		QMessageBox messageBox;
-		messageBox.setIcon(QMessageBox::Warning);
-		messageBox.setWindowTitle(tr("Error"));
-		messageBox.setText(tr("Cannot save file"));
-		messageBox.exec();
-		return false;
-	}
-	return true;
-}
-
-bool Canvas::closeCanvas()
-{
-	Document *document = this->document();
-	
-	if (document->isModified())
-	{
-		QMessageBox messageBox;
-		messageBox.setText(tr("Do you want to save your changes?"));
-		messageBox.setInformativeText(tr("The changes will be lost if you don't save them."));
-		messageBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
-		messageBox.setDefaultButton(QMessageBox::Save);
-		int ret = messageBox.exec();
-		
-		switch (ret)
-		{
-			case QMessageBox::Save:
-				if (!saveCanvas())
-				return false;
-				break;
-			case QMessageBox::Discard:
-				break;
-			case QMessageBox::Cancel:
-				return false;
-			default:
-				Q_ASSERT(0);
-				break;
-		}
-	}
-	
-	deleteLater();
-	
-	return true;
 }
 
 }

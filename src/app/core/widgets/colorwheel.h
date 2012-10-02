@@ -2,7 +2,7 @@
 #define MLColorWHEEL_H
 
 #include <QWidget>
-#include "mlcolor.h"
+#include "Malachite/mlcolor.h"
 
 namespace PaintField
 {

@@ -2,6 +2,9 @@
 #include <QJson/Parser>
 #include <QJson/Serializer>
 
+#include "Malachite/mlpainter.h"
+#include "randomstring.h"
+
 #include "documentio.h"
 
 namespace PaintField
@@ -11,33 +14,35 @@ using namespace Malachite;
 
 bool saveIntoZip(zipFile zip, const QString &path, const QByteArray &data, int level)
 {
-	zipOpenNewFileInZip64(zip, path.toLocal8Bit(), 0, 0, 0, 0, 0, 0, Z_DEFLATED, level, 1);
+	if (zipOpenNewFileInZip64(zip, path.toLocal8Bit(), 0, 0, 0, 0, 0, 0, Z_DEFLATED, level, 1) != ZIP_OK)
+		return false;
 	
 	zipWriteInFileInZip(zip, data.data(), data.length());
 	
 	zipCloseFileInZip(zip);
+	
+	return true;
 }
 
 QByteArray loadFromUnzip(unzFile unzip, const QString &path)
 {
 	if (unzLocateFile(unzip, path.toLocal8Bit(), 1) != UNZ_OK)
-	{
-		return QByteArray();	// falied
-	}
-	else
-	{
-		unz_file_info64 fileInfo;
-		unzGetCurrentFileInfo64(unzip, &fileInfo, 0, 0, 0, 0, 0, 0);
-		size_t dataSize = fileInfo.uncompressed_size;
-		
-		QByteArray data(dataSize);
-		
-		unzOpenCurrentFile(unzip);
-		unzReadCurrentFile(unzip, data.data(), dataSize);
-		unzCloseCurrentFile(unzip);
-		
-		return data;
-	}
+		return QByteArray();
+	
+	unz_file_info64 fileInfo;
+	unzGetCurrentFileInfo64(unzip, &fileInfo, 0, 0, 0, 0, 0, 0);
+	size_t dataSize = fileInfo.uncompressed_size;
+	
+	QByteArray data;
+	data.resize(dataSize);
+	
+	if (unzOpenCurrentFile(unzip) != UNZ_OK)
+		return QByteArray();
+	
+	unzReadCurrentFile(unzip, data.data(), dataSize);
+	unzCloseCurrentFile(unzip);
+	
+	return data;
 }
 
 DocumentIO::DocumentIO(const QString &path, QObject *parent) :
@@ -58,7 +63,8 @@ bool DocumentIO::openUnzip()
 	if (_path.isEmpty())
 		return false;
 	
-	return _unzip = unzOpen64(_path.toLocal8Bit());
+	_unzip = unzOpen64(_path.toLocal8Bit());
+	return _unzip;
 }
 
 void DocumentIO::closeUnzip()
@@ -116,7 +122,7 @@ bool DocumentIO::saveAs(Document *document, const QString &newPath)
 		return false;
 	}
 	
-	zipClose(_zip);
+	zipClose(zip, 0);
 	
 	// move archive to specified place
 	
@@ -131,17 +137,17 @@ bool DocumentIO::saveAs(Document *document, const QString &newPath)
 	}
 	
 	// succeeded to save file
-	document->setFilePath(filePath);
+	document->setFilePath(newPath);
 	document->setModified(false);
 	return true;
 }
 
-bool DocumentIO::load(QObject *parent)
+Document *DocumentIO::load(QObject *parent)
 {
 	if (openUnzip() == false)
 	{
 		qWarning() << Q_FUNC_INFO << ": unable to open file";
-		return false;
+		return 0;
 	}
 	
 	QByteArray headerJson = loadFromUnzip(unzipFile(), "header.json");
@@ -194,11 +200,11 @@ bool DocumentIO::load(QObject *parent)
 	closeUnzip();
 	
 	Document *document = new Document(QString(), size, group.takeChildren(), parent);
-	document->setFilePath(filePath);
+	document->setFilePath(_path);
 	return document;
 }
 
-bool DocumentIO::saveLayerRecursive(const Layer *parent, AbstractDocumentDatabaseWriter *database, QVariantList *result)
+bool DocumentIO::saveLayerRecursive(const Layer *parent, DocumentDatabase *database, QVariantList *result)
 {
 	Q_ASSERT(parent);
 	Q_ASSERT(database);
@@ -234,7 +240,7 @@ bool DocumentIO::saveLayerRecursive(const Layer *parent, AbstractDocumentDatabas
 		if (layer->type() == Layer::TypeGroup)
 		{
 			QVariantList childDataList;
-			if (saveLayerRecursive(layer, archive, fileCount, &childDataList))
+			if (saveLayerRecursive(layer, database, &childDataList))
 				layerData["children"] = childDataList;
 			else
 				return false;
@@ -254,7 +260,7 @@ bool DocumentIO::saveLayerRecursive(const Layer *parent, AbstractDocumentDatabas
 bool DocumentIO::loadLayerRecursive(Layer *parent, DocumentDatabase *database, const QVariantList &layerDataList)
 {
 	Q_ASSERT(parent);
-	Q_ASSERT(archive);
+	Q_ASSERT(database);
 	
 	foreach (const QVariant listItem, layerDataList)
 	{
@@ -274,7 +280,7 @@ bool DocumentIO::loadLayerRecursive(Layer *parent, DocumentDatabase *database, c
 			
 			parent->appendChild(group);
 			
-			if (!loadLayerRecursive(group, archive, layerData["children"].toList()))
+			if (!loadLayerRecursive(group, database, layerData["children"].toList()))
 				return false;
 		}
 		else if (typeName == "raster")
@@ -289,16 +295,10 @@ bool DocumentIO::loadLayerRecursive(Layer *parent, DocumentDatabase *database, c
 			
 			QString source = layerData["source"].toString();
 			
+			
 			if (!source.isEmpty())
 			{
-				QByteArray byteArray = archive->readFile(source);
-				
-				if (byteArray.isNull())
-					return false;
-				
-				QBuffer buffer(&byteArray);
-				buffer.open(QIODevice::ReadOnly);
-				raster->setSurface(Malachite::Surface::loaded(&buffer));
+				raster->setSurface(database->loadSurface(source));
 			}
 			
 			parent->appendChild(raster);
@@ -315,6 +315,70 @@ DocumentDatabase::DocumentDatabase(DocumentIO *documentIO) :
 {
 	
 }
+
+Malachite::Surface DocumentDatabase::loadSurface(const QString &path)
+{
+	QByteArray data = loadFromUnzip(_documentIO->unzipFile(), path);
+	
+	if (data.isEmpty())
+		return Surface();
+	
+	QJson::Parser parser;
+	
+	QVariant json = parser.parse(data);
+	
+	QVariantMap jsonMap = json.toMap();
+	
+	QSize tileSize;
+	tileSize.setWidth(jsonMap["tileWidth"].toInt());
+	tileSize.setHeight(jsonMap["tileHeight"].toInt());
+	
+	if (tileSize.width() <= 0 || tileSize.height() <= 0)
+		return Surface();
+	
+	QVariant tiles = jsonMap["tiles"];
+	
+	QVariantList tileList = tiles.toList();
+	
+	Surface surface;
+	
+	if (tileSize.width() == Surface::TileSize && tileSize.height() == Surface::TileSize)
+	{
+		SurfaceEditor editor(&surface);
+		
+		for (const QVariant &tileData : tileList)
+		{
+			QPoint key;
+			Image tile = loadTileData(tileData, tileSize, &key);
+			
+			if (!tile.isValid())
+				continue;
+			
+			if (!surface.contains(key))
+				editor.replaceTile(key, new Image(tile));
+		}
+	}
+	else
+	{
+		Painter painter(&surface);
+		painter.setBlendMode(Malachite::BlendModeSource);
+		
+		for (const QVariant &tileData : tileList)
+		{
+			QPoint key;
+			Image tile = loadTileData(tileData, tileSize, &key);
+			
+			if (!tile.isValid())
+				continue;
+			
+			painter.drawImage(key.x() * tileSize.width(), key.y() * tileSize.height(), tile);
+		}
+	}
+	
+	return surface;
+}
+
+
 
 QString DocumentDatabase::addSurface(const Malachite::Surface &surface)
 {
@@ -335,17 +399,22 @@ QString DocumentDatabase::addSurface(const Malachite::Surface &surface)
 	surfaceData["tileHeight"] = Surface::TileSize;
 	surfaceData["tiles"] = tiles;
 	
-	_surfacesToSave << SurfaceSaveInfo(surfaceData, "data/surfaces/" + QString::number(_surfaceCount) + ".surface");
+	QString path = "data/surfaces/" + QString::number(_surfaceCount) + ".surface";
+	
+	_surfacesToSave << SurfaceSaveInfo(surfaceData, path);
 	++_surfaceCount;
+	
+	return path;
 }
 
-void DocumentDatabase::save(zipFile *zip)
+bool DocumentDatabase::save(zipFile zip)
 {
 	// saving tiles
 	
 	foreach (auto tileInfo, _tilesToSave)
 	{
-		saveIntoZip(zip, tileInfo.path, qCompress(tileInfo.tile.toByteArray()), Z_NO_COMPRESSION);
+		if (!saveIntoZip(zip, tileInfo.path, qCompress(tileInfo.tile.toByteArray()), Z_NO_COMPRESSION))
+			return false;
 	}
 	
 	// saving surfaces
@@ -354,8 +423,33 @@ void DocumentDatabase::save(zipFile *zip)
 	{
 		QJson::Serializer serializer;
 		QByteArray json = serializer.serialize(surfaceInfo.data);
-		saveIntoZip(zip, surfaceInfo.path, json, Z_DEFAULT_COMPRESSION);
+		if (!saveIntoZip(zip, surfaceInfo.path, json, Z_DEFAULT_COMPRESSION))
+			return false;
 	}
+	
+	return true;
+}
+
+Image DocumentDatabase::loadTile(const QString &path, const QSize &size)
+{
+	if (path.isEmpty())
+		return Image();
+	
+	QByteArray compressed = loadFromUnzip(_documentIO->unzipFile(), path);
+	if (compressed.isEmpty())
+		return Image();
+	
+	QByteArray data = qUncompress(compressed);
+	
+	return Image::fromByteArray(data, size);
+}
+
+Image DocumentDatabase::loadTileData(const QVariant &tileData, const QSize &size, QPoint *key)
+{
+	QVariantMap tileMap = tileData.toMap();
+	*key = QPoint(tileMap["x"].toInt(), tileMap["y"].toInt());
+	
+	return loadTile(tileMap["source"].toString(), size);
 }
 
 QString DocumentDatabase::addTile(const Malachite::Image &tile)
@@ -366,8 +460,12 @@ QString DocumentDatabase::addTile(const Malachite::Image &tile)
 			return iter->path;
 	}
 	
-	_tilesToSave << TileSaveInfo(tile, "data/tiles/" + QString::number(_tileCount) + ".tile");
+	QString path = "data/tiles/" + QString::number(_tileCount) + ".tile";
+	
+	_tilesToSave << TileSaveInfo(tile, path);
 	++_tileCount;
+	
+	return path;
 }
 
 }
