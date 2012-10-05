@@ -1,9 +1,13 @@
 TEMPLATE = lib
 CONFIG += staticlib
 QT -= gui
-TARGET = Minizip
+TARGET = minizip
 
 DEFINES += unix
+
+mac {
+    DEFINES += USE_FILE32API
+}
 
 include(../../src.pri)
 

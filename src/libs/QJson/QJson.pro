@@ -1,7 +1,7 @@
 TEMPLATE = lib
 CONFIG += staticlib
 QT -= gui
-TARGET = QJson
+TARGET = qjson
 
 include(../../src.pri)
 

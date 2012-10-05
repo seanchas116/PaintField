@@ -39,8 +39,12 @@ mac {
 	#QMAKE_BUNDLE_DATA += sharedlibs
 }
 
-INCLUDEPATH += $$PWD $$PWD/../libs
-LIBS += -lfreeimage $$OUT_PWD/../libs/Malachite/libmalachite.a
+INCLUDEPATH += $$PWD
+INCLUDEPATH += $$PWD/../libs
+LIBS += -lfreeimage -lz
+LIBS += $$OUT_PWD/../libs/Malachite/libmalachite.a
+LIBS += $$OUT_PWD/../libs/Minizip/libminizip.a
+LIBS += $$OUT_PWD/../libs/QJson/libqjson.a
 
 CONFIG(debug, debug|release) {
 	DEFINES += QT_DEBUG
@@ -71,7 +75,6 @@ HEADERS += \
     core/global.h \
     core/drawutil.h \
     core/document.h \
-    core/canvas.h \
     core/applicationmodulebase.h \
     core/application.h \
     core/dialogs/newdocumentdialog.h \
@@ -90,7 +93,9 @@ HEADERS += \
     core/canvascontroller.h \
     core/workspacecontroller.h \
     core/workspaceview.h \
-    core/workspacemanager.h
+    core/workspacemanager.h \
+    core/canvasview.h \
+    core/actionmanager.h
 
 SOURCES += \
     core/toolmanager.cpp \
@@ -107,7 +112,6 @@ SOURCES += \
     core/layer.cpp \
     core/drawutil.cpp \
     core/document.cpp \
-    core/canvas.cpp \
     core/applicationmodulebase.cpp \
     core/application.cpp \
     core/dialogs/newdocumentdialog.cpp \
@@ -127,7 +131,9 @@ SOURCES += \
     core/canvascontroller.cpp \
     core/workspacecontroller.cpp \
     core/workspaceview.cpp \
-    core/workspacemanager.cpp
+    core/workspacemanager.cpp \
+    core/canvasview.cpp \
+    core/actionmanager.cpp
 
 FORMS += \
     core/dialogs/newdocumentdialog.ui \
