@@ -95,7 +95,8 @@ HEADERS += \
     core/workspaceview.h \
     core/workspacemanager.h \
     core/canvasview.h \
-    core/actionmanager.h
+    core/actionmanager.h \
+    core/util.h
 
 SOURCES += \
     core/toolmanager.cpp \
@@ -133,7 +134,8 @@ SOURCES += \
     core/workspaceview.cpp \
     core/workspacemanager.cpp \
     core/canvasview.cpp \
-    core/actionmanager.cpp
+    core/actionmanager.cpp \
+    core/util.cpp
 
 FORMS += \
     core/dialogs/newdocumentdialog.ui \

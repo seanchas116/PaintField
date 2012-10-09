@@ -1,0 +1,16 @@
+{
+	"paintfield.file.new": "Ctrl+Shift+N",
+	"paintfield.file.save": "Ctrl+S",
+	"paintfield.file.saveAs": "Ctrl+Shift+S",
+	"paintfield.file.quit": "Ctrl+Q",
+
+	"paintfield.edit.undo": "Ctrl+Z",
+	"paintfield.edit.redo": "Ctrl+Y",
+	"paintfield.edit.cut": "Ctrl+X",
+	"paintfield.edit.copy": "Ctrl+C",
+	"paintfield.edit.paste": "Ctrl+V",
+	"paintfield.edit.selectAll": "Ctrl+A",
+
+	"paintfield.layer.newRaster": "Ctrl+N",
+	"paintfield.window.minimize": "Ctrl+M"
+}

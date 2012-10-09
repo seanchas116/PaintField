@@ -43,11 +43,11 @@ public:
 	void declareMenuItemTitle(const QString &id, const QString &title) { _menuItemTitles.insert(id, title); }
 	
 	/**
-	 * Declares a key binding for a action ID.
+	 * Declares a key map for a action ID.
 	 * @param id The action's object name
 	 * @param shortcut
 	 */
-	void declareActionShortcut(const QString &id, const QKeySequence &shortcut) { _actionShortcuts.insert(id, shortcut); }
+	void declareActionKeyMap(const QString &id, const QKeySequence &shortcut) { _actionKeyMaps.insert(id, shortcut); }
 	
 	/**
 	 * @return The declared menu item titles
@@ -57,11 +57,11 @@ public:
 	/**
 	 * @return The declared action key bindings
 	 */
-	QHash<QString, QKeySequence> actionShortcuts() const { return _actionShortcuts; }
+	QHash<QString, QKeySequence> actionShortcuts() const { return _actionKeyMaps; }
 	
 	void loadMenuBarOrderFromJson(const QString &path) { _menuBarOrder = loadJsonFromFile(path); }
 	void loadPanelOrderFromJson(const QString &path) { _panelOrder = loadJsonFromFile(path); }
-	void loadShortcutsFromJson(const QString &path);
+	void loadKeyMapFromJson(const QString &path);
 	
 	void setMenuBarOrder(const QVariant &order) { _menuBarOrder = order; }
 	QVariant menuBarOrder() const { return _menuBarOrder; }
@@ -75,6 +75,10 @@ signals:
 	
 public slots:
 	
+	void tryQuit();
+	void minimizeCurrentWindow();
+	void zoomCurrentWindow();
+	
 private:
 	
 	WorkspaceManager *_workspaceManager;
@@ -82,7 +86,7 @@ private:
 	QList<ToolFactory *> _toolFactories;
 	
 	QHash<QString, QString> _menuItemTitles;
-	QHash<QString, QKeySequence> _actionShortcuts;
+	QHash<QString, QKeySequence> _actionKeyMaps;
 	
 	QVariant _menuBarOrder, _panelOrder;
 	

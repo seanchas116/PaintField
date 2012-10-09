@@ -8,12 +8,12 @@ ActionManager::ActionManager(QObject *parent) :
 {
 }
 
-QAction *ActionManager::addAction(const QString &id, const QString &text, const QKeySequence &shortcut)
+QAction *ActionManager::addAction(const QString &id)
 {
 	QAction *action = new QAction(this);
 	action->setObjectName(id);
-	action->setText(text);
-	action->setShortcut(shortcut);
+	action->setText(QString());
+	action->setShortcut(QKeySequence());
 	
 	addAction(action);
 	return action;

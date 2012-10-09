@@ -5,6 +5,79 @@
 namespace PaintField
 {
 
+QMenuBar *createAndArrangeMenuBar(const QList<QAction *> &actions, const QVariant &order)
+{
+	QMenuBar *menuBar = new QMenuBar();
+	
+	QVariantList orders = order.toList();
+	for (const QVariant &menuOrder : orders)
+		menuBar->addMenu(createAndArrangeMenu(actions, menuOrder.toMap()));
+	
+	return menuBar;
+}
+
+QMenu *createAndArrangeMenu(const QList<QAction *> &actions, const QVariantMap &order)
+{
+	QString menuId = order["menu"].toString();
+	if (menuId.isEmpty())
+		return 0;
+	
+	QString menuTitle = app()->menuItemTitles()[menuId];
+	
+	if (menuTitle.isEmpty())
+		menuTitle = order["menu"].toString();
+	
+	QMenu *menu = new QMenu(menuTitle);
+	
+	QVariantList children = order["children"].toList();
+	
+	for (const QVariant &child : children)
+	{
+		switch (child.type())
+		{
+			case QVariant::String:
+			{
+				QString id = child.toString();
+				if (id.isEmpty())
+				{
+					menu->addSeparator();
+				}
+				else
+				{
+					QString text = app()->menuItemTitles()[id];
+					if (text.isEmpty())
+						text = id;
+					
+					QAction *action = findQObjectReverse(actions, id);
+					
+					if (action == nullptr)
+					{
+						action = new QAction(menu);
+						action->setEnabled(false);
+					}
+					
+					action->setText(text);
+					action->setShortcut(app()->actionShortcuts()[id]);
+					menu->addAction(action);
+				}
+				break;
+			}
+			case QVariant::Map:
+			{
+				QVariantMap subOrder = child.toMap();
+				QMenu *childMenu = createAndArrangeMenu(actions, subOrder);
+				if (childMenu)
+					menu->addMenu(childMenu);
+				break;
+			}
+			default:
+				break;
+		}
+	}
+	
+	return menu;
+}
+
 WorkspaceController::WorkspaceController(QObject *parent) :
     QObject(parent)
 {
@@ -30,8 +103,8 @@ WorkspaceController::WorkspaceController(QObject *parent) :
 	
 	// create actions
 	
-	_actionManager->addAction("paintfield.file.new", this, SLOT(newCanvas()), tr("New..."));
-	_actionManager->addAction("paintfield.file.open", this, SLOT(openCanvas()), tr("Open..."));
+	_actionManager->addAction("paintfield.file.new", this, SLOT(newCanvas()));
+	_actionManager->addAction("paintfield.file.open", this, SLOT(openCanvas()));
 }
 
 void WorkspaceController::show()
@@ -63,7 +136,7 @@ void WorkspaceController::openCanvas()
 	}
 }
 
-bool WorkspaceController::requestCanvasClose(CanvasController *controller)
+bool WorkspaceController::tryCanvasClose(CanvasController *controller)
 {
 	if (controller && controller->closeCanvas())
 	{
@@ -75,11 +148,11 @@ bool WorkspaceController::requestCanvasClose(CanvasController *controller)
 	return false;
 }
 
-bool WorkspaceController::requestClose()
+bool WorkspaceController::tryClose()
 {
 	for (CanvasController *controller : _canvasControllers )
 	{
-		if (requestCanvasClose(controller) == false)
+		if (tryCanvasClose(controller) == false)
 			return false;
 	}
 	deleteLater();
@@ -151,78 +224,12 @@ void WorkspaceController::arrangePanelsInArea(const QWidgetList &panels, Qt::Doc
 
 void WorkspaceController::arrangeMenuBar()
 {
-	QMenuBar *menuBar = new QMenuBar();
-	
-	QVariantList orders = app()->menuBarOrder().toList();
-	foreach (const QVariant &order, orders)
-		menuBar->addMenu(createAndArrangeMenu(_actionManager, order.toMap()));
-	
-	_view->setMenuBar(menuBar);
-}
-
-QMenu *WorkspaceController::createAndArrangeMenu(ActionManager *actionManager, const QVariantMap &order)
-{
-	QMenu *menu = new QMenu(app()->menuItemTitles()[order["title"].toString()]);
-	
-	QVariantList children = order["children"].toList();
-	
-	foreach (const QVariant &child, children)
-	{
-		QVariantMap subOrder = child.toMap();
-		
-		if (subOrder.size()) // child is menu
-		{
-			menu->addMenu(createAndArrangeMenu(actionManager, subOrder));
-			continue;
-		}
-		
-		QString id = child.toString();
-		
-		if (!id.isEmpty())	// child is action
-		{
-			QString text = app()->menuItemTitles()[id];
-			if (text.isEmpty())
-				text = id;
-			
-			QAction *action = actionForId(id);
-			
-			if (!action)
-			{
-				action = new QAction(this);
-				_dummyActions << action;
-			}
-			
-			action->setText(text);
-			action->setShortcut(app()->actionShortcuts()[id]);
-			menu->addAction(action);
-			
-			continue;
-		}
-		
-		menu->addSeparator();	// child is not an string nor an object
-	}
-	
-	return menu;
-}
-
-QAction *WorkspaceController::actionForId(const QString &id)
-{
-	QList<ActionManager *> actionManagers;
-	
-	actionManagers << app()->actionManager();
-	actionManagers << _actionManager;
+	QList<QAction *> actions = app()->actionManager()->actions() + _actionManager->actions();
 	
 	if (_currentCanvasController)
-		actionManagers << _currentCanvasController->actionManager();
+		actions += _currentCanvasController->actionManager()->actions();
 	
-	for (ActionManager *manager : actionManagers)
-	{
-		QAction *action = manager->actionForId(id);
-		if (action)
-			return action;
-	}
-	
-	return 0;
+	_view->setMenuBar(createAndArrangeMenuBar(actions, app()->menuBarOrder()));
 }
 
 }

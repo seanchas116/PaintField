@@ -8,11 +8,11 @@ WorkspaceManager::WorkspaceManager(QObject *parent) :
 {
 }
 
-bool WorkspaceManager::requestCloseAll()
+bool WorkspaceManager::tryCloseAll()
 {
 	for (WorkspaceController *controller : _workspaces)
 	{
-		if (!controller->requestClose())
+		if (!controller->tryClose())
 			return false;
 	}
 	return true;

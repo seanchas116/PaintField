@@ -44,7 +44,7 @@ CanvasGraphicsObject::CanvasGraphicsObject(Document *document, QGraphicsItem *pa
     _pixmap(document->size())
 {
 	updateTiles(document->tileKeys());
-	connect(_document, SIGNAL(tilesUpdated(QPointSet)), this, SLOT(updateTiles(QPointSet)));
+	connect(_document->layerModel(), SIGNAL(tilesUpdated(QPointSet)), this, SLOT(updateTiles(QPointSet)));
 }
 
 void CanvasGraphicsObject::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -57,7 +57,8 @@ void CanvasGraphicsObject::paint(QPainter *painter, const QStyleOptionGraphicsIt
 void CanvasGraphicsObject::setTool(Tool *tool)
 {
 	_tool = tool;
-	connect(tool, SIGNAL(requestUpdate(QPointSet)), this, SLOT(updateTiles(QPointSet)));
+	if (tool)
+		connect(tool, SIGNAL(requestUpdate(QPointSet)), this, SLOT(updateTiles(QPointSet)));
 }
 
 void CanvasGraphicsObject::updateTiles(const QPointSet &tiles)
@@ -104,19 +105,22 @@ void CanvasGraphicsObject::changeCanvasSize(const QSize &size)
 
 bool CanvasGraphicsObject::sceneEvent(QEvent *event)
 {
-	switch ((int)event->type())
+	if (_tool)
 	{
-		case PaintField::EventTabletMove:
-			_tool->cursorMoveEvent(static_cast<TabletEvent *>(event));
-			return event->isAccepted();
-		case PaintField::EventTabletPress:
-			_tool->cursorPressEvent(static_cast<TabletEvent *>(event));
-			return event->isAccepted();
-		case PaintField::EventTabletRelease:
-			_tool->cursorReleaseEvent(static_cast<TabletEvent *>(event));
-			return event->isAccepted();
-		default:
-			break;
+		switch ((int)event->type())
+		{
+			case PaintField::EventTabletMove:
+				_tool->cursorMoveEvent(static_cast<TabletEvent *>(event));
+				return event->isAccepted();
+			case PaintField::EventTabletPress:
+				_tool->cursorPressEvent(static_cast<TabletEvent *>(event));
+				return event->isAccepted();
+			case PaintField::EventTabletRelease:
+				_tool->cursorReleaseEvent(static_cast<TabletEvent *>(event));
+				return event->isAccepted();
+			default:
+				break;
+		}
 	}
 	
 	return QGraphicsObject::sceneEvent(event);

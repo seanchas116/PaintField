@@ -26,9 +26,9 @@ CanvasController::CanvasController(Document *document, WorkspaceController *pare
 	connect(parent->toolManager(), SIGNAL(currentToolFactoryChanged(ToolFactory*)), _view.data(), SLOT(setToolFactory(ToolFactory*)));
 	_view->setToolFactory(parent->toolManager()->currentToolFactory());
 	
-	_actionManager->addAction("paintfield.file.save", this, SLOT(saveCanvas()), tr("Save..."));
-	_actionManager->addAction("paintfield.file.saveAs", this, SLOT(saveAsCanvas()), tr("Save As"));
-	_actionManager->addAction("paintfield.file.close", this, SLOT(closeCanvas()), tr("Close"));
+	_actionManager->addAction("paintfield.file.save", this, SLOT(saveCanvas()));
+	_actionManager->addAction("paintfield.file.saveAs", this, SLOT(saveAsCanvas()));
+	_actionManager->addAction("paintfield.file.close", this, SLOT(closeCanvas()));
 }
 
 CanvasController *CanvasController::fromNew(WorkspaceController *parent)

@@ -27,10 +27,10 @@ public:
 		_actions << action;
 	}
 	
-	QAction *addAction(const QString &id, const QString &text, const QKeySequence &shortcut = QKeySequence());
-	QAction *addAction(const QString &id, QObject *receiver, const char *onTriggeredSlot, const QString &text, const QKeySequence &shortcut = QKeySequence())
+	QAction *addAction(const QString &id);
+	QAction *addAction(const QString &id, QObject *receiver, const char *onTriggeredSlot)
 	{
-		QAction *action = addAction(id, text, shortcut);
+		QAction *action = addAction(id);
 		connect(action, SIGNAL(triggered()), receiver, onTriggeredSlot);
 		return action;
 	}
@@ -41,6 +41,8 @@ public:
 	 * @return The found action
 	 */
 	QAction *actionForId(const QString &id);
+	
+	QList<QAction *> actions() { return _actions; }
 	
 signals:
 	

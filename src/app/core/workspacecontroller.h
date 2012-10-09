@@ -13,6 +13,10 @@
 namespace PaintField
 {
 
+QMenuBar *createAndArrangeMenuBar(const QList<QAction *> &actions, const QVariant &order);
+QMenu *createAndArrangeMenu(const QList<QAction *> &actions, const QVariantMap &order);
+
+
 class WorkspaceController : public QObject
 {
 	Q_OBJECT
@@ -51,12 +55,12 @@ public slots:
 	{
 		CanvasController *controller = controllerForCanvasView(canvas);
 		if (controller)
-			return requestCanvasClose(controller);
+			return tryCanvasClose(controller);
 		else
 			return false;
 	}
 	
-	bool requestCanvasClose(CanvasController *controller);
+	bool tryCanvasClose(CanvasController *controller);
 	
 	void changeCurrentCanvasView(CanvasView *canvas)
 	{
@@ -70,7 +74,7 @@ public slots:
 	void newCanvas();
 	void openCanvas();
 	
-	bool requestClose();
+	bool tryClose();
 	
 protected:
 	
@@ -97,9 +101,8 @@ private:
 	ActionManager *_actionManager;
 	QList<QWidget *> _panels;
 	
-	QList<QAction *> _dummyActions;
-	
 	ScopedQObjectPointer<WorkspaceView> _view;
+	ScopedQObjectPointer<QMenuBar> _defaulMenuBar;
 };
 
 }

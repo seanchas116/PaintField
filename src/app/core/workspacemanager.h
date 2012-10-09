@@ -23,7 +23,7 @@ signals:
 	
 public slots:
 	
-	bool requestCloseAll();
+	bool tryCloseAll();
 	void newWorkspace();
 	void setCurrentWorkspace(WorkspaceController *controller);
 	

@@ -43,6 +43,7 @@ void CanvasMdiArea::addCanvas(CanvasView *canvas)
 	CanvasMdiSubWindow *swindow = new CanvasMdiSubWindow(canvas, this);
 	connect(swindow, SIGNAL(closeRequested(CanvasView*)), this, SIGNAL(canvasCloseRequested(CanvasView*)));
 	_subWindows << swindow;
+	swindow->show();
 }
 
 void CanvasMdiArea::removeCanvas(CanvasView *canvas)
