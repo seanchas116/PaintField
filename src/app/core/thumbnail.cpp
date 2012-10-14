@@ -11,9 +11,12 @@ Thumbnail::Thumbnail(const QPixmap &originalPixmap)
 	QPixmap shadow;
 	QRect pixmapRect(Margin + PixmapSize / 2 - pixmap.size().width() / 2, Margin + PixmapSize / 2 - pixmap.size().height() / 2, pixmap.size().width(), pixmap.size().height());
 	
-	if (_shadowCache.contains(pixmap.size())) {
+	if (_shadowCache.contains(pixmap.size()))
+	{
 		shadow = _shadowCache.value(pixmap.size());
-	} else {
+	}
+	else
+	{
 		shadow = QPixmap(thumbnailSize());
 		shadow.fill(Qt::transparent);
 		

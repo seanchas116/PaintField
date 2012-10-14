@@ -44,7 +44,7 @@ public:
 	/**
 	 * @return The workspace controller which have the canvas controller
 	 */
-	WorkspaceController *workspaceController() { return reinterpret_cast<WorkspaceController *>(parent()); }
+	WorkspaceController *workspace() { return reinterpret_cast<WorkspaceController *>(parent()); }
 	
 	/**
 	 * @return The canvas view
@@ -63,6 +63,8 @@ public:
 	
 	ActionManager *actionManager() { return _actionManager; }
 	
+	CanvasView *createView(QWidget *parent = 0);
+	
 signals:
 	
 public slots:
@@ -73,7 +75,8 @@ public slots:
 	
 private:
 	
-	ScopedQObjectPointer<CanvasView> _view;
+	Document *_document;
+	QPointer<CanvasView> _view;
 	ActionManager *_actionManager;
 	QList<QAction *> _actions;
 };

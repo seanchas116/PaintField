@@ -75,7 +75,6 @@ HEADERS += \
     core/global.h \
     core/drawutil.h \
     core/document.h \
-    core/applicationmodulebase.h \
     core/application.h \
     core/dialogs/newdocumentdialog.h \
     core/dialogs/exportdialog.h \
@@ -96,14 +95,23 @@ HEADERS += \
     core/workspacemanager.h \
     core/canvasview.h \
     core/actionmanager.h \
-    core/util.h
+    core/util.h \
+    extension/toolsettingpanel.h \
+    extension/toolpanel.h \
+    extension/colorpanel.h \
+    extension/layermodelview.h \
+    extension/layermodelviewdelegate.h \
+    extension/layertreepanel.h \
+    core/workspacemdiareacontroller.h \
+    extension/colorpanelcontroller.h \
+    extension/layertreepanelcontroller.h \
+    extension/toolpanelcontroller.h \
+    extension/layeractioncontroller.h \
+    core/sidebarfactory.h
 
 SOURCES += \
     core/toolmanager.cpp \
-    core/tool.cpp \
     core/thumbnail.cpp \
-    core/tabletinputdata.cpp \
-    core/tabletevent.cpp \
     core/tabletapplication.cpp \
     core/randomstring.cpp \
     core/palettemanager.cpp \
@@ -113,7 +121,6 @@ SOURCES += \
     core/layer.cpp \
     core/drawutil.cpp \
     core/document.cpp \
-    core/applicationmodulebase.cpp \
     core/application.cpp \
     core/dialogs/newdocumentdialog.cpp \
     core/dialogs/exportdialog.cpp \
@@ -135,7 +142,18 @@ SOURCES += \
     core/workspacemanager.cpp \
     core/canvasview.cpp \
     core/actionmanager.cpp \
-    core/util.cpp
+    core/util.cpp \
+    extension/toolsettingpanel.cpp \
+    extension/toolpanel.cpp \
+    extension/colorpanel.cpp \
+    extension/layermodelview.cpp \
+    extension/layermodelviewdelegate.cpp \
+    extension/layertreepanel.cpp \
+    core/workspacemdiareacontroller.cpp \
+    extension/colorpanelcontroller.cpp \
+    extension/layertreepanelcontroller.cpp \
+    extension/toolpanelcontroller.cpp \
+    extension/layeractioncontroller.cpp
 
 FORMS += \
     core/dialogs/newdocumentdialog.ui \

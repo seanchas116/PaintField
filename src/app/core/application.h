@@ -4,7 +4,8 @@
 #include <QMainWindow>
 #include "tabletapplication.h"
 
-#include "toolmanager.h"
+#include "sidebarfactory.h"
+#include "tool.h"
 #include "palettemanager.h"
 #include "workspacemanager.h"
 
@@ -34,6 +35,11 @@ public:
 	 * @param factory The tool factory
 	 */
 	void addToolFactory(ToolFactory *factory);
+	
+	QList<SidebarFactory *> sidebarFactories() { return _sidebarFactories; }
+	
+	void addSidebarFactory(SidebarFactory *factory);
+	
 	
 	/**
 	 * Declares the title of a menu item (menu / action).
@@ -84,6 +90,7 @@ private:
 	WorkspaceManager *_workspaceManager;
 	
 	QList<ToolFactory *> _toolFactories;
+	QList<SidebarFactory *> _sidebarFactories;
 	
 	QHash<QString, QString> _menuItemTitles;
 	QHash<QString, QKeySequence> _actionKeyMaps;

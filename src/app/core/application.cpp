@@ -62,6 +62,15 @@ void Application::addToolFactory(ToolFactory *factory)
 	}
 }
 
+void Application::addSidebarFactory(SidebarFactory *factory)
+{
+	if (factory)
+	{
+		factory->setParent(this);
+		_sidebarFactories << factory;
+	}
+}
+
 void Application::tryQuit()
 {
 	if (_workspaceManager->tryCloseAll())

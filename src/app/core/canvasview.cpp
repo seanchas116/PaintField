@@ -37,6 +37,39 @@ private:
 	Tool *_tool;
 };
 
+class CanvasGraphicsObject : public QGraphicsObject
+{
+	Q_OBJECT
+public:
+	
+	CanvasGraphicsObject(Document *document, QGraphicsItem *parent = 0);
+	
+	QRectF boundingRect() const { return QRect(QPoint(), _pixmap.size()); }
+	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+	
+	void setTool(Tool *tool);
+	
+signals:
+	
+	void requireRepaint(const QRect &rect);
+	
+public slots:
+	
+	void updateTiles(const QPointSet &keys);
+	void updateTiles() { updateTiles(_document->tileKeys()); }
+	void changeCanvasSize(const QSize &size);
+	
+protected:
+	
+	bool sceneEvent(QEvent *event);
+	
+private:
+	
+	Document *_document;
+	Tool *_tool;
+	QPixmap _pixmap;
+};
+
 CanvasGraphicsObject::CanvasGraphicsObject(Document *document, QGraphicsItem *parent) :
     QGraphicsObject(parent),
     _document(document),
@@ -156,13 +189,9 @@ bool CanvasScene::event(QEvent *event)
 	if (item)
 	{
 		if ((int)event->type() == PaintField::EventTabletPress)
-		{
 			_cursorItem = item;
-		}
 		if ((int)event->type() == PaintField::EventTabletRelease)
-		{
 			_cursorItem = 0;
-		}
 		
 		tabletEvent->data.pos = item->mapFromScene(pos);
 		return item->sceneEvent(tabletEvent);
@@ -314,7 +343,8 @@ void CanvasView::wheelEvent(QWheelEvent *event)
 
 bool CanvasView::event(QEvent *event)
 {
-	switch ((int)event->type()) {
+	switch ((int)event->type())
+	{
 	case PaintField::EventTabletMove:
 	case PaintField::EventTabletPress:
 	case PaintField::EventTabletRelease:

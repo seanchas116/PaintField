@@ -15,20 +15,26 @@ namespace PaintField
 {
 
 CanvasController::CanvasController(Document *document, WorkspaceController *parent) :
-    QObject(parent)
+    QObject(parent),
+	_document(document)
 {
 	_actionManager = new ActionManager(this);
 	
 	document->setParent(this);
 	
-	_view.reset(new CanvasView(document));
-	
-	connect(parent->toolManager(), SIGNAL(currentToolFactoryChanged(ToolFactory*)), _view.data(), SLOT(setToolFactory(ToolFactory*)));
-	_view->setToolFactory(parent->toolManager()->currentToolFactory());
-	
 	_actionManager->addAction("paintfield.file.save", this, SLOT(saveCanvas()));
 	_actionManager->addAction("paintfield.file.saveAs", this, SLOT(saveAsCanvas()));
 	_actionManager->addAction("paintfield.file.close", this, SLOT(closeCanvas()));
+}
+
+CanvasView *CanvasController::createView(QWidget *parent)
+{
+	_view = new CanvasView(_document);
+	
+	connect(workspace()->toolManager(), SIGNAL(currentToolFactoryChanged(ToolFactory*)), _view, SLOT(setToolFactory(ToolFactory*)));
+	_view->setToolFactory(workspace()->toolManager()->currentToolFactory());
+	
+	return _view;
 }
 
 CanvasController *CanvasController::fromNew(WorkspaceController *parent)

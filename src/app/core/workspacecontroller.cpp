@@ -81,20 +81,6 @@ QMenu *createAndArrangeMenu(const QList<QAction *> &actions, const QVariantMap &
 WorkspaceController::WorkspaceController(QObject *parent) :
     QObject(parent)
 {
-	// create view
-	
-	_view .reset(new WorkspaceView());
-	
-	CanvasMdiArea *mdiArea = new CanvasMdiArea();
-	
-	connect(this, SIGNAL(canvasViewAdded(CanvasView*)), mdiArea, SLOT(addCanvas(CanvasView*)));
-	connect(this, SIGNAL(canvasViewRemoved(CanvasView*)), mdiArea, SLOT(removeCanvas(CanvasView*)));
-	connect(this, SIGNAL(currentCanvasViewChanged(CanvasView*)), mdiArea, SLOT(setCurrentCanvas(CanvasView*)));
-	
-	connect(mdiArea, SIGNAL(currentCanvasChanged(CanvasView*)), this, SLOT(changeCurrentCanvasView(CanvasView*)));
-	
-	_view->setCentralWidget(mdiArea);
-	
 	// create tool / palette manager
 	
 	_toolManager = new ToolManager(this);
@@ -105,13 +91,31 @@ WorkspaceController::WorkspaceController(QObject *parent) :
 	
 	_actionManager->addAction("paintfield.file.new", this, SLOT(newCanvas()));
 	_actionManager->addAction("paintfield.file.open", this, SLOT(openCanvas()));
+	
+	_mdiAreaController = new WorkspaceMdiAreaController(this);
+	
+	connect(this, SIGNAL(canvasAdded(CanvasController*)), _mdiAreaController, SLOT(addCanvas(CanvasController*)));
+	connect(this, SIGNAL(canvasRemoved(CanvasController*)), _mdiAreaController, SLOT(removeCanvas(CanvasController*)));
+	connect(this, SIGNAL(currentCanvasChanged(CanvasController*)), _mdiAreaController, SLOT(setCurrentCanvas(CanvasController*)));
+	
+	connect(_mdiAreaController, SIGNAL(canvasCloseRequested(CanvasController*)), this, SLOT(tryCanvasClose(CanvasController*)));
+	connect(_mdiAreaController, SIGNAL(currentCanvasChanged(CanvasController*)), this, SLOT(changeCurrentCanvas(CanvasController*)));
 }
 
-void WorkspaceController::show()
+WorkspaceView *WorkspaceController::createView(QWidget *parent)
 {
-	arrangePanels();
-	arrangeMenuBar();
-	_view->show();
+	WorkspaceView *view = new WorkspaceView(parent);
+	_view = view;
+	
+	QMdiArea *mdiArea = _mdiAreaController->createView();
+	view->setCentralWidget(mdiArea);
+	
+	prepareSidebars();
+	createSidebars();
+	createSidebarsForCanvas(_currentCanvasController);
+	createMenuBar();
+	
+	return view;
 }
 
 void WorkspaceController::newCanvas()
@@ -140,7 +144,6 @@ bool WorkspaceController::tryCanvasClose(CanvasController *controller)
 {
 	if (controller && controller->closeCanvas())
 	{
-		emit canvasViewRemoved(controller->view());
 		emit canvasRemoved(controller);
 		controller->deleteLater();
 		return true;
@@ -164,12 +167,16 @@ void WorkspaceController::changeCurrentCanvas(CanvasController *controller)
 	_currentCanvasController = controller;
 	emit currentCanvasChanged(controller);
 	
-	arrangeMenuBar();
+	if (_view)
+	{
+		createSidebarsForCanvas(controller);
+		createMenuBar();
+	}
 }
 
 bool WorkspaceController::eventFilter(QObject *watched, QEvent *event)
 {
-	if (watched == _view.data())
+	if (watched == _view)
 	{
 		if (event->type() == QEvent::FocusIn)
 		{
@@ -184,7 +191,6 @@ bool WorkspaceController::eventFilter(QObject *watched, QEvent *event)
 void WorkspaceController::addCanvas(CanvasController *controller)
 {
 	_canvasControllers << controller;
-	emit canvasViewAdded(controller->view());
 	emit canvasAdded(controller);
 }
 
@@ -199,35 +205,45 @@ CanvasController *WorkspaceController::controllerForCanvasView(CanvasView *canva
 	return 0;
 }
 
-void WorkspaceController::arrangePanels()
+void WorkspaceController::prepareSidebars()
 {
 	QVariantMap orderMap = app()->panelOrder().toMap();
 	
-	arrangePanelsInArea(_panels, Qt::LeftDockWidgetArea, orderMap["left"].toList());
-	arrangePanelsInArea(_panels, Qt::RightDockWidgetArea, orderMap["right"].toList());
+	prepareSidebarInArea(orderMap["left"].toList());
+	prepareSidebarInArea(orderMap["right"].toList());
 }
 
-void WorkspaceController::arrangePanelsInArea(const QWidgetList &panels, Qt::DockWidgetArea area, const QVariantList &list)
+void WorkspaceController::prepareSidebarInArea(const QVariantList &ids, Qt::DockWidgetArea area)
 {
-	for (const QVariant &item : list)
+	for (SidebarFactory *factory : app()->sidebarFactories())
 	{
-		QString id = item.toString();
-		if (id.isEmpty())
-			continue;
-		for (QWidget *panel : panels)
+		if (ids.contains(factory->objectName()))
 		{
-			if (panel->objectName() == id)
-				_view->addPanel(area, panel);
+			_view->addSidebarFrame(factory->objectName(), factory->text(), area);
 		}
 	}
 }
 
-void WorkspaceController::arrangeMenuBar()
+void WorkspaceController::createSidebars()
+{
+	for (SidebarFactory *factory : app()->sidebarFactories())
+		_view->setSidebar(factory->objectName(), factory->createSidebar(this, 0));
+}
+
+void WorkspaceController::createSidebarsForCanvas(CanvasController *canvas)
+{
+	for (SidebarFactory *factory : app()->sidebarFactories())
+		_view->setSidebar(factory->objectName(), factory->createSidebarForCanvas(canvas, 0));
+}
+
+void WorkspaceController::createMenuBar()
 {
 	QList<QAction *> actions = app()->actionManager()->actions() + _actionManager->actions();
-	
 	if (_currentCanvasController)
 		actions += _currentCanvasController->actionManager()->actions();
+	
+	if (_view->menuBar())
+		_view->menuBar()->deleteLater();
 	
 	_view->setMenuBar(createAndArrangeMenuBar(actions, app()->menuBarOrder()));
 }

@@ -5,10 +5,14 @@
 #include <QMenuBar>
 
 #include "canvascontroller.h"
-#include "workspaceview.h"
-
+#include "workspacecontroller.h"
+#include "sidebarfactory.h"
 #include "toolmanager.h"
 #include "palettemanager.h"
+
+#include "workspaceview.h"
+
+#include "workspacemdiareacontroller.h"
 
 namespace PaintField
 {
@@ -16,59 +20,30 @@ namespace PaintField
 QMenuBar *createAndArrangeMenuBar(const QList<QAction *> &actions, const QVariant &order);
 QMenu *createAndArrangeMenu(const QList<QAction *> &actions, const QVariantMap &order);
 
-
 class WorkspaceController : public QObject
 {
 	Q_OBJECT
 public:
 	explicit WorkspaceController(QObject *parent = 0);
 	
-	void addPanel(QWidget *panel) { _panels << panel; }
-	void addPanel(QWidget *panel, const QString &id)
-	{
-		panel->setObjectName(id);
-		addPanel(panel);
-	}
-	
 	ToolManager *toolManager() { return _toolManager; }
 	PaletteManager *paletteManager() { return _paletteManager; }
+	ActionManager *actionManager() { return _actionManager; }
+	
+	WorkspaceView *createView(QWidget *parent = 0);
 	
 signals:
 	
 	void currentCanvasChanged(CanvasController *controller);
-	void currentCanvasViewChanged(CanvasView *view);
-	
 	void canvasAdded(CanvasController *controller);
-	void canvasViewAdded(CanvasView *view);
-	
 	void canvasRemoved(CanvasController *controller);
-	void canvasViewRemoved(CanvasView *view);
-	
 	void focused();
 	
 public slots:
 	
-	void show();
 	void setFocus() { _view->setFocus(); }
 	
-	bool requestCanvasViewClose(CanvasView *canvas)
-	{
-		CanvasController *controller = controllerForCanvasView(canvas);
-		if (controller)
-			return tryCanvasClose(controller);
-		else
-			return false;
-	}
-	
 	bool tryCanvasClose(CanvasController *controller);
-	
-	void changeCurrentCanvasView(CanvasView *canvas)
-	{
-		CanvasController *controller = controllerForCanvasView(canvas);
-		if (controller)
-			changeCurrentCanvas(controller);
-	}
-	
 	void changeCurrentCanvas(CanvasController *controller);
 	
 	void newCanvas();
@@ -86,23 +61,24 @@ protected:
 	
 private:
 	
-	void arrangePanels();
-	void arrangeMenuBar();
-	
-	void arrangePanelsInArea(const QWidgetList &panels, Qt::DockWidgetArea area, const QVariantList &list);
-	QMenu *createAndArrangeMenu(ActionManager *actionManager, const QVariantMap &order);
-	QAction *actionForId(const QString &id);
+	void prepareSidebars();
+	void prepareSidebarInArea(const QVariantList &ids, Qt::DockWidgetArea area);
+	void createSidebars();
+	void createSidebarsForCanvas(CanvasController *canvas);
+	void createMenuBar();
 	
 	QList<CanvasController *> _canvasControllers;
 	QPointer<CanvasController> _currentCanvasController;
 	
-	ToolManager *_toolManager;
-	PaletteManager *_paletteManager;
-	ActionManager *_actionManager;
-	QList<QWidget *> _panels;
+	ToolManager *_toolManager = 0;
+	PaletteManager *_paletteManager = 0;
+	ActionManager *_actionManager = 0;
 	
-	ScopedQObjectPointer<WorkspaceView> _view;
-	ScopedQObjectPointer<QMenuBar> _defaulMenuBar;
+	WorkspaceMdiAreaController *_mdiAreaController = 0;
+	
+	QPointer<WorkspaceView> _view;
+	
+	
 };
 
 }
