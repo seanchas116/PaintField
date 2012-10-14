@@ -209,8 +209,8 @@ void WorkspaceController::prepareSidebars()
 {
 	QVariantMap orderMap = app()->panelOrder().toMap();
 	
-	prepareSidebarInArea(orderMap["left"].toList());
-	prepareSidebarInArea(orderMap["right"].toList());
+	prepareSidebarInArea(orderMap["left"].toList(), Qt::LeftDockWidgetArea);
+	prepareSidebarInArea(orderMap["right"].toList(), Qt::RightDockWidgetArea);
 }
 
 void WorkspaceController::prepareSidebarInArea(const QVariantList &ids, Qt::DockWidgetArea area)

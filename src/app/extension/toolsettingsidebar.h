@@ -8,13 +8,14 @@
 namespace PaintField
 {
 
+class ToolManager;
 class ToolFactory;
 
-class ToolSettingPanel : public QWidget
+class ToolSettingSidebar : public QWidget
 {
 	Q_OBJECT
 public:
-	explicit ToolSettingPanel(QWidget *parent = 0);
+	explicit ToolSettingSidebar(ToolManager *toolManager, QWidget *parent = 0);
 	
 signals:
 	

@@ -2,7 +2,7 @@
 #define FSLAYERTREEPANEL_H
 
 #include "core/layer.h"
-#include "widgets/loosespinbox.h"
+#include "core/widgets/loosespinbox.h"
 
 class QHBoxLayout;
 class QVBoxLayout;
@@ -23,13 +23,13 @@ class LayerModelView;
 class DoubleSlider;
 class SimpleButton;
 
-class LayerTreePanel : public QWidget
+class LayerTreeSidebar : public QWidget
 {
 	Q_OBJECT
 	
 public:
 	
-	explicit LayerTreePanel(LayerModel *model, QWidget *parent = 0);
+	explicit LayerTreeSidebar(LayerModel *model, QWidget *parent = 0);
 	
 	SimpleButton *addButton() { return _addButton; }
 	SimpleButton *removeButton() { return _removeButton; }

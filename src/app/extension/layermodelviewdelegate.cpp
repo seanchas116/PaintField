@@ -1,14 +1,14 @@
 #include <QtGui>
 #include "core/layermodel.h"
-#include "layertreepanel.h"
+#include "layeractioncontroller.h"
 #include "layermodelviewdelegate.h"
 
 namespace PaintField
 {
 
-LayerModelViewDelegate::LayerModelViewDelegate(LayerTreePanel *panel, QObject *parent) :
+LayerModelViewDelegate::LayerModelViewDelegate(LayerActionController *actionController, QObject *parent) :
 	QStyledItemDelegate(parent),
-	_panel(panel)
+	_actionController(actionController)
 {
 }
 
@@ -25,7 +25,7 @@ bool LayerModelViewDelegate::editorEvent(QEvent *event, QAbstractItemModel *mode
 		
 		QMenu menu;
 		
-		menu.addAction(tr("Remove"), _panel, SLOT(removeLayer()));
+		menu.addAction(tr("Remove"), _actionController, SLOT(removeLayer()));
 	}
 	
 	return true;

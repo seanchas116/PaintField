@@ -11,14 +11,6 @@
 namespace PaintField
 {
 
-class SidebarFrame : public QDockWidget
-{
-	Q_OBJECT
-public:
-	
-	SidebarFrame(QWidget *parent = 0) : QDockWidget(parent) {}
-};
-
 class WorkspaceView : public QMainWindow
 {
 	Q_OBJECT

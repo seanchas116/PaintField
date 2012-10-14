@@ -2,20 +2,20 @@
 
 #include "util.h"
 #include "layermodelview.h"
-#include "widgets/doubleslider.h"
-#include "widgets/simplebutton.h"
+#include "core/widgets/doubleslider.h"
+#include "core/widgets/simplebutton.h"
 #include "core/application.h"
 #include "core/workspacecontroller.h"
 #include "core/document.h"
 #include "Malachite/mlpainter.h"
 #include "Malachite/mlimageio.h"
 
-#include "layertreepanel.h"
+#include "layertreesidebar.h"
 
 namespace PaintField
 {
 
-LayerTreePanel::LayerTreePanel(LayerModel *model, QWidget *parent) :
+LayerTreeSidebar::LayerTreeSidebar(LayerModel *model, QWidget *parent) :
     QWidget(parent),
     _layerModel(model)
 {
@@ -38,7 +38,7 @@ LayerTreePanel::LayerTreePanel(LayerModel *model, QWidget *parent) :
 	setWindowTitle(tr("Layer"));
 }
 
-void LayerTreePanel::updatePropertyView()
+void LayerTreeSidebar::updatePropertyView()
 {
 	if (_layerModel->currentIndex().isValid())
 	{
@@ -49,17 +49,17 @@ void LayerTreePanel::updatePropertyView()
 		_formWidget->setEnabled(false);
 }
 
-void LayerTreePanel::setOpacityPercentage(double value)
+void LayerTreeSidebar::setOpacityPercentage(double value)
 {
 	_layerModel->setData(_layerModel->currentIndex(), value / 100.0, PaintField::RoleOpacity);
 }
 
-void LayerTreePanel::viewFocused()
+void LayerTreeSidebar::viewFocused()
 {
 	_layerModel->updateDirtyThumbnails();
 }
 
-void LayerTreePanel::createForms()
+void LayerTreeSidebar::createForms()
 {
 	_treeView = new LayerModelView();
 	_treeView->setHeaderHidden(true);

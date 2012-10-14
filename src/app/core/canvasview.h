@@ -3,6 +3,7 @@
 
 #include <QGraphicsView>
 #include <QGraphicsSceneEvent>
+#include <QGraphicsObject>
 #include "document.h"
 
 namespace PaintField {
@@ -11,7 +12,38 @@ class ToolFactory;
 class Tool;
 class TabletEvent;
 
-class CanvasGraphicsObject;
+class CanvasGraphicsObject : public QGraphicsObject
+{
+	Q_OBJECT
+public:
+	
+	CanvasGraphicsObject(Document *document, QGraphicsItem *parent = 0);
+	
+	QRectF boundingRect() const { return QRect(QPoint(), _pixmap.size()); }
+	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+	
+	void setTool(Tool *tool);
+	
+signals:
+	
+	void requireRepaint(const QRect &rect);
+	
+public slots:
+	
+	void updateTiles(const QPointSet &keys);
+	void updateTiles() { updateTiles(_document->tileKeys()); }
+	void changeCanvasSize(const QSize &size);
+	
+protected:
+	
+	bool sceneEvent(QEvent *event);
+	
+private:
+	
+	Document *_document;
+	Tool *_tool;
+	QPixmap _pixmap;
+};
 
 class CanvasScene : public QGraphicsScene
 {

@@ -6,21 +6,19 @@
 namespace PaintField
 {
 
-class WorkspaceController;
+class ToolManager;
 
-class ToolPanel : public QWidget
+class ToolSidebar : public QWidget
 {
 	Q_OBJECT
 public:
-	explicit ToolPanel(WorkspaceController *workspace, QWidget *parent = 0);
+	explicit ToolSidebar(ToolManager *toolManager, QWidget *parent = 0);
 	
 signals:
 	
 public slots:
 	
 private:
-	
-	WorkspaceController *_workspace;
 };
 
 }

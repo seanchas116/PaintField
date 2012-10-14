@@ -15,10 +15,10 @@ namespace PaintField
 
 using namespace Malachite;
 
-class FSCanvasRenderer : public LayerRenderer
+class CanvasRenderer : public LayerRenderer
 {
 public:
-	FSCanvasRenderer() : LayerRenderer(), _tool(0) {}
+	CanvasRenderer() : LayerRenderer(), _tool(0) {}
 	
 	void setTool(Tool *tool) { _tool = tool; }
 	
@@ -35,39 +35,6 @@ protected:
 private:
 	
 	Tool *_tool;
-};
-
-class CanvasGraphicsObject : public QGraphicsObject
-{
-	Q_OBJECT
-public:
-	
-	CanvasGraphicsObject(Document *document, QGraphicsItem *parent = 0);
-	
-	QRectF boundingRect() const { return QRect(QPoint(), _pixmap.size()); }
-	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
-	
-	void setTool(Tool *tool);
-	
-signals:
-	
-	void requireRepaint(const QRect &rect);
-	
-public slots:
-	
-	void updateTiles(const QPointSet &keys);
-	void updateTiles() { updateTiles(_document->tileKeys()); }
-	void changeCanvasSize(const QSize &size);
-	
-protected:
-	
-	bool sceneEvent(QEvent *event);
-	
-private:
-	
-	Document *_document;
-	Tool *_tool;
-	QPixmap _pixmap;
 };
 
 CanvasGraphicsObject::CanvasGraphicsObject(Document *document, QGraphicsItem *parent) :
@@ -101,7 +68,7 @@ void CanvasGraphicsObject::updateTiles(const QPointSet &tiles)
 	
 	QPointSet renderTiles = tiles & _document->tileKeys();
 	
-	FSCanvasRenderer renderer;
+	CanvasRenderer renderer;
 	renderer.setTool(_tool);
 	
 	Surface surface = renderer.render(_document->layerModel()->rootLayer()->children(), renderTiles);

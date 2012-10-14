@@ -1,15 +1,14 @@
 #include <QtGui>
 #include "core/application.h"
-#include "widgets/colorbutton.h"
-#include "widgets/colorslider.h"
-#include "widgets/colorwheel.h"
-#include "widgets/modulardoublespinbox.h"
-#include "widgets/simplebutton.h"
-#include "widgets/loosespinbox.h"
-#include "widgets/widgetgroup.h"
-#include "modules/palette/palettemodule.h"
+#include "core/widgets/colorbutton.h"
+#include "core/widgets/colorslider.h"
+#include "core/widgets/colorwheel.h"
+#include "core/widgets/modulardoublespinbox.h"
+#include "core/widgets/simplebutton.h"
+#include "core/widgets/loosespinbox.h"
+#include "core/widgets/widgetgroup.h"
 
-#include "colorpanel.h"
+#include "colorsidebar.h"
 
 namespace PaintField
 {
@@ -256,7 +255,7 @@ void WebColorPanel::onLineEditEditingFinished()
 	}
 }
 
-ColorPanel::ColorPanel(QWidget *parent) :
+ColorSidebar::ColorSidebar(QWidget *parent) :
 	QWidget(parent)
 {
 	setWindowTitle(tr("Color"));
@@ -333,23 +332,13 @@ ColorPanel::ColorPanel(QWidget *parent) :
 	
 	setLayout(_mainLayout);
 	
-	connect(_colorWheel, SIGNAL(colorChanged(Color)), this, SLOT(setColor(Color)));
-	connect(_sliderPanel, SIGNAL(colorChanged(Color)), this, SLOT(setColor(Color)));
-	connect(_webColorPanel, SIGNAL(colorChanged(Color)), this, SLOT(setColor(Color)));
+	connect(_colorWheel, SIGNAL(colorChanged(Color)), this, SLOT(setCurrentColor(Color)));
+	connect(_sliderPanel, SIGNAL(colorChanged(Color)), this, SLOT(setCurrentColor(Color)));
+	connect(_webColorPanel, SIGNAL(colorChanged(Color)), this, SLOT(setCurrentColor(Color)));
 	
 	connect(this, SIGNAL(currentColorChanged(Color)), _colorWheel, SLOT(setColor(Color)));
 	connect(this, SIGNAL(currentColorChanged(Color)), _sliderPanel, SLOT(setColor(Color)));
 	connect(this, SIGNAL(currentColorChanged(Color)), _webColorPanel, SLOT(setColor(Color)));
-	
-	for (int i = 0; i < 7; ++i)
-	{
-		_colorButtons.at(i)->setColor(pmanager->color(i));
-	}
-	setCurrentIndex(pmanager->currentIndex());
-	
-	_colorWheel->setColor(pmanager->currentColor());
-	_sliderPanel->setColor(pmanager->currentColor());
-	_webColorPanel->setColor(pmanager->currentColor());
 	
 	connect(_wheelButton, SIGNAL(toggled(bool)), _colorWheel, SLOT(setVisible(bool)));
 	connect(_sliderButton, SIGNAL(toggled(bool)), _sliderPanel, SLOT(setVisible(bool)));
@@ -362,16 +351,16 @@ ColorPanel::ColorPanel(QWidget *parent) :
 	_webColorPanel->setVisible(_webButton->isChecked());
 }
 
-void ColorPanel::setColor(int index, const Color &color)
+void ColorSidebar::setColor(int index, const Color &color)
 {
 	_colorButtons.at(index)->setColor(color);
 	if (index == _currentIndex)
 		emit currentColorChanged(color);
 }
 
-void ColorPanel::setCurrentIndex(int index)
+void ColorSidebar::setCurrentIndex(int index)
 {
-	_currentIndex = 0;
+	_currentIndex = index;
 	
 	if (_colorButtons.at(index)->isChecked())
 		return;
@@ -379,11 +368,11 @@ void ColorPanel::setCurrentIndex(int index)
 	_colorButtons.at(index)->setChecked(true);
 }
 
-void ColorPanel::onColorButtonPressed()
+void ColorSidebar::onColorButtonPressed()
 {
 	int index = _colorButtons.indexOf(reinterpret_cast<ColorButton *>(sender()));
 	if (index >= 0)
-		PaletteModule::paletteManager()->setCurrentIndex(index);
+		emit currentIndexChanged(index);
 }
 
 }

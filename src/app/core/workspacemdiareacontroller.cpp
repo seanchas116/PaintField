@@ -5,30 +5,6 @@
 namespace PaintField
 {
 
-
-class WorkspaceMdiSubWindow : public QMdiSubWindow
-{
-	Q_OBJECT
-public:
-	WorkspaceMdiSubWindow(CanvasController *canvas, QWidget *parent);
-	
-	CanvasController *canvas() { return _canvas; }
-	
-signals:
-	
-	void closeRequested(CanvasController *canvas);
-	void windowHidden(WorkspaceMdiSubWindow *swindow);
-	
-protected:
-	
-	void closeEvent(QCloseEvent *closeEvent);
-	void changeEvent(QEvent *changeEvent);
-	
-private:
-	
-	CanvasController *_canvas;
-};
-
 WorkspaceMdiSubWindow::WorkspaceMdiSubWindow(CanvasController *canvas, QWidget *parent) :
     QMdiSubWindow(parent)
 {

@@ -96,18 +96,19 @@ HEADERS += \
     core/canvasview.h \
     core/actionmanager.h \
     core/util.h \
-    extension/toolsettingpanel.h \
-    extension/toolpanel.h \
-    extension/colorpanel.h \
     extension/layermodelview.h \
     extension/layermodelviewdelegate.h \
-    extension/layertreepanel.h \
     core/workspacemdiareacontroller.h \
-    extension/colorpanelcontroller.h \
-    extension/layertreepanelcontroller.h \
-    extension/toolpanelcontroller.h \
     extension/layeractioncontroller.h \
-    core/sidebarfactory.h
+    core/sidebarfactory.h \
+    extension/colorsidebar.h \
+    extension/colorsidebarfactory.h \
+    extension/layertreesidebarfactory.h \
+    extension/layertreesidebar.h \
+    extension/toolsidebar.h \
+    extension/toolsidebarfactory.h \
+    extension/toolsettingsidebarfactory.h \
+    extension/toolsettingsidebar.h
 
 SOURCES += \
     core/toolmanager.cpp \
@@ -143,17 +144,18 @@ SOURCES += \
     core/canvasview.cpp \
     core/actionmanager.cpp \
     core/util.cpp \
-    extension/toolsettingpanel.cpp \
-    extension/toolpanel.cpp \
-    extension/colorpanel.cpp \
     extension/layermodelview.cpp \
     extension/layermodelviewdelegate.cpp \
-    extension/layertreepanel.cpp \
     core/workspacemdiareacontroller.cpp \
-    extension/colorpanelcontroller.cpp \
-    extension/layertreepanelcontroller.cpp \
-    extension/toolpanelcontroller.cpp \
-    extension/layeractioncontroller.cpp
+    extension/layeractioncontroller.cpp \
+    extension/colorsidebar.cpp \
+    extension/colorsidebarfactory.cpp \
+    extension/layertreesidebarfactory.cpp \
+    extension/layertreesidebar.cpp \
+    extension/toolsidebar.cpp \
+    extension/toolsidebarfactory.cpp \
+    extension/toolsettingsidebarfactory.cpp \
+    extension/toolsettingsidebar.cpp
 
 FORMS += \
     core/dialogs/newdocumentdialog.ui \

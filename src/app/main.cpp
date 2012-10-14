@@ -3,10 +3,7 @@
 #include "core/application.h"
 #include "core/workspacecontroller.h"
 
-#include "extension/colorpanelcontroller.h"
-#include "extension/layertreepanelcontroller.h"
-#include "extension/layeruicontroller.h"
-#include "extension/toolpanelcontroller.h"
+#include "extension/layeractioncontroller.h"
 
 using namespace PaintField;
 
@@ -25,15 +22,12 @@ private slots:
 	
 	void onWorkspaceAdded(WorkspaceController *workspace)
 	{
-		workspace->addPanel(new ColorPanelController(), "paintfield.panel.color");
-		workspace->addPanel(new ToolPanelController(), "paintfield.panel.tool");
 		connect(workspace, SIGNAL(canvasAdded(CanvasController*)), this, SLOT(onCanvasAdded(CanvasController*)));
 	}
 	
 	void onCanvasAdded(CanvasController *canvas)
 	{
-		auto actionController = new LayerActionController(canvas);
-		canvas->addPanel(new LayerTreePanelController(actionController), "paintfield.panel.layerTree");
+		new LayerActionController(canvas);
 	}
 	
 private:

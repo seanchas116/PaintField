@@ -3,8 +3,7 @@
 
 #include <QtGui>
 
-#include "panel.h"
-#include "mlcolor.h"
+#include "Malachite/mlcolor.h"
 
 class QVBoxLayout;
 class QHBoxLayout;
@@ -72,16 +71,17 @@ private:
 	Malachite::Color _color;
 };
 
-class ColorPanel : public QWidget
+class ColorSidebar : public QWidget
 {
 	Q_OBJECT
 public:
-	explicit ColorPanel(QWidget *parent = 0);
+	explicit ColorSidebar(QWidget *parent = 0);
 	
 signals:
 	
 	void colorChanged(int index, const Malachite::Color &color);
 	void currentColorChanged(const Malachite::Color &color);
+	void currentIndexChanged(int index);
 	
 public slots:
 	

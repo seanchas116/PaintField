@@ -3,13 +3,35 @@
 
 #include <QObject>
 #include <QMdiArea>
+#include <QMdiSubWindow>
 
 #include "canvascontroller.h"
 
 namespace PaintField
 {
 
-class WorkspaceMdiSubWindow;
+class WorkspaceMdiSubWindow : public QMdiSubWindow
+{
+	Q_OBJECT
+public:
+	WorkspaceMdiSubWindow(CanvasController *canvas, QWidget *parent);
+	
+	CanvasController *canvas() { return _canvas; }
+	
+signals:
+	
+	void closeRequested(CanvasController *canvas);
+	void windowHidden(WorkspaceMdiSubWindow *swindow);
+	
+protected:
+	
+	void closeEvent(QCloseEvent *closeEvent);
+	void changeEvent(QEvent *changeEvent);
+	
+private:
+	
+	CanvasController *_canvas;
+};
 
 class WorkspaceMdiAreaController : public QObject
 {

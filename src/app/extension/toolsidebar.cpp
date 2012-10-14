@@ -2,16 +2,15 @@
 #include <QHBoxLayout>
 #include "core/workspacecontroller.h"
 #include "core/application.h"
-#include "widgets/simplebutton.h"
+#include "core/widgets/simplebutton.h"
 
-#include "toolpanel.h"
+#include "toolsidebar.h"
 
 namespace PaintField
 {
 
-ToolPanel::ToolPanel(WorkspaceController *workspace, QWidget *parent) :
-    QWidget(parent),
-	_workspace(workspace)
+ToolSidebar::ToolSidebar(ToolManager *toolManager, QWidget *parent) :
+    QWidget(parent)
 {
 	resize(QSize(1, 1));
 	
@@ -24,13 +23,11 @@ ToolPanel::ToolPanel(WorkspaceController *workspace, QWidget *parent) :
 	//setMinimumWidth(48);
 	//setMaximumWidth(48);
 	
-	QList<QAction *> actions = _workspace->actionManager()->actionList();
-	
 	QVBoxLayout *vlayout = new QVBoxLayout;
 	vlayout->setContentsMargins(0, 0, 0, 0);
 	vlayout->setSpacing(0);
 	
-	foreach (QAction *action, actions)
+	for (QAction *action : toolManager->actions())
 	{
 		QToolButton *button = new QToolButton;
 		button->setStyleSheet("QToolButton { background-color: transparent; }");

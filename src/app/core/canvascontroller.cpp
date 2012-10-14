@@ -29,7 +29,7 @@ CanvasController::CanvasController(Document *document, WorkspaceController *pare
 
 CanvasView *CanvasController::createView(QWidget *parent)
 {
-	_view = new CanvasView(_document);
+	_view = new CanvasView(_document, parent);
 	
 	connect(workspace()->toolManager(), SIGNAL(currentToolFactoryChanged(ToolFactory*)), _view, SLOT(setToolFactory(ToolFactory*)));
 	_view->setToolFactory(workspace()->toolManager()->currentToolFactory());

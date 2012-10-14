@@ -1,4 +1,4 @@
-#include "mlimageio.h"
+#include "Malachite/mlimageio.h"
 
 #include <QtGui>
 
@@ -7,11 +7,11 @@
 namespace PaintField
 {
 
-LayerActionController::LayerActionController(CanvasController *canvas, QObject *parent) :
+LayerActionController::LayerActionController(CanvasController *parent) :
     QObject(parent),
-    _model(canvas->document()->layerModel())
+    _model(parent->document()->layerModel())
 {
-	ActionManager *actionManager = canvas->workspace()->actionManager();
+	ActionManager *actionManager = parent->workspace()->actionManager();
 	
 	_importAction = actionManager->addAction("paintfield.layer.import", this, SLOT(importLayer()));
 	_newRasterAction = actionManager->addAction("paintfield.layer.newRaster", this, SLOT(newRasterLayer()));

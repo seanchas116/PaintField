@@ -12,7 +12,7 @@ class LayerActionController : public QObject
 	Q_OBJECT
 public:
 	
-	LayerActionController(WorkspaceController *workspace, QObject *parent = 0);
+	LayerActionController(CanvasController *parent);
 	
 	QAction *importAction() { return _importAction; }
 	QAction *newRasterAction() { return _newRasterAction; }
@@ -40,9 +40,9 @@ private:
 	void newLayer(Layer::Type type);
 	void setActionsEnabled(const QList<QAction *> &actions, bool enabled);
 	
-	LayerModel *_model = 0;
+	LayerModel *_model = nullptr;
 	
-	QAction *_importAction = 0, _newRasterAction = 0, _newGroupAction = 0, _removeAction = 0, _mergeAction = 0;
+	QAction *_importAction = nullptr, *_newRasterAction = nullptr, *_newGroupAction = nullptr, *_removeAction = nullptr, *_mergeAction = nullptr;
 	
 	QList<QAction *> _actionsForLayers;
 };
