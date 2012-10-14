@@ -44,7 +44,7 @@ public slots:
 	void setFocus() { _view->setFocus(); }
 	
 	bool tryCanvasClose(CanvasController *controller);
-	void changeCurrentCanvas(CanvasController *controller);
+	void setCurrentCanvas(CanvasController *controller);
 	
 	void newCanvas();
 	void openCanvas();
@@ -68,7 +68,7 @@ private:
 	void createMenuBar();
 	
 	QList<CanvasController *> _canvasControllers;
-	QPointer<CanvasController> _currentCanvasController;
+	QPointer<CanvasController> _currentCanvas;
 	
 	ToolManager *_toolManager = 0;
 	PaletteManager *_paletteManager = 0;

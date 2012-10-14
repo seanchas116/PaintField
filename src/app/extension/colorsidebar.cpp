@@ -156,21 +156,25 @@ ColorSliderPanel::ColorSliderPanel(QWidget *parent) :
 	
 	layout->setContentsMargins(0, 0, 0, 0);
 	
-	_groupRgb = new WidgetGroup(this);
-	_groupHsv = new WidgetGroup(this);
-	_groupRgb8 = new WidgetGroup(this);
+	WidgetGroup *groupRgb = new WidgetGroup(this);
+	WidgetGroup *groupHsv = new WidgetGroup(this);
+	WidgetGroup *groupRgb8 = new WidgetGroup(this);
 	
-	_groupRgb->addWidgets(rgbLabels);
-	_groupRgb->addWidgets(rgbSliders);
-	_groupRgb->addWidgets(rgbSpins);
+	groupRgb->addWidgets(rgbLabels);
+	groupRgb->addWidgets(rgbSliders);
+	groupRgb->addWidgets(rgbSpins);
 	
-	_groupHsv->addWidgets(hsvLabels);
-	_groupHsv->addWidgets(hsvSliders);
-	_groupHsv->addWidgets(hsvSpins);
+	groupHsv->addWidgets(hsvLabels);
+	groupHsv->addWidgets(hsvSliders);
+	groupHsv->addWidgets(hsvSpins);
 	
-	_groupRgb8->addWidgets(rgb8Labels);
-	_groupRgb8->addWidgets(rgb8Sliders);
-	_groupRgb8->addWidgets(rgb8Spins);
+	groupRgb8->addWidgets(rgb8Labels);
+	groupRgb8->addWidgets(rgb8Sliders);
+	groupRgb8->addWidgets(rgb8Spins);
+	
+	connect(this, SIGNAL(rgbSelectedChanged(bool)), groupRgb, SLOT(setVisible(bool)));
+	connect(this, SIGNAL(rgb8SelectedChanged(bool)), groupRgb8, SLOT(setVisible(bool)));
+	connect(this, SIGNAL(hsvSelectedChanged(bool)), groupRgb8, SLOT(setVisible(bool)));
 	
 	setLayout(layout);
 	
@@ -183,30 +187,28 @@ ColorSliderPanel::ColorSliderPanel(QWidget *parent) :
 
 void ColorSliderPanel::setColor(const Color &color)
 {
-	if (_color == color)
-		return;
+	if (_color == color) return;
 	
 	_color = color;
-	
 	emit colorChanged(color);
 }
 
 void ColorSliderPanel::onComboBoxActivated(int index)
 {
-	_groupRgb->setVisible(false);
-	_groupHsv->setVisible(false);
-	_groupRgb8->setVisible(false);
+	emit rgbSelectedChanged(false);
+	emit rgb8SelectedChanged(false);
+	emit hsvSelectedChanged(false);
 	
 	switch (index)
 	{
 		case 0:
-			_groupRgb->setVisible(true);
+			emit rgbSelectedChanged(true);
 			break;
 		case 1:
-			_groupHsv->setVisible(true);
+			emit hsvSelectedChanged(true);
 			break;
 		case 2:
-			_groupRgb8->setVisible(true);
+			emit rgb8SelectedChanged(true);
 			break;
 		default:
 			break;
@@ -218,11 +220,11 @@ WebColorPanel::WebColorPanel(QWidget *parent) :
 {
 	_lineEdit = new QLineEdit();
 	
-	_layout = new QFormLayout();
-	_layout->setContentsMargins(QMargins(0, 0, 0, 0));
-	_layout->addRow(tr("Web Color"), _lineEdit);
+	QFormLayout *layout = new QFormLayout();
+	layout->setContentsMargins(QMargins(0, 0, 0, 0));
+	layout->addRow(tr("Web Color"), _lineEdit);
 	
-	setLayout(_layout);
+	setLayout(layout);
 	
 	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
 	
@@ -262,93 +264,91 @@ ColorSidebar::ColorSidebar(QWidget *parent) :
 	
 	// buttons
 	
-	_buttonLayout = new QHBoxLayout();
+	QHBoxLayout *buttonLayout = new QHBoxLayout();
 	
-	_wheelButton = new SimpleButton(":/icons/24x24/colorWheel.svg");
-	_sliderButton = new SimpleButton(":/icons/24x24/colorSlider.svg");
-	_webButton = new SimpleButton(":/icons/24x24/webColor.svg");
-	_dialogButton = new SimpleButton(":/icons/24x24/colorDialog.svg");
+	SimpleButton *wheelButton = new SimpleButton(":/icons/24x24/colorWheel.svg"),
+			*sliderButton = new SimpleButton(":/icons/24x24/colorSlider.svg"),
+			*webButton = new SimpleButton(":/icons/24x24/webColor.svg"),
+			*dialogButton = new SimpleButton(":/icons/24x24/colorDialog.svg");
 	
-	_wheelButton->setCheckable(true);
-	_sliderButton->setCheckable(true);
-	_webButton->setCheckable(true);
+	wheelButton->setCheckable(true);
+	sliderButton->setCheckable(true);
+	webButton->setCheckable(true);
 	
-	_buttonGroup = new QButtonGroup(this);
-	_buttonGroup->addButton(_wheelButton);
-	_buttonGroup->addButton(_sliderButton);
-	_buttonGroup->addButton(_webButton);
+	QButtonGroup *buttonGroup = new QButtonGroup(this);
+	buttonGroup->addButton(wheelButton);
+	buttonGroup->addButton(sliderButton);
+	buttonGroup->addButton(webButton);
 	
-	_wheelButton->setChecked(true);
-	
-	_buttonLayout->setMargin(0);
-	_buttonLayout->addStretch(1);
-	_buttonLayout->addWidget(_wheelButton);
-	_buttonLayout->addWidget(_sliderButton);
-	_buttonLayout->addWidget(_webButton);
-	_buttonLayout->addWidget(_dialogButton);
-	_buttonLayout->addStretch(1);
+	buttonLayout->setMargin(0);
+	buttonLayout->addStretch(1);
+	buttonLayout->addWidget(wheelButton);
+	buttonLayout->addWidget(sliderButton);
+	buttonLayout->addWidget(webButton);
+	buttonLayout->addWidget(dialogButton);
+	buttonLayout->addStretch(1);
 	
 	// color buttons
 	
-	_colorButtonGroup = new QButtonGroup(this);
+	QButtonGroup *colorButtonGroup = new QButtonGroup(this);
 	
-	_colorButtonLayout = new QHBoxLayout();
-	_colorButtonLayout->setSpacing(0);
+	QHBoxLayout *colorButtonLayout = new QHBoxLayout();
+	colorButtonLayout->setSpacing(0);
+	colorButtonLayout->addStretch(1);
 	
-	_colorButtonLayout->addStretch(1);
 	for (int i = 0; i < 7; ++i)
 	{
 		ColorButton *button = new ColorButton();
 		button->setColor(Color::white());
 		_colorButtons << button;
-		_colorButtonLayout->addWidget(button);
-		_colorButtonGroup->addButton(button);
+		colorButtonLayout->addWidget(button);
+		colorButtonGroup->addButton(button);
 		connect(button, SIGNAL(pressed()), this, SLOT(onColorButtonPressed()));
 	}
-	_colorButtonLayout->addStretch(1);
+	colorButtonLayout->addStretch(1);
 	
 	// color wheel
 	
-	_colorWheel = new ColorWheel();
+	 ColorWheel *colorWheel = new ColorWheel();
 	
 	// color sliders
 	
-	_sliderPanel = new ColorSliderPanel();
+	ColorSliderPanel *sliderPanel = new ColorSliderPanel();
 	
 	// web color
 	
-	_webColorPanel = new WebColorPanel();
+	WebColorPanel *webColorPanel = new WebColorPanel();
 	
 	// main layout
 	
-	_mainLayout = new QVBoxLayout();
+	QVBoxLayout *mainLayout = new QVBoxLayout();
 	
-	_mainLayout->addLayout(_buttonLayout);
-	_mainLayout->addLayout(_colorButtonLayout);
-	_mainLayout->addWidget(_colorWheel, 0, Qt::AlignCenter);
-	_mainLayout->addWidget(_sliderPanel);
-	_mainLayout->addWidget(_webColorPanel);
-	_mainLayout->addStretch(1);
+	mainLayout->addLayout(buttonLayout);
+	mainLayout->addLayout(colorButtonLayout);
+	mainLayout->addWidget(colorWheel, 0, Qt::AlignCenter);
+	mainLayout->addWidget(sliderPanel);
+	mainLayout->addWidget(webColorPanel);
+	mainLayout->addStretch(1);
 	
-	setLayout(_mainLayout);
+	setLayout(mainLayout);
 	
-	connect(_colorWheel, SIGNAL(colorChanged(Color)), this, SLOT(setCurrentColor(Color)));
-	connect(_sliderPanel, SIGNAL(colorChanged(Color)), this, SLOT(setCurrentColor(Color)));
-	connect(_webColorPanel, SIGNAL(colorChanged(Color)), this, SLOT(setCurrentColor(Color)));
+	connect(colorWheel, SIGNAL(colorChanged(Color)), this, SLOT(setCurrentColor(Color)));
+	connect(sliderPanel, SIGNAL(colorChanged(Color)), this, SLOT(setCurrentColor(Color)));
+	connect(webColorPanel, SIGNAL(colorChanged(Color)), this, SLOT(setCurrentColor(Color)));
 	
-	connect(this, SIGNAL(currentColorChanged(Color)), _colorWheel, SLOT(setColor(Color)));
-	connect(this, SIGNAL(currentColorChanged(Color)), _sliderPanel, SLOT(setColor(Color)));
-	connect(this, SIGNAL(currentColorChanged(Color)), _webColorPanel, SLOT(setColor(Color)));
+	connect(this, SIGNAL(currentColorChanged(Color)), colorWheel, SLOT(setColor(Color)));
+	connect(this, SIGNAL(currentColorChanged(Color)), sliderPanel, SLOT(setColor(Color)));
+	connect(this, SIGNAL(currentColorChanged(Color)), webColorPanel, SLOT(setColor(Color)));
 	
-	connect(_wheelButton, SIGNAL(toggled(bool)), _colorWheel, SLOT(setVisible(bool)));
-	connect(_sliderButton, SIGNAL(toggled(bool)), _sliderPanel, SLOT(setVisible(bool)));
-	connect(_webButton, SIGNAL(toggled(bool)), _webColorPanel, SLOT(setVisible(bool)));
+	connect(wheelButton, SIGNAL(toggled(bool)), colorWheel, SLOT(setVisible(bool)));
+	connect(sliderButton, SIGNAL(toggled(bool)), sliderPanel, SLOT(setVisible(bool)));
+	connect(webButton, SIGNAL(toggled(bool)), webColorPanel, SLOT(setVisible(bool)));
 	
-	_wheelButton->setChecked(true);
+	wheelButton->setChecked(true);
 	
-	_colorWheel->setVisible(_wheelButton->isChecked());
-	_sliderPanel->setVisible(_sliderButton->isChecked());
-	_webColorPanel->setVisible(_webButton->isChecked());
+	colorWheel->setVisible(wheelButton->isChecked());
+	sliderPanel->setVisible(sliderButton->isChecked());
+	webColorPanel->setVisible(webButton->isChecked());
 }
 
 void ColorSidebar::setColor(int index, const Color &color)

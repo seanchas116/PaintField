@@ -96,9 +96,9 @@ private:
 	QString _filePath;
 	QString _tempName;	// like "untitled"
 	bool _modified;
-	QUndoStack *_undoStack;
+	QUndoStack *_undoStack = 0;
 	
-	LayerModel *_layerModel;
+	LayerModel *_layerModel = 0;
 };
 
 }

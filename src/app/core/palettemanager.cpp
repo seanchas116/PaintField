@@ -6,8 +6,7 @@ namespace PaintField
 using namespace Malachite;
 
 PaletteManager::PaletteManager(QObject *parent) :
-	QObject(parent),
-	_currentIndex(0)
+	QObject(parent)
 {
 	_colors.reserve(ColorCount);
 	

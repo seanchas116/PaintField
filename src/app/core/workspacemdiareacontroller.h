@@ -30,7 +30,7 @@ protected:
 	
 private:
 	
-	CanvasController *_canvas;
+	CanvasController *_canvas = 0;
 };
 
 class WorkspaceMdiAreaController : public QObject

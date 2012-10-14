@@ -18,7 +18,7 @@ using namespace Malachite;
 class CanvasRenderer : public LayerRenderer
 {
 public:
-	CanvasRenderer() : LayerRenderer(), _tool(0) {}
+	CanvasRenderer() : LayerRenderer() {}
 	
 	void setTool(Tool *tool) { _tool = tool; }
 	
@@ -34,13 +34,12 @@ protected:
 	
 private:
 	
-	Tool *_tool;
+	Tool *_tool = 0;
 };
 
 CanvasGraphicsObject::CanvasGraphicsObject(Document *document, QGraphicsItem *parent) :
     QGraphicsObject(parent),
     _document(document),
-    _tool(0),
     _pixmap(document->size())
 {
 	updateTiles(document->tileKeys());
@@ -132,8 +131,7 @@ class FSCanvasItem : public QGraphicsItem
 };
 
 CanvasScene::CanvasScene(QObject *parent) :
-    QGraphicsScene(parent),
-    _cursorItem(0)
+    QGraphicsScene(parent)
 {
 }
 
@@ -172,8 +170,7 @@ bool CanvasScene::event(QEvent *event)
 
 CanvasView::CanvasView(Document *document, QWidget *parent) :
     QGraphicsView(parent),
-    _document(document),
-    _mousePressure(0)
+    _document(document)
 {
 	setScene(new CanvasScene(this));
 	setMouseTracking(true);

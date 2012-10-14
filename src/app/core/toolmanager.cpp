@@ -8,8 +8,7 @@ namespace PaintField
 
 ToolManager::ToolManager(QObject *parent) :
     QObject(parent),
-	_actionGroup(new QActionGroup(this)),
-	_currentToolFactory(0)
+	_actionGroup(new QActionGroup(this))
 {
 	_toolFactoryList = app()->toolFactories();
 	createActions();

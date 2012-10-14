@@ -222,16 +222,17 @@ public:
 protected:
 	
 private:
-	Layer *_parent;	// 0 : root item
+	
+	Layer *_parent = 0;	// 0 : root item
 	LayerList _childrenList;
 	
 	QString _name;
-	bool _isLocked, _isVisible;
-	double _opacity;
-	int _blendMode;
+	bool _isLocked = false, _isVisible = true;
+	double _opacity = 1.0;
+	int _blendMode = Malachite::BlendModeNormal;
 	QPixmap _thumbnail;
 	
-	bool _isThumbnailDirty;
+	bool _isThumbnailDirty = false;
 };
 
 

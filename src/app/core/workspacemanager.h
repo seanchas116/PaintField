@@ -38,7 +38,7 @@ private slots:
 private:
 	
 	QList<WorkspaceController *> _workspaces;
-	WorkspaceController *_currentWorkspace;
+	WorkspaceController *_currentWorkspace = 0;
 };
 
 }

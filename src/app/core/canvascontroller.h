@@ -75,9 +75,9 @@ public slots:
 	
 private:
 	
-	Document *_document;
+	Document *_document = 0;
 	QPointer<CanvasView> _view;
-	ActionManager *_actionManager;
+	ActionManager *_actionManager = 0;
 	QList<QAction *> _actions;
 };
 

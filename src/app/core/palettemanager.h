@@ -39,7 +39,7 @@ public slots:
 	
 private:
 	
-	int _currentIndex;
+	int _currentIndex = 0;
 	QList<Malachite::Color> _colors;
 };
 

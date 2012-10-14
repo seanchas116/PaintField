@@ -37,13 +37,15 @@ public slots:
 	
 signals:
 	void colorChanged(const Malachite::Color &color);
+	void rgbSelectedChanged(bool selected);
+	void rgb8SelectedChanged(bool selected);
+	void hsvSelectedChanged(bool selected);
 	
 private slots:
 	void onComboBoxActivated(int index);
 	
 private:
 	
-	WidgetGroup *_groupRgb, *_groupRgb8, *_groupHsv;
 	Malachite::Color _color;
 };
 
@@ -65,7 +67,6 @@ private slots:
 	void onLineEditEditingFinished();
 	
 private:
-	QFormLayout *_layout;
 	QLineEdit *_lineEdit;
 	
 	Malachite::Color _color;
@@ -93,20 +94,8 @@ private slots:
 	void onColorButtonPressed();
 	
 private:
-	QVBoxLayout *_mainLayout;
 	
-	QHBoxLayout *_buttonLayout;
-	SimpleButton *_wheelButton, *_sliderButton, *_webButton, *_dialogButton;
-	QButtonGroup *_buttonGroup, *_colorButtonGroup;
-	
-	QHBoxLayout *_colorButtonLayout;
 	QList<ColorButton *> _colorButtons;
-	
-	QHBoxLayout *_colorLayout;
-	ColorWheel *_colorWheel;
-	ColorSliderPanel *_sliderPanel;
-	WebColorPanel *_webColorPanel;
-	
 	int _currentIndex = 0;
 };
 

@@ -87,7 +87,7 @@ public slots:
 	
 private:
 	
-	WorkspaceManager *_workspaceManager;
+	WorkspaceManager *_workspaceManager = 0;
 	
 	QList<ToolFactory *> _toolFactories;
 	QList<SidebarFactory *> _sidebarFactories;
@@ -97,7 +97,7 @@ private:
 	
 	QVariant _menuBarOrder, _panelOrder;
 	
-	ActionManager *_actionManager;
+	ActionManager *_actionManager = 0;
 };
 
 /**

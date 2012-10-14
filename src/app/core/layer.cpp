@@ -10,17 +10,12 @@ namespace PaintField
 using namespace Malachite;
 
 Layer::Layer(const QString &name)
-    : _parent(0),
-      _name(name),
-      _isLocked(false),
-      _isVisible(true),
-      _opacity(1.0),
+    : _name(name),
       _blendMode(BlendModeNormal)
 {}
 
 Layer::Layer(const Layer &other)
-    : _parent(0),
-      _name(other._name),
+    : _name(other._name),
       _isLocked(other._isLocked),
       _isVisible(other._isVisible),
       _opacity(other._opacity),

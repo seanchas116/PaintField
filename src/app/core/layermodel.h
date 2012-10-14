@@ -33,7 +33,7 @@ public:
 	LayerModel *layerModel() { return _model; }
 	
 private:
-	LayerModel *_model;
+	LayerModel *_model = 0;
 };
 
 class LayerModel : public QAbstractItemModel
@@ -127,10 +127,10 @@ private:
 	
 	Layer *nonConstLayer(const Layer *layer) { return const_cast<Layer *>(layer); }
 	
-	Document *_document;
+	Document *_document = 0;
 	
 	QScopedPointer<ModelRootLayer> _rootLayer;
-	mutable QItemSelectionModel *_selectionModel;
+	mutable QItemSelectionModel *_selectionModel = 0;
 	
 	bool _skipNextUpdate;
 	QPointSet _updatedTiles;

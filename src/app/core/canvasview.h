@@ -40,8 +40,8 @@ protected:
 	
 private:
 	
-	Document *_document;
-	Tool *_tool;
+	Document *_document = 0;
+	Tool *_tool = 0;
 	QPixmap _pixmap;
 };
 
@@ -55,7 +55,7 @@ public:
 public slots:
 	
 private:
-	QGraphicsItem *_cursorItem;
+	QGraphicsItem *_cursorItem = 0;
 };
 
 class CanvasView : public QGraphicsView
@@ -109,10 +109,10 @@ private:
 	
 	bool processAsTabletEvent(QMouseEvent *event);
 	
-	CanvasGraphicsObject *_canvasGraphicsObject;
-	Document *_document;
+	CanvasGraphicsObject *_canvasGraphicsObject = 0;
+	Document *_document = 0;
 	QScopedPointer<Tool> _tool;
-	double _mousePressure;
+	double _mousePressure = 0.0;
 };
 
 }

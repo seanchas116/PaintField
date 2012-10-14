@@ -40,9 +40,9 @@ private:
 	
 	QList<ToolFactory *> _toolFactoryList;
 	QList<QAction *> _actionList;
-	QActionGroup *_actionGroup;
+	QActionGroup *_actionGroup = 0;
 	
-	ToolFactory *_currentToolFactory;
+	ToolFactory *_currentToolFactory = 0;
 };
 
 }

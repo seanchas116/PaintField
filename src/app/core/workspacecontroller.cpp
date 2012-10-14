@@ -99,7 +99,7 @@ WorkspaceController::WorkspaceController(QObject *parent) :
 	connect(this, SIGNAL(currentCanvasChanged(CanvasController*)), _mdiAreaController, SLOT(setCurrentCanvas(CanvasController*)));
 	
 	connect(_mdiAreaController, SIGNAL(canvasCloseRequested(CanvasController*)), this, SLOT(tryCanvasClose(CanvasController*)));
-	connect(_mdiAreaController, SIGNAL(currentCanvasChanged(CanvasController*)), this, SLOT(changeCurrentCanvas(CanvasController*)));
+	connect(_mdiAreaController, SIGNAL(currentCanvasChanged(CanvasController*)), this, SLOT(setCurrentCanvas(CanvasController*)));
 }
 
 WorkspaceView *WorkspaceController::createView(QWidget *parent)
@@ -112,7 +112,7 @@ WorkspaceView *WorkspaceController::createView(QWidget *parent)
 	
 	prepareSidebars();
 	createSidebars();
-	createSidebarsForCanvas(_currentCanvasController);
+	createSidebarsForCanvas(_currentCanvas);
 	createMenuBar();
 	
 	return view;
@@ -125,7 +125,7 @@ void WorkspaceController::newCanvas()
 	if (controller)
 	{
 		addCanvas(controller);
-		changeCurrentCanvas(controller);
+		//setCurrentCanvas(controller);
 	}
 }
 
@@ -136,7 +136,7 @@ void WorkspaceController::openCanvas()
 	if (controller)
 	{
 		addCanvas(controller);
-		changeCurrentCanvas(controller);
+		setCurrentCanvas(controller);
 	}
 }
 
@@ -146,6 +146,7 @@ bool WorkspaceController::tryCanvasClose(CanvasController *controller)
 	{
 		emit canvasRemoved(controller);
 		controller->deleteLater();
+		_canvasControllers.removeOne(controller);
 		return true;
 	}
 	return false;
@@ -162,15 +163,18 @@ bool WorkspaceController::tryClose()
 	return true;
 }
 
-void WorkspaceController::changeCurrentCanvas(CanvasController *controller)
+void WorkspaceController::setCurrentCanvas(CanvasController *canvas)
 {
-	_currentCanvasController = controller;
-	emit currentCanvasChanged(controller);
-	
-	if (_view)
+	if (_currentCanvas != canvas)
 	{
-		createSidebarsForCanvas(controller);
-		createMenuBar();
+		_currentCanvas = canvas;
+		emit currentCanvasChanged(canvas);
+		
+		if (_view)
+		{
+			createSidebarsForCanvas(canvas);
+			createMenuBar();
+		}
 	}
 }
 
@@ -239,8 +243,8 @@ void WorkspaceController::createSidebarsForCanvas(CanvasController *canvas)
 void WorkspaceController::createMenuBar()
 {
 	QList<QAction *> actions = app()->actionManager()->actions() + _actionManager->actions();
-	if (_currentCanvasController)
-		actions += _currentCanvasController->actionManager()->actions();
+	if (_currentCanvas)
+		actions += _currentCanvas->actionManager()->actions();
 	
 	if (_view->menuBar())
 		_view->menuBar()->deleteLater();

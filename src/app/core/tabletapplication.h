@@ -30,9 +30,9 @@ public slots:
 	
 private:
 	
-	bool _isTabletActive;
-	QTabletEvent::PointerType _tabletPointerType;
-	qint64 _tabletId;
+	bool _isTabletActive = false;
+	QTabletEvent::PointerType _tabletPointerType = QTabletEvent::UnknownPointer;
+	qint64 _tabletId = 0;
 };
 
 }

@@ -6,7 +6,8 @@ namespace PaintField
 {
 
 WorkspaceMdiSubWindow::WorkspaceMdiSubWindow(CanvasController *canvas, QWidget *parent) :
-    QMdiSubWindow(parent)
+    QMdiSubWindow(parent),
+	_canvas(canvas)
 {
 	setWidget(canvas->createView());
 }
