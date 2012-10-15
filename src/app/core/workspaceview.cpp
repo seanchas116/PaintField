@@ -5,6 +5,44 @@
 namespace PaintField
 {
 
+void WorkspaceMenuAction::setBackendAction(QAction *action)
+{
+	if (action == _backendAction)
+		return;
+	
+	if (_backendAction)
+	{
+		disconnect(_backendAction, 0, this, 0);
+		disconnect(this, 0, _backendAction, 0);
+	}
+	
+	_backendAction = action;
+	
+	if (action)
+	{
+		connect(action, SIGNAL(changed()), this, SLOT(onBackendActionChanged()));
+		
+		if (action->isCheckable())
+		{
+			setCheckable(true);
+			connect(action, SIGNAL(triggered(bool)), this, SLOT(setChecked(bool)));
+			connect(this, SIGNAL(triggered(bool)), action, SLOT(setChecked(bool)));
+		}
+		else
+		{
+			connect(this, SIGNAL(triggered()), action, SLOT(trigger()));
+		}
+		onBackendActionChanged();
+	}
+}
+
+void WorkspaceMenuAction::onBackendActionChanged()
+{
+	Q_ASSERT(_backendAction);
+	setEnabled(_backendAction->isEnabled());
+}
+
+
 WorkspaceView::WorkspaceView(QWidget *parent) :
     QMainWindow(parent)
 {

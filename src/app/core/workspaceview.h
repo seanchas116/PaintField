@@ -4,12 +4,33 @@
 #include <QMainWindow>
 #include <QMdiArea>
 #include <QMdiSubWindow>
+#include <QAction>
+#include <QPointer>
 
 #include "sidebarfactory.h"
 #include "canvasview.h"
 
 namespace PaintField
 {
+
+class WorkspaceMenuAction : public QAction
+{
+	Q_OBJECT
+public:
+	
+	WorkspaceMenuAction(QObject *parent) : QAction(parent) {}
+	
+	void setBackendAction(QAction *action);
+	QAction *backendAction() { return _backendAction; }
+	
+private slots:
+	
+	void onBackendActionChanged();
+	
+private:
+	
+	QPointer<QAction> _backendAction = 0;
+};
 
 class WorkspaceView : public QMainWindow
 {

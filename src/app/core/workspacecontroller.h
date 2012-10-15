@@ -17,9 +17,6 @@
 namespace PaintField
 {
 
-QMenuBar *createAndArrangeMenuBar(const QList<QAction *> &actions, const QVariant &order);
-QMenu *createAndArrangeMenu(const QList<QAction *> &actions, const QVariantMap &order);
-
 class WorkspaceController : public QObject
 {
 	Q_OBJECT
@@ -61,11 +58,12 @@ protected:
 	
 private:
 	
-	void prepareSidebars();
-	void prepareSidebarInArea(const QVariantList &ids, Qt::DockWidgetArea area);
 	void createSidebars();
-	void createSidebarsForCanvas(CanvasController *canvas);
+	void createSidebarInArea(const QVariantList &ids, Qt::DockWidgetArea area);
+	void updateSidebars();
+	void updateSidebarsForCanvas(CanvasController *canvas);
 	void createMenuBar();
+	void updateMenuBar();
 	
 	QList<CanvasController *> _canvasControllers;
 	QPointer<CanvasController> _currentCanvas;

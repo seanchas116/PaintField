@@ -21,6 +21,7 @@ void WorkspaceMdiSubWindow::closeEvent(QCloseEvent *closeEvent)
 
 void WorkspaceMdiSubWindow::changeEvent(QEvent *changeEvent)
 {
+	/*
 	if (changeEvent->type() == QEvent::WindowStateChange)
 	{
 		if (!(windowState() && Qt::WindowMinimized))
@@ -28,7 +29,8 @@ void WorkspaceMdiSubWindow::changeEvent(QEvent *changeEvent)
 			setVisible(false);
 			emit windowHidden(this);
 		}
-	}
+	}*/
+	QMdiSubWindow::changeEvent(changeEvent);
 }
 
 
@@ -80,7 +82,7 @@ void WorkspaceMdiAreaController::setCurrentCanvas(CanvasController *controller)
 	
 	if (swindow)
 	{
-		if (_mdiArea)
+		if (_mdiArea && _mdiArea->currentSubWindow() != swindow)
 			_mdiArea->setActiveSubWindow(swindow);
 	}
 	else
