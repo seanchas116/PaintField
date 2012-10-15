@@ -14,8 +14,7 @@ WorkspaceMdiSubWindow::WorkspaceMdiSubWindow(CanvasController *canvas, QWidget *
 
 void WorkspaceMdiSubWindow::closeEvent(QCloseEvent *closeEvent)
 {
-	mdiArea()->setActiveSubWindow(this);
-	emit closeRequested(_canvas);
+	_canvas->closeCanvas();
 	closeEvent->ignore();
 }
 
@@ -49,7 +48,6 @@ QMdiArea *WorkspaceMdiAreaController::createView(QWidget *parent)
 void WorkspaceMdiAreaController::addCanvas(CanvasController *controller)
 {
 	WorkspaceMdiSubWindow *swindow = new WorkspaceMdiSubWindow(controller, _mdiArea);
-	connect(swindow, SIGNAL(closeRequested(CanvasController*)), this, SIGNAL(canvasCloseRequested(CanvasController*)));
 	_subWindows << swindow;
 	swindow->show();
 }

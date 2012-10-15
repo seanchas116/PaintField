@@ -40,7 +40,6 @@ public slots:
 	
 	void setFocus() { _view->setFocus(); }
 	
-	bool tryCanvasClose(CanvasController *controller);
 	void setCurrentCanvas(CanvasController *controller);
 	
 	void newCanvas();
@@ -55,6 +54,11 @@ protected:
 	void addCanvas(CanvasController *controller);
 	
 	CanvasController *controllerForCanvasView(CanvasView *canvas);
+	
+private slots:
+	
+	void onCanvasSholudBeClosed();
+	void removeCanvas(CanvasController *canvas);
 	
 private:
 	

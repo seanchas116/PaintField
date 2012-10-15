@@ -117,7 +117,7 @@ bool CanvasController::saveCanvas()
 	Document *document = this->document();
 	
 	// first save
-	if (document->fileName().isEmpty())
+	if (document->filePath().isEmpty())
 	{
 		return saveAsCanvas();
 	}
@@ -168,6 +168,7 @@ bool CanvasController::closeCanvas()
 		}
 	}
 	
+	emit shouldBeClosed();
 	return true;
 }
 

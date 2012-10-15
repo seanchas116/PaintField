@@ -20,7 +20,6 @@ public:
 	
 signals:
 	
-	void closeRequested(CanvasController *canvas);
 	void windowHidden(WorkspaceMdiSubWindow *swindow);
 	
 protected:
@@ -45,7 +44,6 @@ signals:
 	
 	void currentCanvasChanged(CanvasController *controller);
 	void canvasVisibleChanged(CanvasController *controller, bool visible);
-	void canvasCloseRequested(CanvasController *controller);
 	
 public slots:
 	

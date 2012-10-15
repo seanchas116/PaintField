@@ -67,6 +67,8 @@ public:
 	
 signals:
 	
+	void shouldBeClosed();
+	
 public slots:
 	
 	bool saveAsCanvas();

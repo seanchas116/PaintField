@@ -133,7 +133,6 @@ WorkspaceController::WorkspaceController(QObject *parent) :
 	connect(this, SIGNAL(canvasRemoved(CanvasController*)), _mdiAreaController, SLOT(removeCanvas(CanvasController*)));
 	connect(this, SIGNAL(currentCanvasChanged(CanvasController*)), _mdiAreaController, SLOT(setCurrentCanvas(CanvasController*)));
 	
-	connect(_mdiAreaController, SIGNAL(canvasCloseRequested(CanvasController*)), this, SLOT(tryCanvasClose(CanvasController*)));
 	connect(_mdiAreaController, SIGNAL(currentCanvasChanged(CanvasController*)), this, SLOT(setCurrentCanvas(CanvasController*)));
 }
 
@@ -177,23 +176,11 @@ void WorkspaceController::openCanvas()
 	}
 }
 
-bool WorkspaceController::tryCanvasClose(CanvasController *controller)
-{
-	if (controller && controller->closeCanvas())
-	{
-		emit canvasRemoved(controller);
-		controller->deleteLater();
-		_canvasControllers.removeOne(controller);
-		return true;
-	}
-	return false;
-}
-
 bool WorkspaceController::tryClose()
 {
-	for (CanvasController *controller : _canvasControllers )
+	for (CanvasController *controller : _canvasControllers)
 	{
-		if (tryCanvasClose(controller) == false)
+		if (!controller->closeCanvas())
 			return false;
 	}
 	deleteLater();
@@ -232,6 +219,7 @@ bool WorkspaceController::eventFilter(QObject *watched, QEvent *event)
 void WorkspaceController::addCanvas(CanvasController *controller)
 {
 	_canvasControllers << controller;
+	connect(controller, SIGNAL(shouldBeClosed()), this, SLOT(onCanvasSholudBeClosed()));
 	emit canvasAdded(controller);
 }
 
@@ -244,6 +232,26 @@ CanvasController *WorkspaceController::controllerForCanvasView(CanvasView *canva
 	}
 	
 	return 0;
+}
+
+void WorkspaceController::onCanvasSholudBeClosed()
+{
+	CanvasController *canvas = qobject_cast<CanvasController *>(sender());
+	if (canvas && _canvasControllers.contains(canvas))
+		removeCanvas(canvas);
+}
+
+void WorkspaceController::removeCanvas(CanvasController *canvas)
+{
+	if (_canvasControllers.contains(canvas))
+	{
+		if (_currentCanvas == canvas)
+			setCurrentCanvas(0);
+		
+		_canvasControllers.removeOne(canvas);
+		emit canvasRemoved(canvas);
+		canvas->deleteLater();
+	}
 }
 
 void WorkspaceController::createSidebars()
