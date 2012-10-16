@@ -25,21 +25,21 @@ public:
 	 * @param document
 	 * @param parent
 	 */
-	CanvasController(Document *document, WorkspaceController *parent = 0);
+	CanvasController(Document *document, WorkspaceController *parent);
 	
 	/**
 	 * Shows a dialog, creates a new file and creates a controller from it.
 	 * @param parent The new controller's parent
 	 * @return The created controller
 	 */
-	static CanvasController *fromNew(WorkspaceController *parent = 0);
+	static CanvasController *fromNew(WorkspaceController *parent);
 	
 	/**
 	 * Shows a dialog, opens a file and creates a controller from it.
 	 * @param parent The new controller's parent
 	 * @return The created controller
 	 */
-	static CanvasController *fromOpen(WorkspaceController *parent = 0);
+	static CanvasController *fromOpen(WorkspaceController *parent);
 	
 	/**
 	 * @return The workspace controller which have the canvas controller
@@ -47,14 +47,9 @@ public:
 	WorkspaceController *workspace() { return reinterpret_cast<WorkspaceController *>(parent()); }
 	
 	/**
-	 * @return The canvas view
-	 */
-	CanvasView *view() { return _view.data(); }
-	
-	/**
 	 * @return The document the canvas handles
 	 */
-	Document *document() { return _view->document(); }
+	Document *document() { return _document; }
 	
 	/**
 	 * @return The actions which belongs to the controller.

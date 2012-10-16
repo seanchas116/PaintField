@@ -31,16 +31,19 @@ public:
 	
 signals:
 	
-	void currentCanvasChanged(CanvasController *controller);
-	void canvasAdded(CanvasController *controller);
-	void canvasRemoved(CanvasController *controller);
+	void currentCanvasChanged(CanvasController *canvas);
+	
+	void canvasAboutToBeAdded(CanvasController *canvas);
+	void canvasAdded(CanvasController *canvas);
+	
+	void canvasRemoved(CanvasController *canvas);
 	void focused();
 	
 public slots:
 	
 	void setFocus() { _view->setFocus(); }
 	
-	void setCurrentCanvas(CanvasController *controller);
+	void setCurrentCanvas(CanvasController *canvas);
 	
 	void newCanvas();
 	void openCanvas();
@@ -51,9 +54,7 @@ protected:
 	
 	bool eventFilter(QObject *watched, QEvent *event);
 	
-	void addCanvas(CanvasController *controller);
-	
-	CanvasController *controllerForCanvasView(CanvasView *canvas);
+	void addCanvas(CanvasController *canvas);
 	
 private slots:
 	

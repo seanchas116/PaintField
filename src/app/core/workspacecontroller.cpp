@@ -161,7 +161,7 @@ void WorkspaceController::newCanvas()
 	if (controller)
 	{
 		addCanvas(controller);
-		setCurrentCanvas(controller);
+		//setCurrentCanvas(controller);
 	}
 }
 
@@ -218,20 +218,10 @@ bool WorkspaceController::eventFilter(QObject *watched, QEvent *event)
 
 void WorkspaceController::addCanvas(CanvasController *controller)
 {
+	emit canvasAboutToBeAdded(controller);
 	_canvasControllers << controller;
 	connect(controller, SIGNAL(shouldBeClosed()), this, SLOT(onCanvasSholudBeClosed()));
 	emit canvasAdded(controller);
-}
-
-CanvasController *WorkspaceController::controllerForCanvasView(CanvasView *canvas)
-{
-	foreach (auto controller, _canvasControllers)
-	{
-		if (controller->view() == canvas)
-			return controller;
-	}
-	
-	return 0;
 }
 
 void WorkspaceController::onCanvasSholudBeClosed()

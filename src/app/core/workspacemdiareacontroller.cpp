@@ -56,7 +56,10 @@ void WorkspaceMdiAreaController::removeCanvas(CanvasController *controller)
 {
 	WorkspaceMdiSubWindow *swindow = subWindowForCanvas(controller);
 	if (swindow)
+	{
+		_subWindows.removeOne(swindow);
 		swindow->deleteLater();
+	}
 	else
 		qWarning() << Q_FUNC_INFO << ": invalid canvas";
 }
@@ -83,8 +86,6 @@ void WorkspaceMdiAreaController::setCurrentCanvas(CanvasController *controller)
 		if (_mdiArea && _mdiArea->currentSubWindow() != swindow)
 			_mdiArea->setActiveSubWindow(swindow);
 	}
-	else
-		qWarning() << Q_FUNC_INFO << ": invalid canvas";
 }
 
 void WorkspaceMdiAreaController::onSubWindowActivated(QMdiSubWindow *swindow)

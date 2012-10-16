@@ -108,7 +108,9 @@ HEADERS += \
     extension/toolsidebar.h \
     extension/toolsidebarfactory.h \
     extension/toolsettingsidebarfactory.h \
-    extension/toolsettingsidebar.h
+    extension/toolsettingsidebar.h \
+    core/module.h \
+    extension/extensionmodule.h
 
 SOURCES += \
     core/toolmanager.cpp \
@@ -155,7 +157,8 @@ SOURCES += \
     extension/toolsidebar.cpp \
     extension/toolsidebarfactory.cpp \
     extension/toolsettingsidebarfactory.cpp \
-    extension/toolsettingsidebar.cpp
+    extension/toolsettingsidebar.cpp \
+    extension/extensionmodule.cpp
 
 FORMS += \
     core/dialogs/newdocumentdialog.ui \
