@@ -35,13 +35,6 @@ public:
 		return action;
 	}
 	
-	/**
-	 * Searches for an action.
-	 * @param id The action's object name
-	 * @return The found action
-	 */
-	QAction *actionForId(const QString &id);
-	
 	QList<QAction *> actions() { return _actions; }
 	
 signals:

@@ -1,6 +1,11 @@
 #include "core/application.h"
 #include "core/workspacecontroller.h"
+
 #include "layeractioncontroller.h"
+
+#include "colorsidebarfactory.h"
+#include "layertreesidebarfactory.h"
+#include "toolsidebarfactory.h"
 
 #include "extensionmodule.h"
 
@@ -14,6 +19,10 @@ ExtensionModule::ExtensionModule(QObject *parent) :
 
 void ExtensionModule::initialize()
 {
+	app()->addSidebarFactory(new ColorSidebarFactory);
+	app()->addSidebarFactory(new LayerTreeSidebarFactory);
+	app()->addSidebarFactory(new ToolSidebarFactory);
+	
 	connect(app()->workspaceManager(), SIGNAL(workspaceAdded(WorkspaceController*)), this, SLOT(onWorkspaceAdded(WorkspaceController*)));
 }
 

@@ -40,7 +40,7 @@ LayerTreeSidebar::LayerTreeSidebar(LayerModel *model, QWidget *parent) :
 
 void LayerTreeSidebar::updatePropertyView()
 {
-	if (_layerModel->currentIndex().isValid())
+	if (_layerModel && _layerModel->currentIndex().isValid())
 	{
 		_formWidget->setEnabled(true);
 		_opacitySpinBox->setValue(_layerModel->currentIndex().data(PaintField::RoleOpacity).toDouble() * 100.0);

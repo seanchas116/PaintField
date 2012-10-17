@@ -86,21 +86,21 @@ ColorSliderPanel::ColorSliderPanel(QWidget *parent) :
 	
 	for (int i = 0; i < 3; ++i)
 	{
-		fsConnectMutual(rgbSliders.at(i), SIGNAL(colorChanged(Color)), this, SLOT(setColor(Color)));
+ 		fsConnectMutual(rgbSliders.at(i), SIGNAL(colorChanged(Malachite::Color)), this, SLOT(setColor(Malachite::Color)));
 		fsConnectMutual(rgbSliders.at(i), SIGNAL(valueChanged(double)), rgbSpins.at(i), SLOT(setValue(double)));
 		rgbSpins.at(i)->setValue(rgbSliders.at(i)->value());
 	}
 	
 	for (int i = 0; i < 3; ++i)
 	{
-		fsConnectMutual(hsvSliders.at(i), SIGNAL(colorChanged(Color)), this, SLOT(setColor(Color)));
+		fsConnectMutual(hsvSliders.at(i), SIGNAL(colorChanged(Malachite::Color)), this, SLOT(setColor(Malachite::Color)));
 		fsConnectMutual(hsvSliders.at(i), SIGNAL(valueChanged(double)), hsvSpins.at(i), SLOT(setValue(double)));
 		hsvSpins.at(i)->setValue(hsvSliders.at(i)->value());
 	}
 	
 	for (int i = 0; i < 3; ++i)
 	{
-		fsConnectMutual(rgb8Sliders.at(i), SIGNAL(colorChanged(Color)), this, SLOT(setColor(Color)));
+		fsConnectMutual(rgb8Sliders.at(i), SIGNAL(colorChanged(Malachite::Color)), this, SLOT(setColor(Malachite::Color)));
 		connect(rgb8Sliders.at(i), SIGNAL(value8BitChanged(int)), rgb8Spins.at(i), SLOT(setValue(int)));
 		connect(rgb8Spins.at(i), SIGNAL(valueChanged(int)), rgb8Sliders.at(i), SLOT(setValue8Bit(int)));
 		rgb8Spins.at(i)->setValue(rgb8Sliders.at(i)->value8Bit());
@@ -332,13 +332,13 @@ ColorSidebar::ColorSidebar(QWidget *parent) :
 	
 	setLayout(mainLayout);
 	
-	connect(colorWheel, SIGNAL(colorChanged(Color)), this, SLOT(setCurrentColor(Color)));
-	connect(sliderPanel, SIGNAL(colorChanged(Color)), this, SLOT(setCurrentColor(Color)));
-	connect(webColorPanel, SIGNAL(colorChanged(Color)), this, SLOT(setCurrentColor(Color)));
+	connect(colorWheel, SIGNAL(colorChanged(Malachite::Color)), this, SLOT(setCurrentColor(Malachite::Color)));
+	connect(sliderPanel, SIGNAL(colorChanged(Malachite::Color)), this, SLOT(setCurrentColor(Malachite::Color)));
+	connect(webColorPanel, SIGNAL(colorChanged(Malachite::Color)), this, SLOT(setCurrentColor(Malachite::Color)));
 	
-	connect(this, SIGNAL(currentColorChanged(Color)), colorWheel, SLOT(setColor(Color)));
-	connect(this, SIGNAL(currentColorChanged(Color)), sliderPanel, SLOT(setColor(Color)));
-	connect(this, SIGNAL(currentColorChanged(Color)), webColorPanel, SLOT(setColor(Color)));
+	connect(this, SIGNAL(currentColorChanged(Malachite::Color)), colorWheel, SLOT(setColor(Malachite::Color)));
+	connect(this, SIGNAL(currentColorChanged(Malachite::Color)), sliderPanel, SLOT(setColor(Malachite::Color)));
+	connect(this, SIGNAL(currentColorChanged(Malachite::Color)), webColorPanel, SLOT(setColor(Malachite::Color)));
 	
 	connect(wheelButton, SIGNAL(toggled(bool)), colorWheel, SLOT(setVisible(bool)));
 	connect(sliderButton, SIGNAL(toggled(bool)), sliderPanel, SLOT(setVisible(bool)));

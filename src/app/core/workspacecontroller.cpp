@@ -161,7 +161,7 @@ void WorkspaceController::newCanvas()
 	if (controller)
 	{
 		addCanvas(controller);
-		//setCurrentCanvas(controller);
+		setCurrentCanvas(controller);
 	}
 }
 
@@ -254,11 +254,15 @@ void WorkspaceController::createSidebars()
 
 void WorkspaceController::createSidebarInArea(const QVariantList &ids, Qt::DockWidgetArea area)
 {
-	for (SidebarFactory *factory : app()->sidebarFactories())
+	for (const QVariant &id : ids)
 	{
-		if (ids.contains(factory->objectName()))
+		for (SidebarFactory *factory : app()->sidebarFactories())
 		{
-			_view->addSidebarFrame(factory->objectName(), factory->text(), area);
+			if (factory->objectName() == id.toString())
+			{
+				_view->addSidebarFrame(factory->objectName(), factory->text() , area);
+				break;
+			}
 		}
 	}
 }
@@ -266,13 +270,15 @@ void WorkspaceController::createSidebarInArea(const QVariantList &ids, Qt::DockW
 void WorkspaceController::updateSidebars()
 {
 	for (SidebarFactory *factory : app()->sidebarFactories())
-		_view->setSidebar(factory->objectName(), factory->createSidebar(this, 0));
+		if (factory->creationType() == SidebarFactory::CreationTypeWorkspace)
+			_view->setSidebar(factory->objectName(), factory->createSidebar(this, 0));
 }
 
 void WorkspaceController::updateSidebarsForCanvas(CanvasController *canvas)
 {
 	for (SidebarFactory *factory : app()->sidebarFactories())
-		_view->setSidebar(factory->objectName(), factory->createSidebarForCanvas(canvas, 0));
+		if (factory->creationType() == SidebarFactory::CreationTypeCanvas)
+			_view->setSidebar(factory->objectName(), factory->createSidebarForCanvas(canvas, 0));
 }
 
 void WorkspaceController::createMenuBar()

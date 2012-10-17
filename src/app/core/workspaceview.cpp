@@ -74,8 +74,10 @@ void WorkspaceView::setSidebar(const QString &id, QWidget *sidebar)
 				dockWidget->widget()->deleteLater();
 			
 			dockWidget->setWidget(sidebar);
+			return;
 		}
 	}
+	sidebar->deleteLater();
 }
 
 }
