@@ -1,4 +1,11 @@
+#include <QtGui>
+
+#include "util.h"
 #include "application.h"
+#include "actionmanager.h"
+#include "toolmanager.h"
+#include "palettemanager.h"
+#include "workspacemdiareacontroller.h"
 
 #include "workspacecontroller.h"
 
@@ -187,6 +194,11 @@ bool WorkspaceController::tryClose()
 	return true;
 }
 
+void WorkspaceController::setFocus()
+{
+	_view->setFocus();
+}
+
 void WorkspaceController::setCurrentCanvas(CanvasController *canvas)
 {
 	if (_currentCanvas != canvas)
@@ -220,11 +232,11 @@ void WorkspaceController::addCanvas(CanvasController *controller)
 {
 	emit canvasAboutToBeAdded(controller);
 	_canvasControllers << controller;
-	connect(controller, SIGNAL(shouldBeClosed()), this, SLOT(onCanvasSholudBeClosed()));
+	connect(controller, SIGNAL(shouldBeDeleted()), this, SLOT(onCanvasSholudBeDeleted()));
 	emit canvasAdded(controller);
 }
 
-void WorkspaceController::onCanvasSholudBeClosed()
+void WorkspaceController::onCanvasSholudBeDeleted()
 {
 	CanvasController *canvas = qobject_cast<CanvasController *>(sender());
 	if (canvas && _canvasControllers.contains(canvas))

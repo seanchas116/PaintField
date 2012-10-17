@@ -168,9 +168,10 @@ bool CanvasScene::event(QEvent *event)
 	}
 }
 
-CanvasView::CanvasView(Document *document, QWidget *parent) :
+CanvasView::CanvasView(Document *document, CanvasController *controller, QWidget *parent) :
     QGraphicsView(parent),
-    _document(document)
+    _document(document),
+	_controller(controller)
 {
 	setScene(new CanvasScene(this));
 	setMouseTracking(true);

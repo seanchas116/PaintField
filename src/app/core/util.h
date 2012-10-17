@@ -7,6 +7,21 @@ namespace PaintField
 {
 
 template <class T>
+T *findQObject(const QList<T *> &list, const QString &id)
+{
+	QListIterator<T *> iter(list);
+	
+	while (iter.hasNext())
+	{
+		T *p = iter.next();
+		
+		if (p->objectName() == id)
+			return p;
+	}
+	return 0;
+}
+
+template <class T>
 T *findQObjectReverse(const QList<T *> &list, const QString &id)
 {
 	QListIterator<T *> iter(list);
@@ -21,6 +36,7 @@ T *findQObjectReverse(const QList<T *> &list, const QString &id)
 	}
 	return 0;
 }
+
 
 template <class T>
 class ScopedQObjectPointer
@@ -64,6 +80,8 @@ private:
 };
 
 QVariant loadJsonFromFile(const QString &path);
+
+void applyMacSmallSize(QWidget *widget);
 
 
 }

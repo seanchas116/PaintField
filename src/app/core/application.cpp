@@ -1,6 +1,9 @@
 #include <QtGui>
 
 #include "util.h"
+#include "workspacemanager.h"
+#include "actionmanager.h"
+
 #include "application.h"
 
 namespace PaintField

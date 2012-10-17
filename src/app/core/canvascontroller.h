@@ -2,17 +2,16 @@
 #define CANVASCONTROLLER_H
 
 #include <QObject>
-#include <QAction>
-#include <QWidget>
-#include <QMenuBar>
+#include <QPointer>
 
-#include "util.h"
-#include "canvasview.h"
-#include "actionmanager.h"
+class QAction;
 
 namespace PaintField
 {
 
+class Document;
+class CanvasView;
+class ActionManager;
 class WorkspaceController;
 
 class CanvasController : public QObject
@@ -62,12 +61,29 @@ public:
 	
 signals:
 	
-	void shouldBeClosed();
+	/**
+	 * Emitted when the canvas should be deleted.
+	 */
+	void shouldBeDeleted();
 	
 public slots:
 	
+	/**
+	 * Shows a dialog and saves the canvas into a new file.
+	 * @return false if cancelled or failed
+	 */
 	bool saveAsCanvas();
+	
+	/**
+	 * Shows a dialog and saves the canvas.
+	 * @return false if cancelled or failed
+	 */
 	bool saveCanvas();
+	
+	/**
+	 * Shows a warning dialog and emits shouldBeClosed() if not cancelled.
+	 * @return false if cancelled
+	 */
 	bool closeCanvas();
 	
 private:

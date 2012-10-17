@@ -2,6 +2,7 @@
 #include <QHBoxLayout>
 #include "core/workspacecontroller.h"
 #include "core/application.h"
+#include "core/toolmanager.h"
 #include "core/widgets/simplebutton.h"
 
 #include "toolsidebar.h"

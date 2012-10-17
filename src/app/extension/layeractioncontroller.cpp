@@ -1,6 +1,7 @@
+#include <QtGui>
 #include "Malachite/mlimageio.h"
 
-#include <QtGui>
+#include "core/actionmanager.h"
 
 #include "layeractioncontroller.h"
 

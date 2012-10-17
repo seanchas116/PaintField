@@ -1,13 +1,14 @@
 #include <QtGui>
 
 #include "application.h"
-
+#include "actionmanager.h"
+#include "toolmanager.h"
 #include "documentio.h"
+#include "workspacecontroller.h"
 
 #include "dialogs/exportdialog.h"
 #include "dialogs/newdocumentdialog.h"
-
-#include "workspacecontroller.h"
+#include "canvasview.h"
 
 #include "canvascontroller.h"
 
@@ -29,7 +30,7 @@ CanvasController::CanvasController(Document *document, WorkspaceController *pare
 
 CanvasView *CanvasController::createView(QWidget *parent)
 {
-	_view = new CanvasView(_document, parent);
+	_view = new CanvasView(_document, this, parent);
 	
 	connect(workspace()->toolManager(), SIGNAL(currentToolFactoryChanged(ToolFactory*)), _view, SLOT(setToolFactory(ToolFactory*)));
 	_view->setToolFactory(workspace()->toolManager()->currentToolFactory());
@@ -40,9 +41,8 @@ CanvasView *CanvasController::createView(QWidget *parent)
 CanvasController *CanvasController::fromNew(WorkspaceController *parent)
 {
 	NewDocumentDialog dialog;
-	if (dialog.exec() != QDialog::Accepted) {
+	if (dialog.exec() != QDialog::Accepted)
 		return 0;
-	}
 	
 	RasterLayer *layer = new RasterLayer(tr("Untitled Layer"));
 	
@@ -62,13 +62,13 @@ CanvasController *CanvasController::fromOpen(WorkspaceController *parent)
 	DocumentIO documentIO(filePath);
 	if (!documentIO.openUnzip())
 	{
-		QMessageBox::warning(0, QString(), tr("Failed to open file."));
+		QMessageBox::warning(0, tr("Failed to open file."), QString());
 	}
 	
 	Document *document = documentIO.load(0);
 	if (document == 0)
 	{	// failed to open
-		QMessageBox::warning(0, QString(), tr("Failed to open file."));
+		QMessageBox::warning(0, tr("Failed to open file."), QString());
 	}
 	
 	return new CanvasController(document, parent);
@@ -89,12 +89,7 @@ bool CanvasController::saveAsCanvas()
 	QFileInfo dirInfo(fileInfo.dir().path());
 	if (!dirInfo.isWritable())
 	{
-		QMessageBox messageBox;
-		messageBox.setIcon(QMessageBox::Warning);
-		messageBox.setWindowTitle(QString());
-		messageBox.setText(tr("The specified folder is not writable."));
-		messageBox.setInformativeText(tr("Save in another folder."));
-		messageBox.exec();
+		QMessageBox::warning(workspace()->view(), tr("The specified folder is not writable."), tr("Save in another folder."));
 		return false;
 	}
 	
@@ -102,11 +97,7 @@ bool CanvasController::saveAsCanvas()
 	
 	if (!documentIO.saveAs(document, filePath))
 	{
-		QMessageBox messageBox;
-		messageBox.setIcon(QMessageBox::Warning);
-		messageBox.setWindowTitle(QString());
-		messageBox.setText(tr("Failed to save the file."));
-		messageBox.exec();
+		QMessageBox::warning(workspace()->view(), tr("Failed to save the file."), QString());
 		return false;
 	}
 	return true;
@@ -116,24 +107,16 @@ bool CanvasController::saveCanvas()
 {
 	Document *document = this->document();
 	
-	// first save
-	if (document->filePath().isEmpty())
-	{
+	if (document->filePath().isEmpty())	// first save
 		return saveAsCanvas();
-	}
 	
-	// file is not modified
 	if (!document->isModified())
 		return true;
 	
 	DocumentIO documentIO(document->filePath());
 	if (!documentIO.save(document))
 	{
-		QMessageBox messageBox;
-		messageBox.setIcon(QMessageBox::Warning);
-		messageBox.setWindowTitle(tr("Error"));
-		messageBox.setText(tr("Cannot save file"));
-		messageBox.exec();
+		QMessageBox::warning(workspace()->view(), tr("Cannot save file."), QString());
 		return false;
 	}
 	return true;
@@ -145,12 +128,11 @@ bool CanvasController::closeCanvas()
 	
 	if (document->isModified())
 	{
-		QMessageBox messageBox;
-		messageBox.setText(tr("Do you want to save your changes?"));
-		messageBox.setInformativeText(tr("The changes will be lost if you don't save them."));
-		messageBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
-		messageBox.setDefaultButton(QMessageBox::Save);
-		int ret = messageBox.exec();
+		auto ret = QMessageBox::question(workspace()->view(),
+										 tr("Do you want to save your changes?"),
+										 tr("The changes will be lost if you don't save them."),
+										 QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel,
+										 QMessageBox::Save);
 		
 		switch (ret)
 		{
@@ -161,14 +143,12 @@ bool CanvasController::closeCanvas()
 			case QMessageBox::Discard:
 				break;
 			case QMessageBox::Cancel:
-				return false;
 			default:
-				Q_ASSERT(0);
-				break;
+				return false;
 		}
 	}
 	
-	emit shouldBeClosed();
+	emit shouldBeDeleted();
 	return true;
 }
 

@@ -2,6 +2,7 @@
 #define FSBRUSHSETTINGWIDGET_H
 
 #include "brushsetting.h"
+#include <QWidget>
 
 namespace PaintField
 {
@@ -12,8 +13,6 @@ class BrushSettingPanel : public QWidget
 	
 public:
 	explicit BrushSettingPanel(QWidget *parent = 0);
-	
-	QSize sizeHint() const;
 	
 private slots:
 	

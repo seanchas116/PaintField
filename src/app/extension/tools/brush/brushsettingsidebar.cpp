@@ -1,10 +1,14 @@
 #include <QtGui>
-#include "loosespinbox.h"
-#include "doubleslider.h"
-#include "brushtool.h"
-#include "application.h"
 
-#include "brushsettingpanel.h"
+#include "core/widgets/loosespinbox.h"
+#include "core/widgets/doubleslider.h"
+
+#include "core/application.h"
+#include "core/util.h"
+
+#include "brushtool.h"
+
+#include "brushsettingsidebar.h"
 
 
 namespace PaintField
@@ -14,7 +18,7 @@ BrushSettingPanel::BrushSettingPanel(QWidget *parent) :
     QWidget(parent),
     _setting(0)
 {
-	BrushToolFactory *factory = qobject_cast<BrushToolFactory *>(fsToolManager()->findToolFactory("brush"));
+	BrushToolFactory *factory = qobject_cast<BrushToolFactory *>(findQObject(app()->toolFactories(), "paintfield.tool.brush"));
 	Q_ASSERT(factory);
 	
 	_setting = factory->setting();
@@ -48,12 +52,7 @@ BrushSettingPanel::BrushSettingPanel(QWidget *parent) :
 	setLayout(layout);
 	
 	setWindowTitle(tr("Brush Settings"));
-	applyMacSmallSize();
-}
-
-QSize BrushSettingPanel::sizeHint() const
-{
-	return QSize(DefaultWidth, 1);
+	applyMacSmallSize(this);
 }
 
 void BrushSettingPanel::onDiameterValueChanged(double value)

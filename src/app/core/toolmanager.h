@@ -17,7 +17,6 @@ public:
 	
 	explicit ToolManager(QObject *parent = 0);
 	
-	ToolFactory *findToolFactory(const QString &name);
 	QList<ToolFactory *> toolFactories() { return _toolFactoryList; }
 	QList<QAction *> actions() { return _actionList; }
 	

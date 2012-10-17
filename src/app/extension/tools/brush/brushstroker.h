@@ -1,8 +1,8 @@
 #ifndef FSBRUSHSTROKER_H
 #define FSBRUSHSTROKER_H
 
-#include "mlsurfacepainter.h"
-#include "tabletinputdata.h"
+#include "Malachite/mlsurfacepainter.h"
+#include "core/tabletinputdata.h"
 #include "brushsetting.h"
 
 namespace PaintField
@@ -12,7 +12,7 @@ class Stroker
 {
 public:
 	
-	Stroker(MLSurface *surface, const BrushSetting *setting);
+	Stroker(Malachite::Surface *surface, const BrushSetting *setting, const Malachite::Vec4F &argb);
 	virtual ~Stroker() {}
 	
 	void moveTo(const TabletInputData &data);
@@ -25,27 +25,27 @@ public:
 	void clearLastEditedKeys() { _lastEditedKeys.clear(); }
 	
 	const BrushSetting *setting() const { return _setting; }
-	MLVec4F argb() const { return _argb; }
-	MLSurface *surface() { return _surface; }
+	Malachite::Vec4F argb() const { return _argb; }
+	Malachite::Surface *surface() { return _surface; }
 	
 protected:
 	
 	virtual void drawFirst(const TabletInputData &data) = 0;
-	virtual void drawInterval(const MLPolygon &polygon, const TabletInputData &dataStart, const TabletInputData &dataEnd) = 0;
+	virtual void drawInterval(const Malachite::Polygon &polygon, const TabletInputData &dataStart, const TabletInputData &dataEnd) = 0;
 	
 	void addEditedKeys(const QPointSet &keys);
 	
 private:
 	
-	MLSurface *_surface;
+	Malachite::Surface *_surface = 0;
 	QPointSet _lastEditedKeys, _totalEditedKeys;
 	
 	int _count;
 	TabletInputData  _dataPrev, _dataStart, _dataEnd, _currentData;
 	//MLVec2D _v1, v2;
 	
-	MLVec4F _argb;
-	const BrushSetting *_setting;
+	const BrushSetting *_setting = 0;
+	Malachite::Vec4F _argb;
 };
 
 class FSPenStroker : public Stroker
@@ -53,22 +53,22 @@ class FSPenStroker : public Stroker
 public:
 	
 	//using FSStroker::FSStroker;
-	FSPenStroker(MLSurface *surface, const BrushSetting *setting) : Stroker(surface, setting) {}
+	FSPenStroker(Malachite::Surface *surface, const BrushSetting *setting, const Malachite::Vec4F &argb) : Stroker(surface, setting, argb) {}
 	
 protected:
 	
 	void drawFirst(const TabletInputData &data);
-	void drawInterval(const MLPolygon &polygon, const TabletInputData &dataStart, const TabletInputData &dataEnd);
+	void drawInterval(const Malachite::Polygon &polygon, const TabletInputData &dataStart, const TabletInputData &dataEnd);
 	
 private:
 	
-	void drawOne(const MLVec2D &pos, double pressure, bool drawQuad);
+	void drawOne(const Malachite::Vec2D &pos, double pressure, bool drawQuad);
 	
-	static MLPolygon calcTangentQuadrangle(double radius1, const MLVec2D &center1, double radius2, const MLVec2D &center2);
+	static Malachite::Polygon calcTangentQuadrangle(double radius1, const Malachite::Vec2D &center1, double radius2, const Malachite::Vec2D &center2);
 	
-	MLFixedMultiPolygon _drawnShape;
+	Malachite::FixedMultiPolygon _drawnShape;
 	double _radiusPrev;
-	MLVec2D _posPrev;
+	Malachite::Vec2D _posPrev;
 };
 
 class FSBrushStroker : public Stroker
@@ -76,19 +76,19 @@ class FSBrushStroker : public Stroker
 public:
 	
 	//using FSStroker::FSStroker;
-	FSBrushStroker(MLSurface *surface, const BrushSetting *setting) : Stroker(surface, setting) {}
+	FSBrushStroker(Malachite::Surface *surface, const BrushSetting *setting, const Malachite::Vec4F &argb) : Stroker(surface, setting, argb) {}
 	
 protected:
 	
 	void drawFirst(const TabletInputData &data);
-	void drawInterval(const MLPolygon &polygon, const TabletInputData &dataStart, const TabletInputData &dataEnd);
+	void drawInterval(const Malachite::Polygon &polygon, const TabletInputData &dataStart, const TabletInputData &dataEnd);
 	
 private:
 	
-	void drawSegment(const MLVec2D &p1, const MLVec2D &p2, double length, TabletInputData &data, double pressureNormalized, double rotationNormalized, double tangentialPressureNormalized, const MLVec2D &tiltNormalized);
+	void drawSegment(const Malachite::Vec2D &p1, const Malachite::Vec2D &p2, double length, TabletInputData &data, double pressureNormalized, double rotationNormalized, double tangentialPressureNormalized, const Malachite::Vec2D &tiltNormalized);
 	
 	void drawDab(const TabletInputData &data);
-	MLImage drawDabImage(const TabletInputData &data, QRect *resultRect);
+	Malachite::Image drawDabImage(const TabletInputData &data, QRect *resultRect);
 	
 	double _carryOver;
 	double _lastMinorRadius;

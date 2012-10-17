@@ -76,9 +76,8 @@ private:
 class ToolFactory : public QObject
 {
 	Q_OBJECT
-	Q_PROPERTY(QString _name READ toolName WRITE setToolName)
-	Q_PROPERTY(QString _text READ text WRITE setText)
-	Q_PROPERTY(QIcon _icon READ icon WRITE setIcon)
+	Q_PROPERTY(QString text READ text WRITE setText)
+	Q_PROPERTY(QIcon icon READ icon WRITE setIcon)
 	
 public:
 	
@@ -88,8 +87,6 @@ public:
 	virtual QWidget *createSettingWidget() { return 0; }
 	virtual bool isTypeSupported(Layer::Type type) const = 0;
 	
-	void setToolName(const QString &name) { _name = name; }
-	QString toolName() const { return _name; }
 	void setText(const QString &text) { _text = text; }
 	QString text() const { return _text; }
 	void setIcon(const QIcon &icon) { _icon = icon; }

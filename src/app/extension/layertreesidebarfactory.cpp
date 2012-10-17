@@ -1,3 +1,5 @@
+#include <QMenu>
+
 #include "layertreesidebar.h"
 #include "layeractioncontroller.h"
 #include "core/widgets/simplebutton.h"

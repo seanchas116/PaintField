@@ -1,6 +1,8 @@
 #include <QtGui>
 
 #include "application.h"
+#include "util.h"
+
 #include "toolmanager.h"
 
 namespace PaintField
@@ -15,18 +17,9 @@ ToolManager::ToolManager(QObject *parent) :
 	connect(_actionGroup, SIGNAL(triggered(QAction*)), this, SLOT(actionTriggered(QAction*)));
 }
 
-ToolFactory *ToolManager::findToolFactory(const QString &name)
-{
-	foreach (ToolFactory *factory, _toolFactoryList) {
-		if (factory->toolName() == name)
-			return  factory;
-	}
-	return 0;
-}
-
 void ToolManager::setCurrentToolFactory(const QString &name)
 {
-	_currentToolFactory = findToolFactory(name);
+	_currentToolFactory = findQObject(_toolFactoryList, name);
 	
 	if (!_toolFactoryList.contains(_currentToolFactory))
 	{
@@ -55,7 +48,7 @@ void ToolManager::createActions()
 	{
 		QAction *action = new QAction(factory->icon(), factory->text(), this);
 		action->setCheckable(true);
-		action->setObjectName(factory->toolName());
+		action->setObjectName(factory->objectName());
 		_actionGroup->addAction(action);
 		_actionList << action;
 	}

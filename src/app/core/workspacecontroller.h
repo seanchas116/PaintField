@@ -2,20 +2,18 @@
 #define WORKSPACECONTROLLER_H
 
 #include <QObject>
-#include <QMenuBar>
+#include <QPointer>
 
 #include "canvascontroller.h"
-#include "workspacecontroller.h"
-#include "sidebarfactory.h"
-#include "toolmanager.h"
-#include "palettemanager.h"
-
 #include "workspaceview.h"
-
-#include "workspacemdiareacontroller.h"
 
 namespace PaintField
 {
+
+class ToolManager;
+class PaletteManager;
+class ActionManager;
+class WorkspaceMdiAreaController;
 
 class WorkspaceController : public QObject
 {
@@ -28,6 +26,9 @@ public:
 	ActionManager *actionManager() { return _actionManager; }
 	
 	WorkspaceView *createView(QWidget *parent = 0);
+	WorkspaceView *view() { return _view; }
+	
+	void addCanvas(CanvasController *canvas);
 	
 signals:
 	
@@ -41,7 +42,7 @@ signals:
 	
 public slots:
 	
-	void setFocus() { _view->setFocus(); }
+	void setFocus();
 	
 	void setCurrentCanvas(CanvasController *canvas);
 	
@@ -54,11 +55,9 @@ protected:
 	
 	bool eventFilter(QObject *watched, QEvent *event);
 	
-	void addCanvas(CanvasController *canvas);
-	
 private slots:
 	
-	void onCanvasSholudBeClosed();
+	void onCanvasSholudBeDeleted();
 	void removeCanvas(CanvasController *canvas);
 	
 private:
@@ -80,8 +79,6 @@ private:
 	WorkspaceMdiAreaController *_mdiAreaController = 0;
 	
 	QPointer<WorkspaceView> _view;
-	
-	
 };
 
 }

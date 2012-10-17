@@ -1,30 +1,29 @@
 #include <QtGui>
 
-#include "modules/document/layeredit.h"
-#include "mlsurfacepainter.h"
+#include "core/layeredit.h"
+#include "core/canvascontroller.h"
+#include "core/workspacecontroller.h"
+#include "core/palettemanager.h"
+#include "Malachite/mlsurfacepainter.h"
 #include "core/tabletevent.h"
 #include "brushtool.h"
 #include "brushstroker.h"
 #include "core/scopedtimer.h"
-#include "widgets/simplebutton.h"
-#include "brushsettingpanel.h"
+#include "core/widgets/simplebutton.h"
+#include "brushsettingsidebar.h"
+
+using namespace Malachite;
 
 namespace PaintField
 {
 
-BrushTool::BrushTool(Canvas *parent) :
-	Tool(parent),
-	_dataPrevSet(false),
-	_trailing(false),
-    _trailingEnabled(false),
-	_brushSetting(0),
-	_layer(0)
-{
-}
+BrushTool::BrushTool(CanvasView *parent) :
+	Tool(parent)
+{}
 
 BrushTool::~BrushTool() {}
 
-void BrushTool::drawLayer(MLSurfacePainter *painter, const Layer *layer)
+void BrushTool::drawLayer(SurfacePainter *painter, const Layer *layer)
 {
 	Q_UNUSED(layer)
 	painter->drawTransformedSurface(QPoint(), _surface);
@@ -94,7 +93,7 @@ void BrushTool::beginStroke(const TabletInputData &data)
 	}
 	
 	_surface = _layer->surface();
-	_stroker.reset(new FSPenStroker(&_surface, _brushSetting));
+	_stroker.reset(new FSPenStroker(&_surface, _brushSetting, canvasView()->controller()->workspace()->paletteManager()->currentColor().toArgb()));
 	addCustomDrawLayer(_layer);
 	
 	// discard pressure for the 1st time to reduce overshoot
@@ -162,12 +161,12 @@ void BrushTool::setPrevData(const TabletInputData &data)
 BrushToolFactory::BrushToolFactory(QObject *parent) :
 	ToolFactory(parent)
 {
-	setToolName("brush");
+	setObjectName("paintfield.tool.brush");
 	setText(tr("Brush"));
-	setIcon(createSimpleIconSet(":/icons/32x32/brush.svg"));
+	setIcon(SimpleButton::createSimpleIconSet(":/icons/32x32/brush.svg"));
 }
 
-Tool *BrushToolFactory::createTool(Canvas *parent)
+Tool *BrushToolFactory::createTool(CanvasView *parent)
 {
 	BrushTool *tool = new BrushTool(parent);
 	tool->setBrushSetting(&_setting);

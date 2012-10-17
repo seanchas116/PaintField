@@ -2,7 +2,7 @@
 #define FSBRUSHTOOL_H
 
 #include <QObject>
-#include "modules/tool/tool.h"
+#include "core/tool.h"
 #include "brushsetting.h"
 
 namespace PaintField
@@ -14,11 +14,12 @@ class TabletInputData;
 class BrushTool : public Tool
 {
 	Q_OBJECT
+public:
 	
-	explicit BrushTool(Canvas *parent = 0);
+	explicit BrushTool(CanvasView *parent = 0);
 	~BrushTool();
 	
-	void drawLayer(MLSurfacePainter *painter, const Layer *layer);
+	void drawLayer(Malachite::SurfacePainter *painter, const Layer *layer);
 	
 	void setBrushSetting(const BrushSetting *setting) { _brushSetting = setting; }
 	const BrushSetting *brushSetting() const { return _brushSetting; }
@@ -47,10 +48,10 @@ private:
 	
 	QScopedPointer<Stroker> _stroker;
 	TabletInputData _dataPrev, _dataBeforePrev;
-	bool _dataPrevSet, _trailing;
-	bool _trailingEnabled;
-	const BrushSetting *_brushSetting;
-	const Layer *_layer;
+	bool _dataPrevSet = false, _trailing = false;
+	bool _trailingEnabled = false;
+	const BrushSetting *_brushSetting = 0;
+	const Layer *_layer = 0;
 	Malachite::Surface _surface;
 };
 
@@ -60,7 +61,7 @@ class BrushToolFactory : public ToolFactory
 public:
 	explicit BrushToolFactory(QObject *parent = 0);
 	
-	Tool *createTool(Canvas *parent);
+	Tool *createTool(CanvasView *parent);
 	
 	bool isTypeSupported(Layer::Type type) const;
 	

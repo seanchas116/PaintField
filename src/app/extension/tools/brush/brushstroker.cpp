@@ -1,22 +1,23 @@
 #include <QtGui>
-#include "scopedtimer.h"
-#include "mlcurvesubdivision.h"
-#include "application.h"
+#include "core/scopedtimer.h"
+#include "Malachite/mlcurvesubdivision.h"
+#include "core/application.h"
 
 #include "brushstroker.h"
+
+using namespace Malachite;
 
 namespace PaintField
 {
 
-Stroker::Stroker(MLSurface *surface, const BrushSetting *setting) :
+Stroker::Stroker(Surface *surface, const BrushSetting *setting, const Vec4F &argb) :
 	_surface(surface),
-	_setting(setting)
-{
-}
+	_setting(setting),
+	_argb(argb)
+{}
 
 void Stroker::moveTo(const TabletInputData &data)
 {
-	_argb = fsPaletteManager()->currentColor().toArgb();
 	_lastEditedKeys.clear();
 	
 	_count = 1;
@@ -28,13 +29,11 @@ void Stroker::lineTo(const TabletInputData &data)
 	_count++;
 	
 	if (_count == 4)
-	{
 		drawFirst(_dataStart);
-	}
 	
 	if (_count > 3)
 	{
-		MLPolygon polygon = MLCurveSubdivision(MLCurve4::fromCatmullRom(_dataPrev.pos, _dataStart.pos, _dataEnd.pos, data.pos)).polygon();
+		Polygon polygon = CurveSubdivision(Curve4::fromCatmullRom(_dataPrev.pos, _dataStart.pos, _dataEnd.pos, data.pos)).polygon();
 		
 		TabletInputData start = _dataStart;
 		TabletInputData end = _dataEnd;
@@ -66,10 +65,10 @@ void Stroker::addEditedKeys(const QPointSet &keys)
 
 
 
-MLPolygon FSPenStroker::calcTangentQuadrangle(double radius1, const MLVec2D &center1, double radius2, const MLVec2D &center2)
+Polygon FSPenStroker::calcTangentQuadrangle(double radius1, const Vec2D &center1, double radius2, const Vec2D &center2)
 {
 	double r1, r2;
-	MLVec2D k1, k2, k2k1;
+	Vec2D k1, k2, k2k1;
 	
 	if (radius1 < radius2)
 	{
@@ -88,38 +87,38 @@ MLPolygon FSPenStroker::calcTangentQuadrangle(double radius1, const MLVec2D &cen
 	
 	k2k1 = k1 - k2;
 	
-	double dd = mlSqLength(k2k1);
+	double dd = vecSqLength(k2k1);
 	
 	double dcos = r2 - r1;
 	double dsin = sqrt(dd - dcos * dcos);
 	
-	MLVec2D cs(dcos, dsin);
-	MLVec2D sc(dsin, dcos);
-	MLVec2D cns(dcos, -dsin);
-	MLVec2D nsc(-dsin, dcos);
+	Vec2D cs(dcos, dsin);
+	Vec2D sc(dsin, dcos);
+	Vec2D cns(dcos, -dsin);
+	Vec2D nsc(-dsin, dcos);
 	
 	double f1 = r1 / dd;
 	double f2 = r2 / dd;
 	
-	MLVec2D k1p1, k1q1, k2p2, k2q2;
+	Vec2D k1p1, k1q1, k2p2, k2q2;
 	
-	k1p1.x = mlDot(cns, k2k1);
-	k1p1.y = mlDot(sc, k2k1);
+	k1p1.x = vecDot(cns, k2k1);
+	k1p1.y = vecDot(sc, k2k1);
 	k1p1 *= f1;
 	
-	k1q1.x = mlDot(cs, k2k1);
-	k1q1.y = mlDot(nsc, k2k1);
+	k1q1.x = vecDot(cs, k2k1);
+	k1q1.y = vecDot(nsc, k2k1);
 	k1q1 *= f1;
 	
-	k2q2.x = mlDot(cns, k2k1);
-	k2q2.y = mlDot(sc, k2k1);
+	k2q2.x = vecDot(cns, k2k1);
+	k2q2.y = vecDot(sc, k2k1);
 	k2q2 *= f2;
 	
-	k2p2.x = mlDot(cs, k2k1);
-	k2p2.y = mlDot(nsc, k2k1);
+	k2p2.x = vecDot(cs, k2k1);
+	k2p2.y = vecDot(nsc, k2k1);
 	k2p2 *= f2;
 	
-	MLPolygon poly(4);
+	Polygon poly(4);
 	
 	poly[0] = k1 + k1p1;
 	poly[1] = k2 + k2q2;
@@ -129,7 +128,7 @@ MLPolygon FSPenStroker::calcTangentQuadrangle(double radius1, const MLVec2D &cen
 	return poly;
 }
 
-QVector<double> mlCalcLength(const MLPolygon &polygon, double *totalLength)
+QVector<double> calcLength(const Polygon &polygon, double *totalLength)
 {
 	double total = 0;
 	
@@ -141,7 +140,7 @@ QVector<double> mlCalcLength(const MLPolygon &polygon, double *totalLength)
 	
 	for (int i = 0; i < count; ++i)
 	{
-		double length = mlLength(polygon.at(i+1) - polygon.at(i));
+		double length = vecLength(polygon.at(i+1) - polygon.at(i));
 		total += length;
 		lengths[i] = length;
 	}
@@ -157,10 +156,10 @@ void FSPenStroker::drawFirst(const TabletInputData &data)
 	drawOne(data.pos, data.pressure, false);
 }
 
-void FSPenStroker::drawInterval(const MLPolygon &polygon, const TabletInputData &dataStart, const TabletInputData &dataEnd)
+void FSPenStroker::drawInterval(const Polygon &polygon, const TabletInputData &dataStart, const TabletInputData &dataEnd)
 {
 	double totalLength;
-	QVector<double> lengths = mlCalcLength(polygon, &totalLength);
+	QVector<double> lengths = calcLength(polygon, &totalLength);
 	
 	if (totalLength == 0)
 		return;
@@ -175,7 +174,7 @@ void FSPenStroker::drawInterval(const MLPolygon &polygon, const TabletInputData 
 	}
 }
 
-void FSPenStroker::drawOne(const MLVec2D &pos, double pressure, bool drawQuad)
+void FSPenStroker::drawOne(const Vec2D &pos, double pressure, bool drawQuad)
 {
 	qDebug() << "pos" << pos.x << pos.y << "pressure" << pressure;
 	
@@ -185,19 +184,19 @@ void FSPenStroker::drawOne(const MLVec2D &pos, double pressure, bool drawQuad)
 	
 	qDebug() << "radius" << radius;
 	
-	MLSurfacePainter painter(surface());
+	SurfacePainter painter(surface());
 	painter.setArgb(argb());
-	painter.setBlendMode(ML::BlendModeSourcePadding);
+	painter.setBlendMode(BlendModeSourcePadding);
 	
-	MLFixedMultiPolygon shape;
+	FixedMultiPolygon shape;
 	
 	QPainterPath ellipsePath;
 	ellipsePath.addEllipse(pos, radius, radius);
-	shape = MLFixedMultiPolygon::fromQPainterPath(ellipsePath);
+	shape = FixedMultiPolygon::fromQPainterPath(ellipsePath);
 	
 	if (drawQuad)
 	{
-		shape = shape | MLFixedMultiPolygon(calcTangentQuadrangle(_radiusPrev, _posPrev, radius, pos));
+		shape = shape | FixedMultiPolygon(calcTangentQuadrangle(_radiusPrev, _posPrev, radius, pos));
 	}
 	
 	if (_drawnShape.size())
@@ -218,21 +217,21 @@ void FSBrushStroker::drawFirst(const TabletInputData &data)
 	drawDab(data);
 }
 
-void FSBrushStroker::drawInterval(const MLPolygon &polygon, const TabletInputData &dataStart, const TabletInputData &dataEnd)
+void FSBrushStroker::drawInterval(const Polygon &polygon, const TabletInputData &dataStart, const TabletInputData &dataEnd)
 {
 	int count = polygon.size() - 1;
 	if (count < 1)
 		return;
 	
 	double totalLength;
-	QVector<double> lengths = mlCalcLength(polygon, &totalLength);
+	QVector<double> lengths = calcLength(polygon, &totalLength);
 	
 	double totalNormalizeFactor = 1.0 / totalLength;
 	
 	double pressureNormalized = (dataEnd.pressure - dataStart.pressure) * totalNormalizeFactor;
 	double rotationNormalized = (dataEnd.rotation - dataStart.rotation) * totalNormalizeFactor;
 	double tangentialPressureNormalized = (dataEnd.tangentialPressure - dataStart.tangentialPressure) * totalNormalizeFactor;
-	MLVec2D tiltNormalized = (dataEnd.tilt - dataStart.tilt) * totalNormalizeFactor;
+	Vec2D tiltNormalized = (dataEnd.tilt - dataStart.tilt) * totalNormalizeFactor;
 	
 	TabletInputData data = dataStart;
 	
@@ -240,7 +239,7 @@ void FSBrushStroker::drawInterval(const MLPolygon &polygon, const TabletInputDat
 		drawSegment(polygon.at(i+1), polygon.at(i), lengths[i], data, pressureNormalized, rotationNormalized, tangentialPressureNormalized, tiltNormalized);
 }
 
-void FSBrushStroker::drawSegment(const MLVec2D &p1, const MLVec2D &p2, double length, TabletInputData &data, double pressureNormalized, double rotationNormalized, double tangentialPressureNormalized, const MLVec2D &tiltNormalized)
+void FSBrushStroker::drawSegment(const Vec2D &p1, const Vec2D &p2, double length, TabletInputData &data, double pressureNormalized, double rotationNormalized, double tangentialPressureNormalized, const Vec2D &tiltNormalized)
 {
 	if (length == 0)
 		return;
@@ -251,7 +250,7 @@ void FSBrushStroker::drawSegment(const MLVec2D &p1, const MLVec2D &p2, double le
 		return;
 	}
 	
-	MLVec2D dispNormalized = (p2 - p1) / length;
+	Vec2D dispNormalized = (p2 - p1) / length;
 	
 	data.pos = p1;
 	
@@ -284,13 +283,13 @@ void FSBrushStroker::drawSegment(const MLVec2D &p1, const MLVec2D &p2, double le
 	_carryOver = -length;
 }
 
-MLImage FSBrushStroker::drawDabImage(const TabletInputData &data, QRect *rect)
+Image FSBrushStroker::drawDabImage(const TabletInputData &data, QRect *rect)
 {
 	Q_ASSERT(data.pressure > 0);
 	
 	double diameter = setting()->diameter * pow(data.pressure, setting()->diameterGamma);
 	
-	MLVec2D radiusVec;
+	Vec2D radiusVec;
 	radiusVec.x = 0.5 * diameter;
 	radiusVec.y = radiusVec.x * (1.0 - setting()->flattening);
 	
@@ -316,10 +315,10 @@ MLImage FSBrushStroker::drawDabImage(const TabletInputData &data, QRect *rect)
 		dabRect = QRectF(QPointF(data.pos - radiusVec), QSizeF(2.0 * radiusVec)).toAlignedRect();
 	}
 	
-	MLImage dabImage(dabRect.size());
+	Image dabImage(dabRect.size());
 	dabImage.clear();
 	
-	MLPainter dabPainter(&dabImage);
+	Painter dabPainter(&dabImage);
 	
 	dabPainter.translateShape(-dabRect.topLeft());
 	
@@ -330,12 +329,12 @@ MLImage FSBrushStroker::drawDabImage(const TabletInputData &data, QRect *rect)
 	}
 	else
 	{
-		MLArgbGradient gradient;
+		ArgbGradient gradient;
 		gradient.addStop(0, argb());
 		gradient.addStop(setting()->tableWidth, argb() * setting()->tableHeight);
-		gradient.addStop(1, MLVec4F(0));
+		gradient.addStop(1, Vec4F(0));
 		
-		dabPainter.setBrush(MLBrush::fromRadialGradient(gradient, data.pos, radiusVec));
+		dabPainter.setBrush(Brush::fromRadialGradient(gradient, data.pos, radiusVec));
 	}
 	
 	dabPainter.drawPath(ellipse);
@@ -353,10 +352,10 @@ void FSBrushStroker::drawDab(const TabletInputData &data)
 	if (data.pressure <= 0)
 		return;
 	
-	MLSurfacePainter painter(surface());
+	SurfacePainter painter(surface());
 	
 	QRect dabRect;
-	MLImage dabImage = drawDabImage(data, &dabRect);
+	Image dabImage = drawDabImage(data, &dabRect);
 	
 	//qDebug() << "dab rect" << dabRect;
 	
@@ -364,12 +363,12 @@ void FSBrushStroker::drawDab(const TabletInputData &data)
 	
 	if (setting()->erasing)
 	{
-		painter.setBlendMode(ML::BlendModeDestinationOut);
+		painter.setBlendMode(BlendModeDestinationOut);
 		painter.setOpacity(setting()->erasing);
 		painter.drawImage(dabRect.topLeft(), dabImage);
 	}
 	
-	painter.setBlendMode(ML::BlendModeSourceOver);
+	painter.setBlendMode(BlendModeSourceOver);
 	painter.drawImage(dabRect.topLeft(), dabImage);
 	//painter.drawEllipse(dabRect);
 	

@@ -127,11 +127,10 @@ bool DocumentIO::saveAs(Document *document, const QString &newPath)
 	// move archive to specified place
 	
 	if (QFile::exists(newPath))
-	{
 		QFile::remove(newPath);
-	}
 	
-	if (!QFile::copy(tempFilePath, newPath) ) {
+	if (!QFile::copy(tempFilePath, newPath) )
+	{
 		qWarning() << __PRETTY_FUNCTION__ << "unable to copy file to the specified place";
 		return false;
 	}

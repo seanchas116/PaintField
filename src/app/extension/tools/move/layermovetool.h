@@ -2,8 +2,8 @@
 #define FSLAYERMOVETOOL_H
 
 #include <QObject>
-#include "tool.h"
-#include "layeredit.h"
+#include "core/tool.h"
+#include "core/layeredit.h"
 
 namespace PaintField
 {
@@ -14,10 +14,9 @@ class LayerMoveTool : public Tool
 {
 	Q_OBJECT
 public:
-	explicit LayerMoveTool(Canvas *parent = 0);
-	~LayerMoveTool();
+	explicit LayerMoveTool(CanvasView *parent = 0);
 	
-	void drawLayer(MLSurfacePainter *painter, const Layer *layer);
+	void drawLayer(Malachite::SurfacePainter *painter, const Layer *layer);
 	
 signals:
 	
@@ -35,10 +34,10 @@ protected:
 	
 private:
 	
-	const Layer *_layer;
+	const Layer *_layer = 0;
 	QPoint _dragStartPoint, _offset;
 	QPointSet _lastKeys;
-	bool _layerIsDragged;
+	bool _layerIsDragged = false;
 };
 
 class LayerMoveToolFactory : public ToolFactory
@@ -47,7 +46,7 @@ class LayerMoveToolFactory : public ToolFactory
 public:
 	explicit LayerMoveToolFactory(QObject *parent = 0);
 	
-	Tool *createTool(Canvas *view) { return new LayerMoveTool(view); }
+	Tool *createTool(CanvasView *view) { return new LayerMoveTool(view); }
 	bool isTypeSupported(Layer::Type type) const;
 };
 

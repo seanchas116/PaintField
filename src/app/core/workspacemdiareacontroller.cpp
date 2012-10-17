@@ -1,5 +1,7 @@
 #include <QtGui>
 
+#include "canvasview.h"
+
 #include "workspacemdiareacontroller.h"
 
 namespace PaintField

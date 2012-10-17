@@ -11,6 +11,7 @@ namespace PaintField {
 class ToolFactory;
 class Tool;
 class TabletEvent;
+class CanvasController;
 
 class CanvasGraphicsObject : public QGraphicsObject
 {
@@ -68,7 +69,7 @@ public:
 	 * @param document A document the canvas handles
 	 * @param parent QWidget parent
 	 */
-	explicit CanvasView(Document *document, QWidget *parent = 0);
+	explicit CanvasView(Document *document, CanvasController *controller, QWidget *parent = 0);
 	
 	~CanvasView();
 	
@@ -76,6 +77,8 @@ public:
 	 * @return The document the canvas handles
 	 */
 	Document *document() { return _document; }
+	
+	CanvasController *controller() { return _controller; }
 	
 signals:
 	
@@ -111,6 +114,7 @@ private:
 	
 	CanvasGraphicsObject *_canvasGraphicsObject = 0;
 	Document *_document = 0;
+	CanvasController *_controller = 0;
 	QScopedPointer<Tool> _tool;
 	double _mousePressure = 0.0;
 };

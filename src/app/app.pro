@@ -110,7 +110,12 @@ HEADERS += \
     extension/toolsettingsidebarfactory.h \
     extension/toolsettingsidebar.h \
     core/module.h \
-    extension/extensionmodule.h
+    extension/extensionmodule.h \
+    extension/tools/brush/brushtool.h \
+    extension/tools/brush/brushstroker.h \
+    extension/tools/brush/brushsettingsidebar.h \
+    extension/tools/brush/brushsetting.h \
+    extension/tools/move/layermovetool.h
 
 SOURCES += \
     core/toolmanager.cpp \
@@ -158,7 +163,12 @@ SOURCES += \
     extension/toolsidebarfactory.cpp \
     extension/toolsettingsidebarfactory.cpp \
     extension/toolsettingsidebar.cpp \
-    extension/extensionmodule.cpp
+    extension/extensionmodule.cpp \
+    extension/tools/brush/brushtool.cpp \
+    extension/tools/brush/brushstroker.cpp \
+    extension/tools/brush/brushsettingsidebar.cpp \
+    extension/tools/brush/brushsetting.cpp \
+    extension/tools/move/layermovetool.cpp
 
 FORMS += \
     core/dialogs/newdocumentdialog.ui \

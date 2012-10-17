@@ -1,8 +1,10 @@
-#include "tabletevent.h"
-#include "rasterlayer.h"
+#include "core/tabletevent.h"
+#include "core/layer.h"
 #include "layermovetool.h"
-#include "simplebutton.h"
-#include "mldivision.h"
+#include "core/widgets/simplebutton.h"
+#include "Malachite/mldivision.h"
+
+using namespace Malachite;
 
 namespace PaintField
 {
@@ -26,8 +28,8 @@ void FSLayerMoveEdit::redo(Layer *layer)
 {
 	RasterLayer *rasterLayer = dynamic_cast<RasterLayer *>(layer);
 	Q_ASSERT(rasterLayer);
-	MLSurface surface;
-	MLPainter painter(&surface);
+	Surface surface;
+	Painter painter(&surface);
 	painter.drawTransformedSurface(_offset, rasterLayer->surface());
 	painter.end();
 	
@@ -38,22 +40,17 @@ void FSLayerMoveEdit::undo(Layer *layer)
 {
 	RasterLayer *rasterLayer = dynamic_cast<RasterLayer *>(layer);
 	Q_ASSERT(rasterLayer);
-	MLSurface surface;
-	MLPainter painter(&surface);
+	Surface surface;
+	Painter painter(&surface);
 	painter.drawTransformedSurface(-_offset, rasterLayer->surface());
 	rasterLayer->setSurface(surface);
 }
 
-LayerMoveTool::LayerMoveTool(Canvas *parent) :
-	Tool(parent),
-	_layerIsDragged(false)
+LayerMoveTool::LayerMoveTool(CanvasView *parent) :
+	Tool(parent)
 {}
 
-LayerMoveTool::~LayerMoveTool()
-{}
-
-
-void LayerMoveTool::drawLayer(MLSurfacePainter *painter, const Layer *layer)
+void LayerMoveTool::drawLayer(SurfacePainter *painter, const Layer *layer)
 {
 	painter->drawSurface(_offset, layer->surface());
 }
@@ -68,7 +65,7 @@ void LayerMoveTool::cursorMoveEvent(TabletEvent *event)
 	
 	foreach (const QPoint &key, _layer->surface().keys())
 	{
-		keys |= MLSurface::keysForRect(MLSurface::keyToRect(key).translated(_offset));
+		keys |= Surface::keysForRect(Surface::keyToRect(key).translated(_offset));
 	}
 	
 	requestUpdate(keys | _lastKeys);
@@ -101,14 +98,15 @@ void LayerMoveTool::cursorReleaseEvent(TabletEvent *event)
 LayerMoveToolFactory::LayerMoveToolFactory(QObject *parent) :
 	ToolFactory(parent)
 {
-	setToolName("layerMove");
+	setObjectName("paintfield.tool.layerMove");
 	setText(tr("Move Layer"));
-	setIcon(createSimpleIconSet(":/icons/32x32/move.svg"));
+	setIcon(SimpleButton::createSimpleIconSet(":/icons/32x32/move.svg"));
 }
 
 bool LayerMoveToolFactory::isTypeSupported(Layer::Type type) const
 {
-	switch (type) {
+	switch (type)
+	{
 	case Layer::TypeRaster:
 		return true;
 	default:

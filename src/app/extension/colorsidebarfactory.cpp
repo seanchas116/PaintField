@@ -1,4 +1,6 @@
 #include "core/workspacecontroller.h"
+#include "core/palettemanager.h"
+
 #include "colorsidebar.h"
 
 #include "colorsidebarfactory.h"

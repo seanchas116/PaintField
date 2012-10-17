@@ -7,6 +7,9 @@
 #include "layertreesidebarfactory.h"
 #include "toolsidebarfactory.h"
 
+#include "tools/brush/brushtool.h"
+#include "tools/move/layermovetool.h"
+
 #include "extensionmodule.h"
 
 namespace PaintField
@@ -22,6 +25,9 @@ void ExtensionModule::initialize()
 	app()->addSidebarFactory(new ColorSidebarFactory);
 	app()->addSidebarFactory(new LayerTreeSidebarFactory);
 	app()->addSidebarFactory(new ToolSidebarFactory);
+	
+	app()->addToolFactory(new BrushToolFactory);
+	app()->addToolFactory(new LayerMoveToolFactory);
 	
 	connect(app()->workspaceManager(), SIGNAL(workspaceAdded(WorkspaceController*)), this, SLOT(onWorkspaceAdded(WorkspaceController*)));
 }
