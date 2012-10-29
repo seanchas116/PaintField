@@ -16,9 +16,9 @@ public:
 	
 	void initialize(Application *app);
 	
-	QList<AppModule *> createAppModules(Application *app);
-	QList<WorkspaceModule *> createWorkspaceModules(WorkspaceController *workspace);
-	QList<CanvasModule *> createCanvasModules(CanvasController *canvas);
+	QList<AppModule *> createAppModules(Application *app, QObject *parent);
+	QList<WorkspaceModule *> createWorkspaceModules(WorkspaceController *workspace, QObject *parent);
+	QList<CanvasModule *> createCanvasModules(CanvasController *canvas, QObject *parent);
 	
 signals:
 	

@@ -1,5 +1,7 @@
-#include "layermovetool.h"
+#include "paintfield-core/application.h"
 #include "paintfield-core/widgets/simplebutton.h"
+
+#include "layermovetool.h"
 
 #include "layermovetoolmodule.h"
 

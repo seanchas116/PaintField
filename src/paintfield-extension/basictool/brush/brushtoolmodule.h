@@ -12,7 +12,7 @@ class BrushToolModule : public WorkspaceModule
 {
 	Q_OBJECT
 public:
-	explicit BrushToolModule(WorkspaceController *parent = 0);
+	BrushToolModule(WorkspaceController *workspace, QObject *parent);
 	
 	Tool *createTool(const QString &name, CanvasView *parent) override;
 	QWidget *createSidebar(const QString &name) override;
@@ -27,9 +27,9 @@ public:
 	
 	void initialize(Application *app) override;
 	
-	QList<WorkspaceModule *> createWorkspaceModules(WorkspaceController *workspace) override
+	WorkspaceModuleList createWorkspaceModules(WorkspaceController *workspace, QObject *parent) override
 	{
-		return { new BrushToolModule(workspace) };
+		return { new BrushToolModule(workspace, parent) };
 	}
 };
 

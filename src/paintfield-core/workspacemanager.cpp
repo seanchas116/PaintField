@@ -26,28 +26,31 @@ void WorkspaceManager::newWorkspace()
 	addWorkspace(new WorkspaceController(this));
 }
 
-void WorkspaceManager::setCurrentWorkspace(WorkspaceController *controller)
+void WorkspaceManager::setCurrentWorkspace(WorkspaceController *workspace)
 {
-	if (_workspaces.contains(controller))
+	if (_workspaces.contains(workspace))
 	{
-		if (_currentWorkspace != controller)
+		if (_currentWorkspace != workspace)
 		{
-			_currentWorkspace = controller;
-			controller->setFocus();
-			emit currentWorkspaceChanged(controller);
+			_currentWorkspace = workspace;
+			workspace->setFocus();
+			emit currentWorkspaceChanged(workspace);
 		}
 	}
 }
 
-void WorkspaceManager::addWorkspace(WorkspaceController *controller)
+void WorkspaceManager::addWorkspace(WorkspaceController *workspace)
 {
-	connect(controller, SIGNAL(focused()), this, SLOT(onWorkspaceFocusIn()));
+	connect(workspace, SIGNAL(focused()), this, SLOT(onWorkspaceFocusIn()));
 	
-	_workspaces << controller;
-	emit workspaceAdded(controller);
-	controller->addModules(app()->moduleManager()->createWorkspaceModules(controller));
-	controller->createView()->show();
-	setCurrentWorkspace(controller);
+	_workspaces << workspace;
+	emit workspaceAdded(workspace);
+	
+	workspace->addModules(app()->moduleManager()->createWorkspaceModules(workspace, workspace));
+	workspace->addNullCanvasModules(app()->moduleManager()->createCanvasModules(0, workspace));
+	
+	workspace->createView()->show();
+	setCurrentWorkspace(workspace);
 }
 
 void WorkspaceManager::onWorkspaceFocusIn()

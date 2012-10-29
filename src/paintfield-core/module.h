@@ -6,17 +6,18 @@
 #include <QKeySequence>
 #include <QHash>
 
-#include "application.h"
-#include "workspacecontroller.h"
-#include "canvascontroller.h"
-
 class QAction;
+class QToolBar;
 
 typedef QList<QAction *> QActionList;
 
 namespace PaintField
 {
 
+class Application;
+class WorkspaceController;
+class CanvasController;
+class CanvasView;
 class Tool;
 
 class Module : public QObject
@@ -26,9 +27,9 @@ public:
 	
 	explicit Module(QObject *parent = 0) : QObject(parent) {}
 	
-	virtual Tool *createTool(const QString &name, CanvasView *view) { Q_UNUSED(name) Q_UNUSED(view) return 0; }
-	virtual QWidget *createSidebar(const QString &name) { Q_UNUSED(name) return 0; }
-	virtual QToolBar *createToolbar(const QString &name) { Q_UNUSED(name) return 0; }
+	virtual Tool *createTool(const QString &name, CanvasView *view);
+	virtual QWidget *createSidebar(const QString &name);
+	virtual QToolBar *createToolbar(const QString &name);
 	
 	QActionList actions() { return _actions; }
 	
@@ -44,8 +45,13 @@ class CanvasModule : public Module
 	Q_OBJECT
 public:
 	
-	explicit CanvasModule(CanvasController *parent) : Module(parent) {}
-	CanvasController *canvas() { return static_cast<CanvasController *>(parent()); }
+	CanvasModule(CanvasController *canvas, QObject *parent) : Module(parent), _canvas(canvas) {}
+	
+	CanvasController *canvas() { return _canvas; }
+	
+private:
+	
+	CanvasController *_canvas = 0;
 };
 typedef QList<CanvasModule *> CanvasModuleList;
 
@@ -54,8 +60,13 @@ class WorkspaceModule : public Module
 	Q_OBJECT
 public:
 	
-	explicit WorkspaceModule(WorkspaceController *parent) : Module(parent) {}
-	WorkspaceController *workspace() { return static_cast<WorkspaceController *>(parent()); }
+	WorkspaceModule(WorkspaceController *workspace, QObject *parent) : Module(parent), _workspace(workspace) {}
+	
+	WorkspaceController *workspace() { return _workspace; }
+	
+private:
+	
+	WorkspaceController *_workspace;
 };
 typedef QList<WorkspaceModule *> WorkspaceModuleList;
 
@@ -64,8 +75,12 @@ class AppModule : public Module
 	Q_OBJECT
 public:
 	
-	explicit AppModule(Application *parent) : Module(parent) {}
-	Application *app() { return static_cast<Application *>(parent()); }
+	explicit AppModule(Application *app, QObject *parent) : Module(parent), _app(app) {}
+	Application *app() { return _app; }
+	
+private:
+	
+	Application *_app;
 };
 typedef QList<AppModule *> AppModuleList;
 
@@ -73,16 +88,15 @@ Tool *createTool(const AppModuleList &appModules, const WorkspaceModuleList &wor
 QWidget *createSidebarForWorkspace(const AppModuleList &appModules, const WorkspaceModuleList &workspaceModules, const QString &name);
 QWidget *createSidebarForCanvas(const CanvasModuleList &canvasModules, const QString &name);
 
-
 class ModuleFactory
 {
 public:
 	
 	virtual void initialize(Application *app) = 0;
 	
-	virtual QList<AppModule *> createAppModules(Application *app) { Q_UNUSED(app) return QList<AppModule *>(); }
-	virtual QList<WorkspaceModule *> createWorkspaceModules(WorkspaceController *workspace) { Q_UNUSED(workspace) return QList<WorkspaceModule *>(); }
-	virtual QList<CanvasModule *> createCanvasModules(CanvasController *canvas) {Q_UNUSED(canvas) return QList<CanvasModule *>(); }
+	virtual AppModuleList createAppModules(Application *app, QObject *parent);
+	virtual WorkspaceModuleList createWorkspaceModules(WorkspaceController *workspace, QObject *parent);
+	virtual CanvasModuleList createCanvasModules(CanvasController *canvas, QObject *parent);
 	
 	QList<ModuleFactory *> subModuleFactories() { return _subModuleFactories; }
 	void addSubModuleFactory(ModuleFactory *factory) { _subModuleFactories << factory; }

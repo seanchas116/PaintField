@@ -1,3 +1,4 @@
+#include "paintfield-core/application.h"
 #include "paintfield-core/widgets/simplebutton.h"
 
 #include "brushtool.h"
@@ -9,10 +10,10 @@ namespace PaintField
 {
 
 const QString _brushToolName("paintfield.tool.brush");
-const QString _brushSidebarName("paintfield.sidebar.brush");
+const QString _brushSidebarName("paintfield.sidebar.brushSettings");
 
-BrushToolModule::BrushToolModule(WorkspaceController *parent) :
-	WorkspaceModule(parent)
+BrushToolModule::BrushToolModule(WorkspaceController *workspace, QObject *parent) :
+	WorkspaceModule(workspace, parent)
 {
 }
 

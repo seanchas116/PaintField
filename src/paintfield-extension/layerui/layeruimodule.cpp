@@ -1,5 +1,6 @@
 #include <QMenu>
 
+#include "paintfield-core/application.h"
 #include "paintfield-core/widgets/simplebutton.h"
 #include "layertreesidebar.h"
 #include "layeractioncontroller.h"
@@ -11,14 +12,18 @@ namespace PaintField
 
 const QString _layerTreeSidebarName = "paintfield.sidebar.layerTree";
 
-LayerUIModule::LayerUIModule(CanvasController *parent) :
-	CanvasModule(parent),
-	_actionController(new LayerActionController(parent))
+LayerUIModule::LayerUIModule(CanvasController *canvas, QObject *parent) :
+	CanvasModule(canvas, parent)
 {
-	addAction(_actionController->importAction());
-	addAction(_actionController->newRasterAction());
-	addAction(_actionController->newGroupAction());
-	addAction(_actionController->mergeAction());
+	if (canvas)
+	{
+		_actionController = new LayerActionController(canvas);
+		
+		addAction(_actionController->importAction());
+		addAction(_actionController->newRasterAction());
+		addAction(_actionController->newGroupAction());
+		addAction(_actionController->mergeAction());
+	}
 }
 
 QWidget *LayerUIModule::createSidebar(const QString &name)

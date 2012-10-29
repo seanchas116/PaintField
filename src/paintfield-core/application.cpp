@@ -52,7 +52,7 @@ Application::Application(int &argv, char **args) :
 int Application::exec()
 {
 	moduleManager()->initialize(this);
-	addModules(moduleManager()->createAppModules(this));
+	addModules(moduleManager()->createAppModules(this, this));
 	workspaceManager()->newWorkspace();
 	
 	return QApplication::exec();

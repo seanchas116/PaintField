@@ -10,7 +10,7 @@ class ColorUIModule : public WorkspaceModule
 {
 	Q_OBJECT
 public:
-	explicit ColorUIModule(WorkspaceController *parent = 0);
+	ColorUIModule(WorkspaceController *workspace, QObject *parent);
 	
 	QWidget *createSidebar(const QString &name) override;
 	
@@ -27,9 +27,9 @@ public:
 	
 	void initialize(Application *app) override;
 	
-	QList<WorkspaceModule *> createWorkspaceModules(WorkspaceController *workspace) override
+	QList<WorkspaceModule *> createWorkspaceModules(WorkspaceController *workspace, QObject *parent) override
 	{
-		return { new ColorUIModule(workspace) };
+		return { new ColorUIModule(workspace, parent) };
 	}
 };
 

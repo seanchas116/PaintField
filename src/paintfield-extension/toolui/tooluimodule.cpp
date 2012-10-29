@@ -8,8 +8,8 @@ namespace PaintField
 const QString _toolToolbarName = "paintfield.sidebar.tool";
 //const QString _toolSettingSidebarName = "paintfield.sidebar.toolSetting";
 
-ToolUIModule::ToolUIModule(WorkspaceController *parent) :
-	WorkspaceModule(parent)
+ToolUIModule::ToolUIModule(WorkspaceController *workspace, QObject *parent) :
+	WorkspaceModule(workspace, parent)
 {
 }
 

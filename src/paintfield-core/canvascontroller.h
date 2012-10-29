@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QPointer>
 
-class QAction;
+#include "module.h"
 
 namespace PaintField
 {

@@ -1,4 +1,4 @@
 {
 	"left": ["paintfield.sidebar.tool"],
-	"right": ["paintfield.sidebar.color", "paintfield.sidebar.brushSetting", "paintfield.sidebar.layerTree"]
+	"right": ["paintfield.sidebar.color", "paintfield.sidebar.brushSettings", "paintfield.sidebar.layerTree"]
 }

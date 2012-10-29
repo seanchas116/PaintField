@@ -1,3 +1,4 @@
+#include "paintfield-core/application.h"
 #include "paintfield-core/workspacecontroller.h"
 #include "paintfield-core/palettemanager.h"
 
@@ -10,8 +11,8 @@ namespace PaintField
 
 const QString _colorSidebarName = "paintfield.sidebar.color";
 
-ColorUIModule::ColorUIModule(WorkspaceController *parent) :
-	WorkspaceModule(parent)
+ColorUIModule::ColorUIModule(WorkspaceController *workspace, QObject *parent) :
+	WorkspaceModule(workspace, parent)
 {
 }
 

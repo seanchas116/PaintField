@@ -12,7 +12,7 @@ class LayerUIModule : public CanvasModule
 {
 	Q_OBJECT
 public:
-	explicit LayerUIModule(CanvasController *parent);
+	LayerUIModule(CanvasController *canvas, QObject *parent);
 	
 	QWidget *createSidebar(const QString &name) override;
 	
@@ -27,9 +27,9 @@ public:
 	
 	void initialize(Application *app) override;
 	
-	QList<CanvasModule *> createCanvasModules(CanvasController *canvas) override
+	QList<CanvasModule *> createCanvasModules(CanvasController *canvas, QObject *parent) override
 	{
-		return { new LayerUIModule(canvas) };
+		return { new LayerUIModule(canvas, parent) };
 	}
 };
 

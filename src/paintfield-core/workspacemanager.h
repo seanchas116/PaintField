@@ -25,11 +25,11 @@ public slots:
 	
 	bool tryCloseAll();
 	void newWorkspace();
-	void setCurrentWorkspace(WorkspaceController *controller);
+	void setCurrentWorkspace(WorkspaceController *workspace);
 	
 protected:
 	
-	void addWorkspace(WorkspaceController *controller);
+	void addWorkspace(WorkspaceController *workspace);
 	
 private slots:
 	

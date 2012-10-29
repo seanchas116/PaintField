@@ -27,11 +27,17 @@ public:
 	WorkspaceView *createView(QWidget *parent = 0);
 	WorkspaceView *view() { return _view; }
 	
-	void addModules(const QList<WorkspaceModule *> &modules);
-	QList<WorkspaceModule *> modules() { return _modules; }
+	void addModules(const WorkspaceModuleList &modules);
+	WorkspaceModuleList modules() { return _modules; }
 	
-	void addActions(const QList<QAction *> &actions) { _actions += actions; }
-	QList<QAction *> actions() { return _actions; }
+	void addActions(const QActionList &actions) { _actions += actions; }
+	QActionList actions() { return _actions; }
+	
+	void addNullCanvasModules(const CanvasModuleList &modules);
+	CanvasModuleList nullCanvasModules() { return _nullCanvasModules; }
+	
+	void addNullCanvasActions(const QActionList &actions) { _nullCanvasActions += actions; }
+	QActionList nullCanvasActions() { return _nullCanvasActions; }
 	
 	void addCanvas(CanvasController *canvas);
 	
@@ -80,8 +86,11 @@ private:
 	ToolManager *_toolManager = 0;
 	PaletteManager *_paletteManager = 0;
 	
-	QList<QAction *> _actions;
-	QList<WorkspaceModule *> _modules;
+	QActionList _actions;
+	WorkspaceModuleList _modules;
+	
+	QActionList _nullCanvasActions;
+	CanvasModuleList _nullCanvasModules;
 	
 	WorkspaceMdiAreaController *_mdiAreaController = 0;
 	

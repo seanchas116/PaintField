@@ -142,7 +142,6 @@ WorkspaceController::WorkspaceController(QObject *parent) :
 	
 	connect(_mdiAreaController, SIGNAL(currentCanvasChanged(CanvasController*)), this, SLOT(setCurrentCanvas(CanvasController*)));
 	
-	
 	_actions << createAction("paintfield.file.new", this, SLOT(newCanvas()));
 	_actions << createAction("paintfield.file.open", this, SLOT(openCanvas()));
 }
@@ -168,11 +167,17 @@ WorkspaceView *WorkspaceController::createView(QWidget *parent)
 void WorkspaceController::addModules(const QList<WorkspaceModule *> &modules)
 {
 	for (auto module : modules)
-	{
-		_actions += module->actions();
-	}
+		addActions(module->actions());
 	
 	_modules += modules;
+}
+
+void WorkspaceController::addNullCanvasModules(const CanvasModuleList &modules)
+{
+	for (auto module : modules)
+		addNullCanvasActions(module->actions());
+	
+	_nullCanvasModules += modules;
 }
 
 void WorkspaceController::newCanvas()
@@ -242,13 +247,13 @@ bool WorkspaceController::eventFilter(QObject *watched, QEvent *event)
 	return false;
 }
 
-void WorkspaceController::addCanvas(CanvasController *controller)
+void WorkspaceController::addCanvas(CanvasController *canvas)
 {
-	emit canvasAboutToBeAdded(controller);
-	_canvasControllers << controller;
-	connect(controller, SIGNAL(shouldBeDeleted()), this, SLOT(onCanvasSholudBeDeleted()));
-	emit canvasAdded(controller);
-	controller->addModules(app()->moduleManager()->createCanvasModules(controller));
+	emit canvasAboutToBeAdded(canvas);
+	_canvasControllers << canvas;
+	connect(canvas, SIGNAL(shouldBeDeleted()), this, SLOT(onCanvasSholudBeDeleted()));
+	emit canvasAdded(canvas);
+	canvas->addModules(app()->moduleManager()->createCanvasModules(canvas, canvas));
 }
 
 void WorkspaceController::onCanvasSholudBeDeleted()
@@ -310,7 +315,8 @@ void WorkspaceController::updateSidebarsForCanvas(CanvasController *canvas)
 {
 	for (const QString &name : app()->sidebarNames())
 	{
-		QWidget *sidebar = createSidebarForCanvas(canvas->modules(), name);
+		CanvasModuleList canvasModules = canvas ? canvas->modules() : _nullCanvasModules;
+		QWidget *sidebar = createSidebarForCanvas(canvasModules, name);
 		if (sidebar)
 			_view->setSidebar(name, sidebar);
 	}

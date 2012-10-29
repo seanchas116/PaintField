@@ -10,7 +10,7 @@ class ToolUIModule : public WorkspaceModule
 {
 	Q_OBJECT
 public:
-	explicit ToolUIModule(WorkspaceController *parent);
+	explicit ToolUIModule(WorkspaceController *workspace, QObject *parent);
 	
 	QToolBar *createToolbar(const QString &name) override;
 };
@@ -19,9 +19,9 @@ class ToolUIModuleFactory : public ModuleFactory
 {
 public:
 	void initialize(Application *app) override;
-	QList<WorkspaceModule *> createWorkspaceModules(WorkspaceController *workspace) override
+	QList<WorkspaceModule *> createWorkspaceModules(WorkspaceController *workspace, QObject *parent) override
 	{
-		return { new ToolUIModule(workspace) };
+		return { new ToolUIModule(workspace, parent) };
 	}
 };
 

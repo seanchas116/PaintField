@@ -27,33 +27,33 @@ void ModuleManager::initialize(Application *app)
 		factory->initialize(app);
 }
 
-QList<AppModule *> ModuleManager::createAppModules(Application *app)
+QList<AppModule *> ModuleManager::createAppModules(Application *app, QObject *parent)
 {
 	QList<AppModule *> modules;
 	
 	for (ModuleFactory *factory : _factories)
-		modules += factory->createAppModules(app);
+		modules += factory->createAppModules(app, parent);
 	
 	return modules;
 }
 
-QList<WorkspaceModule  *> ModuleManager::createWorkspaceModules(WorkspaceController *workspace)
+QList<WorkspaceModule  *> ModuleManager::createWorkspaceModules(WorkspaceController *workspace, QObject *parent)
 {
 	QList<WorkspaceModule *> modules;
 	
 	for (ModuleFactory *factory : _factories)
-		modules += factory->createWorkspaceModules(workspace);
+		modules += factory->createWorkspaceModules(workspace, parent);
 	
 	
 	return modules;
 }
 
-QList<CanvasModule *> ModuleManager::createCanvasModules(CanvasController *canvas)
+QList<CanvasModule *> ModuleManager::createCanvasModules(CanvasController *canvas, QObject *parent)
 {
 	QList<CanvasModule *> modules;
 	
 	for (ModuleFactory *factory : _factories)
-		modules += factory->createCanvasModules(canvas);
+		modules += factory->createCanvasModules(canvas, parent);
 	
 	return modules;
 }

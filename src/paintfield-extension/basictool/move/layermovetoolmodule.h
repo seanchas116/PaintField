@@ -10,7 +10,7 @@ class LayerMoveToolModule : public AppModule
 {
 	Q_OBJECT
 public:
-	explicit LayerMoveToolModule(Application *parent = 0) : AppModule(parent) {}
+	LayerMoveToolModule(Application *app, QObject *parent) : AppModule(app, parent) {}
 	
 	Tool *createTool(const QString &name, CanvasView *view) override;
 	
@@ -26,9 +26,9 @@ public:
 	
 	void initialize(Application *app) override;
 	
-	QList<AppModule *> createAppModules(Application *app) override
+	AppModuleList createAppModules(Application *app, QObject *parent) override
 	{
-		return { new LayerMoveToolModule(app) };
+		return { new LayerMoveToolModule(app, parent) };
 	}
 };
 
