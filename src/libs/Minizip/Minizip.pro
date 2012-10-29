@@ -1,5 +1,5 @@
 TEMPLATE = lib
-CONFIG += staticlib
+#CONFIG += staticlib
 QT -= gui
 TARGET = minizip
 
@@ -10,6 +10,8 @@ mac {
 }
 
 include(../../src.pri)
+
+LIBS += -lz
 
 HEADERS += \
     zip.h \
@@ -22,7 +24,5 @@ SOURCES += \
     zip.c \
     unzip.c \
     mztools.c \
-    minizip.c \
-    miniunz.c \
     ioapi.c
 

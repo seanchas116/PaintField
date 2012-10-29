@@ -1,22 +1,19 @@
 #include <QtGui>
 
-#include "core/application.h"
-#include "extension/extensionmodule.h"
+#include "paintfield-core/application.h"
+#include "paintfield-extension/extensionmodulefactory.h"
 
 using namespace PaintField;
 
 int main(int argc, char *argv[])
 {
-	Application application(argc, argv);
+	Application a(argc, argv);
 	
-	application.loadMenuBarOrderFromJson(":/menubar.json");
-	application.loadPanelOrderFromJson(":/panels.json");
-	application.loadKeyMapFromJson(":/keymap.json");
+	a.loadMenuBarOrderFromJson(":/menubar.json");
+	a.loadPanelOrderFromJson(":/panels.json");
+	a.loadKeyMapFromJson(":/keymap.json");
 	
-	ExtensionModule extension;
-	extension.initialize();
+	a.addModuleFactory(new ExtensionModuleFactory);
 	
-	application.workspaceManager()->newWorkspace();
-	
-	return application.exec();
+	return a.exec();
 }

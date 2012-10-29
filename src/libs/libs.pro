@@ -1,3 +1,3 @@
 TEMPLATE = subdirs
 
-SUBDIRS = QJson Minizip Malachite
+SUBDIRS = qjson/src Minizip Malachite/src

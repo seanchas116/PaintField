@@ -1,3 +1,3 @@
 TEMPLATE = subdirs
 
-SUBDIRS = libs app
+SUBDIRS = libs paintfield-core paintfield-extension app test

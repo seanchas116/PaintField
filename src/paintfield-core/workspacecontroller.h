@@ -1,0 +1,93 @@
+#ifndef WORKSPACECONTROLLER_H
+#define WORKSPACECONTROLLER_H
+
+#include <QObject>
+#include <QPointer>
+
+#include "canvascontroller.h"
+#include "workspaceview.h"
+
+namespace PaintField
+{
+
+class WorkspaceModule;
+class ToolManager;
+class PaletteManager;
+class WorkspaceMdiAreaController;
+
+class WorkspaceController : public QObject
+{
+	Q_OBJECT
+public:
+	explicit WorkspaceController(QObject *parent = 0);
+	
+	ToolManager *toolManager() { return _toolManager; }
+	PaletteManager *paletteManager() { return _paletteManager; }
+	
+	WorkspaceView *createView(QWidget *parent = 0);
+	WorkspaceView *view() { return _view; }
+	
+	void addModules(const QList<WorkspaceModule *> &modules);
+	QList<WorkspaceModule *> modules() { return _modules; }
+	
+	void addActions(const QList<QAction *> &actions) { _actions += actions; }
+	QList<QAction *> actions() { return _actions; }
+	
+	void addCanvas(CanvasController *canvas);
+	
+signals:
+	
+	void currentCanvasChanged(CanvasController *canvas);
+	
+	void canvasAboutToBeAdded(CanvasController *canvas);
+	void canvasAdded(CanvasController *canvas);
+	
+	void canvasRemoved(CanvasController *canvas);
+	void focused();
+	
+public slots:
+	
+	void setFocus();
+	
+	void setCurrentCanvas(CanvasController *canvas);
+	
+	void newCanvas();
+	void openCanvas();
+	
+	bool tryClose();
+	
+protected:
+	
+	bool eventFilter(QObject *watched, QEvent *event);
+	
+private slots:
+	
+	void onCanvasSholudBeDeleted();
+	void removeCanvas(CanvasController *canvas);
+	
+private:
+	
+	void createSidebars();
+	void createSidebarInArea(const QVariantList &ids, Qt::DockWidgetArea area);
+	void updateSidebars();
+	void updateSidebarsForCanvas(CanvasController *canvas);
+	void createMenuBar();
+	void updateMenuBar();
+	
+	QList<CanvasController *> _canvasControllers;
+	QPointer<CanvasController> _currentCanvas;
+	
+	ToolManager *_toolManager = 0;
+	PaletteManager *_paletteManager = 0;
+	
+	QList<QAction *> _actions;
+	QList<WorkspaceModule *> _modules;
+	
+	WorkspaceMdiAreaController *_mdiAreaController = 0;
+	
+	QPointer<WorkspaceView> _view;
+};
+
+}
+
+#endif // WORKSPACECONTROLLER_H
