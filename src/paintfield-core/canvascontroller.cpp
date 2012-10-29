@@ -36,7 +36,7 @@ CanvasView *CanvasController::createView(QWidget *parent)
 	return _view;
 }
 
-void CanvasController::addModules(const QList<CanvasModule *> &modules)
+void CanvasController::addModules(const CanvasModuleList &modules)
 {
 	for (CanvasModule *module : modules)
 		addActions(module->actions());

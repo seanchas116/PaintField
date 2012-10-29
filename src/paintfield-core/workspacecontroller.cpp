@@ -249,11 +249,11 @@ bool WorkspaceController::eventFilter(QObject *watched, QEvent *event)
 
 void WorkspaceController::addCanvas(CanvasController *canvas)
 {
-	emit canvasAboutToBeAdded(canvas);
 	_canvasControllers << canvas;
 	connect(canvas, SIGNAL(shouldBeDeleted()), this, SLOT(onCanvasSholudBeDeleted()));
-	emit canvasAdded(canvas);
 	canvas->addModules(app()->moduleManager()->createCanvasModules(canvas, canvas));
+	
+	emit canvasAdded(canvas);
 }
 
 void WorkspaceController::onCanvasSholudBeDeleted()

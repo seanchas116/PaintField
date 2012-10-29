@@ -41,13 +41,14 @@ void WorkspaceManager::setCurrentWorkspace(WorkspaceController *workspace)
 
 void WorkspaceManager::addWorkspace(WorkspaceController *workspace)
 {
-	connect(workspace, SIGNAL(focused()), this, SLOT(onWorkspaceFocusIn()));
-	
 	_workspaces << workspace;
-	emit workspaceAdded(workspace);
+	
+	connect(workspace, SIGNAL(focused()), this, SLOT(onWorkspaceFocusIn()));
 	
 	workspace->addModules(app()->moduleManager()->createWorkspaceModules(workspace, workspace));
 	workspace->addNullCanvasModules(app()->moduleManager()->createCanvasModules(0, workspace));
+	
+	emit workspaceAdded(workspace);
 	
 	workspace->createView()->show();
 	setCurrentWorkspace(workspace);

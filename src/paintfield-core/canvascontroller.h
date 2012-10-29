@@ -50,15 +50,15 @@ public:
 	 */
 	Document *document() { return _document; }
 	
-	void addActions(const QList<QAction *> &actions) { _actions += actions; }
+	void addActions(const QActionList &actions) { _actions += actions; }
 	
 	/**
 	 * @return The actions which belongs to the controller.
 	 */
-	QList<QAction *> actions() { return _actions; }
+	QActionList actions() { return _actions; }
 	
-	void addModules(const QList<CanvasModule* > &modules);
-	QList<CanvasModule* > modules() { return _modules; }
+	void addModules(const CanvasModuleList &modules);
+	CanvasModuleList modules() { return _modules; }
 	
 	CanvasView *createView(QWidget *parent = 0);
 	
@@ -93,8 +93,8 @@ private:
 	
 	Document *_document = 0;
 	QPointer<CanvasView> _view;
-	QList<QAction *> _actions;
-	QList<CanvasModule* > _modules;
+	QActionList _actions;
+	CanvasModuleList _modules;
 };
 
 }

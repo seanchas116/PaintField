@@ -45,7 +45,6 @@ signals:
 	
 	void currentCanvasChanged(CanvasController *canvas);
 	
-	void canvasAboutToBeAdded(CanvasController *canvas);
 	void canvasAdded(CanvasController *canvas);
 	
 	void canvasRemoved(CanvasController *canvas);
