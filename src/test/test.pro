@@ -4,9 +4,9 @@
 #
 #-------------------------------------------------
 
+TEMPLATE = app
 QT += core gui testlib
 TARGET = test
-TEMPLATE = app
 
 include(../src.pri)
 
@@ -22,6 +22,16 @@ LIBS += -lpaintfield-core
 
 LIBS += -L$$OUT_PWD/../paintfield-extension
 LIBS += -lpaintfield-extension
+
+mac {
+	sharedlibs.path = "Contents/MacOS"
+	sharedlibs.files += $$OUT_PWD/../paintfield-core/libpaintfield-core.1.dylib
+	sharedlibs.files += $$OUT_PWD/../paintfield-extension/libpaintfield-extension.1.dylib
+	sharedlibs.files += $$OUT_PWD/../libs/Malachite/src/libmalachite.1.dylib
+	sharedlibs.files += $$OUT_PWD/../libs/Minizip/libminizip.1.dylib
+	sharedlibs.files += $$OUT_PWD/../libs/qjson/lib/libqjson.0.dylib
+	QMAKE_BUNDLE_DATA += sharedlibs
+}
 
 SOURCES += main.cpp \
     autotest.cpp \

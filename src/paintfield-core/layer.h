@@ -8,10 +8,12 @@
 #include <Malachite/Surface>
 #include <Malachite/Misc>
 #include <Malachite/BlendMode>
+#include <Malachite/Container>
 
 #include "global.h"
 
-namespace PaintField {
+namespace PaintField
+{
 
 class Layer;
 typedef QList<Layer *> LayerList;

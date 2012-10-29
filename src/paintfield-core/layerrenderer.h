@@ -16,7 +16,7 @@ public:
 	LayerRenderer() {}
 	virtual ~LayerRenderer() {}
 	
-	Malachite::Surface render(const LayerConstList &layers, const QPointSet &keyClip = QPointSet());
+	Malachite::Surface renderToSurface(const LayerConstList &layers, const QPointSet &keyClip = QPointSet());
 	
 protected:
 	
@@ -34,9 +34,7 @@ protected:
 	
 private:
 	
-	void drawRaster(Malachite::SurfacePainter *painter, const Layer *layer);
-	void drawGroup(Malachite::SurfacePainter *painter, const Layer *group);
-	void drawGroupPassThrough(Malachite::SurfacePainter *painter, const Layer *group);
+	void renderLayers(Malachite::SurfacePainter *painter, const LayerConstList &layers);
 };
 
 }

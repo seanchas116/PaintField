@@ -1,4 +1,4 @@
-
+#include <Malachite/Container>
 #include "layerrenderer.h"
 
 namespace PaintField
@@ -6,15 +6,16 @@ namespace PaintField
 
 using namespace Malachite;
 
-Surface LayerRenderer::render(const LayerConstList &layers, const QPointSet &keyClip)
+Surface LayerRenderer::renderToSurface(const LayerConstList &layers, const QPointSet &keyClip)
 {
 	Surface surface;
 	SurfacePainter painter(&surface);
 	
 	painter.setKeyClip(keyClip);
 	
-	foreach (const Layer *layer, layers)
-		renderLayer(&painter, layer);
+	renderLayers(&painter, layers);
+	
+	painter.flush();
 	
 	return surface;
 }
@@ -24,63 +25,42 @@ void LayerRenderer::renderLayer(SurfacePainter *painter, const Layer *layer)
 	double opacity = painter->opacity();
 	painter->setOpacity(painter->opacity() * opacity);
 	
-	if (layer->blendMode() != BlendModePassThrough)
+	if (layer->blendMode() == BlendModePassThrough)
+	{
+		renderLayers(painter, layer->children());
+	}
+	else
+	{
 		painter->setBlendMode(layer->blendMode());
-	
-	drawLayer(painter, layer);
+		drawLayer(painter, layer);
+	}
 	
 	painter->setOpacity(opacity);
 }
 
 void LayerRenderer::drawLayer(SurfacePainter *painter, const Layer *layer)
 {
+	Surface surface;
 	switch (layer->type())
 	{
 		case Layer::TypeRaster:
-			drawRaster(painter, layer);
+			surface = layer->surface();
 			break;
 			
 		case Layer::TypeGroup:
-			if (layer->blendMode() == BlendModePassThrough)
-				drawGroupPassThrough(painter, layer);
-			else
-				drawGroup(painter, layer);
+			surface = renderToSurface(layer->children(), painter->keyClip());
 			break;
 			
 		default:
 			break;
 	}
-}
-
-void LayerRenderer::drawRaster(SurfacePainter *painter, const Layer *layer)
-{
-	painter->drawTransformedSurface(QPoint(), layer->surface());
-}
-
-void LayerRenderer::drawGroup(SurfacePainter *painter, const Layer *group)
-{
-	Surface surface;
-	SurfacePainter newPainter(&surface);
-	
-	newPainter.setShapeTransform(painter->shapeTransform());
-	newPainter.setKeyClip(painter->keyClip());
-	
-	foreach (const Layer *layer, group->children())
-	{
-		renderLayer(&newPainter, layer);
-	}
-	
-	newPainter.flush();
-	
 	painter->drawTransformedSurface(QPoint(), surface);
 }
 
-void LayerRenderer::drawGroupPassThrough(SurfacePainter *painter, const Layer *group)
+void LayerRenderer::renderLayers(SurfacePainter *painter, const LayerConstList &layers)
 {
-	foreach (const Layer *layer, group->children())
-	{
+	for (const Layer *layer : reverseContainer(layers))
 		renderLayer(painter, layer);
-	}
 }
 
 }

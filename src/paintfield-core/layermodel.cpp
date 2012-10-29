@@ -385,7 +385,7 @@ Malachite::Surface LayerModel::render()
 {
 	LayerRenderer renderer;
 	
-	return renderer.render(rootLayer()->children(), document()->tileKeys());
+	return renderer.renderToSurface(rootLayer()->children(), document()->tileKeys());
 }
 
 void LayerModel::updateDirtyThumbnails()

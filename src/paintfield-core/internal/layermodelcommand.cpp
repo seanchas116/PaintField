@@ -280,7 +280,7 @@ void LayerModelMergeCommand::redo()
 	LayerRenderer renderer;
 	
 	RasterLayer *newLayer = new RasterLayer(QObject::tr("Merged Layer"));
-	newLayer->setSurface(renderer.render(Malachite::blindCast<LayerConstList>(_oldLayers)));
+	newLayer->setSurface(renderer.renderToSurface(Malachite::blindCast<LayerConstList>(_oldLayers)));
 	
 	beginInsertLayers(parent, _row, _row);
 	

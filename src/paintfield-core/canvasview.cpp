@@ -71,7 +71,7 @@ void CanvasGraphicsObject::updateTiles(const QPointSet &tiles)
 	CanvasRenderer renderer;
 	renderer.setTool(_tool);
 	
-	Surface surface = renderer.render(_document->layerModel()->rootLayer()->children(), renderTiles);
+	Surface surface = renderer.renderToSurface(_document->layerModel()->rootLayer()->children(), renderTiles);
 	
 	foreach (const QPoint &key, renderTiles)
 	{
