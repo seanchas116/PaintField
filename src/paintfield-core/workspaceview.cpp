@@ -80,4 +80,23 @@ void WorkspaceView::setSidebar(const QString &id, QWidget *sidebar)
 	sidebar->deleteLater();
 }
 
+void WorkspaceView::addToolBar(const QString &id, const QString &text, Qt::ToolBarArea area)
+{
+	auto toolBar = new QToolBar(text);
+	toolBar->setObjectName(id);
+	QMainWindow::addToolBar(area, toolBar);
+	_toolBars << toolBar;
+}
+
+QToolBar *WorkspaceView::toolBar(const QString &id)
+{
+	for (auto toolBar : _toolBars)
+	{
+		if (toolBar->objectName() == id)
+			return toolBar;
+	}
+	return 0;
+}
+
+
 }

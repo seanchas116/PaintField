@@ -19,5 +19,7 @@
         <file>keymap.json</file>
         <file>menubar.json</file>
         <file>panels.json</file>
+        <file>icons/24x24/brush.svg</file>
+        <file>icons/24x24/select.svg</file>
     </qresource>
 </RCC>

@@ -72,10 +72,14 @@ private slots:
 	
 private:
 	
-	void createSidebars();
-	void createSidebarInArea(const QVariantList &ids, Qt::DockWidgetArea area);
-	void updateSidebars();
-	void updateSidebarsForCanvas(CanvasController *canvas);
+	QActionList currentCanvasActions() { return _currentCanvas ? _currentCanvas->actions() : _nullCanvasActions; }
+	CanvasModuleList currentCanvasModules() { return _currentCanvas ? _currentCanvas->modules() : _nullCanvasModules; }
+	
+	void createWorkspaceItems();
+	void createSidebarsInArea(const QVariantList &ids, Qt::DockWidgetArea area);
+	void createToolbarsInArea(const QVariantList &ids, Qt::ToolBarArea area);
+	void updateWorkspaceItems();
+	void updateWorkspaceItemsForCanvas(CanvasController *canvas);
 	void createMenuBar();
 	void updateMenuBar();
 	

@@ -16,10 +16,10 @@ QWidget *Module::createSidebar(const QString &name)
 	return 0;
 }
 
-QToolBar *Module::createToolbar(const QString &name)
+void Module::updateToolBar(QToolBar *toolBar, const QString &name)
 {
+	Q_UNUSED(toolBar)
 	Q_UNUSED(name)
-	return 0;
 }
 
 AppModuleList ModuleFactory::createAppModules(Application *app, QObject *parent)
@@ -97,6 +97,18 @@ QWidget *createSidebarForCanvas(const CanvasModuleList &canvasModules, const QSt
 			return sidebar;
 	}
 	return 0;
+}
+
+void updateToolBar(const AppModuleList &appModules, const WorkspaceModuleList &workspaceModules, const CanvasModuleList &canvasModules, QToolBar *toolBar, const QString &name)
+{
+	for (Module *module : appModules)
+		module->updateToolBar(toolBar, name);
+	
+	for (Module *module : workspaceModules)
+		module->updateToolBar(toolBar, name);
+	
+	for (Module *module : canvasModules)
+		module->updateToolBar(toolBar, name);
 }
 
 }

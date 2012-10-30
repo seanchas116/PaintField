@@ -15,7 +15,9 @@ Stroker::Stroker(Surface *surface, const BrushSetting *setting, const Vec4F &arg
 	_surface(surface),
 	_setting(setting),
 	_argb(argb)
-{}
+{
+	qDebug() << Q_FUNC_INFO << ": argb: " << argb.a << argb.r << argb.g << argb.b;
+}
 
 void Stroker::moveTo(const TabletInputData &data)
 {

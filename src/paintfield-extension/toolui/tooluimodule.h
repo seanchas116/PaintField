@@ -12,7 +12,7 @@ class ToolUIModule : public WorkspaceModule
 public:
 	explicit ToolUIModule(WorkspaceController *workspace, QObject *parent);
 	
-	QToolBar *createToolbar(const QString &name) override;
+	void updateToolBar(QToolBar *toolBar, const QString &name) override;
 };
 
 class ToolUIModuleFactory : public ModuleFactory

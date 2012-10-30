@@ -40,6 +40,9 @@ public:
 	void addSidebarFrame(const QString &id, const QString &text, Qt::DockWidgetArea area);
 	void setSidebar(const QString &id, QWidget *sidebar);
 	
+	void addToolBar(const QString &id, const QString &text, Qt::ToolBarArea area);
+	QToolBar *toolBar(const QString &id);
+	
 signals:
 	
 public slots:
@@ -47,6 +50,7 @@ public slots:
 private:
 	
 	QList<QDockWidget *> _dockWidgets;
+	QList<QToolBar *> _toolBars;
 };
 
 }

@@ -27,9 +27,30 @@ public:
 	
 	explicit Module(QObject *parent = 0) : QObject(parent) {}
 	
+	/**
+	 * Creates a Tool, which is installed in CanvasView and delegates editing.
+	 * This function is called when a new canvas is added or the current tool is changed for each canvas.
+	 * @param name declared name of the tool
+	 * @param view
+	 * @return 
+	 */
 	virtual Tool *createTool(const QString &name, CanvasView *view);
+	
+	/**
+	 * Creates a sidebar.
+	 * If "this" is a canvas module, this function is called when the current canvas is changed.
+	 * Otherwise, it is called when a new workspace is added.
+	 * @param name
+	 * @return 
+	 */
 	virtual QWidget *createSidebar(const QString &name);
-	virtual QToolBar *createToolbar(const QString &name);
+	
+	/**
+	 * Updates a toolbar.
+	 * @param toolBar
+	 * @param name
+	 */
+	virtual void updateToolBar(QToolBar *toolBar, const QString &name);
 	
 	QActionList actions() { return _actions; }
 	
@@ -87,6 +108,7 @@ typedef QList<AppModule *> AppModuleList;
 Tool *createTool(const AppModuleList &appModules, const WorkspaceModuleList &workspaceModules, const CanvasModuleList &canvasModules, const QString &name, CanvasView *view);
 QWidget *createSidebarForWorkspace(const AppModuleList &appModules, const WorkspaceModuleList &workspaceModules, const QString &name);
 QWidget *createSidebarForCanvas(const CanvasModuleList &canvasModules, const QString &name);
+void updateToolBar(const AppModuleList &appModules, const WorkspaceModuleList &workspaceModules, const CanvasModuleList &canvasModules, QToolBar *toolBar, const QString &name);
 
 class ModuleFactory
 {

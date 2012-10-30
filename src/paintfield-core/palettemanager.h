@@ -13,7 +13,8 @@ class PaletteManager : public QObject
 	
 public:
 	
-	enum {
+	enum
+	{
 		ColorCount = 7
 	};
 	
@@ -23,6 +24,7 @@ public:
 	Malachite::Color currentColor() const { return _colors.at(_currentIndex); }
 	Malachite::Color color(int index) const { return _colors.at(index); }
 	int colorCount() const { return ColorCount; }
+	QVector<Malachite::Color> colors() const { return _colors; }
 	
 signals:
 	
@@ -39,7 +41,7 @@ public slots:
 private:
 	
 	int _currentIndex = 0;
-	QList<Malachite::Color> _colors;
+	QVector<Malachite::Color> _colors;
 };
 
 }

@@ -65,14 +65,14 @@ public:
 	WorkspaceManager *workspaceManager() { return _workspaceManager; }
 	
 	void loadMenuBarOrderFromJson(const QString &path) { _menuBarOrder = loadJsonFromFile(path); }
-	void loadPanelOrderFromJson(const QString &path) { _sidebarOrder = loadJsonFromFile(path); }
+	void loadWorkspaceItemOrderFromJson(const QString &path) { _workspaceItemOrder = loadJsonFromFile(path); }
 	void loadKeyMapFromJson(const QString &path);
 	
 	void setMenuBarOrder(const QVariant &order) { _menuBarOrder = order; }
 	QVariant menuBarOrder() const { return _menuBarOrder; }
 	
-	void setSidebarOrder(const QVariant &order) { _sidebarOrder = order; }
-	QVariant sidebarOrder() const { return _sidebarOrder; }
+	void setWorkspaceItemOrder(const QVariant &order) { _workspaceItemOrder = order; }
+	QVariant workspaceItemOrder() const { return _workspaceItemOrder; }
 	
 	ModuleManager *moduleManager() { return _moduleManager; }
 	void addModuleFactory(ModuleFactory *factory);
@@ -115,7 +115,7 @@ private:
 	
 	WorkspaceManager *_workspaceManager = 0;
 	
-	QVariant _menuBarOrder, _sidebarOrder;
+	QVariant _menuBarOrder, _workspaceItemOrder;
 	QHash<QString, QString> _menuHash;
 	
 	ToolInfoHash _toolInfoHash;

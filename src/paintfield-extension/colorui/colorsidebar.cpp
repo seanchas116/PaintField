@@ -349,30 +349,41 @@ ColorSidebar::ColorSidebar(QWidget *parent) :
 	colorWheel->setVisible(wheelButton->isChecked());
 	sliderPanel->setVisible(sliderButton->isChecked());
 	webColorPanel->setVisible(webButton->isChecked());
+	
+	setCurrentIndex(0);
 }
 
 void ColorSidebar::setColor(int index, const Color &color)
 {
-	_colorButtons.at(index)->setColor(color);
-	if (index == _currentIndex)
-		emit currentColorChanged(color);
+	if (_colorButtons.at(index)->color() != color)
+	{
+		_colorButtons.at(index)->setColor(color);
+		emit colorChanged(index, color);
+		if (index == _currentIndex)
+			emit currentColorChanged(color);
+	}
 }
 
 void ColorSidebar::setCurrentIndex(int index)
 {
-	_currentIndex = index;
-	
-	if (_colorButtons.at(index)->isChecked())
-		return;
-	
-	_colorButtons.at(index)->setChecked(true);
+	if (_currentIndex != index)
+	{
+		_currentIndex = index;
+		
+		emit currentColorChanged(_colorButtons.at(index)->color());
+		emit currentIndexChanged(index);
+		
+		if (!_colorButtons.at(index)->isChecked())
+			_colorButtons.at(index)->setChecked(true);
+	}
 }
 
 void ColorSidebar::onColorButtonPressed()
 {
 	int index = _colorButtons.indexOf(reinterpret_cast<ColorButton *>(sender()));
+	
 	if (index >= 0)
-		emit currentIndexChanged(index);
+		setCurrentIndex(index);
 }
 
 }

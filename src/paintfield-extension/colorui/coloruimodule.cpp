@@ -26,6 +26,7 @@ QWidget *ColorUIModule::createSidebar(const QString &name)
 		
 		connect(paletteManager, SIGNAL(colorChanged(int,Malachite::Color)), sidebar, SLOT(setColor(int,Malachite::Color)));
 		connect(paletteManager, SIGNAL(currentIndexChanged(int)), sidebar, SLOT(setCurrentIndex(int)));
+		connect(sidebar, SIGNAL(colorChanged(int,Malachite::Color)), paletteManager, SLOT(setColor(int,Malachite::Color)));
 		connect(sidebar, SIGNAL(currentIndexChanged(int)), paletteManager, SLOT(setCurrentIndex(int)));
 		
 		sidebar->setCurrentIndex(paletteManager->currentIndex());

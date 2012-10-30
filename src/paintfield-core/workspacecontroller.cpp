@@ -154,9 +154,9 @@ WorkspaceView *WorkspaceController::createView(QWidget *parent)
 	QMdiArea *mdiArea = _mdiAreaController->createView();
 	view->setCentralWidget(mdiArea);
 	
-	createSidebars();
-	updateSidebars();
-	updateSidebarsForCanvas(_currentCanvas);
+	createWorkspaceItems();
+	updateWorkspaceItems();
+	updateWorkspaceItemsForCanvas(_currentCanvas);
 	
 	createMenuBar();
 	updateMenuBar();
@@ -227,7 +227,7 @@ void WorkspaceController::setCurrentCanvas(CanvasController *canvas)
 		
 		if (_view)
 		{
-			updateSidebarsForCanvas(canvas);
+			updateWorkspaceItemsForCanvas(canvas);
 			updateMenuBar();
 		}
 	}
@@ -276,15 +276,23 @@ void WorkspaceController::removeCanvas(CanvasController *canvas)
 	}
 }
 
-void WorkspaceController::createSidebars()
+void WorkspaceController::createWorkspaceItems()
 {
-	QVariantMap orderMap = app()->sidebarOrder().toMap();
+	QVariantMap itemOrderMap = app()->workspaceItemOrder().toMap();
 	
-	createSidebarInArea(orderMap["left"].toList(), Qt::LeftDockWidgetArea);
-	createSidebarInArea(orderMap["right"].toList(), Qt::RightDockWidgetArea);
+	QVariantMap sidebarOrderMap = itemOrderMap["sidebars"].toMap();
+	QVariantMap toolbarOrderMap = itemOrderMap["toolbars"].toMap();
+	
+	createSidebarsInArea(sidebarOrderMap["left"].toList(), Qt::LeftDockWidgetArea);
+	createSidebarsInArea(sidebarOrderMap["right"].toList(), Qt::RightDockWidgetArea);
+	
+	createToolbarsInArea(toolbarOrderMap["left"].toList(), Qt::LeftToolBarArea);
+	createToolbarsInArea(toolbarOrderMap["right"].toList(), Qt::RightToolBarArea);
+	createToolbarsInArea(toolbarOrderMap["top"].toList(), Qt::TopToolBarArea);
+	createToolbarsInArea(toolbarOrderMap["bottom"].toList(), Qt::BottomToolBarArea);
 }
 
-void WorkspaceController::createSidebarInArea(const QVariantList &ids, Qt::DockWidgetArea area)
+void WorkspaceController::createSidebarsInArea(const QVariantList &ids, Qt::DockWidgetArea area)
 {
 	for (const QVariant &id : ids)
 	{
@@ -301,7 +309,24 @@ void WorkspaceController::createSidebarInArea(const QVariantList &ids, Qt::DockW
 	}
 }
 
-void WorkspaceController::updateSidebars()
+void WorkspaceController::createToolbarsInArea(const QVariantList &ids, Qt::ToolBarArea area)
+{
+	for (const QVariant &id :ids)
+	{
+		ToolbarInfoHash infos = app()->toolBarInfoHash();
+		
+		for (auto iter = infos.begin(); iter != infos.end(); ++iter)
+		{
+			if (iter.key() == id.toString())
+			{
+				_view->addToolBar(id.toString(), iter->text, area);
+				break;
+			}
+		}
+	}
+}
+
+void WorkspaceController::updateWorkspaceItems()
 {
 	for (const QString &name : app()->sidebarNames())
 	{
@@ -309,16 +334,31 @@ void WorkspaceController::updateSidebars()
 		if (sidebar)
 			_view->setSidebar(name, sidebar);
 	}
+	
+	for (const QString &name : app()->toolbarNames())
+	{
+		QToolBar *toolBar = _view->toolBar(name);
+		if (toolBar)
+			updateToolBar(app()->modules(), modules(), currentCanvasModules(), toolBar, name);
+	}
 }
 
-void WorkspaceController::updateSidebarsForCanvas(CanvasController *canvas)
+void WorkspaceController::updateWorkspaceItemsForCanvas(CanvasController *canvas)
 {
+	Q_UNUSED(canvas)
+	
 	for (const QString &name : app()->sidebarNames())
 	{
-		CanvasModuleList canvasModules = canvas ? canvas->modules() : _nullCanvasModules;
-		QWidget *sidebar = createSidebarForCanvas(canvasModules, name);
+		QWidget *sidebar = createSidebarForCanvas(currentCanvasModules(), name);
 		if (sidebar)
 			_view->setSidebar(name, sidebar);
+	}
+	
+	for (const QString &name : app()->toolbarNames())
+	{
+		QToolBar *toolBar = _view->toolBar(name);
+		if (toolBar)
+			updateToolBar(AppModuleList(), WorkspaceModuleList(), currentCanvasModules(), toolBar, name);
 	}
 }
 
@@ -329,9 +369,7 @@ void WorkspaceController::createMenuBar()
 
 void WorkspaceController::updateMenuBar()
 {
-	QActionList actions = app()->actions() + this->actions();
-	if (_currentCanvas)
-		actions += _currentCanvas->actions();
+	QActionList actions = app()->actions() + this->actions() + currentCanvasActions();
 	
 	MenuArranger::associateMenuBarWithActions(_view->menuBar(), actions);
 }

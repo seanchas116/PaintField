@@ -95,7 +95,7 @@ private slots:
 private:
 	
 	QList<ColorButton *> _colorButtons;
-	int _currentIndex = 0;
+	int _currentIndex = -1;
 };
 
 }
