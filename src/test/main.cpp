@@ -1,8 +1,10 @@
 #include <QtGui>
 #include "autotest.h"
+#include "test_documentio.h"
 #include "testutil.h"
 #include "paintfield-core/canvasview.h"
 #include "paintfield-core/drawutil.h"
+#include "paintfield-core/documentio.h"
 
 using namespace Malachite;
 
@@ -27,19 +29,37 @@ void test_Surface()
 	label->show();
 }
 
+void test_DocumentIO_saveLoad()
+{
+	const QString path = "/Users/iofg2100/Desktop/test/test.pfield";
+	
+	auto doc = TestUtil::createTestDocument(0);
+	
+	{
+		DocumentIO documentIO;
+		documentIO.saveAs(doc, path);
+	}
+	
+	Document *openedDoc;
+	{
+		DocumentIO documentIO(path);
+		openedDoc = documentIO.load(0);
+	}
+	
+	auto view = new CanvasView(openedDoc, 0);
+	view->show();
+}
+
 int main(int argc, char *argv[])
 {
-	int result = autoTest.run();
-	
-	if (result == 0)
-		qDebug() << "AUTO TEST PASSED";
-	else
-		qDebug() << "AUTO TEST FAILED!";
-	
 	QApplication app(argc, argv);
 	
-	test_Surface();
-	test_CanvasView();
+	//autoTest.run();
+	
+	
+	test_DocumentIO_saveLoad();
+	//test_Surface();
+	//test_CanvasView();
 	
 	return app.exec();
 }

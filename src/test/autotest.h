@@ -19,10 +19,10 @@ public:
 	}
 	
 	template <class T>
-	void addTestClass(const QString &name)
+	void addTestClass()
 	{
 		QObject *obj = new T;
-		obj->setObjectName(name);
+		obj->setObjectName(T::staticMetaObject.className());
 		addTestObject(obj);
 	}
 	
@@ -40,7 +40,5 @@ private:
 };
 
 extern AutoTest autoTest;
-
-#define DECLARE_AUTOTEST(className) autoTest.addTestClass<className>(#className);
 
 #endif // AUTOTEST_H

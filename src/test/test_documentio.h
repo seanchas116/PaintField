@@ -14,9 +14,11 @@ signals:
 	
 public slots:
 	
-private slots:
-	
 	void saveLoad();
+	
+private slots:
 };
+
+
 
 #endif // TEST_DOCUMENTIO_H

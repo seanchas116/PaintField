@@ -23,7 +23,8 @@ class DocumentIO : public QObject
 	
 public:
 	
-	DocumentIO(const QString &path, QObject *parent = 0);
+	DocumentIO(const QString &path, QObject *parent = 0) : QObject(parent), _path(path) {}
+	DocumentIO(QObject *parent = 0) : DocumentIO(QString(), parent) {}
 	~DocumentIO();
 	
 	QString path() const { return _path; }
@@ -41,7 +42,7 @@ private:
 	bool saveLayerRecursive(const Layer *parent, DocumentDatabase *database, QVariantList *result);
 	bool loadLayerRecursive(Layer *parent, DocumentDatabase *database, const QVariantList &layerDataList);
 	
-	unzFile _unzip;
+	unzFile _unzip = 0;
 	QString _path;
 };
 

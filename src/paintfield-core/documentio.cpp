@@ -45,13 +45,6 @@ QByteArray loadFromUnzip(unzFile unzip, const QString &path)
 	return data;
 }
 
-DocumentIO::DocumentIO(const QString &path, QObject *parent) :
-    QObject(parent),
-    _unzip(0),
-    _path(path)
-{
-}
-
 DocumentIO::~DocumentIO()
 {
 	if (_unzip)
@@ -70,7 +63,10 @@ bool DocumentIO::openUnzip()
 void DocumentIO::closeUnzip()
 {
 	if (_unzip)
+	{
 		unzClose(_unzip);
+		_unzip = 0;
+	}
 }
 
 bool DocumentIO::saveAs(Document *document, const QString &newPath)
@@ -104,6 +100,8 @@ bool DocumentIO::saveAs(Document *document, const QString &newPath)
 		qWarning() << Q_FUNC_INFO << ": unable to save file";
 		return false;
 	}
+	
+	documentData["stack"] = stack;
 	
 	QJson::Serializer serializer;
 	QByteArray headerJson = serializer.serialize(documentData);
