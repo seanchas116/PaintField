@@ -10,6 +10,30 @@
 namespace PaintField
 {
 
+LayerPathList LayerPath::sortLayerPathList(const LayerPathList &paths)
+{
+	LayerPathList result = paths;
+	
+	auto mySort = [](const LayerPath &path1, const LayerPath &path2) -> bool
+	{
+		int i = 0;
+		forever
+		{
+			if (path1.size() == i || path2.size() == i)
+				break;
+			
+			if (path1.at(i) == path2.at(i))
+				continue;
+			
+			return path1.at(i) < path2.at(i);
+		}
+		return false;
+	};
+	
+	std::sort(result.begin(), result.end(), mySort);
+	return result;
+}
+
 LayerModel::LayerModel(const LayerList &layers, Document *parent) :
     QAbstractItemModel(parent),
     _document(parent),
@@ -30,13 +54,12 @@ void LayerModel::editLayer(const QModelIndex &index, LayerEdit *edit, const QStr
 {
 	if (!checkIndex(index))
 	{
-		qDebug() << Q_FUNC_INFO << ": corrupt index";
+		qWarning() << Q_FUNC_INFO << ": corrupt index";
 		return;
 	}
 	
 	QUndoCommand *command = new LayerModelEditCommand(pathForIndex(index), edit, this);
 	command->setText(description);
-	
 	pushCommand(command);
 }
 
@@ -44,13 +67,15 @@ void LayerModel::addLayers(QList<Layer *> layers, const QModelIndex &parent, int
 {
 	if (!checkIndex(parent))
 	{
-		qDebug() << Q_FUNC_INFO << ": corrupt index";
+		qWarning() << Q_FUNC_INFO << ": corrupt index";
 		return;
 	}
 	
-	QUndoCommand *command = new LayerModelAddCommand(layers, pathForIndex(parent), row, this);
-	command->setText(description);
+	for (Layer *layer : layers)
+		layer->updateThumbnailRecursive(document()->size());
 	
+	auto command = new LayerModelMultipleAddCommand(layers, pathForIndex(parent), row, this);
+	command->setText(description);
 	pushCommand(command);
 }
 
@@ -58,27 +83,33 @@ void LayerModel::newLayer(Layer::Type type, const QModelIndex &parent, int row)
 {
 	if (!checkIndex(parent))
 	{
-		qDebug() << Q_FUNC_INFO << ": corrupt index";
+		qWarning() << Q_FUNC_INFO << ": corrupt index";
 		return;
 	}
 	
 	Layer *layer;
 	QString description;
 	
-	switch(type) {
-	case Layer::TypeGroup:
-		layer = new GroupLayer();
-		layer->setName(tr("Untitled Group"));
-		description = tr("New Group");
-		break;
-	case Layer::TypeRaster:
-		layer = new RasterLayer();
-		layer->setName(tr("Untitled Layer"));
-		description = tr("New Layer");
-		break;
-	default:
-		Q_ASSERT(0);
-		return;
+	switch(type)
+	{
+		case Layer::TypeGroup:
+			
+			layer = new GroupLayer();
+			layer->setName(tr("Untitled Group"));
+			description = tr("New Group");
+			break;
+			
+		case Layer::TypeRaster:
+			
+			layer = new RasterLayer();
+			layer->setName(tr("Untitled Layer"));
+			description = tr("New Layer");
+			break;
+			
+		default:
+			
+			qWarning() << Q_FUNC_INFO << ": unsupported layer type";
+			return;
 	}
 	
 	addLayer(layer, parent, row, description);
@@ -86,9 +117,14 @@ void LayerModel::newLayer(Layer::Type type, const QModelIndex &parent, int row)
 
 void LayerModel::removeLayers(const QModelIndexList &indexes)
 {
-	QUndoCommand *command = new LayerModelRemoveCommand(pathsForIndexes(indexes), this);
-	command->setText(tr("Remove Layers"));
+	if (!checkIndexes(indexes))
+	{
+		qDebug() << Q_FUNC_INFO << ": corrupt index";
+		return;
+	}
 	
+	auto command = new LayerModelMultipleRemoveCommand(pathsForIndexes(indexes), this);
+	command->setText(tr("Remove Layers"));
 	pushCommand(command);
 }
 
@@ -100,23 +136,21 @@ void LayerModel::copyLayers(const QModelIndexList &indexes, const QModelIndex &p
 		return;
 	}
 	
-	QUndoCommand *command = new LayerModelCopyCommand(pathsForIndexes(indexes), pathForIndex(parent), row, this);
+	auto command = new LayerModelMultipleCopyCommand(pathsForIndexes(indexes), pathForIndex(parent), row, this);
 	command->setText(tr("Copy Layers"));
-	
 	pushCommand(command);
 }
 
 void LayerModel::moveLayers(const QModelIndexList &indexes, const QModelIndex &parent, int row)
 {
-	if (!checkIndex(parent) || !checkIndexes(indexes))
+	if (!checkIndex(parent) || !checkIndexes(indexes) || !layerForIndex(parent)->contains(row))
 	{
 		qDebug() << Q_FUNC_INFO << ": corrupt index";
 		return;
 	}
 	
-	QUndoCommand *command = new LayerModelMoveCommand(pathsForIndexes(indexes), pathForIndex(parent), row, this);
+	auto command = new LayerModelMultipleMoveCommand(pathsForIndexes(indexes), pathForIndex(parent), row, this);
 	command->setText(tr("Move Layers"));
-	
 	pushCommand(command);
 }
 
@@ -130,15 +164,28 @@ void LayerModel::renameLayer(const QModelIndex &index, const QString &newName)
 	
 	QString unduplicatedName = unduplicatedChildName(index.parent(), newName);
 	
-	QUndoCommand *command = new LayerModelPropertyChangeCommand(pathForIndex(index), unduplicatedName, PaintField::RoleName, this);
+	auto command = new LayerModelPropertyChangeCommand(pathForIndex(index), unduplicatedName, PaintField::RoleName, this);
 	command->setText(tr("Rename Layer"));
-	
 	pushCommand(command);
 }
 
 void LayerModel::mergeLayers(const QModelIndex &parent, int from, int to)
 {
-	QUndoCommand *command = new LayerModelMergeCommand(pathForIndex(parent), from, to, this);
+	{
+		auto layer = layerForIndex(parent);
+		if (!checkLayer(layer))
+		{
+			qWarning() << Q_FUNC_INFO << ": invalid parent";
+			return;
+		}
+		if (from > to || !layer->contains(from) || !layer->contains(to))
+		{
+			qWarning() << Q_FUNC_INFO << ": invalid row";
+			return;
+		}
+	}
+	
+	auto command = new LayerModelMergeCommand(pathForIndex(parent), from, to - from + 1, this);
 	command->setText(tr("Merge Layers"));
 	
 	pushCommand(command);
@@ -220,7 +267,7 @@ Qt::ItemFlags LayerModel::flags(const QModelIndex &index) const
 QModelIndex LayerModel::index(int row, int column, const QModelIndex &parent) const
 {
 	if (!hasIndex(row, column, parent) )
-		return QModelIndex();	// ルート
+		return QModelIndex();	// root
 	
 	const Layer *childItem = layerForIndex(parent)->child(row);
 	return createIndex(row, column, const_cast<Layer *>(childItem) );
@@ -272,7 +319,7 @@ bool LayerModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int 
 	
 	if (action == Qt::IgnoreAction)
 		return true;
-	if (!data->hasFormat("application/x-freestyle-internal-layer-ref") )	// 非対応のMimeType
+	if (!data->hasFormat("application/x-freestyle-internal-layer-ref") )	// uncompatible mime type
 		return false;
 	
 	if (row == -1)

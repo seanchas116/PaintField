@@ -15,8 +15,62 @@ class LayerModel;
 class LayerEdit;
 class LayerModelCommand;
 
-typedef QList<int> LayerPath;
+class LayerPath;
 typedef QList<LayerPath> LayerPathList;
+
+class LayerPath : public QVector<int>
+{
+public:
+	
+	typedef QVector<int> super;
+	
+	LayerPath() : super() {}
+	LayerPath(std::initializer_list<int> args) : super(args) {}
+	
+	LayerPath parentPath() const
+	{
+		Q_ASSERT(size());
+		
+		LayerPath result = *this;
+		result.remove(result.size()-1);
+		return result;
+	}
+	
+	LayerPath childPath(int row) const
+	{
+		LayerPath result = *this;
+		result << row;
+		return result;
+	}
+	
+	int row() const
+	{
+		return last();
+	}
+	
+	bool isAncestorOf(const LayerPath &other) const
+	{
+		if (size() <= other.size())
+			return false;
+		
+		for (int i = 0; i < other.size(); ++i)
+		{
+			if (at(i) != other.at(i))
+				return false;
+		}
+		
+		return true;
+	}
+	
+	LayerPath &operator=(const LayerPath &other)
+	{
+		super::operator=(other);
+		return *this;
+	}
+	
+	static LayerPathList sortLayerPathList(const LayerPathList &paths);
+};
+
 
 class ModelRootLayer : public Layer
 {
@@ -49,11 +103,7 @@ public:
 	void makeSkipNextUpdate() { _skipNextUpdate = true; }
 	
 	void editLayer(const QModelIndex &index, LayerEdit *edit, const QString &description);
-	void addLayer(Layer *layer, const QModelIndex &parent, int row, const QString &description) {
-		QList<Layer *> layers;
-		layers << layer;
-		addLayers(layers, parent, row, description);
-	}
+	void addLayer(Layer *layer, const QModelIndex &parent, int row, const QString &description) { addLayers({layer}, parent, row, description); }
 	void addLayers(QList<Layer *> layers, const QModelIndex &parent, int row, const QString &description);
 	void newLayer(Layer::Type type, const QModelIndex &parent, int row);
 	void removeLayers(const QModelIndexList &indexes);
@@ -94,6 +144,7 @@ public:
 	QModelIndex indexForPath(const LayerPath &path) const { return indexForLayer(layerForPath(path)); }
 	LayerPath pathForIndex(const QModelIndex &index) const { return pathForLayer(layerForIndex(index)); }
 	
+	LayerConstList layersForIndexes(const QModelIndexList &indexes) const;
 	LayerPathList pathsForIndexes(const QModelIndexList &indexes) const;
 	
 	QItemSelectionModel *selectionModel() const { return _selectionModel; }

@@ -26,31 +26,34 @@ Layer::Layer(const Layer &other)
 
 Layer::~Layer()
 {
-	qDeleteAll(_childrenList);
+	qDeleteAll(_children);
 }
 
 const Layer *Layer::child(int row) const
 {
 	if (!contains(row))
 		return 0;
-	return _childrenList[row];
+	return _children[row];
 }
 
 const Layer *Layer::child(const QString &name) const
 {
-	foreach (const Layer *e, _childrenList) {
-		if (e->name() == name)
-			return e;
+	for (const Layer *child : _children)
+	{
+		if (child->name() == name)
+			return child;
 	}
 	return 0;
 }
 
 const Layer *Layer::root() const
 {
-	const Layer *p = this;
-	forever {
-		if (p->parent() == 0) return p;
-		p = p->parent();
+	const Layer *layer = this;
+	
+	forever
+	{
+		if (layer->parent() == 0) return layer;
+		layer = layer->parent();
 	}
 }
 
@@ -66,9 +69,12 @@ bool Layer::isAncestorOf(const Layer *layer) const
 
 bool Layer::isAncestorOfSafe(const Layer *layer) const
 {
-	foreach (const Layer *child, _childrenList)
+	if (this == layer)
+		return true;
+	
+	for (const Layer *child : _children)
 	{
-		if (child == layer || child->isAncestorOfSafe(layer))
+		if (child->isAncestorOfSafe(layer))
 			return true;
 	}
 	
@@ -78,12 +84,12 @@ bool Layer::isAncestorOfSafe(const Layer *layer) const
 bool Layer::insertChild(int row, Layer *child)
 {
 	if (!insertable(row))
+	{
+		qWarning() << Q_FUNC_INFO << ": invaild row";
 		return false;
+	}
 	
-	if (this->child(child->name()))
-		return false;
-	
-	_childrenList.insert(row, child);
+	_children.insert(row, child);
 	child->_parent = this;
 	
 	return true;
@@ -92,14 +98,15 @@ bool Layer::insertChild(int row, Layer *child)
 bool Layer::insertChildren(int row, const LayerList &children)
 {
 	if (!insertable(row))
+	{
+		qWarning() << Q_FUNC_INFO << ": invaild row";
 		return false;
+	}
 	
 	int count = children.size();
 	
 	for (int i = 0; i < count; ++i)
-	{
 		insertChild(row + i, children.at(i));
-	}
 	
 	return true;
 }
@@ -107,9 +114,12 @@ bool Layer::insertChildren(int row, const LayerList &children)
 Layer *Layer::takeChild(int row)
 {
 	if (!contains(row))
+	{
+		qWarning() << Q_FUNC_INFO << ": invaild row";
 		return 0;
+	}
 	
-	Layer *child = _childrenList.takeAt(row);
+	Layer *child = _children.takeAt(row);
 	child->_parent = 0;
 	
 	return child;
@@ -117,13 +127,11 @@ Layer *Layer::takeChild(int row)
 
 LayerList Layer::takeChildren()
 {
-	LayerList children = _childrenList;
-	_childrenList.clear();
+	LayerList children = _children;
+	_children.clear();
 	
-	foreach (Layer *child, children)
-	{
+	for (Layer *child : children)
 		child->_parent = 0;
-	}
 	
 	return children;
 }
@@ -131,7 +139,10 @@ LayerList Layer::takeChildren()
 Layer *Layer::replaceChild(int row, Layer *child)
 {
 	if (!contains(row))
+	{
+		qWarning() << Q_FUNC_INFO << ": invaild row";
 		return 0;
+	}
 	
 	Layer *oldChild = takeChild(row);
 	insertChild(row, child);
@@ -142,20 +153,37 @@ Layer *Layer::replaceChild(int row, Layer *child)
 bool Layer::removeChild(int row)
 {
 	if (!contains(row))
+	{
+		qWarning() << Q_FUNC_INFO << ": invaild row";
 		return false;
+	}
 	
-	delete _childrenList.takeAt(row);
+	delete _children.takeAt(row);
 	
 	return true;
+}
+
+bool Layer::shiftChildren(int start, int end, int shiftCount)
+{
+	if (start == end)
+		return true;
+	
+	if (contains(start) && contains(end))
+	{
+		shiftContainer(_children, start, end, shiftCount);
+		return true;
+	}
+	
+	qWarning() << Q_FUNC_INFO << ": invaild row";
+	return false;
 }
 
 Layer *Layer::cloneRecursive()
 {
 	Layer *dest = clone();
 	
-	foreach (Layer *child, _childrenList) {
+	for (Layer *child : _children)
 		dest->appendChild(child->cloneRecursive());
-	}
 	
 	return dest;
 }
@@ -166,7 +194,8 @@ QString Layer::unduplicatedChildName(const QString &name) const
 		return name;
 	
 	int i = 0;
-	forever {
+	forever
+	{
 		QString newName = name + " " + QString::number(++i);
 		if (!child(newName))
 			return newName;
@@ -175,7 +204,8 @@ QString Layer::unduplicatedChildName(const QString &name) const
 
 bool Layer::setProperty(const QVariant &data, int role)
 {
-	switch (role) {
+	switch (role)
+	{
 	case PaintField::RoleName:
 		_name = data.toString();
 		return true;
@@ -201,7 +231,8 @@ bool Layer::setProperty(const QVariant &data, int role)
 
 QVariant Layer::property(int role) const
 {
-	switch (role) {
+	switch (role)
+	{
 	case PaintField::RoleName:
 		return _name;
 	case PaintField::RoleType:
@@ -236,9 +267,8 @@ void Layer::updateThumbnail(const QSize &size)
 void Layer::updateThumbnailRecursive(const QSize &size)
 {
 	updateThumbnail(size);
-	foreach (Layer *child, _childrenList) {
+	for (Layer *child : _children)
 		child->updateThumbnailRecursive(size);
-	}
 }
 
 void Layer::updateDirtyThumbnailRecursive(const QSize &size)
@@ -248,18 +278,19 @@ void Layer::updateDirtyThumbnailRecursive(const QSize &size)
 		updateThumbnail(size);
 		_isThumbnailDirty = false;
 	}
-	foreach (Layer *child, _childrenList) {
+	
+	for (Layer *child : _children)
 		child->updateDirtyThumbnailRecursive(size);
-	}
 }
 
 QPointSet Layer::tileKeysRecursive() const
 {
 	QPointSet keys;
 	keys |= tileKeys();
-	foreach (const Layer *child, _childrenList) {
+	
+	for (const Layer *child : _children)
 		keys != child->tileKeysRecursive();
-	}
+	
 	return keys;
 }
 

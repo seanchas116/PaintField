@@ -31,8 +31,8 @@ public:
 	Layer(const Layer &other);
 	virtual ~Layer();
 	
-	LayerList children() { return _childrenList; }
-	LayerConstList children() const { return Malachite::constList(_childrenList); }
+	LayerList children() { return _children; }
+	LayerConstList children() const { return Malachite::constList(_children); }
 	
 	const Layer *child(int row) const;
 	const Layer *child(const QString &name) const;
@@ -75,24 +75,24 @@ public:
 	 * @param row
 	 * @return Whether this layer contains a child layer with row index = "row"
 	 */
-	bool contains(int row) const { return (0 <= row && row < _childrenList.size()) ? true : false; }
+	bool contains(int row) const { return (0 <= row && row < _children.size()) ? true : false; }
 	
 	/**
 	 * @param layer
 	 * @return Wheter this layer contains "layer"
 	 */
-	bool contains(Layer *layer) const { return _childrenList.contains(layer); }
+	bool contains(Layer *layer) const { return _children.contains(layer); }
 	
 	/**
 	 * @param row
 	 * @return Whether this contains a child layer with row index = "row".
 	 */
-	bool insertable(int row) const { return (0 <= row && row <= _childrenList.size()) ? true : false; }
+	bool insertable(int row) const { return (0 <= row && row <= _children.size()) ? true : false; }
 	
 	/**
 	 * @return How many child layers this layer has
 	 */
-	int childCount() const { return _childrenList.size(); }
+	int childCount() const { return _children.size(); }
 	
 	/**
 	 * @return How many child layers "this" parent has
@@ -103,7 +103,7 @@ public:
 	 * @param child
 	 * @return The row index of a child layer
 	 */
-	int rowForChild(const Layer *child) const { return _childrenList.indexOf(const_cast<Layer *>(child)); }
+	int rowForChild(const Layer *child) const { return _children.indexOf(const_cast<Layer *>(child)); }
 	
 	/**
 	 * @return The row index of this layer in its parent.
@@ -168,6 +168,8 @@ public:
 	 */
 	bool removeChild(int row);
 	
+	bool shiftChildren(int start, int end, int shiftCount);
+	
 	/**
 	 * Clones this layer and its descendants.
 	 * @return The cloned layer
@@ -211,8 +213,22 @@ public:
 	void setThumbnailDirty(bool x) { _isThumbnailDirty = x; }
 	bool isThumbnailDirty() const { return _isThumbnailDirty; }
 	
+	/**
+	 * Updates only this layer's thumbnail
+	 * @param size
+	 */
 	virtual void updateThumbnail(const QSize &size);
+	
+	/**
+	 * Updates the thumbnail of each of ths and this ancestor layers.
+	 * @param size
+	 */
 	void updateThumbnailRecursive(const QSize &size);
+	
+	/**
+	 * Updates the thumbnail of each of ths and this ancestor layers, if its isThumbnailDirty() is true.
+	 * @param size
+	 */
 	void updateDirtyThumbnailRecursive(const QSize &size);
 	
 	QPointSet tileKeys() const { return surface().keys(); }
@@ -228,7 +244,7 @@ protected:
 private:
 	
 	Layer *_parent = 0;	// 0 : root item
-	LayerList _childrenList;
+	LayerList _children;
 	
 	QString _name;
 	bool _isLocked = false, _isVisible = true;

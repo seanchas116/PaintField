@@ -6,6 +6,37 @@
 namespace PaintField
 {
 
+void LayerModelCommand::insertLayer(Layer *parent, int row, Layer *layer)
+{
+	beginInsertLayers(parent, row, row);
+	parent->insertChild(row, layer);
+	endInsertLayers();
+}
+
+Layer *LayerModelCommand::takeLayer(Layer *parent, int row)
+{
+	beginRemoveLayers(parent, row, row);
+	auto layer = parent->takeChild(row);
+	endRemoveLayers();
+	return layer;
+}
+
+void LayerModelCommand::emitDataChanged(Layer *layer)
+{
+	auto index = _model->indexForLayer(layer);
+	_model->emitDataChanged(index, index);
+}
+
+void LayerModelCommand::emitDataChanged(Layer *parent, int start, int end)
+{
+	if (start > end)
+		qSwap(start, end);
+	
+	auto startIndex = _model->indexForLayer(parent->child(start));
+	auto endIndex = _model->indexForLayer(parent->child(end));
+	_model->emitDataChanged(startIndex, endIndex);
+}
+
 LayerModelEditCommand::LayerModelEditCommand(const LayerPath &path, LayerEdit *edit, LayerModel *document, QUndoCommand *parent) :
     LayerModelCommand(document, parent),
     _path(path),
@@ -46,216 +77,116 @@ void LayerModelEditCommand::undo()
 		enqueueTileUpdate(_edit->modifiedKeys());
 }
 
-LayerModelAddCommand::LayerModelAddCommand(const LayerList &layers, const LayerPath &parentPath, int row, LayerModel *model, QUndoCommand *parent) :
-    LayerModelCommand(model, parent),
-    _hasLayers(true),
-    _layers(layers),
-    _parentPath(parentPath),
-    _row(row)
-{
-}
-
-LayerModelAddCommand::~LayerModelAddCommand()
-{
-	if (_hasLayers)
-		qDeleteAll(_layers);
-}
 
 void LayerModelAddCommand::redo()
 {
-	Layer *parent = layerForPath(_parentPath);
-	int count = _layers.size();
-	
-	beginInsertLayers(parent, _row, _row + count - 1);
-	
-	for (int i = 0; i < count; ++i)
-		parent->insertChild(_row + i, _layers.at(i));
-	
-	endInsertLayers();
-	
-	_hasLayers = false;
+	insertLayer(layerForPath(_parentPath), _row, _layer.take());
 }
 
 void LayerModelAddCommand::undo()
 {
-	Layer *parent = layerForPath(_parentPath);
-	int count = _layers.size();
-	
-	beginRemoveLayers(parent, _row, _row + count - 1);
-	
-	for (int i = 0; i < count; ++i)
-		parent->takeChild(_row);
-	
-	endRemoveLayers();
-	
-	_hasLayers = true;
+	_layer.reset(takeLayer(layerForPath(_parentPath), _row));
 }
 
-
-
-LayerModelRemoveCommand::LayerModelRemoveCommand(const LayerPathList &paths, LayerModel *model, QUndoCommand *parent) :
-    LayerModelCommand(model, parent)
+LayerModelMultipleAddCommand::LayerModelMultipleAddCommand(const LayerList &layers, const LayerPath &parentPath, int row, LayerModel *model, QUndoCommand *parent) :
+	QUndoCommand(parent)
 {
-	_paths = sortPathList(paths);
-}
-
-LayerModelRemoveCommand::~LayerModelRemoveCommand()
-{
-	qDeleteAll(_layers);
+	for (Layer *layer : layers)
+		new LayerModelAddCommand(layer, parentPath, row++, model, this);
 }
 
 void LayerModelRemoveCommand::redo()
 {
-	QListIterator<LayerPath> iter(_paths);
-	iter.toBack();
-	
-	while (iter.hasPrevious())
-	{
-		Layer *layer = layerForPath(iter.previous());
-		Layer *parent = layer->parent();
-		int row = layer->row();
-		
-		beginRemoveLayers(parent, row, row);
-		
-		_layers.prepend(parent->takeChild(row));
-		
-		endRemoveLayers();
-	}
+	_layer.reset(takeLayer(layerForPath(_parentPath), _row));
 }
 
 void LayerModelRemoveCommand::undo()
 {
-	QListIterator<LayerPath> iter(_paths);
-	iter.toBack();
-	
-	while (iter.hasPrevious())
-	{
-		LayerPath path = iter.previous();
-		int row = path.last();
-		LayerPath parentPath = path;
-		parentPath.removeLast();
-		
-		Layer *parent = layerForPath(parentPath);
-		
-		parent->insertChild(row, _layers.takeFirst());
-	}
+	insertLayer(layerForPath(_parentPath), _row, _layer.take());
 }
 
-LayerModelCopyCommand::LayerModelCopyCommand(const LayerPathList &paths, const LayerPath &parentPath, int row, LayerModel *model, QUndoCommand *parent) :
-    LayerModelCommand(model, parent),
-    _parentPath(parentPath),
-    _row(row)
+LayerModelMultipleRemoveCommand::LayerModelMultipleRemoveCommand(const LayerPathList &paths, LayerModel *model, QUndoCommand *parent) :
+	QUndoCommand(parent)
 {
-	_paths = sortPathList(paths);
+	LayerPathList sorted = LayerPath::sortLayerPathList(paths);
+	
+	for (const LayerPath &path : Malachite::reverseContainer(sorted))
+	{
+		new LayerModelRemoveCommand(path.parentPath(), path.row(), model, this);
+	}
 }
 
 void LayerModelCopyCommand::redo()
 {
-	LayerList layers;
-	
-	foreach (const LayerPath &path, _paths)
-		layers << layerForPath(path)->cloneRecursive();
-	
-	Layer *parent = layerForPath(_parentPath);
-	
-	beginInsertLayers(parent, _row, _row + _paths.size() - 1);
-	
-	foreach (Layer *layer, layers)
-		parent->insertChild(_row, layer);
-	
-	endInsertLayers();
+	auto layer = layerForPath(_oldParentPath)->child(_oldRow)->cloneRecursive();
+	insertLayer(layerForPath(_newParentPath), _newRow, layer);
 }
 
 void LayerModelCopyCommand::undo()
 {
-	Layer *parent = layerForPath(_parentPath);
-	
-	beginRemoveLayers(parent, _row, _row + _paths.size() - 1);
-	
-	for (int i = 0; i < _paths.size(); ++i)
-		parent->removeChild(_row + i);
-	
-	endRemoveLayers();
+	delete takeLayer(layerForPath(_newParentPath), _newRow);
 }
 
-LayerModelMoveCommand::LayerModelMoveCommand(const LayerPathList &paths, const LayerPath &parentPath, int row, LayerModel *model, QUndoCommand *parent) :
-    LayerModelCommand(model, parent),
-    _dstParentPath(parentPath),
-    _dstRow(row)
+LayerModelMultipleCopyCommand::LayerModelMultipleCopyCommand(const LayerPathList &paths, const LayerPath &newParentPath, int newRow, LayerModel *model, QUndoCommand *parent) :
+	QUndoCommand(parent)
 {
-	_paths = sortPathList(paths);
+	LayerPathList sorted = LayerPath::sortLayerPathList(paths);
 	
-	foreach (const LayerPath &path, _paths)
+	int i = 0;
+	for (LayerPath path : Malachite::reverseContainer(sorted))
 	{
-		LayerPath srcParentPath = path;
-		srcParentPath.removeLast();
+		if (path.isAncestorOf(newParentPath) && path.at(newParentPath.size()) > newRow)
+			path[newParentPath.size()] += i;
 		
-		if (srcParentPath == _dstParentPath && path.last() < row)
-			_dstRow--;
+		new LayerModelCopyCommand(path.parentPath(), path.row(), newParentPath, newRow, model, this);
+		i++;
 	}
 }
 
 void LayerModelMoveCommand::redo()
 {
-	int count = _paths.size();
-	
-	Layer *dstParent = layerForPath(_dstParentPath);
-	
-	LayerList layers;
-	
-	foreach (const LayerPath &path, _paths)
-	{
-		Layer *layer = layerForPath(path);
-		Layer *parent = layer->parent();
-		int row = layer->row();
-		
-		beginRemoveLayers(parent, row, row);
-		layers << parent->takeChild(row);
-		endRemoveLayers();
-	}
-	
-	beginInsertLayers(dstParent, _dstRow, _dstRow + count - 1);
-	
-	for (int i = 0; i < count; ++i)
-		dstParent->insertChild(_dstRow + i, layers.at(i));
-	
-	endInsertLayers();
+	move(layerForPath(_oldParentPath), _oldRow, layerForPath(_newParentPath), _newRow);
 }
 
 void LayerModelMoveCommand::undo()
 {
-	int count = _paths.size();
-	
-	Layer *dstParent = layerForPath(_dstParentPath);
-	
-	LayerList layers;
-	
-	beginRemoveLayers(dstParent, _dstRow, _dstRow + count - 1);
-	
-	for (int i = 0; i < count; ++i)
-		layers << dstParent->takeChild(_dstRow);
-	
-	endRemoveLayers();
-	
-	for (int i = 0; i < count; ++i)
-	{
-		LayerPath pathParent = _paths.at(i);
-		pathParent.removeLast();
-		int row = _paths.at(i).last();
-		
-		Layer *parent = layerForPath(pathParent);
-		beginInsertLayers(parent, row, row);
-		parent->insertChild(row, layers.at(i));
-		endInsertLayers();
-	}
+	move(layerForPath(_newParentPath), _newRow, layerForPath(_oldParentPath), _oldRow);
 }
 
-LayerModelMergeCommand::LayerModelMergeCommand(const LayerPath &parentPath, int row, int count, LayerModel *model, QUndoCommand *parent) :
-    LayerModelCommand(model, parent),
-    _parentPath(parentPath),
-    _row(row),
-    _count(count)
+void LayerModelMoveCommand::move(Layer *oldParent, int oldRow, Layer *newParent, int newRow)
 {
+	if (oldParent == newParent)
+	{
+		if (oldRow != newRow)
+		{
+			oldParent->shiftChildren(newRow, oldRow, 1);
+			emitDataChanged(oldParent, newRow, oldRow);
+		}
+		return;
+	}
+	
+	Layer *layer = oldParent->takeChild(oldRow);
+	newParent->insertChild(newRow, layer);
+}
+
+LayerModelMultipleMoveCommand::LayerModelMultipleMoveCommand(const LayerPathList &paths, const LayerPath &newParentPath, int newRow, LayerModel *model, QUndoCommand *parent) :
+	QUndoCommand(parent)
+{
+	LayerPathList sorted = LayerPath::sortLayerPathList(paths);
+	
+	int i = 0;
+	LayerPath newPath = newParentPath.childPath(newRow);
+	for (LayerPath path : Malachite::reverseContainer(sorted))
+	{
+		if (path.isAncestorOf(newParentPath) && path.at(newParentPath.size()) > newRow)
+			path[newParentPath.size()] += i;
+		
+		new LayerModelMoveCommand(path.parentPath(), path.row(), newPath.parentPath(), newPath.row(), model, this);
+		i++;
+		
+		if (newPath.isAncestorOf(path.parentPath()) && newPath.at(path.parentPath().size()) > path.row())
+			newPath[path.parentPath().size()]++;
+	}
 }
 
 LayerModelMergeCommand::~LayerModelMergeCommand()
@@ -267,48 +198,25 @@ void LayerModelMergeCommand::redo()
 {
 	Layer *parent = layerForPath(_parentPath);
 	
-	beginRemoveLayers(parent, _row, _row + _count - 1);
-	
 	for (int i = 0; i < _count; ++i)
-	{
-		Layer *layer = parent->takeChild(_row);
-		_oldLayers << layer;
-	}
-	
-	endRemoveLayers();
+		_oldLayers << takeLayer(parent, _row);
 	
 	LayerRenderer renderer;
 	
 	RasterLayer *newLayer = new RasterLayer(QObject::tr("Merged Layer"));
-	newLayer->setSurface(renderer.renderToSurface(Malachite::blindCast<LayerConstList>(_oldLayers)));
+	newLayer->setSurface(renderer.renderToSurface(Malachite::constList(_oldLayers)));
 	
-	beginInsertLayers(parent, _row, _row);
-	
-	parent->insertChild(_row, newLayer);
-	
-	endInsertLayers();
+	insertLayer(parent, _row, newLayer);
 }
 
 void LayerModelMergeCommand::undo()
 {
 	Layer *parent = layerForPath(_parentPath);
 	
-	beginRemoveLayers(parent, _row, _row);
-	
-	parent->removeChild(_row);
-	
-	endRemoveLayers();
-	
-	beginInsertLayers(parent, _row, _row + _count - 1);
+	delete takeLayer(parent, _row);
 	
 	for (int i = 0; i < _count; ++i)
-	{
-		parent->insertChild(_row + i, _oldLayers[i]);
-	}
-	
-	endInsertLayers();
-	
-	_oldLayers.clear();
+		insertLayer(parent, _row, _oldLayers.takeLast());
 }
 
 }

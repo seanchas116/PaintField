@@ -3,6 +3,8 @@
 
 #include <QPointer>
 
+#define PAINTFIELD_PRINT_WARNING(text) qWarning() << Q_FUNC_INFO << ":" << text
+
 class QAction;
 
 namespace PaintField
