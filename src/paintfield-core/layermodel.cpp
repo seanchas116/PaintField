@@ -1,6 +1,7 @@
 #include <QtGui>
 #include <Malachite/Painter>
 
+#include "util.h"
 #include "document.h"
 #include "layerrenderer.h"
 #include "internal/layermodelcommand.h"
@@ -54,7 +55,7 @@ void LayerModel::editLayer(const QModelIndex &index, LayerEdit *edit, const QStr
 {
 	if (!checkIndex(index))
 	{
-		qWarning() << Q_FUNC_INFO << ": corrupt index";
+		PAINTFIELD_PRINT_WARNING("invalid index");
 		return;
 	}
 	
@@ -67,7 +68,7 @@ void LayerModel::addLayers(QList<Layer *> layers, const QModelIndex &parent, int
 {
 	if (!checkIndex(parent))
 	{
-		qWarning() << Q_FUNC_INFO << ": corrupt index";
+		PAINTFIELD_PRINT_WARNING("invalid index");
 		return;
 	}
 	
@@ -83,7 +84,7 @@ void LayerModel::newLayer(Layer::Type type, const QModelIndex &parent, int row)
 {
 	if (!checkIndex(parent))
 	{
-		qWarning() << Q_FUNC_INFO << ": corrupt index";
+		PAINTFIELD_PRINT_WARNING("invalid index");
 		return;
 	}
 	
@@ -108,7 +109,7 @@ void LayerModel::newLayer(Layer::Type type, const QModelIndex &parent, int row)
 			
 		default:
 			
-			qWarning() << Q_FUNC_INFO << ": unsupported layer type";
+			PAINTFIELD_PRINT_WARNING("unsupported layer type");
 			return;
 	}
 	
@@ -119,7 +120,7 @@ void LayerModel::removeLayers(const QModelIndexList &indexes)
 {
 	if (!checkIndexes(indexes))
 	{
-		qDebug() << Q_FUNC_INFO << ": corrupt index";
+		PAINTFIELD_PRINT_WARNING("invalid index");
 		return;
 	}
 	
@@ -132,7 +133,7 @@ void LayerModel::copyLayers(const QModelIndexList &indexes, const QModelIndex &p
 {
 	if (!checkIndex(parent) || !checkIndexes(indexes))
 	{
-		qDebug() << Q_FUNC_INFO << ": corrupt index";
+		PAINTFIELD_PRINT_WARNING("invalid index");
 		return;
 	}
 	
@@ -143,9 +144,9 @@ void LayerModel::copyLayers(const QModelIndexList &indexes, const QModelIndex &p
 
 void LayerModel::moveLayers(const QModelIndexList &indexes, const QModelIndex &parent, int row)
 {
-	if (!checkIndex(parent) || !checkIndexes(indexes) || !layerForIndex(parent)->contains(row))
+	if (!checkIndex(parent) || !checkIndexes(indexes) || !layerForIndex(parent)->insertable(row))
 	{
-		qDebug() << Q_FUNC_INFO << ": corrupt index";
+		PAINTFIELD_PRINT_WARNING("invalid index");
 		return;
 	}
 	
@@ -158,7 +159,7 @@ void LayerModel::renameLayer(const QModelIndex &index, const QString &newName)
 {
 	if (!checkIndex(index))
 	{
-		qDebug() << Q_FUNC_INFO << ": corrupt index";
+		PAINTFIELD_PRINT_WARNING("invalid index");
 		return;
 	}
 	

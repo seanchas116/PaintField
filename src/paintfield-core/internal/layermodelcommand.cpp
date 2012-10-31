@@ -111,9 +111,7 @@ LayerModelMultipleRemoveCommand::LayerModelMultipleRemoveCommand(const LayerPath
 	LayerPathList sorted = LayerPath::sortLayerPathList(paths);
 	
 	for (const LayerPath &path : Malachite::reverseContainer(sorted))
-	{
 		new LayerModelRemoveCommand(path.parentPath(), path.row(), model, this);
-	}
 }
 
 void LayerModelCopyCommand::redo()
@@ -165,8 +163,8 @@ void LayerModelMoveCommand::move(Layer *oldParent, int oldRow, Layer *newParent,
 		return;
 	}
 	
-	Layer *layer = oldParent->takeChild(oldRow);
-	newParent->insertChild(newRow, layer);
+	auto layer = takeLayer(oldParent, oldRow);
+	insertLayer(newParent, newRow, layer);
 }
 
 LayerModelMultipleMoveCommand::LayerModelMultipleMoveCommand(const LayerPathList &paths, const LayerPath &newParentPath, int newRow, LayerModel *model, QUndoCommand *parent) :

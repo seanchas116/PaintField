@@ -56,7 +56,6 @@ int main(int argc, char *argv[])
 	
 	//autoTest.run();
 	
-	
 	test_DocumentIO_saveLoad();
 	//test_Surface();
 	//test_CanvasView();
