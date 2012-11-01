@@ -134,7 +134,7 @@ void BrushTool::endStroke(const TabletInputData &data)
 	
 	//documentModel()->setData(documentModel()->indexForLayer(_layer), QVariant::fromValue(_surface), FSGlobal::RoleSurface, tr("Brush"));
 	document()->layerModel()->makeSkipNextUpdate();
-	document()->layerModel()->editLayer(document()->layerModel()->indexForLayer(_layer), new FSLayerSurfaceEdit(_surface, _stroker->totalEditedKeys()), tr("Brush"));
+	document()->layerModel()->editLayer(document()->layerModel()->indexForLayer(_layer), new LayerSurfaceEdit(_surface, _stroker->totalEditedKeys()), tr("Brush"));
 	
 	_stroker.reset();
 	clearCustomDrawLayer();

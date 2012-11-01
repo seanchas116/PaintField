@@ -11,30 +11,6 @@
 namespace PaintField
 {
 
-LayerPathList LayerPath::sortLayerPathList(const LayerPathList &paths)
-{
-	LayerPathList result = paths;
-	
-	auto mySort = [](const LayerPath &path1, const LayerPath &path2) -> bool
-	{
-		int i = 0;
-		forever
-		{
-			if (path1.size() == i || path2.size() == i)
-				break;
-			
-			if (path1.at(i) == path2.at(i))
-				continue;
-			
-			return path1.at(i) < path2.at(i);
-		}
-		return false;
-	};
-	
-	std::sort(result.begin(), result.end(), mySort);
-	return result;
-}
-
 LayerModel::LayerModel(const LayerList &layers, Document *parent) :
     QAbstractItemModel(parent),
     _document(parent),
@@ -44,6 +20,7 @@ LayerModel::LayerModel(const LayerList &layers, Document *parent) :
 {
 	connect(_selectionModel, SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SIGNAL(currentIndexChanged(QModelIndex,QModelIndex)));
 	connect(this, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SIGNAL(layerMetadataChanged(QModelIndex)));
+	connect(_document, SIGNAL(modified()), this, SLOT(update()));
 	
 	_rootLayer->insertChildren(0, layers);
 	_rootLayer->updateThumbnailRecursive(_document->size());
@@ -72,11 +49,17 @@ void LayerModel::addLayers(QList<Layer *> layers, const QModelIndex &parent, int
 		return;
 	}
 	
-	for (Layer *layer : layers)
-		layer->updateThumbnailRecursive(document()->size());
+	auto command = new QUndoCommand(description);
 	
-	auto command = new LayerModelMultipleAddCommand(layers, pathForIndex(parent), row, this);
-	command->setText(description);
+	auto parentLayer = layerForIndex(parent);
+	
+	for (int i = 0; i < layers.size(); ++i)
+	{
+		QString unduplicatedName = parentLayer->unduplicatedChildName(layers.at(i)->name());
+		layers.at(i)->setName(unduplicatedName);
+		new LayerModelAddCommand(layers.at(i), pathForIndex(parent), row + i, this, command);
+	}
+	
 	pushCommand(command);
 }
 
@@ -118,40 +101,82 @@ void LayerModel::newLayer(Layer::Type type, const QModelIndex &parent, int row)
 
 void LayerModel::removeLayers(const QModelIndexList &indexes)
 {
-	if (!checkIndexes(indexes))
+	auto command = new QUndoCommand(tr("Remove Layers"));
+	
+	for (const QModelIndex &index : indexes)
 	{
-		PAINTFIELD_PRINT_WARNING("invalid index");
-		return;
+		if (!checkIndex(index) || !index.isValid())
+		{
+			PAINTFIELD_PRINT_WARNING("invalid index");
+			continue;
+		}
+		new LayerModelRemoveCommand(pathForIndex(index), this, command);
 	}
 	
-	auto command = new LayerModelMultipleRemoveCommand(pathsForIndexes(indexes), this);
-	command->setText(tr("Remove Layers"));
 	pushCommand(command);
 }
 
 void LayerModel::copyLayers(const QModelIndexList &indexes, const QModelIndex &parent, int row)
 {
-	if (!checkIndex(parent) || !checkIndexes(indexes))
-	{
-		PAINTFIELD_PRINT_WARNING("invalid index");
-		return;
-	}
-	
-	auto command = new LayerModelMultipleCopyCommand(pathsForIndexes(indexes), pathForIndex(parent), row, this);
-	command->setText(tr("Copy Layers"));
-	pushCommand(command);
+	copyOrMoveLayers(indexes, parent, row, true);
 }
 
 void LayerModel::moveLayers(const QModelIndexList &indexes, const QModelIndex &parent, int row)
 {
-	if (!checkIndex(parent) || !checkIndexes(indexes) || !layerForIndex(parent)->insertable(row))
+	copyOrMoveLayers(indexes, parent, row, false);
+}
+
+void LayerModel::copyOrMoveLayers(const QModelIndexList &indexes, const QModelIndex &parent, int row, bool copy)
+{
+	if (!checkIndex(parent))
 	{
 		PAINTFIELD_PRINT_WARNING("invalid index");
 		return;
 	}
 	
-	auto command = new LayerModelMultipleMoveCommand(pathsForIndexes(indexes), pathForIndex(parent), row, this);
-	command->setText(tr("Move Layers"));
+	auto command = new QUndoCommand(copy ? tr("Copy Layers") : tr("Move Layers"));
+	
+	LayerPath newParentPath = pathForIndex(parent);
+	
+	for (int i = 0; i < indexes.size(); ++i)
+	{
+		QModelIndex index = indexes.at(i);
+		
+		if (!checkIndex(index) || !index.isValid())
+		{
+			PAINTFIELD_PRINT_WARNING("invalid index");
+			continue;
+		}
+		
+		LayerPath oldPath, newPath;
+		oldPath = pathForIndex(index);
+		
+		bool rowChange = false;
+		
+		if (!copy)
+		{
+			LayerPath oldParentPath = oldPath.parentPath();
+			
+			if (oldParentPath == newParentPath)
+			{
+				// move in same directory, name duplication check not needed
+				newPath = oldPath;
+				rowChange = true;
+			}
+		}
+		
+		if (!rowChange)
+		{
+			QString undupedName = unduplicatedChildName(parent, oldPath.last());
+			newPath = newParentPath;
+			newPath << undupedName;
+		}
+		
+		if (copy)
+			new LayerModelCopyCommand(oldPath, newPath, row + i, this, command);
+		else
+			new LayerModelMoveCommand(oldPath, newPath, row + i, this, command);
+	}
 	pushCommand(command);
 }
 
@@ -172,21 +197,23 @@ void LayerModel::renameLayer(const QModelIndex &index, const QString &newName)
 
 void LayerModel::mergeLayers(const QModelIndex &parent, int from, int to)
 {
+	auto parentLayer = layerForIndex(parent);
 	{
-		auto layer = layerForIndex(parent);
-		if (!checkLayer(layer))
+		if (!checkLayer(parentLayer))
 		{
 			qWarning() << Q_FUNC_INFO << ": invalid parent";
 			return;
 		}
-		if (from > to || !layer->contains(from) || !layer->contains(to))
+		if (from > to || !parentLayer->contains(from) || !parentLayer->contains(to))
 		{
 			qWarning() << Q_FUNC_INFO << ": invalid row";
 			return;
 		}
 	}
 	
-	auto command = new LayerModelMergeCommand(pathForIndex(parent), from, to - from + 1, this);
+	QString unduplicatedName = parentLayer->unduplicatedChildName(tr("Merged Layer"));
+	
+	auto command = new LayerModelMergeCommand(pathForIndex(parent), from, to - from + 1, unduplicatedName, this);
 	command->setText(tr("Merge Layers"));
 	
 	pushCommand(command);
@@ -252,7 +279,7 @@ bool LayerModel::setData(const QModelIndex &index, const QVariant &value, int ro
 	if (role == PaintField::RoleName)
 		renameLayer(index, value.toString());
 	else
-		editLayer(index, new FSLayerPropertyEdit(value, role), text);
+		editLayer(index, new LayerPropertyEdit(value, role), text);
 	 
 	return true;
 }
@@ -384,7 +411,7 @@ QModelIndex LayerModel::indexForLayer(const Layer *layer) const
 {
 	if (!checkLayer(layer))
 	{
-		qWarning() << __PRETTY_FUNCTION__ << ": strange layer";
+		PAINTFIELD_PRINT_WARNING("invalid layer");
 		return QModelIndex();
 	}
 	return layer != rootLayer() ? createIndex(layer->row(), 0, const_cast<Layer *>(layer) ) : QModelIndex();
@@ -393,9 +420,9 @@ QModelIndex LayerModel::indexForLayer(const Layer *layer) const
 const Layer *LayerModel::layerForPath(const LayerPath &path) const
 {
 	const Layer *layer = rootLayer();
-	foreach (int index, path)
+	foreach (const QString &name, path)
 	{
-		layer = layer->child(index);
+		layer = layer->child(name);
 		if (!layer)
 			return 0;
 	}
@@ -406,14 +433,14 @@ LayerPath LayerModel::pathForLayer(const Layer *layer) const
 {
 	if (!checkLayer(layer))
 	{
-		qWarning() << __PRETTY_FUNCTION__ << ": strange layer";
+		PAINTFIELD_PRINT_WARNING("invalid layer");
 		return LayerPath();
 	}
 	
 	LayerPath path;
 	while (layer != rootLayer())
 	{
-		path.prepend(layer->row());
+		path.prepend(layer->name());
 		layer = layer->parent();
 	}
 	return path;
@@ -443,10 +470,11 @@ void LayerModel::updateDirtyThumbnails()
 
 void LayerModel::pushCommand(QUndoCommand *command)
 {
-	emit modified();
-	
 	_document->undoStack()->push(command);
-	
+}
+
+void LayerModel::update()
+{
 	if (_skipNextUpdate)
 		_skipNextUpdate = false;
 	else

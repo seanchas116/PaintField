@@ -26,7 +26,7 @@ LayerTreeSidebar::LayerTreeSidebar(LayerModel *model, QWidget *parent) :
 	
 	if (_layerModel)
 	{
-		connect(_layerModel, SIGNAL(modified()), this, SLOT(updatePropertyView()));
+		connect(_layerModel->document(), SIGNAL(modified()), this, SLOT(updatePropertyView()));
 		connect(_layerModel, SIGNAL(currentIndexChanged(QModelIndex,QModelIndex)), this, SLOT(updatePropertyView()));
 		updatePropertyView();
 		_treeView->setSelectionModel(_layerModel->selectionModel());

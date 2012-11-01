@@ -57,7 +57,8 @@ HEADERS += application.h \
            widgets/loosespinbox.h \
            widgets/modulardoublespinbox.h \
            widgets/simplebutton.h \
-           widgets/widgetgroup.h
+           widgets/widgetgroup.h \
+    dialogs/messagebox.h
 FORMS += dialogs/exportdialog.ui dialogs/newdocumentdialog.ui
 SOURCES += application.cpp \
            canvascontroller.cpp \
@@ -92,4 +93,5 @@ SOURCES += application.cpp \
            widgets/loosespinbox.cpp \
            widgets/modulardoublespinbox.cpp \
            widgets/simplebutton.cpp \
-           widgets/widgetgroup.cpp
+           widgets/widgetgroup.cpp \
+    dialogs/messagebox.cpp

@@ -15,61 +15,40 @@ class LayerModel;
 class LayerEdit;
 class LayerModelCommand;
 
-class LayerPath;
-typedef QList<LayerPath> LayerPathList;
-
-class LayerPath : public QVector<int>
+class LayerPath : public QList<QString>
 {
 public:
 	
-	typedef QVector<int> super;
+	typedef QList<QString> super;
 	
 	LayerPath() : super() {}
-	LayerPath(std::initializer_list<int> args) : super(args) {}
+	LayerPath(const LayerPath &other) : super(other) {}
+	LayerPath(std::initializer_list<QString> args) : super(args) {}
 	
 	LayerPath parentPath() const
 	{
-		Q_ASSERT(size());
-		
-		LayerPath result = *this;
-		result.remove(result.size()-1);
+		auto result = *this;
+		result.removeLast();
 		return result;
 	}
 	
-	LayerPath childPath(int row) const
+	QString name() const { return last(); }
+	
+	LayerPath childPath(const QString &child) const
 	{
-		LayerPath result = *this;
-		result << row;
+		auto result = *this;
+		result << child;
 		return result;
 	}
 	
-	int row() const
-	{
-		return last();
-	}
-	
-	bool isAncestorOf(const LayerPath &other) const
-	{
-		if (size() <= other.size())
-			return false;
-		
-		for (int i = 0; i < other.size(); ++i)
-		{
-			if (at(i) != other.at(i))
-				return false;
-		}
-		
-		return true;
-	}
-	
-	LayerPath &operator=(const LayerPath &other)
+	LayerPath &operator=(const super &other)
 	{
 		super::operator=(other);
 		return *this;
 	}
-	
-	static LayerPathList sortLayerPathList(const LayerPathList &paths);
 };
+
+typedef QList<LayerPath> LayerPathList;
 
 
 class ModelRootLayer : public Layer
@@ -96,6 +75,7 @@ class LayerModel : public QAbstractItemModel
 	
 	Q_OBJECT
 public:
+	
 	explicit LayerModel(const LayerList &layers, Document *parent);
 	
 	Document *document() { return _document; }
@@ -156,13 +136,13 @@ public:
 	
 signals:
 	
-	void modified();
 	void tilesUpdated(const QPointSet &tileKeys);
 	void currentIndexChanged(const QModelIndex &current, const QModelIndex &previous);
 	void layerMetadataChanged(const QModelIndex &index);
 	
 public slots:
 	
+	void update();
 	void updateDirtyThumbnails();
 	
 protected:
@@ -173,6 +153,8 @@ protected:
 	void enqueueTileUpdate(const QPointSet &tileKeys) { _updatedTiles |= tileKeys; }
 	
 private:
+	
+	void copyOrMoveLayers(const QModelIndexList &indexes, const QModelIndex &parent, int row, bool copy);
 	
 	QString unduplicatedChildName(const QModelIndex &index, const QString &name) const;
 	

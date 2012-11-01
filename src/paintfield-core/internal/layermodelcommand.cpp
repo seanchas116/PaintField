@@ -6,37 +6,6 @@
 namespace PaintField
 {
 
-void LayerModelCommand::insertLayer(Layer *parent, int row, Layer *layer)
-{
-	beginInsertLayers(parent, row, row);
-	parent->insertChild(row, layer);
-	endInsertLayers();
-}
-
-Layer *LayerModelCommand::takeLayer(Layer *parent, int row)
-{
-	beginRemoveLayers(parent, row, row);
-	auto layer = parent->takeChild(row);
-	endRemoveLayers();
-	return layer;
-}
-
-void LayerModelCommand::emitDataChanged(Layer *layer)
-{
-	auto index = _model->indexForLayer(layer);
-	_model->emitDataChanged(index, index);
-}
-
-void LayerModelCommand::emitDataChanged(Layer *parent, int start, int end)
-{
-	if (start > end)
-		qSwap(start, end);
-	
-	auto startIndex = _model->indexForLayer(parent->child(start));
-	auto endIndex = _model->indexForLayer(parent->child(end));
-	_model->emitDataChanged(startIndex, endIndex);
-}
-
 LayerModelEditCommand::LayerModelEditCommand(const LayerPath &path, LayerEdit *edit, LayerModel *document, QUndoCommand *parent) :
     LayerModelCommand(document, parent),
     _path(path),
@@ -78,114 +47,112 @@ void LayerModelEditCommand::undo()
 }
 
 
+LayerModelAddCommand::LayerModelAddCommand(Layer *layer, const LayerPath &newParentPath, int newRow, LayerModel *document, QUndoCommand *parent) :
+    LayerModelCommand(document, parent),
+	_layer(layer),
+    _newParentPath(newParentPath),
+    _newRow(newRow)
+{
+	Q_ASSERT(layer);
+	layer->updateThumbnailRecursive(model()->document()->size());
+}
+
 void LayerModelAddCommand::redo()
 {
-	insertLayer(layerForPath(_parentPath), _row, _layer.take());
+	auto parent = layerForPath(_newParentPath);
+	enqueueTileUpdate(_layer->surface().keys());
+	insertLayer(parent, _newRow, _layer.take());
 }
 
 void LayerModelAddCommand::undo()
 {
-	_layer.reset(takeLayer(layerForPath(_parentPath), _row));
+	auto parent = layerForPath(_newParentPath);
+	_layer.reset(takeLayer(parent, _newRow));
+	enqueueTileUpdate(_layer->tileKeysRecursive());
 }
 
-LayerModelMultipleAddCommand::LayerModelMultipleAddCommand(const LayerList &layers, const LayerPath &parentPath, int row, LayerModel *model, QUndoCommand *parent) :
-	QUndoCommand(parent)
-{
-	for (Layer *layer : layers)
-		new LayerModelAddCommand(layer, parentPath, row++, model, this);
-}
 
 void LayerModelRemoveCommand::redo()
 {
-	_layer.reset(takeLayer(layerForPath(_parentPath), _row));
+	_layer.reset(layerForPath(_path));
+	_row = _layer->row();
+	
+	takeLayer(_layer->parent(), _row);
+	
+	enqueueTileUpdate(_layer->tileKeysRecursive());
 }
 
 void LayerModelRemoveCommand::undo()
 {
-	insertLayer(layerForPath(_parentPath), _row, _layer.take());
-}
-
-LayerModelMultipleRemoveCommand::LayerModelMultipleRemoveCommand(const LayerPathList &paths, LayerModel *model, QUndoCommand *parent) :
-	QUndoCommand(parent)
-{
-	LayerPathList sorted = LayerPath::sortLayerPathList(paths);
+	enqueueTileUpdate(_layer->tileKeysRecursive());
 	
-	for (const LayerPath &path : Malachite::reverseContainer(sorted))
-		new LayerModelRemoveCommand(path.parentPath(), path.row(), model, this);
+	insertLayer(layerForPath(_path.parentPath()), _row, _layer.take());
 }
 
-void LayerModelCopyCommand::redo()
-{
-	auto layer = layerForPath(_oldParentPath)->child(_oldRow)->cloneRecursive();
-	insertLayer(layerForPath(_newParentPath), _newRow, layer);
-}
 
-void LayerModelCopyCommand::undo()
+LayerModelMoveCommand::LayerModelMoveCommand(const LayerPath &oldPath, const LayerPath &newPath, int newRow, LayerModel *document, QUndoCommand *parent) :
+	LayerModelCommand(document, parent),
+	_newParentPath(newPath.parentPath()),
+	_oldParentPath(oldPath.parentPath()),
+	_newRow(newRow),
+	_newName(newPath.name()),
+	_oldName(oldPath.name())
 {
-	delete takeLayer(layerForPath(_newParentPath), _newRow);
-}
-
-LayerModelMultipleCopyCommand::LayerModelMultipleCopyCommand(const LayerPathList &paths, const LayerPath &newParentPath, int newRow, LayerModel *model, QUndoCommand *parent) :
-	QUndoCommand(parent)
-{
-	LayerPathList sorted = LayerPath::sortLayerPathList(paths);
+	_oldRow = layerForPath(oldPath)->row();
 	
-	int i = 0;
-	for (LayerPath path : Malachite::reverseContainer(sorted))
-	{
-		if (path.isAncestorOf(newParentPath) && path.at(newParentPath.size()) > newRow)
-			path[newParentPath.size()] += i;
-		
-		new LayerModelCopyCommand(path.parentPath(), path.row(), newParentPath, newRow, model, this);
-		i++;
-	}
+	if (_newParentPath == _oldParentPath && _newRow > _oldRow)
+		_newRow--;
 }
 
 void LayerModelMoveCommand::redo()
 {
-	move(layerForPath(_oldParentPath), _oldRow, layerForPath(_newParentPath), _newRow);
+	if (noMove())
+		return;
+	
+	auto layer = takeLayer(layerForPath(_oldParentPath), _oldRow);
+	
+	layer->setName(_newName);
+	
+	insertLayer(layerForPath(_newParentPath), _newRow, layer);
+	
+	enqueueTileUpdate(layer->tileKeysRecursive());
 }
 
 void LayerModelMoveCommand::undo()
 {
-	move(layerForPath(_newParentPath), _newRow, layerForPath(_oldParentPath), _oldRow);
-}
-
-void LayerModelMoveCommand::move(Layer *oldParent, int oldRow, Layer *newParent, int newRow)
-{
-	if (oldParent == newParent)
-	{
-		if (oldRow != newRow)
-		{
-			oldParent->shiftChildren(newRow, oldRow, 1);
-			emitDataChanged(oldParent, newRow, oldRow);
-		}
+	if (noMove())
 		return;
-	}
 	
-	auto layer = takeLayer(oldParent, oldRow);
-	insertLayer(newParent, newRow, layer);
+	auto layer = takeLayer(layerForPath(_newParentPath), _newRow);
+	
+	layer->setName(_oldName);
+	
+	insertLayer(layerForPath(_oldParentPath), _oldRow, layer);
+	
+	enqueueTileUpdate(layer->tileKeysRecursive());
 }
 
-LayerModelMultipleMoveCommand::LayerModelMultipleMoveCommand(const LayerPathList &paths, const LayerPath &newParentPath, int newRow, LayerModel *model, QUndoCommand *parent) :
-	QUndoCommand(parent)
+void LayerModelCopyCommand::redo()
 {
-	LayerPathList sorted = LayerPath::sortLayerPathList(paths);
+	auto parent = layerForPath(_newParentPath);
+	auto clone = layerForPath(_path)->cloneRecursive();
 	
-	int i = 0;
-	LayerPath newPath = newParentPath.childPath(newRow);
-	for (LayerPath path : Malachite::reverseContainer(sorted))
-	{
-		if (path.isAncestorOf(newParentPath) && path.at(newParentPath.size()) > newRow)
-			path[newParentPath.size()] += i;
-		
-		new LayerModelMoveCommand(path.parentPath(), path.row(), newPath.parentPath(), newPath.row(), model, this);
-		i++;
-		
-		if (newPath.isAncestorOf(path.parentPath()) && newPath.at(path.parentPath().size()) > path.row())
-			newPath[path.parentPath().size()]++;
-	}
+	clone->setName(_newName);
+	
+	insertLayer(parent, _newRow, clone);
+	
+	enqueueTileUpdate(clone->tileKeysRecursive());
 }
+
+void LayerModelCopyCommand::undo()
+{
+	auto parent = layerForPath(_newParentPath);
+	
+	QScopedPointer<Layer> layer(takeLayer(parent, _newRow));
+	
+	enqueueTileUpdate(layer->tileKeysRecursive());
+}
+
 
 LayerModelMergeCommand::~LayerModelMergeCommand()
 {
@@ -201,8 +168,9 @@ void LayerModelMergeCommand::redo()
 	
 	LayerRenderer renderer;
 	
-	RasterLayer *newLayer = new RasterLayer(QObject::tr("Merged Layer"));
+	RasterLayer *newLayer = new RasterLayer(_name);
 	newLayer->setSurface(renderer.renderToSurface(Malachite::constList(_oldLayers)));
+	newLayer->updateThumbnail(model()->document()->size());
 	
 	insertLayer(parent, _row, newLayer);
 }

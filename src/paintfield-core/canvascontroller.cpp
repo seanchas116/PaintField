@@ -6,6 +6,7 @@
 #include "workspacecontroller.h"
 #include "module.h"
 
+#include "dialogs/messagebox.h"
 #include "dialogs/exportdialog.h"
 #include "dialogs/newdocumentdialog.h"
 #include "canvasview.h"
@@ -24,6 +25,14 @@ CanvasController::CanvasController(Document *document, WorkspaceController *pare
 	_actions << createAction("paintfield.file.save", this, SLOT(saveCanvas()));
 	_actions << createAction("paintfield.file.saveAs", this, SLOT(saveAsCanvas()));
 	_actions << createAction("paintfield.file.close", this, SLOT(closeCanvas()));
+	
+	auto undoAction  = document->undoStack()->createUndoAction(this);
+	undoAction->setObjectName("paintfield.edit.undo");
+	_actions << undoAction;
+	
+	auto redoAction = document->undoStack()->createRedoAction(this);
+	redoAction->setObjectName("paintfield.edit.redo");
+	_actions << redoAction;
 }
 
 CanvasView *CanvasController::createView(QWidget *parent)
@@ -94,7 +103,7 @@ bool CanvasController::saveAsCanvas()
 	QFileInfo dirInfo(fileInfo.dir().path());
 	if (!dirInfo.isWritable())
 	{
-		QMessageBox::warning(workspace()->view(), tr("The specified folder is not writable."), tr("Save in another folder."));
+		showMessageBox(QMessageBox::Warning, tr("The specified folder is not writable."), tr("Save in another folder."));
 		return false;
 	}
 	
@@ -133,11 +142,11 @@ bool CanvasController::closeCanvas()
 	
 	if (document->isModified())
 	{
-		auto ret = QMessageBox::question(workspace()->view(),
-										 tr("Do you want to save your changes?"),
-										 tr("The changes will be lost if you don't save them."),
-										 QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel,
-										 QMessageBox::Save);
+		int ret = showMessageBox(QMessageBox::NoIcon,
+								 tr("Do you want to save your changes?"),
+								 tr("The changes will be lost if you don't save them."),
+								 QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel,
+								 QMessageBox::Save);
 		
 		switch (ret)
 		{

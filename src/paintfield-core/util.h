@@ -126,7 +126,6 @@ QVariant loadJsonFromFile(const QString &path);
 
 void applyMacSmallSize(QWidget *widget);
 
-
 }
 
 #endif // UTIL_H

@@ -15,6 +15,7 @@
 namespace PaintField
 {
 
+
 class Layer;
 typedef QList<Layer *> LayerList;
 typedef QList<const Layer *> LayerConstList;
@@ -220,13 +221,13 @@ public:
 	virtual void updateThumbnail(const QSize &size);
 	
 	/**
-	 * Updates the thumbnail of each of ths and this ancestor layers.
+	 * Updates the thumbnail of each of ths and this descendant layers.
 	 * @param size
 	 */
 	void updateThumbnailRecursive(const QSize &size);
 	
 	/**
-	 * Updates the thumbnail of each of ths and this ancestor layers, if its isThumbnailDirty() is true.
+	 * Updates the thumbnail of each of ths and this descendant layers, if its isThumbnailDirty() is true.
 	 * @param size
 	 */
 	void updateDirtyThumbnailRecursive(const QSize &size);

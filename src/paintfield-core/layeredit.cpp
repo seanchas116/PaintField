@@ -18,35 +18,35 @@ void LayerEdit::redo(Layer */*layer*/)
 void LayerEdit::undo(Layer */*layer*/)
 {}
 
-FSLayerPropertyEdit::FSLayerPropertyEdit(const QVariant &property, int role) :
+LayerPropertyEdit::LayerPropertyEdit(const QVariant &property, int role) :
       LayerEdit(),
       _newProperty(property),
       _role(role)
 {}
 
-void FSLayerPropertyEdit::saveUndoState(const Layer *layer)
+void LayerPropertyEdit::saveUndoState(const Layer *layer)
 {
 	_oldProperty = layer->property(_role);
 }
 
-void FSLayerPropertyEdit::redo(Layer *layer)
+void LayerPropertyEdit::redo(Layer *layer)
 {
 	layer->setProperty(_newProperty, _role);
 }
 
-void FSLayerPropertyEdit::undo(Layer *layer)
+void LayerPropertyEdit::undo(Layer *layer)
 {
 	layer->setProperty(_oldProperty, _role);
 }
 
-FSLayerSurfaceEdit::FSLayerSurfaceEdit(const Surface &surface, const QPointSet &tileKeys) :
+LayerSurfaceEdit::LayerSurfaceEdit(const Surface &surface, const QPointSet &tileKeys) :
 	LayerEdit(),
 	_surface(surface)
 {
 	setModifiedKeys(tileKeys);
 }
 
-void FSLayerSurfaceEdit::redo(Layer *layer)
+void LayerSurfaceEdit::redo(Layer *layer)
 {
 	RasterLayer *rasterLayer = dynamic_cast<RasterLayer *>(layer);
 	Q_ASSERT(rasterLayer);
@@ -56,7 +56,7 @@ void FSLayerSurfaceEdit::redo(Layer *layer)
 	_surface = surface;
 }
 
-void FSLayerSurfaceEdit::undo(Layer *layer)
+void LayerSurfaceEdit::undo(Layer *layer)
 {
 	RasterLayer *rasterLayer = dynamic_cast<RasterLayer *>(layer);
 	Q_ASSERT(rasterLayer);

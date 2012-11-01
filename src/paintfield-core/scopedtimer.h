@@ -17,7 +17,7 @@ public:
 	
 	~ScopedTimer()
 	{
-		qDebug() << _functionName << "took" << _timer.elapsed() << "ms";
+		qDebug() << _functionName.toLocal8Bit() << "took" << _timer.elapsed() << "ms";
 	}
 	
 private:

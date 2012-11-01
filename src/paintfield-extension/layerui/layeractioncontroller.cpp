@@ -13,10 +13,14 @@ LayerActionController::LayerActionController(CanvasController *parent) :
     _model(parent->document()->layerModel())
 {
 	_importAction = createAction("paintfield.layer.import", this, SLOT(importLayer()));
+	_importAction->setText(tr("Import..."));
 	_newRasterAction = createAction("paintfield.layer.newRaster", this, SLOT(newRasterLayer()));
+	_newRasterAction->setText(tr("New Layer"));
 	_newGroupAction = createAction("paintfield.layer.newGroup", this, SLOT(newGroupLayer()));
+	_newGroupAction->setText(tr("New Group"));
 	//_actionsForLayers << actionManager->addAction("paintfield.layer.remove", this, SLOT(removeLayers()));
 	_mergeAction = createAction("paintfield.layer.merge", this, SLOT(mergeLayers()));
+	_mergeAction->setText(tr("Merge"));
 }
 
 void LayerActionController::importLayer()

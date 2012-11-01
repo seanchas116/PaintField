@@ -33,10 +33,10 @@ private:
 	QPointSet _modifiedKeys;
 };
 
-class FSLayerPropertyEdit : public LayerEdit
+class LayerPropertyEdit : public LayerEdit
 {
 public:
-	FSLayerPropertyEdit(const QVariant &property, int role);
+	LayerPropertyEdit(const QVariant &property, int role);
 	void saveUndoState(const Layer *layer);
 	void redo(Layer *layer);
 	void undo(Layer *layer);
@@ -46,10 +46,10 @@ private:
 	int _role;
 };
 
-class FSLayerSurfaceEdit : public LayerEdit
+class LayerSurfaceEdit : public LayerEdit
 {
 public:
-	FSLayerSurfaceEdit(const Malachite::Surface &surface, const QPointSet &tileKeys);
+	LayerSurfaceEdit(const Malachite::Surface &surface, const QPointSet &tileKeys);
 	void redo(Layer *layer);
 	void undo(Layer *layer);
 	
