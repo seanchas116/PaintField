@@ -28,7 +28,7 @@ Tool *BrushToolModule::createTool(const QString &name, CanvasView *parent)
 	return 0;
 }
 
-QWidget *BrushToolModule::createSidebar(const QString &name)
+QWidget *BrushToolModule::createSideBar(const QString &name)
 {
 	if (name == _brushSidebarName)
 		return new BrushSettingSidebar(&_setting);
@@ -39,13 +39,13 @@ void BrushToolModuleFactory::initialize(Application *app)
 {
 	{
 		QString text = QObject::tr("Brush");
-		QIcon icon = SimpleButton::createSimpleIconSet(":/icons/24x24/brush.svg");
+		QIcon icon = SimpleButton::createSimpleIconSet(":/icons/24x24/brush.svg", QSize(24,24));
 		QVector<int> supportedTypes = { Layer::TypeRaster };
-		app->declareTool(_brushToolName, ToolInfo(text, icon, supportedTypes));
+		app->declareTool(_brushToolName, ToolDeclaration(text, icon, supportedTypes));
 	}
 	{
 		QString text = QObject::tr("Brush Settings");
-		app->declareSidebar(_brushSidebarName, SidebarInfo(text));
+		app->declareSideBar(_brushSidebarName, SidebarDeclaration(text));
 	}
 }
 

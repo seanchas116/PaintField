@@ -3,6 +3,7 @@
 
 #include <QToolButton>
 #include <QMargins>
+#include <QPixmap>
 
 namespace PaintField
 {
@@ -15,7 +16,7 @@ class SimpleButton : public QToolButton
 public:
 	explicit SimpleButton(QWidget *parent = 0);
 	SimpleButton(const QIcon &icon, QWidget *parent = 0);
-	SimpleButton(const QString &basePixmapFile, QWidget *parent = 0);
+	SimpleButton(const QString &basePixmapFile, const QSize &size, QWidget *parent = 0);
 	
 	QSize sizeHint() const;
 	
@@ -23,8 +24,8 @@ public:
 	void setMargins(int left, int top, int right, int bottom) { setMargins(QMargins(left, top, right, bottom)); }
 	QMargins margin() const { return _margins; }
 	
-	static QIcon createSimpleIconSet(const QString &basePixmapFile);
-	static QIcon createSimpleIconSet(const QPixmap &basePixmap);
+	static QIcon createSimpleIconSet(const QString &basePixmapFile, const QSize &size);
+	static QIcon createSimpleIconSet(const QPixmap &basePixmap, const QSize &size);
 	
 signals:
 	
@@ -38,10 +39,8 @@ protected:
 	
 private:
 	
-	void commonInit();
-	
 	QMargins _margins;
-	bool _active;
+	bool _active = false;
 };
 
 }

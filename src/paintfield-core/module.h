@@ -43,7 +43,7 @@ public:
 	 * @param name
 	 * @return 
 	 */
-	virtual QWidget *createSidebar(const QString &name);
+	virtual QWidget *createSideBar(const QString &name);
 	
 	/**
 	 * Updates a toolbar.
@@ -106,8 +106,8 @@ private:
 typedef QList<AppModule *> AppModuleList;
 
 Tool *createTool(const AppModuleList &appModules, const WorkspaceModuleList &workspaceModules, const CanvasModuleList &canvasModules, const QString &name, CanvasView *view);
-QWidget *createSidebarForWorkspace(const AppModuleList &appModules, const WorkspaceModuleList &workspaceModules, const QString &name);
-QWidget *createSidebarForCanvas(const CanvasModuleList &canvasModules, const QString &name);
+QWidget *createSideBarForWorkspace(const AppModuleList &appModules, const WorkspaceModuleList &workspaceModules, const QString &name);
+QWidget *createSideBarForCanvas(const CanvasModuleList &canvasModules, const QString &name);
 void updateToolBar(const AppModuleList &appModules, const WorkspaceModuleList &workspaceModules, const CanvasModuleList &canvasModules, QToolBar *toolBar, const QString &name);
 
 class ModuleFactory

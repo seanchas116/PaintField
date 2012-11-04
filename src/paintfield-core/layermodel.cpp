@@ -11,6 +11,23 @@
 namespace PaintField
 {
 
+class DuplicatedNameResolver
+{
+public:
+	DuplicatedNameResolver(const QStringList &existingNames) : _existingNames(existingNames) {}
+	
+	QString resolve(const QString &name)
+	{
+		QString newName = unduplicatedName(_existingNames, name);
+		_existingNames << newName;
+		return newName;
+	}
+	
+private:
+	
+	QStringList _existingNames;
+};
+
 LayerModel::LayerModel(const LayerList &layers, Document *parent) :
     QAbstractItemModel(parent),
     _document(parent),
@@ -51,12 +68,11 @@ void LayerModel::addLayers(QList<Layer *> layers, const QModelIndex &parent, int
 	
 	auto command = new QUndoCommand(description);
 	
-	auto parentLayer = layerForIndex(parent);
+	DuplicatedNameResolver nameResolver(childNames(parent));
 	
 	for (int i = 0; i < layers.size(); ++i)
 	{
-		QString unduplicatedName = parentLayer->unduplicatedChildName(layers.at(i)->name());
-		layers.at(i)->setName(unduplicatedName);
+		layers.at(i)->setName(nameResolver.resolve(layers.at(i)->name()));
 		new LayerModelAddCommand(layers.at(i), pathForIndex(parent), row + i, this, command);
 	}
 	
@@ -138,6 +154,8 @@ void LayerModel::copyOrMoveLayers(const QModelIndexList &indexes, const QModelIn
 	
 	LayerPath newParentPath = pathForIndex(parent);
 	
+	DuplicatedNameResolver nameResolver(childNames(parent));
+	
 	for (int i = 0; i < indexes.size(); ++i)
 	{
 		QModelIndex index = indexes.at(i);
@@ -148,29 +166,13 @@ void LayerModel::copyOrMoveLayers(const QModelIndexList &indexes, const QModelIn
 			continue;
 		}
 		
-		LayerPath oldPath, newPath;
-		oldPath = pathForIndex(index);
+		LayerPath oldPath = pathForIndex(index);
+		LayerPath newPath;
 		
-		bool rowChange = false;
-		
-		if (!copy)
-		{
-			LayerPath oldParentPath = oldPath.parentPath();
-			
-			if (oldParentPath == newParentPath)
-			{
-				// move in same directory, name duplication check not needed
-				newPath = oldPath;
-				rowChange = true;
-			}
-		}
-		
-		if (!rowChange)
-		{
-			QString undupedName = unduplicatedChildName(parent, oldPath.last());
-			newPath = newParentPath;
-			newPath << undupedName;
-		}
+		if (!copy && oldPath.parentPath() == newParentPath)
+			newPath = oldPath;
+		else
+			newPath = newParentPath.childPath(nameResolver.resolve(oldPath.name()));
 		
 		if (copy)
 			new LayerModelCopyCommand(oldPath, newPath, row + i, this, command);
@@ -188,9 +190,8 @@ void LayerModel::renameLayer(const QModelIndex &index, const QString &newName)
 		return;
 	}
 	
-	QString unduplicatedName = unduplicatedChildName(index.parent(), newName);
-	
-	auto command = new LayerModelPropertyChangeCommand(pathForIndex(index), unduplicatedName, PaintField::RoleName, this);
+	DuplicatedNameResolver nameResolver(childNames(index.parent()));
+	auto command = new LayerModelPropertyChangeCommand(pathForIndex(index), nameResolver.resolve(newName), PaintField::RoleName, this);
 	command->setText(tr("Rename Layer"));
 	pushCommand(command);
 }
@@ -211,28 +212,20 @@ void LayerModel::mergeLayers(const QModelIndex &parent, int from, int to)
 		}
 	}
 	
-	QString unduplicatedName = parentLayer->unduplicatedChildName(tr("Merged Layer"));
+	DuplicatedNameResolver nameResolver(parentLayer->childNames());
 	
-	auto command = new LayerModelMergeCommand(pathForIndex(parent), from, to - from + 1, unduplicatedName, this);
+	auto command = new LayerModelMergeCommand(pathForIndex(parent), from, to - from + 1, nameResolver.resolve(tr("Merged Layer")), this);
 	command->setText(tr("Merge Layers"));
 	
 	pushCommand(command);
 }
-
-QString LayerModel::unduplicatedChildName(const QModelIndex &index, const QString &name) const
-{
-	const Layer *layer = layerForIndex(index);
-	if (!layer) return QString();
-	
-	return layer->unduplicatedChildName(name);
-}
-
 QVariant LayerModel::data(const QModelIndex &index, int role) const
 {
 	if (!index.isValid() )
 		return QVariant();
 	
-	switch (role) {
+	switch (role)
+	{
 	case Qt::EditRole:
 	case Qt::DisplayRole:
 		role = PaintField::RoleName;
@@ -244,8 +237,7 @@ QVariant LayerModel::data(const QModelIndex &index, int role) const
 		break;
 	}
 	
-	const Layer *layer = layerForIndex(index);
-	return layer->property(role);
+	return layerForIndex(index)->property(role);
 }
 
 bool LayerModel::setData(const QModelIndex &index, const QVariant &value, int role)
@@ -257,10 +249,11 @@ bool LayerModel::setData(const QModelIndex &index, const QVariant &value, int ro
 {
 	QString text = description;
 	
-	if (!index.isValid() )
+	if (!index.isValid())
 		return false;
 	
-	switch (role) {
+	switch (role)
+	{
 	case Qt::EditRole:
 	case Qt::DisplayRole:
 		role = PaintField::RoleName;

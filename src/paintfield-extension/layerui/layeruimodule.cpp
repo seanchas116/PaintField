@@ -26,7 +26,7 @@ LayerUIModule::LayerUIModule(CanvasController *canvas, QObject *parent) :
 	}
 }
 
-QWidget *LayerUIModule::createSidebar(const QString &name)
+QWidget *LayerUIModule::createSideBar(const QString &name)
 {
 	if (name == _layerTreeSidebarName)
 	{
@@ -66,7 +66,7 @@ void LayerUIModuleFactory::initialize(Application *app)
 	app->declareAction("paintfield.layer.import", QObject::tr("Import..."));
 	app->declareAction("paintfield.layer.merge", QObject::tr("Merge"));
 	
-	app->declareSidebar(_layerTreeSidebarName, SidebarInfo(QObject::tr("Layers")));
+	app->declareSideBar(_layerTreeSidebarName, SidebarDeclaration(QObject::tr("Layers")));
 }
 
 }

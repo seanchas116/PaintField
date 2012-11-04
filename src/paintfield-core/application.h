@@ -7,6 +7,7 @@
 #include "util.h"
 #include "palettemanager.h"
 #include "workspacemanager.h"
+#include "global.h"
 
 namespace PaintField
 {
@@ -14,41 +15,6 @@ namespace PaintField
 class ModuleManager;
 class AppModule;
 class ModuleFactory;
-
-struct ToolInfo
-{
-	ToolInfo() {}
-	ToolInfo(const QString &text, const QIcon &icon, const QVector<int> &supportedLayerTypes) : text(text), icon(icon), supportedLayerTypes(supportedLayerTypes) {}
-	QString text;
-	QIcon icon;
-	QVector<int> supportedLayerTypes;
-};
-typedef QHash<QString, ToolInfo> ToolInfoHash;
-
-struct ActionInfo
-{
-	ActionInfo() {}
-	ActionInfo(const QString &text, const QKeySequence &defaultShortcut = QKeySequence()) : text(text), shortcut(defaultShortcut) {}
-	QString text;
-	QKeySequence shortcut;
-};
-typedef QHash<QString, ActionInfo> ActionInfoHash;
-
-struct SidebarInfo
-{
-	SidebarInfo() {}
-	SidebarInfo(const QString &text) : text(text) {}
-	QString text;
-};
-typedef QHash<QString, SidebarInfo> SidebarInfoHash;
-
-struct ToolbarInfo
-{
-	ToolbarInfo() {}
-	ToolbarInfo(const QString &text) : text(text) {}
-	QString text;
-};
-typedef QHash<QString, ToolbarInfo> ToolbarInfoHash;
 
 class Application : public TabletApplication
 {
@@ -77,23 +43,23 @@ public:
 	ModuleManager *moduleManager() { return _moduleManager; }
 	void addModuleFactory(ModuleFactory *factory);
 	
-	void declareTool(const QString &name, const ToolInfo &info) { _toolInfoHash[name] = info; }
-	void declareAction(const QString &name, const ActionInfo &info) { _actionInfoHash[name] = info; }
-	void declareSidebar(const QString &name, const SidebarInfo &info) { _sidebarInfoHash[name] = info; }
-	void declareToolbar(const QString &name, const ToolbarInfo &info) { _toolbarInfoHash[name] = info; }
+	void declareTool(const QString &name, const ToolDeclaration &info) { _toolDeclarationHash[name] = info; }
+	void declareAction(const QString &name, const ActionDeclaration &info) { _actionDeclarationHash[name] = info; }
+	void declareSideBar(const QString &name, const SidebarDeclaration &info) { _sideBarDeclarationHash[name] = info; }
+	void declareToolbar(const QString &name, const ToolbarDeclaration &info) { _toolbarInfoHash[name] = info; }
+	void declareMenu(const QString &id, const MenuDeclaration &info) { _menuDeclarationHash[id] = info; }
 	
-	ToolInfoHash toolInfoHash() const { return _toolInfoHash; }
-	ActionInfoHash actionInfoHash() const { return _actionInfoHash; }
-	SidebarInfoHash sidebarInfoHash() const { return _sidebarInfoHash; }
-	ToolbarInfoHash toolBarInfoHash() const { return _toolbarInfoHash; }
+	ToolDeclarationHash toolDeclarationHash() const { return _toolDeclarationHash; }
+	ActionDeclarationHash actionDeclarationHash() const { return _actionDeclarationHash; }
+	SideBarDeclarationHash sideBarDeclarationHash() const { return _sideBarDeclarationHash; }
+	ToolBarDeclarationHash toolBarDeclarationHash() const { return _toolbarInfoHash; }
+	MenuDeclarationHash menuDeclarationHash() const { return _menuDeclarationHash; }
 	
-	QStringList toolNames() const { return _toolInfoHash.keys(); }
-	QStringList actionNames() const { return _actionInfoHash.keys(); }
-	QStringList sidebarNames() const { return _sidebarInfoHash.keys(); }
+	QStringList toolNames() const { return _toolDeclarationHash.keys(); }
+	QStringList actionNames() const { return _actionDeclarationHash.keys(); }
+	QStringList sidebarNames() const { return _sideBarDeclarationHash.keys(); }
 	QStringList toolbarNames() const { return _toolbarInfoHash.keys(); }
-	
-	void declareMenu(const QString &id, const QString &text) { _menuHash[id] = text; }
-	QHash<QString, QString> menuHash() const { return _menuHash; }
+	QStringList menuNames() const { return _menuDeclarationHash.keys(); }
 	
 	void overrideActionShortcut(const QString &name, const QKeySequence &shortcut);
 	
@@ -116,12 +82,12 @@ private:
 	WorkspaceManager *_workspaceManager = 0;
 	
 	QVariant _menuBarOrder, _workspaceItemOrder;
-	QHash<QString, QString> _menuHash;
 	
-	ToolInfoHash _toolInfoHash;
-	ActionInfoHash _actionInfoHash;
-	SidebarInfoHash _sidebarInfoHash;
-	ToolbarInfoHash _toolbarInfoHash;
+	ToolDeclarationHash _toolDeclarationHash;
+	ActionDeclarationHash _actionDeclarationHash;
+	SideBarDeclarationHash _sideBarDeclarationHash;
+	ToolBarDeclarationHash _toolbarInfoHash;
+	MenuDeclarationHash _menuDeclarationHash;
 	
 	ModuleManager *_moduleManager = 0;
 	

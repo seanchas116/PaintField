@@ -266,10 +266,10 @@ ColorSidebar::ColorSidebar(QWidget *parent) :
 	
 	QHBoxLayout *buttonLayout = new QHBoxLayout();
 	
-	SimpleButton *wheelButton = new SimpleButton(":/icons/24x24/colorWheel.svg"),
-			*sliderButton = new SimpleButton(":/icons/24x24/colorSlider.svg"),
-			*webButton = new SimpleButton(":/icons/24x24/webColor.svg"),
-			*dialogButton = new SimpleButton(":/icons/24x24/colorDialog.svg");
+	SimpleButton *wheelButton = new SimpleButton(":/icons/24x24/colorWheel.svg", QSize(24,24)),
+			*sliderButton = new SimpleButton(":/icons/24x24/colorSlider.svg", QSize(24,24)),
+			*webButton = new SimpleButton(":/icons/24x24/webColor.svg", QSize(24,24)),
+			*dialogButton = new SimpleButton(":/icons/24x24/colorDialog.svg", QSize(24,24));
 	
 	wheelButton->setCheckable(true);
 	sliderButton->setCheckable(true);

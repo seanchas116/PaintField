@@ -12,7 +12,7 @@ class ColorUIModule : public WorkspaceModule
 public:
 	ColorUIModule(WorkspaceController *workspace, QObject *parent);
 	
-	QWidget *createSidebar(const QString &name) override;
+	QWidget *createSideBar(const QString &name) override;
 	
 signals:
 	

@@ -37,10 +37,12 @@ SOURCES += main.cpp \
     autotest.cpp \
     test_documentio.cpp \
     test_document.cpp \
-    testutil.cpp
+    testutil.cpp \
+    testobject.cpp
 
 HEADERS += \
     autotest.h \
     test_documentio.h \
     test_document.h \
-    testutil.h
+    testutil.h \
+    testobject.h

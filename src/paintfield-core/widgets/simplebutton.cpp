@@ -4,9 +4,9 @@
 namespace PaintField
 {
 
-QIcon SimpleButton::createSimpleIconSet(const QString &basePixmapFile)
+QIcon SimpleButton::createSimpleIconSet(const QString &basePixmapFile, const QSize &size)
 {
-	return createSimpleIconSet(QPixmap(basePixmapFile));
+	return createSimpleIconSet(QPixmap(basePixmapFile), size);
 }
 
 void paintPixmapWithColor(QPixmap *pixmap, const QColor &color)
@@ -18,8 +18,10 @@ void paintPixmapWithColor(QPixmap *pixmap, const QColor &color)
 	painter.drawRect(pixmap->rect());
 }
 
-QIcon SimpleButton::createSimpleIconSet(const QPixmap &basePixmap)
+QIcon SimpleButton::createSimpleIconSet(const QPixmap &originalPixmap, const QSize &size)
 {
+	QPixmap basePixmap = originalPixmap.scaled(size);
+	
 	if (basePixmap.isNull())
 	{
 		qWarning() << "fsCreateSimpleIconSet: basePixmap is null";
@@ -49,35 +51,26 @@ QIcon SimpleButton::createSimpleIconSet(const QPixmap &basePixmap)
 SimpleButton::SimpleButton(QWidget *parent) :
 	QToolButton(parent)
 {
-	commonInit();
+	setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+	setPopupMode(QToolButton::InstantPopup);
 }
 
 SimpleButton::SimpleButton(const QIcon &icon, QWidget *parent) :
-	QToolButton(parent)
+	SimpleButton(parent)
 {
 	setIcon(icon);
-	commonInit();
 }
 
-SimpleButton::SimpleButton(const QString &basePixmapFile, QWidget *parent) :
-	QToolButton(parent)
+SimpleButton::SimpleButton(const QString &basePixmapFile, const QSize &size, QWidget *parent) :
+	SimpleButton(parent)
 {
-	QIcon icon = createSimpleIconSet(basePixmapFile);
+	QIcon icon = createSimpleIconSet(basePixmapFile, size);
 	
 	if (!icon.isNull())
 	{
-		setIcon(createSimpleIconSet(basePixmapFile));
+		setIcon(icon);
 		setIconSize(icon.availableSizes().at(0));
 	}
-	
-	commonInit();
-}
-
-void SimpleButton::commonInit()
-{
-	_active = false;
-	setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-	setPopupMode(QToolButton::InstantPopup);
 }
 
 QSize SimpleButton::sizeHint() const

@@ -10,6 +10,7 @@
 #include <Malachite/BlendMode>
 #include <Malachite/Container>
 
+#include "util.h"
 #include "global.h"
 
 namespace PaintField
@@ -182,7 +183,9 @@ public:
 	 * @param name A base name (eg "Layer")
 	 * @return The unduplicated child name
 	 */
-	QString unduplicatedChildName(const QString &name) const;
+	QString unduplicatedChildName(const QString &name) const { return unduplicatedName(childNames(), name); }
+	
+	QStringList childNames() const;
 	
 	/**
 	 * Sets a property.

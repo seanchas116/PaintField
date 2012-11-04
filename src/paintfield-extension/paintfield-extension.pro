@@ -30,7 +30,6 @@ HEADERS += \
            layerui/layermodelviewdelegate.h \
            layerui/layertreesidebar.h \
            layerui/layeruimodule.h \
-           toolui/toolsidebar.h \
            toolui/tooluimodule.h \
            basictool/brush/brushsetting.h \
            basictool/brush/brushsettingsidebar.h \
@@ -48,7 +47,6 @@ SOURCES += \
            layerui/layermodelviewdelegate.cpp \
            layerui/layertreesidebar.cpp \
            layerui/layeruimodule.cpp \
-           toolui/toolsidebar.cpp \
            toolui/tooluimodule.cpp \
            basictool/brush/brushsetting.cpp \
            basictool/brush/brushsettingsidebar.cpp \

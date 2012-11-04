@@ -104,11 +104,11 @@ void LayerTreeSidebar::createForms()
 	_formWidget = new QWidget();
 	_formWidget->setLayout(formLayout);
 	
-	_addButton = new SimpleButton(":/icons/16x16/add.svg");
+	_addButton = new SimpleButton(":/icons/16x16/add.svg", QSize(16,16));
 	_addButton->setMargins(4, 0, 4, 0);
-	_removeButton = new SimpleButton(":/icons/16x16/subtract.svg");
+	_removeButton = new SimpleButton(":/icons/16x16/subtract.svg", QSize(16,16));
 	_removeButton->setMargins(4, 0, 4, 0);
-	_miscButton = new SimpleButton(":/icons/16x16/menuDown.svg");
+	_miscButton = new SimpleButton(":/icons/16x16/menuDown.svg", QSize(16,16));
 	_miscButton->setMargins(4, 0, 4, 0);
 	
 	QHBoxLayout *buttonLayout = new QHBoxLayout();

@@ -14,7 +14,7 @@ class LayerUIModule : public CanvasModule
 public:
 	LayerUIModule(CanvasController *canvas, QObject *parent);
 	
-	QWidget *createSidebar(const QString &name) override;
+	QWidget *createSideBar(const QString &name) override;
 	
 private:
 	

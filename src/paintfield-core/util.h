@@ -6,6 +6,7 @@
 #define PAINTFIELD_PRINT_WARNING(text) qWarning() << Q_FUNC_INFO << ":" << text
 
 class QAction;
+typedef QList<QAction *> QActionList;
 
 namespace PaintField
 {
@@ -125,6 +126,8 @@ private:
 QVariant loadJsonFromFile(const QString &path);
 
 void applyMacSmallSize(QWidget *widget);
+
+QString unduplicatedName(const QStringList &existingNames, const QString &newName);
 
 }
 

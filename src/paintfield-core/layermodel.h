@@ -127,6 +127,10 @@ public:
 	LayerConstList layersForIndexes(const QModelIndexList &indexes) const;
 	LayerPathList pathsForIndexes(const QModelIndexList &indexes) const;
 	
+	QStringList childNames(const Layer *layer) const { return layer ? layer->childNames() : QStringList(); }
+	QStringList childNames(const QModelIndex &index) const { return childNames(layerForIndex(index)); }
+	QStringList childNames(const LayerPath &path) const { return childNames(layerForPath(path)); }
+	
 	QItemSelectionModel *selectionModel() const { return _selectionModel; }
 	QModelIndex currentIndex() const { return _selectionModel->currentIndex(); }
 	
@@ -155,8 +159,6 @@ protected:
 private:
 	
 	void copyOrMoveLayers(const QModelIndexList &indexes, const QModelIndex &parent, int row, bool copy);
-	
-	QString unduplicatedChildName(const QModelIndex &index, const QString &name) const;
 	
 	Layer *nonConstLayer(const Layer *layer) { return const_cast<Layer *>(layer); }
 	

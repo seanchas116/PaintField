@@ -2,11 +2,15 @@
 #include "autotest.h"
 #include "test_documentio.h"
 #include "testutil.h"
+#include "testobject.h"
+
 #include "paintfield-core/canvasview.h"
 #include "paintfield-core/drawutil.h"
 #include "paintfield-core/documentio.h"
+#include "paintfield-core/widgets/docktabmotherwidget.h"
 
 using namespace Malachite;
+
 
 void test_CanvasView()
 {
@@ -50,13 +54,40 @@ void test_DocumentIO_saveLoad()
 	view->show();
 }
 
+void test_DockTabWidget()
+{
+	auto widget = new QWidget;
+	widget->resize(400, 300);
+	widget->setWindowTitle("Normal Widget");
+	widget->show();
+	widget->setFocus();
+	
+	auto motherWidget = new DockTabMotherWidget;
+	motherWidget->resize(400, 300);
+	motherWidget->setWindowTitle("Mother Widget");
+	motherWidget->show();
+	motherWidget->setFocus();
+	
+	auto tabWidget = new DockTabWidget;
+	tabWidget->addTab(new QLabel("Tab 1"), "Tab 1");
+	tabWidget->addTab(new QLabel("Tab 2"), "Tab 1");
+	tabWidget->addTab(new QLabel("Tab 3"), "Tab 1");
+	
+	tabWidget->show();
+	tabWidget->setFocus();
+}
+
 int main(int argc, char *argv[])
 {
 	QApplication app(argc, argv);
 	
 	//autoTest.run();
 	
-	test_DocumentIO_saveLoad();
+	//auto testObj = new TestObject;
+	//QObject::connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)), testObj, SLOT(onFocusChanged(QWidget*,QWidget*)));
+	
+	test_DockTabWidget();
+	//test_DocumentIO_saveLoad();
 	//test_Surface();
 	//test_CanvasView();
 	

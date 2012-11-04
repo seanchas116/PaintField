@@ -188,18 +188,14 @@ Layer *Layer::cloneRecursive()
 	return dest;
 }
 
-QString Layer::unduplicatedChildName(const QString &name) const
+QStringList Layer::childNames() const
 {
-	if (!child(name))
-		return name;
+	QStringList list;
 	
-	int i = 0;
-	forever
-	{
-		QString newName = name + " " + QString::number(++i);
-		if (!child(newName))
-			return newName;
-	}
+	for (Layer *child : _children)
+		list << child->name();
+	
+	return list;
 }
 
 bool Layer::setProperty(const QVariant &data, int role)

@@ -16,7 +16,7 @@ ColorUIModule::ColorUIModule(WorkspaceController *workspace, QObject *parent) :
 {
 }
 
-QWidget *ColorUIModule::createSidebar(const QString &name)
+QWidget *ColorUIModule::createSideBar(const QString &name)
 {
 	if (name == _colorSidebarName)
 	{
@@ -43,7 +43,7 @@ QWidget *ColorUIModule::createSidebar(const QString &name)
 
 void ColorUIModuleFactory::initialize(Application *app)
 {
-	app->declareSidebar(_colorSidebarName, SidebarInfo(QObject::tr("Color")));
+	app->declareSideBar(_colorSidebarName, SidebarDeclaration(QObject::tr("Color")));
 }
 
 }

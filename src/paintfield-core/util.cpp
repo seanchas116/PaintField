@@ -5,6 +5,34 @@
 namespace PaintField
 {
 
+class GuardedQObjectList : public QObject
+{
+	Q_OBJECT
+	
+public:
+	
+	GuardedQObjectList(QObject *parent = 0) : QObject(parent) {}
+	
+	void append(QObject *object)
+	{
+		connect(object, SIGNAL(destroyed(QObject*)), this, SLOT(onObjectDestroyed(QObject*)));
+		_list << object;
+	}
+	
+	QObjectList list() { return _list; }
+	
+private slots:
+	
+	void onObjectDestroyed(QObject *obj)
+	{
+		_list.removeAll(obj);
+	}
+	
+private:
+	
+	QObjectList _list;
+};
+
 QAction *createAction(const QString &id, QObject *parent)
 {
 	auto action = new QAction(parent);
@@ -40,6 +68,20 @@ void applyMacSmallSize(QWidget *widget)
 		QWidget *widget = qobject_cast<QWidget *>(object);
 		if (widget)
 			applyMacSmallSize(widget);
+	}
+}
+
+QString unduplicatedName(const QStringList &existingNames, const QString &name)
+{
+	if (!existingNames.contains(name))
+		return name;
+	
+	int i = 0;
+	forever
+	{
+		QString newName = name + " #" + QString::number(++i);
+		if (!existingNames.contains(newName))
+			return newName;
 	}
 }
 

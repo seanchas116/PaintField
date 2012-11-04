@@ -13,7 +13,7 @@ ToolManager::ToolManager(QObject *parent) :
     QObject(parent),
 	_actionGroup(new QActionGroup(this))
 {
-	createActions(app()->toolInfoHash());
+	createActions(app()->toolDeclarationHash());
 	connect(_actionGroup, SIGNAL(triggered(QAction*)), this, SLOT(onActionTriggered(QAction*)));
 }
 
@@ -40,7 +40,7 @@ void ToolManager::onActionTriggered(QAction *action)
 	setCurrentTool(_actionHash[action]);
 }
 
-void ToolManager::createActions(const ToolInfoHash &infoHash)
+void ToolManager::createActions(const ToolDeclarationHash &infoHash)
 {
 	for (auto iter = infoHash.begin(); iter != infoHash.end(); ++iter)
 	{

@@ -15,7 +15,7 @@ public:
 	BrushToolModule(WorkspaceController *workspace, QObject *parent);
 	
 	Tool *createTool(const QString &name, CanvasView *parent) override;
-	QWidget *createSidebar(const QString &name) override;
+	QWidget *createSideBar(const QString &name) override;
 	
 private:
 	BrushSetting _setting;

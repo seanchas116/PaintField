@@ -1,8 +1,15 @@
 {
     "sidebars":
     {
-        "right": ["paintfield.sidebar.color", "paintfield.sidebar.brushSettings", "paintfield.sidebar.layerTree"]
+        "right":
+        [
+            [
+                ["paintfield.sidebar.color", "paintfield.sidebar.brushSettings"],
+                ["paintfield.sidebar.layerTree"]
+            ]
+        ]
     },
+    
     "toolbars":
     {
         "top": ["paintfield.toolbar.tool"]

@@ -100,7 +100,7 @@ void Application::loadKeyMapFromJson(const QString &path)
 
 void Application::overrideActionShortcut(const QString &name, const QKeySequence &shortcut)
 {
-	for (auto iter = _actionInfoHash.begin(); iter != _actionInfoHash.end(); ++iter)
+	for (auto iter = _actionDeclarationHash.begin(); iter != _actionDeclarationHash.end(); ++iter)
 		if (iter.key() == name)
 			iter->shortcut = shortcut;
 }

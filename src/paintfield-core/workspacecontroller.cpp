@@ -13,115 +13,7 @@
 namespace PaintField
 {
 
-namespace MenuArranger
-{
 
-QMenu *createMenu(const QVariantMap &order);
-QMenuBar *createMenuBar(const QVariant &order);
-	
-void associateMenuWithActions(QMenu *menu, const QActionList &actions);
-void associateMenuBarWithActions(QMenuBar *menuBar, const QActionList &actions);
-
-QMenu *createMenu(const QVariantMap &order)
-{
-	QString menuId = order["menu"].toString();
-	if (menuId.isEmpty())
-		return 0;
-	
-	QString menuTitle = app()->menuHash()[menuId];
-	
-	if (menuTitle.isEmpty())
-		menuTitle = order["menu"].toString();
-	
-	QMenu *menu = new QMenu(menuTitle);
-	
-	QVariantList children = order["children"].toList();
-	
-	ActionInfoHash actionInfoHash = app()->actionInfoHash();
-	
-	for (const QVariant &child : children)
-	{
-		switch (child.type())
-		{
-			case QVariant::String:
-			{
-				QString id = child.toString();
-				
-				if (id.isEmpty())
-					menu->addSeparator();
-				else
-				{
-					ActionInfo actionInfo = actionInfoHash.value(id);
-					
-					if (actionInfo.text.isEmpty())
-						actionInfo.text = id;
-					
-					WorkspaceMenuAction *action = new WorkspaceMenuAction(menu);
-					action->setObjectName(id);
-					action->setText(actionInfo.text);
-					action->setShortcut(actionInfo.shortcut);
-					menu->addAction(action);
-				}
-				break;
-			}
-			case QVariant::Map:
-			{
-				QMenu *childMenu = createMenu(child.toMap());
-				if (childMenu)
-					menu->addMenu(childMenu);
-				break;
-			}
-			default:
-				break;
-		}
-	}
-	
-	return menu;
-}
-
-QMenuBar *createMenuBar(const QVariant &order)
-{
-	QMenuBar *menuBar = new QMenuBar();
-	
-	QVariantList orders = order.toList();
-	for (const QVariant &menuOrder : orders)
-		menuBar->addMenu(createMenu(menuOrder.toMap()));
-	
-	return menuBar;
-}
-
-void associateMenuWithActions(QMenu *menu, const QActionList &actions)
-{
-	for (QAction *action : menu->actions())
-	{
-		WorkspaceMenuAction *menuAction = qobject_cast<WorkspaceMenuAction *>(action);
-		if (menuAction)
-		{
-			QAction *foundAction = findQObjectReverse(actions, menuAction->objectName());
-			if (foundAction)
-				menuAction->setBackendAction(foundAction);
-			else
-				menuAction->setEnabled(false);
-		}
-		else
-		{
-			if (action->menu())
-				associateMenuWithActions(action->menu(), actions);
-		}
-	}
-}
-
-void associateMenuBarWithActions(QMenuBar *menuBar, const QActionList &actions)
-{
-	for (QAction *action : menuBar->actions())
-	{
-		QMenu *menu = action->menu();
-		if (menu)
-			associateMenuWithActions(menu, actions);
-	}
-}
-
-}
 
 
 
@@ -154,11 +46,14 @@ WorkspaceView *WorkspaceController::createView(QWidget *parent)
 	QMdiArea *mdiArea = _mdiAreaController->createView();
 	view->setCentralWidget(mdiArea);
 	
-	createWorkspaceItems();
+	QVariantMap workspaceItemOrderMap = app()->workspaceItemOrder().toMap();
+	
+	view->createSideBarFrames(app()->sideBarDeclarationHash(), workspaceItemOrderMap["sidebars"]);
+	view->createToolBars(app()->toolBarDeclarationHash(), workspaceItemOrderMap["toolbars"]);
+	view->createMenuBar(app()->actionDeclarationHash(), app()->menuDeclarationHash(), app()->menuBarOrder());
+	
 	updateWorkspaceItems();
 	updateWorkspaceItemsForCanvas(_currentCanvas);
-	
-	createMenuBar();
 	updateMenuBar();
 	
 	return view;
@@ -276,61 +171,11 @@ void WorkspaceController::removeCanvas(CanvasController *canvas)
 	}
 }
 
-void WorkspaceController::createWorkspaceItems()
-{
-	QVariantMap itemOrderMap = app()->workspaceItemOrder().toMap();
-	
-	QVariantMap sidebarOrderMap = itemOrderMap["sidebars"].toMap();
-	QVariantMap toolbarOrderMap = itemOrderMap["toolbars"].toMap();
-	
-	createSidebarsInArea(sidebarOrderMap["left"].toList(), Qt::LeftDockWidgetArea);
-	createSidebarsInArea(sidebarOrderMap["right"].toList(), Qt::RightDockWidgetArea);
-	
-	createToolbarsInArea(toolbarOrderMap["left"].toList(), Qt::LeftToolBarArea);
-	createToolbarsInArea(toolbarOrderMap["right"].toList(), Qt::RightToolBarArea);
-	createToolbarsInArea(toolbarOrderMap["top"].toList(), Qt::TopToolBarArea);
-	createToolbarsInArea(toolbarOrderMap["bottom"].toList(), Qt::BottomToolBarArea);
-}
-
-void WorkspaceController::createSidebarsInArea(const QVariantList &ids, Qt::DockWidgetArea area)
-{
-	for (const QVariant &id : ids)
-	{
-		auto infos = app()->sidebarInfoHash();
-		
-		for (auto iter = infos.begin(); iter != infos.end(); ++iter)
-		{
-			if (iter.key() == id.toString())
-			{
-				_view->addSidebarFrame(iter.key(), iter->text, area);
-				break;
-			}
-		}
-	}
-}
-
-void WorkspaceController::createToolbarsInArea(const QVariantList &ids, Qt::ToolBarArea area)
-{
-	for (const QVariant &id :ids)
-	{
-		ToolbarInfoHash infos = app()->toolBarInfoHash();
-		
-		for (auto iter = infos.begin(); iter != infos.end(); ++iter)
-		{
-			if (iter.key() == id.toString())
-			{
-				_view->addToolBar(id.toString(), iter->text, area);
-				break;
-			}
-		}
-	}
-}
-
 void WorkspaceController::updateWorkspaceItems()
 {
 	for (const QString &name : app()->sidebarNames())
 	{
-		QWidget *sidebar = createSidebarForWorkspace(app()->modules(), modules(), name);
+		QWidget *sidebar = createSideBarForWorkspace(app()->modules(), modules(), name);
 		if (sidebar)
 			_view->setSidebar(name, sidebar);
 	}
@@ -349,7 +194,7 @@ void WorkspaceController::updateWorkspaceItemsForCanvas(CanvasController *canvas
 	
 	for (const QString &name : app()->sidebarNames())
 	{
-		QWidget *sidebar = createSidebarForCanvas(currentCanvasModules(), name);
+		QWidget *sidebar = createSideBarForCanvas(currentCanvasModules(), name);
 		if (sidebar)
 			_view->setSidebar(name, sidebar);
 	}
@@ -362,16 +207,10 @@ void WorkspaceController::updateWorkspaceItemsForCanvas(CanvasController *canvas
 	}
 }
 
-void WorkspaceController::createMenuBar()
-{
-	_view->setMenuBar(MenuArranger::createMenuBar(app()->menuBarOrder()));
-}
-
 void WorkspaceController::updateMenuBar()
 {
 	QActionList actions = app()->actions() + this->actions() + currentCanvasActions();
-	
-	MenuArranger::associateMenuBarWithActions(_view->menuBar(), actions);
+	_view->associateMenuBarWithActions(actions);
 }
 
 }

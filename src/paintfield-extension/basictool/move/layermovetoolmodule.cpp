@@ -20,9 +20,9 @@ Tool *LayerMoveToolModule::createTool(const QString &name, CanvasView *view)
 void LayerMoveToolModuleFactory::initialize(Application *app)
 {
 	QString text = QObject::tr("Layer Move");
-	QIcon icon = SimpleButton::createSimpleIconSet(":/icons/24x24/move.svg");
+	QIcon icon = SimpleButton::createSimpleIconSet(":/icons/24x24/move.svg", QSize(24,24));
 	QVector<int> supportedTypes = { Layer::TypeRaster };
-	app->declareTool(_layerMoveToolName, ToolInfo(text, icon, supportedTypes));
+	app->declareTool(_layerMoveToolName, ToolDeclaration(text, icon, supportedTypes));
 }
 
 

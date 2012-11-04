@@ -58,7 +58,10 @@ HEADERS += application.h \
            widgets/modulardoublespinbox.h \
            widgets/simplebutton.h \
            widgets/widgetgroup.h \
-    dialogs/messagebox.h
+    dialogs/messagebox.h \
+    widgets/docktabwidget.h \
+    widgets/docktabmotherwidget.h \
+    workspacetabwidget.h
 FORMS += dialogs/exportdialog.ui dialogs/newdocumentdialog.ui
 SOURCES += application.cpp \
            canvascontroller.cpp \
@@ -94,4 +97,7 @@ SOURCES += application.cpp \
            widgets/modulardoublespinbox.cpp \
            widgets/simplebutton.cpp \
            widgets/widgetgroup.cpp \
-    dialogs/messagebox.cpp
+    dialogs/messagebox.cpp \
+    widgets/docktabwidget.cpp \
+    widgets/docktabmotherwidget.cpp \
+    workspacetabwidget.cpp
