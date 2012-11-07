@@ -174,6 +174,8 @@ void WorkspaceMenuAction::onBackendActionChanged()
 WorkspaceView::WorkspaceView(QWidget *parent) :
     QMainWindow(parent)
 {
+	setAnimated(false);
+	
 	_motherWidget = new DockTabMotherWidget;
 	QMainWindow::setCentralWidget(_motherWidget);
 }

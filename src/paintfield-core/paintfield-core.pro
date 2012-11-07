@@ -44,7 +44,6 @@ HEADERS += application.h \
            util.h \
            workspacecontroller.h \
            workspacemanager.h \
-           workspacemdiareacontroller.h \
            workspaceview.h \
            dialogs/exportdialog.h \
            dialogs/newdocumentdialog.h \
@@ -61,7 +60,9 @@ HEADERS += application.h \
     dialogs/messagebox.h \
     widgets/docktabwidget.h \
     widgets/docktabmotherwidget.h \
-    workspacetabwidget.h
+    workspacetabwidget.h \
+    widgets/tabdocumentarea.h \
+    canvastabareacontroller.h
 FORMS += dialogs/exportdialog.ui dialogs/newdocumentdialog.ui
 SOURCES += application.cpp \
            canvascontroller.cpp \
@@ -83,7 +84,6 @@ SOURCES += application.cpp \
            util.cpp \
            workspacecontroller.cpp \
            workspacemanager.cpp \
-           workspacemdiareacontroller.cpp \
            workspaceview.cpp \
            dialogs/exportdialog.cpp \
            dialogs/newdocumentdialog.cpp \
@@ -100,4 +100,6 @@ SOURCES += application.cpp \
     dialogs/messagebox.cpp \
     widgets/docktabwidget.cpp \
     widgets/docktabmotherwidget.cpp \
-    workspacetabwidget.cpp
+    workspacetabwidget.cpp \
+    widgets/tabdocumentarea.cpp \
+    canvastabareacontroller.cpp

@@ -10,7 +10,9 @@ namespace PaintField
 DockTabWidget::DockTabWidget(QWidget *parent) :
 	QTabWidget(parent)
 {
-	setTabBar(new DockTabBar(this));
+	auto tabBar = new DockTabBar(this);
+	connect(tabBar, SIGNAL(activated()), this, SIGNAL(activated()));
+	setTabBar(tabBar);
 	setDocumentMode(true);
 	setAcceptDrops(true);
 	
@@ -77,6 +79,14 @@ DockTabWidget *DockTabWidget::createAnother(QWidget *parent)
 	return new DockTabWidget(this, parent);
 }
 
+void DockTabWidget::mousePressEvent(QMouseEvent *event)
+{
+	if (event->button() == Qt::LeftButton)
+		emit activated();
+	
+	event->ignore();
+}
+
 DockTabBar::DockTabBar(DockTabWidget *tabWidget, QWidget *parent) :
 	QTabBar(parent),
 	_tabWidget(tabWidget)
@@ -110,6 +120,7 @@ void DockTabBar::mousePressEvent(QMouseEvent *event)
 {
 	if (event->button() == Qt::LeftButton)
 	{
+		emit activated();
 		_dragStartPos = event->pos();
 		_isStartingDrag = true;
 	}

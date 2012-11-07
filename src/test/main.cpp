@@ -8,6 +8,7 @@
 #include "paintfield-core/drawutil.h"
 #include "paintfield-core/documentio.h"
 #include "paintfield-core/widgets/docktabmotherwidget.h"
+#include "paintfield-core/widgets/tabdocumentarea.h"
 
 using namespace Malachite;
 
@@ -77,6 +78,16 @@ void test_DockTabWidget()
 	tabWidget->setFocus();
 }
 
+void test_TabDocumentAreaNode()
+{
+	auto node = new TabDocumentAreaNode(new DockTabWidget);
+	node->insert(TabDocumentAreaNode::First, Qt::Horizontal);
+	
+	node->splitter()->show();
+	node->children().at(1)->insert(TabDocumentAreaNode::Second, Qt::Vertical);
+	//node->close(TabDocumentAreaNode::First);
+}
+
 int main(int argc, char *argv[])
 {
 	QApplication app(argc, argv);
@@ -86,7 +97,8 @@ int main(int argc, char *argv[])
 	//auto testObj = new TestObject;
 	//QObject::connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)), testObj, SLOT(onFocusChanged(QWidget*,QWidget*)));
 	
-	test_DockTabWidget();
+	test_TabDocumentAreaNode();
+	//test_DockTabWidget();
 	//test_DocumentIO_saveLoad();
 	//test_Surface();
 	//test_CanvasView();

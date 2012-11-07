@@ -24,6 +24,8 @@ public:
 	 */
 	DockTabWidget(DockTabWidget *other, QWidget *parent = 0);
 	
+	bool contains(QWidget *widget) { return indexOf(widget) >= 0; }
+	
 	static void moveTab(DockTabWidget *source, int sourceIndex, DockTabWidget *dest, int destIndex);
 	static void decodeTabDropEvent(QDropEvent *event, DockTabWidget **p_tabWidget, int *p_index);
 	static bool eventIsTabDrag(QDragEnterEvent *event);
@@ -33,13 +35,17 @@ public:
 	
 signals:
 	
+	void activated();
 	void willBeAutomaticallyDeleted(DockTabWidget *widget);
 	
 public slots:
 	
+	void activate() { emit activated(); }
 	void deleteIfEmpty();
 	
 protected:
+	
+	void mousePressEvent(QMouseEvent *event);
 	
 private slots:
 	
@@ -54,6 +60,10 @@ public:
 	DockTabBar(DockTabWidget *tabWidget, QWidget *parent = 0);
 	
 	DockTabWidget *tabWidget() { return _tabWidget; }
+	
+signals:
+	
+	void activated();
 	
 protected:
 	

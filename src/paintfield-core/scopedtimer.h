@@ -17,7 +17,7 @@ public:
 	
 	~ScopedTimer()
 	{
-		qDebug() << _functionName.toLocal8Bit() << "took" << _timer.elapsed() << "ms";
+		qDebug() << _functionName.toLocal8Bit().data() << "took" << _timer.elapsed() << "ms";
 	}
 	
 private:
@@ -26,5 +26,7 @@ private:
 };
 
 }
+
+#define PAINTFIELD_CALC_SCOPE_ELAPSED_TIME	ScopedTimer timer__(Q_FUNC_INFO)
 
 #endif // FSSCOPEDTIMER_H

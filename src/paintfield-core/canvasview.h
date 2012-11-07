@@ -63,6 +63,8 @@ class CanvasView : public QGraphicsView
 	Q_OBJECT
 public:
 	
+	typedef QGraphicsView super;
+	
 	/**
 	 * Constructs a canvas view.
 	 * @param document A document the canvas handles
@@ -87,6 +89,7 @@ public slots:
 	
 protected:
 	
+	void keyPressEvent(QKeyEvent *event);
 	void mouseMoveEvent(QMouseEvent *event);
 	void mousePressEvent(QMouseEvent *event);
 	void mouseReleaseEvent(QMouseEvent *event);

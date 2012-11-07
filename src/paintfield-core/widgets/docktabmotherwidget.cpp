@@ -131,7 +131,7 @@ int DockTabMotherWidget::splitterCount(Direction dir)
 void DockTabMotherWidget::setCentralWidget(QWidget *widget)
 {
 	int index = _splitterLists[Top].size();
-	delete _mainVerticalSplitter->widget(index);
+	_mainVerticalSplitter->widget(index)->deleteLater();
 	_mainVerticalSplitter->insertWidget(index, widget);
 }
 

@@ -221,12 +221,18 @@ void CanvasView::repaintCanvas(const QRect &rect)
 	repaint(viewRect);
 }
 
+void CanvasView::keyPressEvent(QKeyEvent *event)
+{
+	//PAINTFIELD_PRINT_DEBUG("key pressed");
+	super::keyPressEvent(event);
+}
+
 void CanvasView::mouseMoveEvent(QMouseEvent *event)
 {
 	if (processAsTabletEvent(event))
 		return;
 	
-	QGraphicsView::mouseMoveEvent(event);
+	super::mouseMoveEvent(event);
 }
 
 void CanvasView::mousePressEvent(QMouseEvent *event)
@@ -237,7 +243,7 @@ void CanvasView::mousePressEvent(QMouseEvent *event)
 			return;
 	}
 	
-	QGraphicsView::mousePressEvent(event);
+	super::mousePressEvent(event);
 }
 
 void CanvasView::mouseReleaseEvent(QMouseEvent *event)
@@ -248,7 +254,7 @@ void CanvasView::mouseReleaseEvent(QMouseEvent *event)
 			return;
 	}
 	
-	QGraphicsView::mouseReleaseEvent(event);
+	super::mouseReleaseEvent(event);
 }
 
 void CanvasView::fsTabletEvent(TabletEvent *event)
@@ -312,7 +318,7 @@ bool CanvasView::event(QEvent *event)
 		fsTabletEvent(static_cast<TabletEvent *>(event));
 		return event->isAccepted();
 	default:
-		return QGraphicsView::event(event);
+		return super::event(event);
 	}
 }
 

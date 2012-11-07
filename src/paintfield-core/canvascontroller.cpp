@@ -35,14 +35,17 @@ CanvasController::CanvasController(Document *document, WorkspaceController *pare
 	_actions << redoAction;
 }
 
+CanvasController::~CanvasController() {}
+
 CanvasView *CanvasController::createView(QWidget *parent)
 {
-	_view = new CanvasView(_document, this, parent);
+	auto view = new CanvasView(_document, this, parent);
+	_view.reset(view);
 	
-	connect(workspace()->toolManager(), SIGNAL(currentToolChanged(QString)), _view, SLOT(setTool(QString)));
-	_view->setTool(workspace()->toolManager()->currentTool());
+	connect(workspace()->toolManager(), SIGNAL(currentToolChanged(QString)), view, SLOT(setTool(QString)));
+	view->setTool(workspace()->toolManager()->currentTool());
 	
-	return _view;
+	return view;
 }
 
 void CanvasController::addModules(const CanvasModuleList &modules)

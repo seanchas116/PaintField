@@ -13,7 +13,7 @@ namespace PaintField
 class WorkspaceModule;
 class ToolManager;
 class PaletteManager;
-class WorkspaceMdiAreaController;
+class CanvasTabAreaController;
 
 class WorkspaceController : public QObject
 {
@@ -25,7 +25,7 @@ public:
 	PaletteManager *paletteManager() { return _paletteManager; }
 	
 	WorkspaceView *createView(QWidget *parent = 0);
-	WorkspaceView *view() { return _view; }
+	WorkspaceView *view() { return _view.data(); }
 	
 	void addModules(const WorkspaceModuleList &modules);
 	WorkspaceModuleList modules() { return _modules; }
@@ -91,9 +91,9 @@ private:
 	QActionList _nullCanvasActions;
 	CanvasModuleList _nullCanvasModules;
 	
-	WorkspaceMdiAreaController *_mdiAreaController = 0;
+	CanvasTabAreaController *_canvasTabAreaController = 0;
 	
-	QPointer<WorkspaceView> _view;
+	ScopedQObjectPointer<WorkspaceView> _view;
 };
 
 }

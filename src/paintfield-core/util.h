@@ -4,6 +4,8 @@
 #include <QPointer>
 
 #define PAINTFIELD_PRINT_WARNING(text) qWarning() << Q_FUNC_INFO << ":" << text
+#define PAINTFIELD_PRINT_DEBUG(text) qDebug() << Q_FUNC_INFO << ":" << text
+
 
 class QAction;
 typedef QList<QAction *> QActionList;
@@ -87,13 +89,19 @@ public:
 	
 	~ScopedQObjectPointer()
 	{
-		if (_p)
-			reinterpret_cast<QObject *>(_p.data())->deleteLater();
+		destroy();
 	}
 	
 	T *data() const { return _p; }
+	
 	bool isNull() const { return data(); }
-	void reset(T *p) { _p = p; }
+	
+	void reset(T *p = 0)
+	{
+		destroy();
+		_p = p;
+	}
+	
 	void swap(ScopedQObjectPointer<T> &other)
 	{
 		T *p = _p;
@@ -115,7 +123,41 @@ public:
 	
 private:
 	
+	void destroy()
+	{
+		if (_p) _p->deleteLater();
+		_p = 0;
+	}
+	
 	QPointer<T> _p;
+};
+
+class GuardedQObjectList : public QObject
+{
+	Q_OBJECT
+	
+public:
+	
+	GuardedQObjectList(QObject *parent = 0) : QObject(parent) {}
+	
+	void append(QObject *object)
+	{
+		connect(object, SIGNAL(destroyed(QObject*)), this, SLOT(onObjectDestroyed(QObject*)));
+		_list << object;
+	}
+	
+	QObjectList list() { return _list; }
+	
+private slots:
+	
+	void onObjectDestroyed(QObject *obj)
+	{
+		_list.removeAll(obj);
+	}
+	
+private:
+	
+	QObjectList _list;
 };
 
 /**

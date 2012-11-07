@@ -4,9 +4,9 @@
 #include "application.h"
 #include "toolmanager.h"
 #include "palettemanager.h"
-#include "workspacemdiareacontroller.h"
 #include "module.h"
 #include "modulemanager.h"
+#include "canvastabareacontroller.h"
 
 #include "workspacecontroller.h"
 
@@ -26,13 +26,13 @@ WorkspaceController::WorkspaceController(QObject *parent) :
 	_toolManager = new ToolManager(this);
 	_paletteManager = new PaletteManager(this);
 	
-	_mdiAreaController = new WorkspaceMdiAreaController(this);
+	_canvasTabAreaController = new CanvasTabAreaController(this);
 	
-	connect(this, SIGNAL(canvasAdded(CanvasController*)), _mdiAreaController, SLOT(addCanvas(CanvasController*)));
-	connect(this, SIGNAL(canvasRemoved(CanvasController*)), _mdiAreaController, SLOT(removeCanvas(CanvasController*)));
-	connect(this, SIGNAL(currentCanvasChanged(CanvasController*)), _mdiAreaController, SLOT(setCurrentCanvas(CanvasController*)));
+	connect(this, SIGNAL(canvasAdded(CanvasController*)), _canvasTabAreaController, SLOT(addCanvas(CanvasController*)));
+	connect(this, SIGNAL(canvasRemoved(CanvasController*)), _canvasTabAreaController, SLOT(removeCanvas(CanvasController*)));
+	connect(this, SIGNAL(currentCanvasChanged(CanvasController*)), _canvasTabAreaController, SLOT(setCurrentCanvas(CanvasController*)));
 	
-	connect(_mdiAreaController, SIGNAL(currentCanvasChanged(CanvasController*)), this, SLOT(setCurrentCanvas(CanvasController*)));
+	connect(_canvasTabAreaController, SIGNAL(currentCanvasChanged(CanvasController*)), this, SLOT(setCurrentCanvas(CanvasController*)));
 	
 	_actions << createAction("paintfield.file.new", this, SLOT(newCanvas()));
 	_actions << createAction("paintfield.file.open", this, SLOT(openCanvas()));
@@ -41,10 +41,9 @@ WorkspaceController::WorkspaceController(QObject *parent) :
 WorkspaceView *WorkspaceController::createView(QWidget *parent)
 {
 	WorkspaceView *view = new WorkspaceView(parent);
-	_view = view;
+	_view.reset(view);
 	
-	QMdiArea *mdiArea = _mdiAreaController->createView();
-	view->setCentralWidget(mdiArea);
+	view->setCentralWidget(_canvasTabAreaController->createView(view));
 	
 	QVariantMap workspaceItemOrderMap = app()->workspaceItemOrder().toMap();
 	
@@ -130,7 +129,7 @@ void WorkspaceController::setCurrentCanvas(CanvasController *canvas)
 
 bool WorkspaceController::eventFilter(QObject *watched, QEvent *event)
 {
-	if (watched == _view)
+	if (watched == _view.data())
 	{
 		if (event->type() == QEvent::FocusIn)
 		{

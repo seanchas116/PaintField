@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QPointer>
 
+#include "util.h"
 #include "module.h"
 
 namespace PaintField
@@ -25,6 +26,8 @@ public:
 	 * @param parent
 	 */
 	CanvasController(Document *document, WorkspaceController *parent);
+	
+	~CanvasController();
 	
 	/**
 	 * Shows a dialog, creates a new file and creates a controller from it.
@@ -92,7 +95,7 @@ public slots:
 private:
 	
 	Document *_document = 0;
-	QPointer<CanvasView> _view;
+	ScopedQObjectPointer<CanvasView> _view;
 	QActionList _actions;
 	CanvasModuleList _modules;
 };

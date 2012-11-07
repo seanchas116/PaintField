@@ -87,7 +87,7 @@ void BrushTool::cursorReleaseEvent(TabletEvent *event)
 
 void BrushTool::beginStroke(const TabletInputData &data)
 {
-	ScopedTimer timer(Q_FUNC_INFO);
+	PAINTFIELD_CALC_SCOPE_ELAPSED_TIME;
 	
 	_layer = currentLayer();
 	if (_layer->type() != Layer::TypeRaster)
@@ -118,7 +118,7 @@ void BrushTool::beginStroke(const TabletInputData &data)
 
 void BrushTool::drawStroke(const TabletInputData &data)
 {
-	ScopedTimer timer(Q_FUNC_INFO);
+	PAINTFIELD_CALC_SCOPE_ELAPSED_TIME;
 	
 	_stroker->lineTo(data);
 	updateTiles();
@@ -126,7 +126,7 @@ void BrushTool::drawStroke(const TabletInputData &data)
 
 void BrushTool::endStroke(const TabletInputData &data)
 {
-	ScopedTimer timer(Q_FUNC_INFO);
+	PAINTFIELD_CALC_SCOPE_ELAPSED_TIME;
 	
 	_stroker->lineTo(data);
 	_stroker->end();
