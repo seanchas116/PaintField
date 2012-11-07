@@ -1,4 +1,5 @@
 #include <QtGui>
+#include "../util.h"
 
 #include "docktabwidget.h"
 
@@ -81,10 +82,32 @@ DockTabWidget *DockTabWidget::createAnother(QWidget *parent)
 
 void DockTabWidget::mousePressEvent(QMouseEvent *event)
 {
-	if (event->button() == Qt::LeftButton)
-		emit activated();
-	
+	PAINTFIELD_DEBUG << "clicked";
+	emit activated();
 	event->ignore();
+}
+
+void DockTabWidget::dragEnterEvent(QDragEnterEvent *event)
+{
+	PAINTFIELD_DEBUG << tabBar()->count();
+	
+	if (eventIsTabDrag(event) && count() == 0)
+		event->acceptProposedAction();
+}
+
+void DockTabWidget::dropEvent(QDropEvent *event)
+{
+	PAINTFIELD_DEBUG << "dropped";
+	
+	DockTabWidget *oldTabWidget;
+	int oldIndex;
+	
+	decodeTabDropEvent(event, &oldTabWidget, &oldIndex);
+	
+	if (!oldTabWidget)
+		return;
+	
+	moveTab(oldTabWidget, oldIndex, this, 0);
 }
 
 DockTabBar::DockTabBar(DockTabWidget *tabWidget, QWidget *parent) :
@@ -118,9 +141,10 @@ int DockTabBar::insertionIndexAt(const QPoint &pos)
 
 void DockTabBar::mousePressEvent(QMouseEvent *event)
 {
+	emit activated();
+	
 	if (event->button() == Qt::LeftButton)
 	{
-		emit activated();
 		_dragStartPos = event->pos();
 		_isStartingDrag = true;
 	}

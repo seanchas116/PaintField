@@ -167,9 +167,10 @@ TabDocumentArea::~TabDocumentArea()
 {
 }
 
-void TabDocumentArea::addTab(const QString &title, QWidget *tab)
+void TabDocumentArea::addTab(QWidget *tab, const QString &title, const QString &toolTipText)
 {
 	_currentTabWidget->addTab(tab, title);
+	_currentTabWidget->setTabToolTip(_currentTabWidget->count() - 1, toolTipText);
 }
 
 void TabDocumentArea::takeTab(QWidget *tab)
@@ -200,8 +201,6 @@ void TabDocumentArea::closeCurrent()
 
 void TabDocumentArea::onSplitActivated()
 {
-	PAINTFIELD_PRINT_DEBUG("split activated");
-	
 	DockTabWidget *tabWidget = qobject_cast<DockTabWidget *>(sender());
 	if (tabWidget)
 	{

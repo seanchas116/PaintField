@@ -3,8 +3,8 @@
 
 #include <QPointer>
 
-#define PAINTFIELD_PRINT_WARNING(text) qWarning() << Q_FUNC_INFO << ":" << text
-#define PAINTFIELD_PRINT_DEBUG(text) qDebug() << Q_FUNC_INFO << ":" << text
+#define PAINTFIELD_WARNING qWarning() << Q_FUNC_INFO << ":"
+#define PAINTFIELD_DEBUG qDebug() << Q_FUNC_INFO << ":"
 
 
 class QAction;

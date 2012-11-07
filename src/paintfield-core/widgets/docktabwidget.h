@@ -46,6 +46,8 @@ public slots:
 protected:
 	
 	void mousePressEvent(QMouseEvent *event);
+	void dragEnterEvent(QDragEnterEvent *event);
+	void dropEvent(QDropEvent *event);
 	
 private slots:
 	

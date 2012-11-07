@@ -9,6 +9,7 @@
 #include "paintfield-core/documentio.h"
 #include "paintfield-core/widgets/docktabmotherwidget.h"
 #include "paintfield-core/widgets/tabdocumentarea.h"
+#include "paintfield-core/widgets/tabwidget.h"
 
 using namespace Malachite;
 
@@ -71,13 +72,14 @@ void test_DockTabWidget()
 	
 	auto tabWidget = new DockTabWidget;
 	tabWidget->addTab(new QLabel("Tab 1"), "Tab 1");
-	tabWidget->addTab(new QLabel("Tab 2"), "Tab 1");
-	tabWidget->addTab(new QLabel("Tab 3"), "Tab 1");
+	tabWidget->addTab(new QLabel("Tab 2"), "Tab 2");
+	tabWidget->addTab(new QLabel("Tab 3"), "Tab 3");
 	
 	tabWidget->show();
 	tabWidget->setFocus();
 }
 
+/*
 void test_TabDocumentAreaNode()
 {
 	auto node = new TabDocumentAreaNode(new DockTabWidget);
@@ -86,6 +88,21 @@ void test_TabDocumentAreaNode()
 	node->splitter()->show();
 	node->children().at(1)->insert(TabDocumentAreaNode::Second, Qt::Vertical);
 	//node->close(TabDocumentAreaNode::First);
+}*/
+
+void test_TabWidget()
+{
+	auto tabWidget = new TabWidget();
+	tabWidget->addTab(new QLabel("Tab 1"), "Tab 1");
+	tabWidget->addTab(new QLabel("Tab 2"), "Tab 2");
+	tabWidget->addTab(new QLabel("Tab 3"), "Tab 3");
+	
+	tabWidget->takeTab(0);
+	tabWidget->takeTab(0);
+	tabWidget->takeTab(0);
+	
+	tabWidget->resize(500, 500);
+	tabWidget->show();
 }
 
 int main(int argc, char *argv[])
@@ -97,7 +114,8 @@ int main(int argc, char *argv[])
 	//auto testObj = new TestObject;
 	//QObject::connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)), testObj, SLOT(onFocusChanged(QWidget*,QWidget*)));
 	
-	test_TabDocumentAreaNode();
+	test_TabWidget();
+	//test_TabDocumentAreaNode();
 	//test_DockTabWidget();
 	//test_DocumentIO_saveLoad();
 	//test_Surface();

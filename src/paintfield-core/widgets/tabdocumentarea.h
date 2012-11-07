@@ -22,7 +22,7 @@ public:
 	
 public slots:
 	
-	void addTab(const QString &title, QWidget *tab);
+	void addTab(QWidget *tab, const QString &title, const QString &toolTipText);
 	void takeTab(QWidget *tab);
 	void setCurrentTab(QWidget *tab);
 	

@@ -22,7 +22,7 @@ QWidget *CanvasTabAreaController::createView(WorkspaceView *workspaceView, QWidg
 void CanvasTabAreaController::addCanvas(CanvasController *controller)
 {
 	auto view = controller->createView();
-	_area->addTab(view->windowTitle(), view);
+	_area->addTab(view, view->windowTitle(), QString());
 }
 
 void CanvasTabAreaController::removeCanvas(CanvasController *controller)

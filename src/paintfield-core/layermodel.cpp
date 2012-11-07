@@ -49,7 +49,7 @@ void LayerModel::editLayer(const QModelIndex &index, LayerEdit *edit, const QStr
 {
 	if (!checkIndex(index))
 	{
-		PAINTFIELD_PRINT_WARNING("invalid index");
+		PAINTFIELD_WARNING << "invalid index";
 		return;
 	}
 	
@@ -62,7 +62,7 @@ void LayerModel::addLayers(QList<Layer *> layers, const QModelIndex &parent, int
 {
 	if (!checkIndex(parent))
 	{
-		PAINTFIELD_PRINT_WARNING("invalid index");
+		PAINTFIELD_WARNING << "invalid index";
 		return;
 	}
 	
@@ -83,7 +83,7 @@ void LayerModel::newLayer(Layer::Type type, const QModelIndex &parent, int row)
 {
 	if (!checkIndex(parent))
 	{
-		PAINTFIELD_PRINT_WARNING("invalid index");
+		PAINTFIELD_WARNING << "invalid index";
 		return;
 	}
 	
@@ -108,7 +108,7 @@ void LayerModel::newLayer(Layer::Type type, const QModelIndex &parent, int row)
 			
 		default:
 			
-			PAINTFIELD_PRINT_WARNING("unsupported layer type");
+			PAINTFIELD_WARNING << "unsupported layer type";
 			return;
 	}
 	
@@ -123,7 +123,7 @@ void LayerModel::removeLayers(const QModelIndexList &indexes)
 	{
 		if (!checkIndex(index) || !index.isValid())
 		{
-			PAINTFIELD_PRINT_WARNING("invalid index");
+			PAINTFIELD_WARNING << "invalid index";
 			continue;
 		}
 		new LayerModelRemoveCommand(pathForIndex(index), this, command);
@@ -146,7 +146,7 @@ void LayerModel::copyOrMoveLayers(const QModelIndexList &indexes, const QModelIn
 {
 	if (!checkIndex(parent))
 	{
-		PAINTFIELD_PRINT_WARNING("invalid index");
+		PAINTFIELD_WARNING << "invalid index";
 		return;
 	}
 	
@@ -162,7 +162,7 @@ void LayerModel::copyOrMoveLayers(const QModelIndexList &indexes, const QModelIn
 		
 		if (!checkIndex(index) || !index.isValid())
 		{
-			PAINTFIELD_PRINT_WARNING("invalid index");
+			PAINTFIELD_WARNING << "invalid index";
 			continue;
 		}
 		
@@ -186,7 +186,7 @@ void LayerModel::renameLayer(const QModelIndex &index, const QString &newName)
 {
 	if (!checkIndex(index))
 	{
-		PAINTFIELD_PRINT_WARNING("invalid index");
+		PAINTFIELD_WARNING << "invalid index";
 		return;
 	}
 	
@@ -202,12 +202,12 @@ void LayerModel::mergeLayers(const QModelIndex &parent, int from, int to)
 	{
 		if (!checkLayer(parentLayer))
 		{
-			qWarning() << Q_FUNC_INFO << ": invalid parent";
+			PAINTFIELD_WARNING << ": invalid parent";
 			return;
 		}
 		if (from > to || !parentLayer->contains(from) || !parentLayer->contains(to))
 		{
-			qWarning() << Q_FUNC_INFO << ": invalid row";
+			PAINTFIELD_WARNING << ": invalid row";
 			return;
 		}
 	}
@@ -404,7 +404,7 @@ QModelIndex LayerModel::indexForLayer(const Layer *layer) const
 {
 	if (!checkLayer(layer))
 	{
-		PAINTFIELD_PRINT_WARNING("invalid layer");
+		PAINTFIELD_WARNING << "invalid layer";
 		return QModelIndex();
 	}
 	return layer != rootLayer() ? createIndex(layer->row(), 0, const_cast<Layer *>(layer) ) : QModelIndex();
@@ -426,7 +426,7 @@ LayerPath LayerModel::pathForLayer(const Layer *layer) const
 {
 	if (!checkLayer(layer))
 	{
-		PAINTFIELD_PRINT_WARNING("invalid layer");
+		PAINTFIELD_WARNING << "invalid layer";
 		return LayerPath();
 	}
 	

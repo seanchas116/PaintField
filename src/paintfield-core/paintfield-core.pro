@@ -62,7 +62,8 @@ HEADERS += application.h \
     widgets/docktabmotherwidget.h \
     workspacetabwidget.h \
     widgets/tabdocumentarea.h \
-    canvastabareacontroller.h
+    canvastabareacontroller.h \
+    widgets/tabwidget.h
 FORMS += dialogs/exportdialog.ui dialogs/newdocumentdialog.ui
 SOURCES += application.cpp \
            canvascontroller.cpp \
@@ -102,4 +103,5 @@ SOURCES += application.cpp \
     widgets/docktabmotherwidget.cpp \
     workspacetabwidget.cpp \
     widgets/tabdocumentarea.cpp \
-    canvastabareacontroller.cpp
+    canvastabareacontroller.cpp \
+    widgets/tabwidget.cpp
