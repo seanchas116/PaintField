@@ -74,7 +74,13 @@ public:
 	
 signals:
 	
+	void closeRequested();
+	
 public slots:
+	
+protected:
+	
+	void closeEvent(QCloseEvent *event);
 	
 private:
 	

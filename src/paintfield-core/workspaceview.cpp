@@ -185,6 +185,12 @@ void WorkspaceView::setCentralWidget(QWidget *widget)
 	_motherWidget->setCentralWidget(widget);
 }
 
+void WorkspaceView::closeEvent(QCloseEvent *event)
+{
+	emit closeRequested();
+	event->ignore();
+}
+
 void WorkspaceView::createSideBarFrames(const SideBarDeclarationHash &sidebarDeclarations, const QVariant &order)
 {
 	auto sideBarSplitterDirFromString = [](const QString &str)->DockTabMotherWidget::Direction

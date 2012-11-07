@@ -47,18 +47,35 @@ signals:
 	
 	void canvasAdded(CanvasController *canvas);
 	
-	void canvasRemoved(CanvasController *canvas);
+	void canvasAboutToBeRemoved(CanvasController *canvas);
 	void focused();
+	
+	void shouldBeDeleted(WorkspaceController *workspace);
 	
 public slots:
 	
 	void setFocus();
 	
+	/**
+	 * Sets the current canvas.
+	 * @param canvas
+	 */
 	void setCurrentCanvas(CanvasController *canvas);
 	
+	/**
+	 * Creates a new document and adds a canvas of it.
+	 */
 	void newCanvas();
+	
+	/**
+	 * Opens a document and adds a canvas of it.
+	 */
 	void openCanvas();
 	
+	/**
+	 * Try to close all canvases.
+	 * @return If succeeded
+	 */
 	bool tryClose();
 	
 protected:
@@ -67,7 +84,6 @@ protected:
 	
 private slots:
 	
-	void onCanvasSholudBeDeleted();
 	void removeCanvas(CanvasController *canvas);
 	
 private:

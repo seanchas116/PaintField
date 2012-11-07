@@ -165,7 +165,7 @@ bool CanvasController::closeCanvas()
 		}
 	}
 	
-	emit shouldBeDeleted();
+	emit shouldBeDeleted(this);
 	return true;
 }
 

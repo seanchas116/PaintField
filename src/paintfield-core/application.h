@@ -73,7 +73,6 @@ signals:
 	
 public slots:
 	
-	void tryQuit();
 	void minimizeCurrentWindow();
 	void zoomCurrentWindow();
 	

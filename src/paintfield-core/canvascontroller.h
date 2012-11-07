@@ -70,7 +70,7 @@ signals:
 	/**
 	 * Emitted when the canvas should be deleted.
 	 */
-	void shouldBeDeleted();
+	void shouldBeDeleted(CanvasController *canvas);
 	
 public slots:
 	

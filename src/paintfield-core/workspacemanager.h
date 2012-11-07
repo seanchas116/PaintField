@@ -19,13 +19,27 @@ public:
 signals:
 	
 	void workspaceAdded(WorkspaceController *controller);
+	void workspaceAboutToBeRemoved(WorkspaceController *controller);
 	void currentWorkspaceChanged(WorkspaceController *controller);
 	
 public slots:
 	
+	/**
+	 * Tries to close all workspaces.
+	 * The app will quit if it is succeeded.
+	 * @return 
+	 */
 	bool tryCloseAll();
+	
 	void newWorkspace();
 	void setCurrentWorkspace(WorkspaceController *workspace);
+	
+	/**
+	 * Removes a workspace.
+	 * The app will quit if there is no workspace after it.
+	 * @param workspace
+	 */
+	void removeWorkspace(WorkspaceController *workspace);
 	
 protected:
 	
@@ -34,6 +48,7 @@ protected:
 private slots:
 	
 	void onWorkspaceFocusIn();
+	void onWorkspaceShouldBeDeleted(WorkspaceController *workspace);
 	
 private:
 	

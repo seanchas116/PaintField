@@ -29,7 +29,7 @@ WorkspaceController::WorkspaceController(QObject *parent) :
 	_canvasTabAreaController = new CanvasTabAreaController(this);
 	
 	connect(this, SIGNAL(canvasAdded(CanvasController*)), _canvasTabAreaController, SLOT(addCanvas(CanvasController*)));
-	connect(this, SIGNAL(canvasRemoved(CanvasController*)), _canvasTabAreaController, SLOT(removeCanvas(CanvasController*)));
+	connect(this, SIGNAL(canvasAboutToBeRemoved(CanvasController*)), _canvasTabAreaController, SLOT(removeCanvas(CanvasController*)));
 	connect(this, SIGNAL(currentCanvasChanged(CanvasController*)), _canvasTabAreaController, SLOT(setCurrentCanvas(CanvasController*)));
 	
 	connect(_canvasTabAreaController, SIGNAL(currentCanvasChanged(CanvasController*)), this, SLOT(setCurrentCanvas(CanvasController*)));
@@ -42,6 +42,8 @@ WorkspaceView *WorkspaceController::createView(QWidget *parent)
 {
 	WorkspaceView *view = new WorkspaceView(parent);
 	_view.reset(view);
+	
+	connect(view, SIGNAL(closeRequested()), this, SLOT(tryClose()));
 	
 	view->setCentralWidget(_canvasTabAreaController->createView(view));
 	
@@ -98,12 +100,12 @@ void WorkspaceController::openCanvas()
 
 bool WorkspaceController::tryClose()
 {
-	for (CanvasController *controller : _canvasControllers)
+	for (CanvasController *canvas : _canvasControllers)
 	{
-		if (!controller->closeCanvas())
+		if (!canvas->closeCanvas())
 			return false;
 	}
-	deleteLater();
+	emit shouldBeDeleted(this);
 	return true;
 }
 
@@ -144,17 +146,10 @@ bool WorkspaceController::eventFilter(QObject *watched, QEvent *event)
 void WorkspaceController::addCanvas(CanvasController *canvas)
 {
 	_canvasControllers << canvas;
-	connect(canvas, SIGNAL(shouldBeDeleted()), this, SLOT(onCanvasSholudBeDeleted()));
+	connect(canvas, SIGNAL(shouldBeDeleted(CanvasController*)), this, SLOT(removeCanvas(CanvasController*)));
 	canvas->addModules(app()->moduleManager()->createCanvasModules(canvas, canvas));
 	
 	emit canvasAdded(canvas);
-}
-
-void WorkspaceController::onCanvasSholudBeDeleted()
-{
-	CanvasController *canvas = qobject_cast<CanvasController *>(sender());
-	if (canvas && _canvasControllers.contains(canvas))
-		removeCanvas(canvas);
 }
 
 void WorkspaceController::removeCanvas(CanvasController *canvas)
@@ -165,7 +160,7 @@ void WorkspaceController::removeCanvas(CanvasController *canvas)
 			setCurrentCanvas(0);
 		
 		_canvasControllers.removeAll(canvas);
-		emit canvasRemoved(canvas);
+		emit canvasAboutToBeRemoved(canvas);
 		canvas->deleteLater();
 	}
 }

@@ -39,11 +39,28 @@ void WorkspaceManager::setCurrentWorkspace(WorkspaceController *workspace)
 	}
 }
 
+void WorkspaceManager::removeWorkspace(WorkspaceController *workspace)
+{
+	if (_workspaces.contains(workspace))
+	{
+		if (_workspaces.size() == 1)
+			qApp->quit();
+		
+		if (_currentWorkspace == workspace)
+			_currentWorkspace = 0;
+		
+		_workspaces.removeAll(workspace);
+		emit workspaceAboutToBeRemoved(workspace);
+		workspace->deleteLater();
+	}
+}
+
 void WorkspaceManager::addWorkspace(WorkspaceController *workspace)
 {
 	_workspaces << workspace;
 	
 	connect(workspace, SIGNAL(focused()), this, SLOT(onWorkspaceFocusIn()));
+	connect(workspace, SIGNAL(shouldBeDeleted(WorkspaceController*)), this, SLOT(removeWorkspace(WorkspaceController*)));
 	
 	workspace->addModules(app()->moduleManager()->createWorkspaceModules(workspace, workspace));
 	workspace->addNullCanvasModules(app()->moduleManager()->createCanvasModules(0, workspace));
@@ -59,6 +76,11 @@ void WorkspaceManager::onWorkspaceFocusIn()
 	WorkspaceController *workspace = qobject_cast<WorkspaceController *>(sender());
 	if (workspace)
 		setCurrentWorkspace(workspace);
+}
+
+void WorkspaceManager::onWorkspaceShouldBeDeleted(WorkspaceController *workspace)
+{
+	removeWorkspace(workspace);
 }
 
 }

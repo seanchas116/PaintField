@@ -44,7 +44,7 @@ Application::Application(int &argv, char **args) :
 	
 	declareMenu("paintfield.help", tr("Help"));
 	
-	_actions << createAction("paintfield.file.quit", this, SLOT(tryQuit()));
+	_actions << createAction("paintfield.file.quit", _workspaceManager, SLOT(tryCloseAll()));
 	_actions << createAction("paintfield.window.minimize", this, SLOT(minimizeCurrentWindow()));
 	_actions << createAction("paintfield.window.zoom", this, SLOT(zoomCurrentWindow()));
 }
@@ -61,12 +61,6 @@ int Application::exec()
 void Application::addModuleFactory(ModuleFactory *factory)
 {
 	_moduleManager->addModuleFactory(factory);
-}
-
-void Application::tryQuit()
-{
-	if (_workspaceManager->tryCloseAll())
-		quit();
 }
 
 void Application::minimizeCurrentWindow()
