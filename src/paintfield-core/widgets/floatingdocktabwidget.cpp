@@ -28,8 +28,8 @@ void FloatingDockTabWidget::commonInit()
 	{
 		setParent(_baseWindow);
 		setWindowFlags(Qt::Tool);
-		//connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)), this, SLOT(onFocusChanged(QWidget*,QWidget*)));
-		//onFocusChanged(0, qApp->focusWidget());
+		connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)), this, SLOT(onFocusChanged(QWidget*,QWidget*)));
+		onFocusChanged(0, qApp->focusWidget());
 	}
 }
 
@@ -37,8 +37,13 @@ void FloatingDockTabWidget::onFocusChanged(QWidget *old, QWidget *now)
 {
 	Q_UNUSED(old);
 	
-	if (parent() == _baseWindow && now != 0 && isVisible())
-		setVisible(_baseWindow == now && this != now);
+	if (parent() != _baseWindow)
+		return;
+	
+	if (now == 0 || now == this)
+		return;
+	
+	setVisible(_baseWindow == now);
 }
 
 }

@@ -113,7 +113,11 @@ void test_TabWidget()
 
 void test_SplitTabAreaController()
 {
-	auto widget = new SplitTabAreaTestWidget;
+	auto testWidget = new SplitTabAreaTestWidget;
+	testWidget->show();
+	
+	auto widget = new QWidget;
+	widget->setFocusPolicy(Qt::ClickFocus);
 	widget->show();
 }
 
