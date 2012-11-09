@@ -12,13 +12,10 @@ DockTabWidget::DockTabWidget(QWidget *parent) :
 	QTabWidget(parent)
 {
 	auto tabBar = new DockTabBar(this);
-	connect(tabBar, SIGNAL(activated()), this, SIGNAL(activated()));
 	setTabBar(tabBar);
-	setDocumentMode(true);
+	connect(tabBar, SIGNAL(clicked()), this, SIGNAL(tabClicked()));
+	tabBar->setDocumentMode(true);
 	setAcceptDrops(true);
-	
-	if (!parent)
-		setWindowFlags(Qt::Tool);
 }
 
 DockTabWidget::DockTabWidget(DockTabWidget *other, QWidget *parent) :
@@ -68,46 +65,22 @@ bool DockTabWidget::eventIsTabDrag(QDragEnterEvent *event)
 
 void DockTabWidget::deleteIfEmpty()
 {
-	if (count() == 0)
+	if (count() == 0 && _autoDeletionEnabled)
 	{
 		emit willBeAutomaticallyDeleted(this);
 		deleteLater();
 	}
 }
 
-DockTabWidget *DockTabWidget::createAnother(QWidget *parent)
+QObject *DockTabWidget::createNew()
 {
-	return new DockTabWidget(this, parent);
+	return new DockTabWidget(this, 0);
 }
 
-void DockTabWidget::mousePressEvent(QMouseEvent *event)
+void DockTabWidget::focusInEvent(QFocusEvent *event)
 {
-	PAINTFIELD_DEBUG << "clicked";
-	emit activated();
-	event->ignore();
-}
-
-void DockTabWidget::dragEnterEvent(QDragEnterEvent *event)
-{
-	PAINTFIELD_DEBUG << tabBar()->count();
-	
-	if (eventIsTabDrag(event) && count() == 0)
-		event->acceptProposedAction();
-}
-
-void DockTabWidget::dropEvent(QDropEvent *event)
-{
-	PAINTFIELD_DEBUG << "dropped";
-	
-	DockTabWidget *oldTabWidget;
-	int oldIndex;
-	
-	decodeTabDropEvent(event, &oldTabWidget, &oldIndex);
-	
-	if (!oldTabWidget)
-		return;
-	
-	moveTab(oldTabWidget, oldIndex, this, 0);
+	Q_UNUSED(event)
+	emit focused();
 }
 
 DockTabBar::DockTabBar(DockTabWidget *tabWidget, QWidget *parent) :
@@ -141,7 +114,7 @@ int DockTabBar::insertionIndexAt(const QPoint &pos)
 
 void DockTabBar::mousePressEvent(QMouseEvent *event)
 {
-	emit activated();
+	emit clicked();
 	
 	if (event->button() == Qt::LeftButton)
 	{
@@ -195,7 +168,7 @@ void DockTabBar::mouseMoveEvent(QMouseEvent *event)
 	
 	if (dropAction != Qt::MoveAction)	// drop is not accepted
 	{
-		DockTabWidget *newTabWidget = _tabWidget->createAnother();
+		DockTabWidget *newTabWidget = _tabWidget->createNewTabWidget();
 		if (!newTabWidget->isInsertableFrom(_tabWidget))
 		{
 			newTabWidget->deleteLater();

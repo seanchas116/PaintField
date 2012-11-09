@@ -60,10 +60,11 @@ HEADERS += application.h \
     dialogs/messagebox.h \
     widgets/docktabwidget.h \
     widgets/docktabmotherwidget.h \
-    workspacetabwidget.h \
-    widgets/tabdocumentarea.h \
-    canvastabareacontroller.h \
-    widgets/tabwidget.h
+    widgets/tabwidget.h \
+    widgets/splitareacontroller.h \
+    workspacecanvasareacontroller.h \
+    widgets/floatingdocktabwidget.h \
+    widgets/splittabareacontroller.h
 FORMS += dialogs/exportdialog.ui dialogs/newdocumentdialog.ui
 SOURCES += application.cpp \
            canvascontroller.cpp \
@@ -101,7 +102,8 @@ SOURCES += application.cpp \
     dialogs/messagebox.cpp \
     widgets/docktabwidget.cpp \
     widgets/docktabmotherwidget.cpp \
-    workspacetabwidget.cpp \
-    widgets/tabdocumentarea.cpp \
-    canvastabareacontroller.cpp \
-    widgets/tabwidget.cpp
+    widgets/tabwidget.cpp \
+    widgets/splitareacontroller.cpp \
+    workspacecanvasareacontroller.cpp \
+    widgets/floatingdocktabwidget.cpp \
+    widgets/splittabareacontroller.cpp

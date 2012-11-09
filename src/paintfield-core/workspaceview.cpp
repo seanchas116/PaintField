@@ -1,11 +1,29 @@
 #include <QtGui>
 #include "widgets/docktabmotherwidget.h"
-#include "workspacetabwidget.h"
 
 #include "workspaceview.h"
 
 namespace PaintField
 {
+
+SidebarTabWidget::SidebarTabWidget(WorkspaceView *workspaceView, QWidget *parent) :
+	FloatingDockTabWidget(workspaceView, parent)
+{}
+
+SidebarTabWidget::SidebarTabWidget(SidebarTabWidget *other, QWidget *parent) :
+	FloatingDockTabWidget(other, parent)
+{}
+
+bool SidebarTabWidget::isInsertableFrom(DockTabWidget *other)
+{
+	SidebarTabWidget *tabWidget = qobject_cast<SidebarTabWidget *>(other);
+	return tabWidget && tabWidget->baseWindow() == baseWindow();
+}
+
+QObject *SidebarTabWidget::createNew()
+{
+	return new SidebarTabWidget(this, 0);
+}
 
 namespace MenuArranger
 {
@@ -228,7 +246,7 @@ void WorkspaceView::createSideBarFramesInSplitter(DockTabMotherWidget::Direction
 {
 	for (const QVariant &tabWidgetOrder : splitterOrder.toList())
 	{
-		auto tabWidget = new WorkspaceTabWidget(this, WorkspaceTabWidget::TypeSidebar);
+		auto tabWidget = new SidebarTabWidget(this, 0);
 		
 		for (const QString &sideBarName : tabWidgetOrder.toStringList())
 		{

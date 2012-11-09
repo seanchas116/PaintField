@@ -13,7 +13,7 @@ namespace PaintField
 class WorkspaceModule;
 class ToolManager;
 class PaletteManager;
-class CanvasTabAreaController;
+class SplitTabAreaController;
 
 class WorkspaceController : public QObject
 {
@@ -107,7 +107,7 @@ private:
 	QActionList _nullCanvasActions;
 	CanvasModuleList _nullCanvasModules;
 	
-	CanvasTabAreaController *_canvasTabAreaController = 0;
+	SplitTabAreaController *_canvasTabAreaController = 0;
 	
 	ScopedQObjectPointer<WorkspaceView> _view;
 };

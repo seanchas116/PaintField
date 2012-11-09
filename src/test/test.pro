@@ -38,11 +38,13 @@ SOURCES += main.cpp \
     test_documentio.cpp \
     test_document.cpp \
     testutil.cpp \
-    testobject.cpp
+    testobject.cpp \
+    splittabareatestwidget.cpp
 
 HEADERS += \
     autotest.h \
     test_documentio.h \
     test_document.h \
     testutil.h \
-    testobject.h
+    testobject.h \
+    splittabareatestwidget.h

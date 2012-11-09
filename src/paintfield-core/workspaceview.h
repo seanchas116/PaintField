@@ -10,11 +10,33 @@
 
 #include "global.h"
 #include "canvasview.h"
-#include "widgets/docktabwidget.h"
+#include "widgets/floatingdocktabwidget.h"
 #include "widgets/docktabmotherwidget.h"
 
 namespace PaintField
 {
+
+class WorkspaceView;
+
+class SidebarTabWidget : public FloatingDockTabWidget
+{
+	Q_OBJECT
+	Q_INTERFACES(PaintField::ReproductiveInterface)
+	
+public:
+	
+	SidebarTabWidget(WorkspaceView *workspaceView, QWidget *parent);
+	SidebarTabWidget(SidebarTabWidget *other, QWidget *parent);
+	
+	bool isInsertableFrom(DockTabWidget *other) override;
+	QObject *createNew() override;
+	
+private:
+	
+	void commonInit();
+	
+	WorkspaceView *_workspaceView;
+};
 
 class WorkspaceMenuAction : public QAction
 {
@@ -74,6 +96,7 @@ public:
 	
 signals:
 	
+	void focused();
 	void closeRequested();
 	
 public slots:

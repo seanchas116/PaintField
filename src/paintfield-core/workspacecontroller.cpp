@@ -6,7 +6,6 @@
 #include "palettemanager.h"
 #include "module.h"
 #include "modulemanager.h"
-#include "canvastabareacontroller.h"
 
 #include "workspacecontroller.h"
 
@@ -26,13 +25,13 @@ WorkspaceController::WorkspaceController(QObject *parent) :
 	_toolManager = new ToolManager(this);
 	_paletteManager = new PaletteManager(this);
 	
-	_canvasTabAreaController = new CanvasTabAreaController(this);
+	//_canvasTabAreaController = new SplitTabAreaController(this);
 	
-	connect(this, SIGNAL(canvasAdded(CanvasController*)), _canvasTabAreaController, SLOT(addCanvas(CanvasController*)));
-	connect(this, SIGNAL(canvasAboutToBeRemoved(CanvasController*)), _canvasTabAreaController, SLOT(removeCanvas(CanvasController*)));
-	connect(this, SIGNAL(currentCanvasChanged(CanvasController*)), _canvasTabAreaController, SLOT(setCurrentCanvas(CanvasController*)));
+	//connect(this, SIGNAL(canvasAdded(CanvasController*)), _canvasTabAreaController, SLOT(addCanvas(CanvasController*)));
+	//connect(this, SIGNAL(canvasAboutToBeRemoved(CanvasController*)), _canvasTabAreaController, SLOT(removeCanvas(CanvasController*)));
+	//connect(this, SIGNAL(currentCanvasChanged(CanvasController*)), _canvasTabAreaController, SLOT(setCurrentCanvas(CanvasController*)));
 	
-	connect(_canvasTabAreaController, SIGNAL(currentCanvasChanged(CanvasController*)), this, SLOT(setCurrentCanvas(CanvasController*)));
+	//connect(_canvasTabAreaController, SIGNAL(currentCanvasChanged(CanvasController*)), this, SLOT(setCurrentCanvas(CanvasController*)));
 	
 	_actions << createAction("paintfield.file.new", this, SLOT(newCanvas()));
 	_actions << createAction("paintfield.file.open", this, SLOT(openCanvas()));
@@ -45,7 +44,7 @@ WorkspaceView *WorkspaceController::createView(QWidget *parent)
 	
 	connect(view, SIGNAL(closeRequested()), this, SLOT(tryClose()));
 	
-	view->setCentralWidget(_canvasTabAreaController->createView(view));
+	//view->setCentralWidget(_canvasTabAreaController->createView(view));
 	
 	QVariantMap workspaceItemOrderMap = app()->workspaceItemOrder().toMap();
 	

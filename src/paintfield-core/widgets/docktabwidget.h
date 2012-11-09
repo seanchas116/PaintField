@@ -3,26 +3,32 @@
 
 #include <QTabBar>
 #include <QTabWidget>
+#include "../util.h"
 
 namespace PaintField
 {
 
 class DockTabBar;
 
-class DockTabWidget : public QTabWidget
+class DockTabWidget : public QTabWidget, public ReproductiveInterface
 {
 	Q_OBJECT
+	Q_INTERFACES(PaintField::ReproductiveInterface)
+	
 	friend class DockTabBar;
 public:
 	
-	explicit DockTabWidget(QWidget *parent = 0);
+	explicit DockTabWidget(QWidget *parent);
 	
 	/**
 	 * Creates a DockTabWidget copying other's DockTabWidget specific settings.
 	 * @param other
 	 * @param parent
 	 */
-	DockTabWidget(DockTabWidget *other, QWidget *parent = 0);
+	DockTabWidget(DockTabWidget *other, QWidget *parent);
+	
+	void setAutoDeletionEnabled(bool x) { _autoDeletionEnabled = x; }
+	bool isAutoDeletionEnabled() const { return _autoDeletionEnabled; }
 	
 	bool contains(QWidget *widget) { return indexOf(widget) >= 0; }
 	
@@ -31,27 +37,31 @@ public:
 	static bool eventIsTabDrag(QDragEnterEvent *event);
 	
 	virtual bool isInsertableFrom(DockTabWidget *other) { Q_UNUSED(other) return true; }
-	virtual DockTabWidget *createAnother(QWidget *parent = 0);
+	virtual void insertTab(int index, QWidget *widget, const QString &title) { QTabWidget::insertTab(index, widget, title); }
+	//virtual DockTabWidget *createAnother(QWidget *parent = 0);
+	
+	QObject *createNew() override;
+	DockTabWidget *createNewTabWidget() { return createNewAs<DockTabWidget>(); }
 	
 signals:
 	
-	void activated();
+	void tabClicked();
+	void focused();
 	void willBeAutomaticallyDeleted(DockTabWidget *widget);
 	
 public slots:
 	
-	void activate() { emit activated(); }
 	void deleteIfEmpty();
 	
 protected:
 	
-	void mousePressEvent(QMouseEvent *event);
-	void dragEnterEvent(QDragEnterEvent *event);
-	void dropEvent(QDropEvent *event);
+	void focusInEvent(QFocusEvent *event);
 	
 private slots:
 	
 private:
+	
+	bool _autoDeletionEnabled = false;
 };
 
 class DockTabBar : public QTabBar
@@ -65,7 +75,7 @@ public:
 	
 signals:
 	
-	void activated();
+	void clicked();
 	
 protected:
 	

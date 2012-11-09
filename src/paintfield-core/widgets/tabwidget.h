@@ -21,10 +21,20 @@ public:
 	QWidget *takeTab(int index);
 	void takeTab(QWidget *widget);
 	
+	int currentIndex() const { return _currentIndex; }
+	QWidget *currentWidget() { return _widgets.at(_currentIndex); }
+	
 	bool contains(int index) const { return 0 <= index && index < count(); }
 	bool contains(QWidget *widget) { return _widgets.contains(widget); }
 	int count() const { return _widgets.size(); }
 	int indexOf(QWidget *widget) { return _widgets.indexOf(widget); }
+	QWidget *widget(int index) { return _widgets.at(index); }
+	
+	void setTabText(int index, const QString &text) { _tabBar->setTabText(index, text); }
+	QString tabText(int index) const { return _tabBar->tabText(index); }
+	
+	void setTabToolTip(int index, const QString &text) { _tabBar->setTabToolTip(index, text); }
+	QString tabToolTip(int index) const { return _tabBar->tabToolTip(index); }
 	
 signals:
 	
@@ -38,6 +48,7 @@ public slots:
 protected:
 	
 	QTabBar *tabBar() { return _tabBar; }
+	QWidget *defaultWidget() { return _defaultWidget; }
 	
 private slots:
 	

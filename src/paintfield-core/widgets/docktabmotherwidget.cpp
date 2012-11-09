@@ -142,7 +142,7 @@ bool DockTabMotherWidget::dropTab(DockTabWidget *tabWidget, int index, const QPo
 	if (!area.isValid())
 		return false;
 	
-	auto newTabWidget = tabWidget->createAnother();
+	auto newTabWidget = tabWidget->createNewTabWidget();
 	DockTabWidget::moveTab(tabWidget, index, newTabWidget, 0);
 	
 	return insertTabWidget(newTabWidget, area);
