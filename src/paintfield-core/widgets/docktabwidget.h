@@ -58,8 +58,11 @@ protected:
 	
 	void focusInEvent(QFocusEvent *);
 	void focusOutEvent(QFocusEvent *);
+	void closeEvent(QCloseEvent *event);
 	
 private slots:
+	
+	void onCurrentIndexChanged(int index) { if (index < 0) deleteIfEmpty(); }
 	
 private:
 	

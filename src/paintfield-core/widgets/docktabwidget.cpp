@@ -22,6 +22,7 @@ DockTabWidget::DockTabWidget(DockTabWidget *other, QWidget *parent) :
 	DockTabWidget(parent)
 {
 	resize(other->size());
+	connect(this, SIGNAL(currentChanged(int)), this, SLOT(onCurrentIndexChanged(int)));
 }
 
 void DockTabWidget::moveTab(DockTabWidget *source, int sourceIndex, DockTabWidget *dest, int destIndex)
@@ -87,6 +88,11 @@ void DockTabWidget::focusOutEvent(QFocusEvent *)
 {
 	PAINTFIELD_DEBUG << "focus out";
 	emit focusOut();
+}
+
+void DockTabWidget::closeEvent(QCloseEvent *event)
+{
+	event->ignore();
 }
 
 DockTabBar::DockTabBar(DockTabWidget *tabWidget, QWidget *parent) :
@@ -190,7 +196,6 @@ void DockTabBar::mouseMoveEvent(QMouseEvent *event)
 		}
 	}
 	
-	_tabWidget->deleteIfEmpty();
 	_isStartingDrag = false;
 }
 
