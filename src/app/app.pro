@@ -9,9 +9,9 @@ include(../src.pri)
 
 QMAKE_CXXFLAGS += -std=c++11
 
-INCLUDEPATH += $$PWD $$PWD/../ $$PWD/../libs $$PWD/../libs/Malachite/include $$PWD/../libs/qjson/include
+INCLUDEPATH += $$PWD $$PWD/../ $$PWD/../libs $$PWD/../libs/Malachite/include
 
-LIBS += -L$$OUT_PWD/../libs/Malachite/src -L$$OUT_PWD/../libs/Minizip -L$$OUT_PWD/../libs/qjson/lib
+LIBS += -L$$OUT_PWD/../libs/Malachite/src -L$$OUT_PWD/../libs/Minizip
 LIBS += -lfreeimage -lz -lmalachite -lminizip -lqjson
 
 LIBS += -L$$OUT_PWD/../paintfield-core
@@ -26,7 +26,6 @@ mac {
 	sharedlibs.files += $$OUT_PWD/../paintfield-extension/libpaintfield-extension.1.dylib
 	sharedlibs.files += $$OUT_PWD/../libs/Malachite/src/libmalachite.1.dylib
 	sharedlibs.files += $$OUT_PWD/../libs/Minizip/libminizip.1.dylib
-	sharedlibs.files += $$OUT_PWD/../libs/qjson/lib/libqjson.0.dylib
 	QMAKE_BUNDLE_DATA += sharedlibs
 }
 

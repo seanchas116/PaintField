@@ -1,5 +1,5 @@
 #include <QtGui>
-#include <QJson/Parser>
+#include "qjson/parser.h"
 #include "util.h"
 
 namespace PaintField

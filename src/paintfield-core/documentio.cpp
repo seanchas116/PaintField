@@ -1,6 +1,6 @@
 #include <QtCore>
-#include <QJson/Parser>
-#include <QJson/Serializer>
+#include "qjson/parser.h"
+#include "qjson/serializer.h"
 #include <Malachite/Painter>
 
 #include "randomstring.h"
