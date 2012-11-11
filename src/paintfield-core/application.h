@@ -76,6 +76,8 @@ public slots:
 	void minimizeCurrentWindow();
 	void zoomCurrentWindow();
 	
+protected:
+	
 private:
 	
 	WorkspaceManager *_workspaceManager = 0;

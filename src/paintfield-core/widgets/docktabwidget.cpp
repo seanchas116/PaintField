@@ -14,8 +14,8 @@ DockTabWidget::DockTabWidget(QWidget *parent) :
 	auto tabBar = new DockTabBar(this);
 	setTabBar(tabBar);
 	connect(tabBar, SIGNAL(clicked()), this, SIGNAL(tabClicked()));
-	tabBar->setDocumentMode(true);
 	setAcceptDrops(true);
+	setDocumentMode(true);
 }
 
 DockTabWidget::DockTabWidget(DockTabWidget *other, QWidget *parent) :
@@ -77,10 +77,16 @@ QObject *DockTabWidget::createNew()
 	return new DockTabWidget(this, 0);
 }
 
-void DockTabWidget::focusInEvent(QFocusEvent *event)
+void DockTabWidget::focusInEvent(QFocusEvent *)
 {
-	Q_UNUSED(event)
-	emit focused();
+	PAINTFIELD_DEBUG << "focus in";
+	emit focusIn();
+}
+
+void DockTabWidget::focusOutEvent(QFocusEvent *)
+{
+	PAINTFIELD_DEBUG << "focus out";
+	emit focusOut();
 }
 
 DockTabBar::DockTabBar(DockTabWidget *tabWidget, QWidget *parent) :
@@ -186,6 +192,11 @@ void DockTabBar::mouseMoveEvent(QMouseEvent *event)
 	
 	_tabWidget->deleteIfEmpty();
 	_isStartingDrag = false;
+}
+
+void DockTabBar::dragMoveEvent(QDragMoveEvent *event)
+{
+	event->accept();
 }
 
 void DockTabBar::dragEnterEvent(QDragEnterEvent *event)

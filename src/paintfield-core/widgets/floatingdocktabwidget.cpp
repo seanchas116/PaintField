@@ -23,7 +23,6 @@ FloatingDockTabWidget::FloatingDockTabWidget(FloatingDockTabWidget *other, QWidg
 void FloatingDockTabWidget::commonInit()
 {
 	setAutoDeletionEnabled(true);
-	
 	if (parent() == 0)
 	{
 		setParent(_baseWindow);
@@ -36,14 +35,26 @@ void FloatingDockTabWidget::commonInit()
 void FloatingDockTabWidget::onFocusChanged(QWidget *old, QWidget *now)
 {
 	Q_UNUSED(old);
+	tabBar()->setAcceptDrops(true);
 	
 	if (parent() != _baseWindow)
 		return;
 	
-	if (now == 0 || now == this)
+	if (now == 0 || now == this || now->parent() != 0)
 		return;
 	
-	setVisible(_baseWindow == now);
+	bool v = _baseWindow == now;
+	
+	if (_hiddenByFocusChange && v)
+	{
+		setVisible(true);
+		_hiddenByFocusChange = false;
+	}
+	if (isVisible() && !v)
+	{
+		setVisible(false);
+		_hiddenByFocusChange = true;
+	}
 }
 
 }

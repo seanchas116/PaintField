@@ -6,6 +6,7 @@
 #include "palettemanager.h"
 #include "module.h"
 #include "modulemanager.h"
+#include "workspacecanvasareacontroller.h"
 
 #include "workspacecontroller.h"
 
@@ -18,45 +19,35 @@ namespace PaintField
 
 
 WorkspaceController::WorkspaceController(QObject *parent) :
-    QObject(parent)
+    QObject(parent),
+	_toolManager(new ToolManager(this)),
+	_paletteManager(new PaletteManager(this)),
+	_view(new WorkspaceView),
+	_canvasAreaController(new WorkspaceCanvasAreaController(_view.data(), this))
 {
-	// create tool / palette manager
-	
-	_toolManager = new ToolManager(this);
-	_paletteManager = new PaletteManager(this);
-	
-	//_canvasTabAreaController = new SplitTabAreaController(this);
-	
-	//connect(this, SIGNAL(canvasAdded(CanvasController*)), _canvasTabAreaController, SLOT(addCanvas(CanvasController*)));
-	//connect(this, SIGNAL(canvasAboutToBeRemoved(CanvasController*)), _canvasTabAreaController, SLOT(removeCanvas(CanvasController*)));
-	//connect(this, SIGNAL(currentCanvasChanged(CanvasController*)), _canvasTabAreaController, SLOT(setCurrentCanvas(CanvasController*)));
-	
-	//connect(_canvasTabAreaController, SIGNAL(currentCanvasChanged(CanvasController*)), this, SLOT(setCurrentCanvas(CanvasController*)));
+	connect(this, SIGNAL(canvasAdded(CanvasController*)), _canvasAreaController, SLOT(addCanvas(CanvasController*)));
+	connect(this, SIGNAL(canvasAboutToBeRemoved(CanvasController*)), _canvasAreaController, SLOT(removeCanvas(CanvasController*)));
+	connect(this, SIGNAL(currentCanvasChanged(CanvasController*)), _canvasAreaController, SLOT(setCurrentCanvas(CanvasController*)));
+	connect(_canvasAreaController, SIGNAL(currentCanvasChanged(CanvasController*)), this, SLOT(setCurrentCanvas(CanvasController*)));
 	
 	_actions << createAction("paintfield.file.new", this, SLOT(newCanvas()));
 	_actions << createAction("paintfield.file.open", this, SLOT(openCanvas()));
-}
-
-WorkspaceView *WorkspaceController::createView(QWidget *parent)
-{
-	WorkspaceView *view = new WorkspaceView(parent);
-	_view.reset(view);
 	
-	connect(view, SIGNAL(closeRequested()), this, SLOT(tryClose()));
-	
-	//view->setCentralWidget(_canvasTabAreaController->createView(view));
+	connect(_view.data(), SIGNAL(closeRequested()), this, SLOT(tryClose()));
+	_view->setCentralWidget(_canvasAreaController->view());
 	
 	QVariantMap workspaceItemOrderMap = app()->workspaceItemOrder().toMap();
 	
-	view->createSideBarFrames(app()->sideBarDeclarationHash(), workspaceItemOrderMap["sidebars"]);
-	view->createToolBars(app()->toolBarDeclarationHash(), workspaceItemOrderMap["toolbars"]);
-	view->createMenuBar(app()->actionDeclarationHash(), app()->menuDeclarationHash(), app()->menuBarOrder());
-	
+	_view->createSideBarFrames(app()->sideBarDeclarationHash(), workspaceItemOrderMap["sidebars"]);
+	_view->createToolBars(app()->toolBarDeclarationHash(), workspaceItemOrderMap["toolbars"]);
+	_view->createMenuBar(app()->actionDeclarationHash(), app()->menuDeclarationHash(), app()->menuBarOrder());
+}
+
+void WorkspaceController::updateView()
+{
 	updateWorkspaceItems();
 	updateWorkspaceItemsForCanvas(_currentCanvas);
 	updateMenuBar();
-	
-	return view;
 }
 
 void WorkspaceController::addModules(const QList<WorkspaceModule *> &modules)
@@ -120,11 +111,8 @@ void WorkspaceController::setCurrentCanvas(CanvasController *canvas)
 		_currentCanvas = canvas;
 		emit currentCanvasChanged(canvas);
 		
-		if (_view)
-		{
-			updateWorkspaceItemsForCanvas(canvas);
-			updateMenuBar();
-		}
+		updateWorkspaceItemsForCanvas(canvas);
+		updateMenuBar();
 	}
 }
 

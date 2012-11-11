@@ -27,7 +27,7 @@ SplitTabWidget::SplitTabWidget(SplitTabWidget *other, QWidget *parent) :
 void SplitTabWidget::commonInit()
 {
 	_tabAreaController->registerTabWidget(this);
-	connect(this, SIGNAL(focused()), this, SLOT(notifyTabChange()));
+	connect(this, SIGNAL(focusIn()), this, SLOT(notifyTabChange()));
 }
 
 bool SplitTabWidget::isInsertableFrom(DockTabWidget *other)

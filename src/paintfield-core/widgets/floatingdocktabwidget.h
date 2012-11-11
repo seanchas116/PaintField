@@ -35,6 +35,7 @@ private:
 	void commonInit();
 	
 	QWidget *_baseWindow;
+	bool _hiddenByFocusChange = false;
 };
 
 }

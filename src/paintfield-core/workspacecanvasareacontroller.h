@@ -6,16 +6,17 @@
 namespace PaintField
 {
 
-/*
+class CanvasController;
 class WorkspaceView;
+class SplitTabAreaController;
 
 class WorkspaceCanvasAreaController : public QObject
 {
 	Q_OBJECT
 public:
-	explicit WorkspaceCanvasAreaController(QObject *parent = 0);
+	explicit WorkspaceCanvasAreaController(QWidget *baseWindow, QObject *parent = 0);
 	
-	QWidget *createView(WorkspaceView *workspaceView);
+	QWidget *view();
 	
 signals:
 	
@@ -36,8 +37,10 @@ private slots:
 	
 	void onCurrentTabChanged(QWidget *tab);
 	
+private:
+	
+	SplitTabAreaController *_tabArea;
 };
-*/
 
 }
 

@@ -6,13 +6,13 @@
 
 #include "util.h"
 #include "module.h"
+#include "canvasview.h"
 
 namespace PaintField
 {
 
 class CanvasModule;
 class Document;
-class CanvasView;
 class WorkspaceController;
 
 class CanvasController : public QObject
@@ -63,7 +63,7 @@ public:
 	void addModules(const CanvasModuleList &modules);
 	CanvasModuleList modules() { return _modules; }
 	
-	CanvasView *createView(QWidget *parent = 0);
+	CanvasView *view() { return _view ? _view.data() : createView(); }
 	
 signals:
 	
@@ -93,6 +93,8 @@ public slots:
 	bool closeCanvas();
 	
 private:
+	
+	CanvasView *createView(QWidget *parent = 0);
 	
 	Document *_document = 0;
 	ScopedQObjectPointer<CanvasView> _view;

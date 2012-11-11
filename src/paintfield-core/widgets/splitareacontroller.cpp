@@ -40,8 +40,8 @@ void SplitAreaController::setChildNodes(SplitAreaController *node0, SplitAreaCon
 	node1->_parent = this;
 	node1->_index = Second;
 	
-	_children[0].reset(node0);
-	_children[1].reset(node1);
+	childSplitRef(First).reset(node0);
+	childSplitRef(Second).reset(node1);
 	
 	_splitter->addWidget(node0->splitter());
 	_splitter->addWidget(node1->splitter());
@@ -52,8 +52,8 @@ void SplitAreaController::setChildNodes(SplitAreaController *node0, SplitAreaCon
 
 void SplitAreaController::clearChildNodes()
 {
-	_children[0].reset();
-	_children[1].reset();
+	childSplitRef(First).reset();
+	childSplitRef(Second).reset();
 }
 
 void SplitAreaController::promote(Index index)
@@ -61,17 +61,17 @@ void SplitAreaController::promote(Index index)
 	if (!isSplitted())
 		return;
 	
-	if (_children[index]->isSplitted())
+	if (childSplit(index)->isSplitted())
 	{
-		SplitAreaController *node0 = _children[index]->_children[0].take();
-		SplitAreaController *node1 = _children[index]->_children[1].take();
-		_children[0]->_splitter->setParent(0);
-		_children[1]->_splitter->setParent(0);
+		SplitAreaController *node0 = childSplit(index)->childSplitRef(First).take();
+		SplitAreaController *node1 = childSplit(index)->childSplitRef(Second).take();
+		childSplit(First)->_splitter->setParent(0);
+		childSplit(Second)->_splitter->setParent(0);
 		setChildNodes(node0, node1);
 	}
 	else
 	{
-		_widget = _children[index]->_widget;
+		_widget = childSplit(index)->_widget;
 		_splitter->addWidget(_widget);
 		clearChildNodes();
 	}

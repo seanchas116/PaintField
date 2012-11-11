@@ -46,7 +46,8 @@ public:
 signals:
 	
 	void tabClicked();
-	void focused();
+	void focusIn();
+	void focusOut();
 	void willBeAutomaticallyDeleted(DockTabWidget *widget);
 	
 public slots:
@@ -55,7 +56,8 @@ public slots:
 	
 protected:
 	
-	void focusInEvent(QFocusEvent *event);
+	void focusInEvent(QFocusEvent *);
+	void focusOutEvent(QFocusEvent *);
 	
 private slots:
 	
@@ -82,6 +84,7 @@ protected:
 	void mousePressEvent(QMouseEvent *event);
 	void mouseMoveEvent(QMouseEvent *event);
 	
+	void dragMoveEvent(QDragMoveEvent *event);
 	void dragEnterEvent(QDragEnterEvent *event);
 	void dropEvent(QDropEvent *event);
 	

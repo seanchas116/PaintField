@@ -193,7 +193,7 @@ WorkspaceView::WorkspaceView(QWidget *parent) :
     QMainWindow(parent)
 {
 	setAnimated(false);
-	
+		
 	_motherWidget = new DockTabMotherWidget;
 	QMainWindow::setCentralWidget(_motherWidget);
 }
@@ -201,12 +201,6 @@ WorkspaceView::WorkspaceView(QWidget *parent) :
 void WorkspaceView::setCentralWidget(QWidget *widget)
 {
 	_motherWidget->setCentralWidget(widget);
-}
-
-void WorkspaceView::closeEvent(QCloseEvent *event)
-{
-	emit closeRequested();
-	event->ignore();
 }
 
 void WorkspaceView::createSideBarFrames(const SideBarDeclarationHash &sidebarDeclarations, const QVariant &order)
@@ -342,6 +336,22 @@ QToolBar *WorkspaceView::toolBar(const QString &id)
 void WorkspaceView::associateMenuBarWithActions(const QActionList &actions)
 {
 	MenuArranger::associateMenuBarWithActions(menuBar(), actions);
+}
+
+void WorkspaceView::closeEvent(QCloseEvent *event)
+{
+	emit closeRequested();
+	event->ignore();
+}
+
+void WorkspaceView::focusInEvent(QFocusEvent *)
+{
+	emit focusChanged(true);
+}
+
+void WorkspaceView::focusOutEvent(QFocusEvent *)
+{
+	emit focusChanged(false);
 }
 
 

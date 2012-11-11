@@ -67,7 +67,8 @@ void WorkspaceManager::addWorkspace(WorkspaceController *workspace)
 	
 	emit workspaceAdded(workspace);
 	
-	workspace->createView()->show();
+	workspace->updateView();
+	workspace->view()->show();
 	setCurrentWorkspace(workspace);
 }
 

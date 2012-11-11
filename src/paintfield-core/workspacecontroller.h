@@ -13,7 +13,7 @@ namespace PaintField
 class WorkspaceModule;
 class ToolManager;
 class PaletteManager;
-class SplitTabAreaController;
+class WorkspaceCanvasAreaController;
 
 class WorkspaceController : public QObject
 {
@@ -24,8 +24,8 @@ public:
 	ToolManager *toolManager() { return _toolManager; }
 	PaletteManager *paletteManager() { return _paletteManager; }
 	
-	WorkspaceView *createView(QWidget *parent = 0);
 	WorkspaceView *view() { return _view.data(); }
+	void updateView();
 	
 	void addModules(const WorkspaceModuleList &modules);
 	WorkspaceModuleList modules() { return _modules; }
@@ -107,9 +107,9 @@ private:
 	QActionList _nullCanvasActions;
 	CanvasModuleList _nullCanvasModules;
 	
-	SplitTabAreaController *_canvasTabAreaController = 0;
-	
 	ScopedQObjectPointer<WorkspaceView> _view;
+	
+	WorkspaceCanvasAreaController *_canvasAreaController = 0;
 };
 
 }

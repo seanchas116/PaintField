@@ -34,6 +34,8 @@ SplitTabAreaTestWidget::SplitTabAreaTestWidget(QWidget *parent) :
 	mainLayout->addLayout(buttonLayout);
 	
 	setLayout(mainLayout);
+	
+	connect(_controller, SIGNAL(currentTabChanged(QWidget*)), this, SLOT(onTabChanged(QWidget*)));
 }
 
 void SplitTabAreaTestWidget::addTab()
@@ -50,7 +52,8 @@ void SplitTabAreaTestWidget::addTab()
 
 void SplitTabAreaTestWidget::onTabChanged(QWidget *tab)
 {
-	qDebug() << "current tab:" << tab->objectName();
+	if (tab)
+		qDebug() << "current tab:" << tab->objectName();
 }
 
 void SplitTabAreaTestWidget::focusInEvent(QFocusEvent *)

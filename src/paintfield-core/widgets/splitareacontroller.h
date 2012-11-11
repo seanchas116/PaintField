@@ -35,9 +35,9 @@ public:
 	SplitAreaController *parentSplit() { return _parent; }
 	Index index() { return _index; }
 	
-	SplitAreaController *childSplit(Index index) { return _children[index].data(); }
+	SplitAreaController *childSplit(Index index) { return childSplitRef(index).data(); }
 	
-	QList<SplitAreaController *> childSplits() { return isSplitted() ? QList<SplitAreaController *>({ _children[0].data(), _children[1].data() }) : QList<SplitAreaController *>(); }
+	QList<SplitAreaController *> childSplits() { return isSplitted() ? QList<SplitAreaController *>({ childSplitRef(First).data(), childSplitRef(Second).data() }) : QList<SplitAreaController *>(); }
 	
 	SplitAreaController *firstNonSplittedDescendant();
 	
@@ -52,6 +52,12 @@ private:
 	void setChildNodes(SplitAreaController *node0, SplitAreaController *node1);
 	void clearChildNodes();
 	void promote(Index index);
+	
+	ScopedQObjectPointer<SplitAreaController> &childSplitRef(Index index)
+	{
+		Q_ASSERT(0 <= index && index < 2);
+		return _children[index];
+	}
 	
 	SplitAreaController *_parent = 0;
 	Index _index = First;

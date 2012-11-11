@@ -96,7 +96,7 @@ public:
 	
 signals:
 	
-	void focused();
+	void focusChanged(bool x);
 	void closeRequested();
 	
 public slots:
@@ -104,6 +104,9 @@ public slots:
 protected:
 	
 	void closeEvent(QCloseEvent *event);
+	
+	void focusInEvent(QFocusEvent *);
+	void focusOutEvent(QFocusEvent *);
 	
 private:
 	
