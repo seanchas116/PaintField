@@ -13,9 +13,9 @@ mac {
   QMAKE_LFLAGS_SONAME = -Wl,-install_name,@executable_path/
 }
 
-INCLUDEPATH += $$PWD $$PWD/../ $$PWD/../libs $$PWD/../libs/Malachite/include $$PWD/../libs/qjson/include
+INCLUDEPATH += $$PWD $$PWD/../ $$PWD/../libs $$PWD/../libs/Malachite/include
 
-LIBS += -L$$OUT_PWD/../libs/Malachite/src -L$$OUT_PWD/../libs/Minizip -L$$OUT_PWD/../libs/qjson/lib
+LIBS += -L$$OUT_PWD/../libs/Malachite/src -L$$OUT_PWD/../libs/Minizip
 LIBS += -lfreeimage -lz -lmalachite -lminizip -lqjson
 
 LIBS += -L$$OUT_PWD/../paintfield-core

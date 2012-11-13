@@ -1,13 +1,11 @@
 #include <QtGui>
-#include <Malachite/ImageIO>
 
-#include "application.h"
-#include "document.h"
-#include "dialogs/newdocumentdialog.h"
-#include "dialogs/exportdialog.h"
 #include "drawutil.h"
 #include "tool.h"
-#include "module.h"
+#include "layerrenderer.h"
+#include "scopedtimer.h"
+#include "canvascontroller.h"
+#include "application.h"
 
 #include "canvasview.h"
 
@@ -38,42 +36,45 @@ private:
 	Tool *_tool = 0;
 };
 
-CanvasGraphicsObject::CanvasGraphicsObject(Document *document, QGraphicsItem *parent) :
-    QGraphicsObject(parent),
-    _document(document),
-    _pixmap(document->size())
+
+CanvasViewViewport::CanvasViewViewport(LayerModel *layerModel, QWidget *parent) :
+	QWidget(parent),
+	_layerModel(layerModel),
+	_pixmap(layerModel->document()->size())
 {
-	updateTiles(document->tileKeys());
-	connect(_document->layerModel(), SIGNAL(tilesUpdated(QPointSet)), this, SLOT(updateTiles(QPointSet)));
+	connect(_layerModel, SIGNAL(tilesUpdated(QPointSet)), this, SLOT(updateTiles(QPointSet)));
+	updateTiles(_layerModel->document()->tileKeys());
+	updateTransforms();
+	
+	int width = qMax(_pixmap.width(), _pixmap.height()) * 3;
+	resize(width, width);
 }
 
-void CanvasGraphicsObject::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void CanvasViewViewport::setNavigatorTransform(const QTransform &transform)
 {
-	Q_UNUSED(option);
-	Q_UNUSED(widget);
-	painter->drawPixmap(0, 0, _pixmap);
+	_navigatorTransform = transform;
+	updateTransforms();
 }
 
-void CanvasGraphicsObject::setTool(Tool *tool)
+void CanvasViewViewport::setTool(Tool *tool)
 {
 	_tool = tool;
 	if (tool)
 		connect(tool, SIGNAL(requestUpdate(QPointSet)), this, SLOT(updateTiles(QPointSet)));
 }
 
-void CanvasGraphicsObject::updateTiles(const QPointSet &tiles)
+void CanvasViewViewport::updateTiles(const QPointSet &tiles)
 {
-	QElapsedTimer timer;
-	timer.start();
+	PAINTFIELD_CALC_SCOPE_ELAPSED_TIME;
 	
-	QPointSet renderTiles = tiles & _document->tileKeys();
+	QPointSet renderTiles = tiles & _layerModel->document()->tileKeys();
 	
 	CanvasRenderer renderer;
 	renderer.setTool(_tool);
 	
-	Surface surface = renderer.renderToSurface(_document->layerModel()->rootLayer()->children(), renderTiles);
+	Surface surface = renderer.renderToSurface(_layerModel->rootLayer()->children(), renderTiles);
 	
-	foreach (const QPoint &key, renderTiles)
+	for (const QPoint &key : renderTiles)
 	{
 		Image tile = Surface::WhiteTile;
 		
@@ -91,236 +92,48 @@ void CanvasGraphicsObject::updateTiles(const QPointSet &tiles)
 		painter.end();
 		
 		QRect rect(key * Surface::TileSize, tile.size());
-		emit requireRepaint(rect);
-	}
-	
-	qDebug() << Q_FUNC_INFO << "took" << timer.elapsed() << "ms";
-}
-
-void CanvasGraphicsObject::changeCanvasSize(const QSize &size)
-{
-	_pixmap = QPixmap(size);
-	updateTiles(Surface::keysForRect(QRect(QPoint(), size)));
-}
-
-bool CanvasGraphicsObject::sceneEvent(QEvent *event)
-{
-	if (_tool)
-	{
-		switch ((int)event->type())
-		{
-			case PaintField::EventTabletMove:
-				_tool->cursorMoveEvent(static_cast<TabletEvent *>(event));
-				return event->isAccepted();
-			case PaintField::EventTabletPress:
-				_tool->cursorPressEvent(static_cast<TabletEvent *>(event));
-				return event->isAccepted();
-			case PaintField::EventTabletRelease:
-				_tool->cursorReleaseEvent(static_cast<TabletEvent *>(event));
-				return event->isAccepted();
-			default:
-				break;
-		}
-	}
-	
-	return QGraphicsObject::sceneEvent(event);
-}
-
-class CanvasItem : public QGraphicsItem
-{
-	friend class CanvasScene;
-};
-
-bool CanvasScene::event(QEvent *event)
-{
-	switch ((int)event->type())
-	{
-	case PaintField::EventTabletMove:
-	case PaintField::EventTabletPress:
-	case PaintField::EventTabletRelease:
-		break;
-	default:
-		return QGraphicsScene::event(event);
-	}
-	
-	TabletEvent *tabletEvent = static_cast<TabletEvent *>(event);
-	Vec2D pos = tabletEvent->data.pos;
-	CanvasItem *item = static_cast<CanvasItem *>(_cursorItem ? _cursorItem : itemAt(pos));
-	
-	if (item)
-	{
-		if ((int)event->type() == PaintField::EventTabletPress)
-			_cursorItem = item;
-		if ((int)event->type() == PaintField::EventTabletRelease)
-			_cursorItem = 0;
-		
-		tabletEvent->data.pos = item->mapFromScene(pos);
-		return item->sceneEvent(tabletEvent);
-	}
-	else
-	{
-		event->ignore();
-		return false;
+		repaint(_transformFromScene.mapRect(rect));
 	}
 }
+
+void CanvasViewViewport::updateTransforms()
+{
+	_transformFromScene = QTransform::fromTranslate(- _pixmap.width() / 2, - _pixmap.height() / 2) * _navigatorTransform * QTransform::fromTranslate(geometry().width() / 2, geometry().height() / 2);
+	_transformToScene = _transformFromScene.inverted();
+}
+
+void CanvasViewViewport::resizeEvent(QResizeEvent *event)
+{
+	updateTransforms();
+	event->accept();
+}
+
+void CanvasViewViewport::paintEvent(QPaintEvent *)
+{
+	QPainter painter(this);
+	painter.setTransform(_transformFromScene);
+	painter.drawPixmap(0, 0, _pixmap);
+}
+
+
+
+
+
 
 CanvasView::CanvasView(Document *document, CanvasController *controller, QWidget *parent) :
-    QGraphicsView(parent),
-    _document(document),
+	QScrollArea(parent),
+	_document(document),
 	_controller(controller)
 {
-	setScene(new CanvasScene(this));
-	setMouseTracking(true);
-	
-	setBackgroundBrush(Qt::lightGray);
-	//setAttribute(Qt::WA_TranslucentBackground);
-	//viewport()->setAttribute(Qt::WA_TranslucentBackground);
-	
-	changeCanvasSize(_document->size());
-	
-	_canvasGraphicsObject = new CanvasGraphicsObject(document);
-	scene()->addItem(_canvasGraphicsObject);
-	connect(_canvasGraphicsObject, SIGNAL(requireRepaint(QRect)), this, SLOT(repaintCanvas(QRect)));
-	
-	connect(_document, SIGNAL(modifiedChanged(bool)), this, SLOT(setWindowModified(bool)));
-	connect(_document, SIGNAL(filePathChanged(QString)), this, SLOT(documentPathChanged(QString)));
-	documentPathChanged(_document->filePath());
-	
-	// setting default transformation
-	
-	setTransformationAnchor(QGraphicsView::NoAnchor);
-	setTransform(QTransform::fromTranslate(-document->width(), -document->height()));
-}
-
-CanvasView::~CanvasView() {}
-
-void CanvasView::changeCanvasSize(const QSize &size)
-{
-	//QRect rect(-size.width() - size.width()/2, -size.height() - size.height()/2, 3 * size.width(), 3 * size.height());
-	QRect rect(-size.width(), -size.height(), size.width() * 3, size.height() * 3);
-	setSceneRect(rect);
+	_viewport = new CanvasViewViewport(document->layerModel());
+	setWidget(_viewport);
 }
 
 void CanvasView::setTool(const QString &name)
 {
 	Tool *tool = createTool(app()->modules(), controller()->workspace()->modules(), controller()->modules(), name, this);
-	_canvasGraphicsObject->setTool(tool);
+	_viewport->setTool(tool);
 }
 
-void CanvasView::documentPathChanged(const QString &path)
-{
-	if (path.isEmpty())
-		setWindowFilePath(_document->tempName());
-	else
-		setWindowFilePath(_document->filePath());
-}
-
-void CanvasView::repaintCanvas(const QRect &rect)
-{
-	QRect viewRect = viewportTransform().mapRect(QRectF(rect)).toAlignedRect();
-	repaint(viewRect);
-}
-
-void CanvasView::keyPressEvent(QKeyEvent *event)
-{
-	//PAINTFIELD_PRINT_DEBUG("key pressed");
-	super::keyPressEvent(event);
-}
-
-void CanvasView::mouseMoveEvent(QMouseEvent *event)
-{
-	if (processAsTabletEvent(event))
-		return;
-	
-	super::mouseMoveEvent(event);
-}
-
-void CanvasView::mousePressEvent(QMouseEvent *event)
-{
-	if (event->button() == Qt::LeftButton)
-	{
-		if (processAsTabletEvent(event))
-			return;
-	}
-	
-	super::mousePressEvent(event);
-}
-
-void CanvasView::mouseReleaseEvent(QMouseEvent *event)
-{
-	if (event->button() == Qt::LeftButton)
-	{
-		if (processAsTabletEvent(event))
-			return;
-	}
-	
-	super::mouseReleaseEvent(event);
-}
-
-void CanvasView::fsTabletEvent(TabletEvent *event)
-{
-	event->data.pos *= viewportTransform().inverted();
-	canvasScene()->event(event);
-}
-
-bool CanvasView::processAsTabletEvent(QMouseEvent *event)
-{
-	int type;
-	
-	switch (event->type())
-	{
-		default:
-		case QEvent::MouseMove:
-			type = PaintField::EventTabletMove;
-			break;
-		case QEvent::MouseButtonPress:
-			type = PaintField::EventTabletPress;
-			_mousePressure = 1.0;
-			break;
-		case QEvent::MouseButtonRelease:
-			type = PaintField::EventTabletRelease;
-			_mousePressure = 0.0;
-			break;
-	}
-	
-	QScopedPointer<TabletEvent> tabletEvent(new TabletEvent(type, event->globalPos(), event->globalPos(), event->posF() * viewportTransform().inverted(), _mousePressure, 0, 0, 0, 0, event->modifiers()));
-	tabletEvent->setAccepted(false);
-	canvasScene()->event(tabletEvent.data());
-	
-	return tabletEvent->isAccepted();
-}
-
-void CanvasView::wheelEvent(QWheelEvent *event)
-{
-	qDebug() << "wheel event";
-	qDebug() << "delta :" << event->delta() << event->orientation();
-	
-	switch (event->orientation())
-	{
-		case Qt::Horizontal:
-			translate(event->delta() / 2, 0);
-			break;
-		case Qt::Vertical:
-			translate(0, event->delta() / 2);
-			break;
-		default:
-			break;
-	}
-}
-
-bool CanvasView::event(QEvent *event)
-{
-	switch ((int)event->type())
-	{
-	case PaintField::EventTabletMove:
-	case PaintField::EventTabletPress:
-	case PaintField::EventTabletRelease:
-		fsTabletEvent(static_cast<TabletEvent *>(event));
-		return event->isAccepted();
-	default:
-		return super::event(event);
-	}
-}
 
 }
-

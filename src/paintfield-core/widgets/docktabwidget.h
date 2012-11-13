@@ -62,8 +62,6 @@ protected:
 	
 private slots:
 	
-	void onCurrentIndexChanged(int index) { if (index < 0) deleteIfEmpty(); }
-	
 private:
 	
 	bool _autoDeletionEnabled = false;

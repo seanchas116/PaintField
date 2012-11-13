@@ -122,6 +122,8 @@ public slots:
 	void setCurrentTabWidget(SplitTabWidget *tabWidget);
 	void setCurrentTab(QWidget *tab);
 	
+	void removeTab(QWidget *tab);
+	
 private slots:
 	
 	void onCurrentTabWidgetCurrentChanged(int index);
@@ -133,6 +135,7 @@ private:
 	
 	void setCurrentSplit(SplitAreaController *split);
 	
+	SplitTabWidget *tabWidgetForTab(QWidget *tab);
 	SplitTabWidget *tabWidgetForSplit(SplitAreaController *split);
 	SplitTabWidget *tabWidgetForCurrentSplit() { return tabWidgetForSplit(_currentSplit); }
 	SplitAreaController *splitForWidget(QWidget *widget);

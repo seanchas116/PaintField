@@ -40,12 +40,12 @@ void LayerActionController::importLayer()
 	
 	QFileInfo fileInfo(filePath);
 	
-	RasterLayer layer(fileInfo.fileName());
-	layer.setSurface(surface);
+	auto layer = new RasterLayer(fileInfo.fileName());
+	layer->setSurface(surface);
 	
 	QModelIndex index = _model->currentIndex();
 	int row = index.isValid() ? index.row() + 1 : _model->rowCount(QModelIndex());
-	_model->addLayer(&layer, index.parent(), row, tr("Add Image"));
+	_model->addLayer(layer, index.parent(), row, tr("Add Image"));
 }
 
 void LayerActionController::newLayer(Layer::Type type)

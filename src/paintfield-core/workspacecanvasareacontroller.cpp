@@ -26,7 +26,7 @@ void WorkspaceCanvasAreaController::addCanvas(CanvasController *controller)
 
 void WorkspaceCanvasAreaController::removeCanvas(CanvasController *controller)
 {
-	controller->view()->setParent(0);
+	_tabArea->removeTab(controller->view());
 }
 
 void WorkspaceCanvasAreaController::setCurrentCanvas(CanvasController *controller)

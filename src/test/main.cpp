@@ -130,13 +130,15 @@ int main(int argc, char *argv[])
 	//auto testObj = new TestObject;
 	//QObject::connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)), testObj, SLOT(onFocusChanged(QWidget*,QWidget*)));
 	
-	test_SplitTabAreaController();
+	//test_SplitTabAreaController();
 	//test_TabWidget();
 	//test_TabDocumentAreaNode();
 	//test_DockTabWidget();
 	//test_DocumentIO_saveLoad();
+	
+	PAINTFIELD_DEBUG << Surface::DefaultTile.constBits();
 	//test_Surface();
-	//test_CanvasView();
+	test_CanvasView();
 	
 	return app.exec();
 }

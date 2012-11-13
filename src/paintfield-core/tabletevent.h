@@ -8,6 +8,17 @@
 
 namespace PaintField {
 
+class WidgetTabletEvent : public QInputEvent
+{
+public:
+	
+	WidgetTabletEvent(int type, const QPointF &globalPos, const QPoint &globalPosInt, const QPoint &pos, qreal pressure, int xTilt, int yTilt,
+					  qreal rotation, qreal tangentialPressure, Qt::KeyboardModifiers keyState);
+	
+	QPoint posInt, globalPosInt;
+	TabletInputData globalData;
+};
+
 class TabletEvent : public QInputEvent
 {
 public:

@@ -22,7 +22,7 @@ DockTabWidget::DockTabWidget(DockTabWidget *other, QWidget *parent) :
 	DockTabWidget(parent)
 {
 	resize(other->size());
-	connect(this, SIGNAL(currentChanged(int)), this, SLOT(onCurrentIndexChanged(int)));
+	//connect(this, SIGNAL(currentChanged(int)), this, SLOT(onCurrentIndexChanged(int)));
 }
 
 void DockTabWidget::moveTab(DockTabWidget *source, int sourceIndex, DockTabWidget *dest, int destIndex)
@@ -99,6 +99,7 @@ DockTabBar::DockTabBar(DockTabWidget *tabWidget, QWidget *parent) :
 	QTabBar(parent),
 	_tabWidget(tabWidget)
 {
+	Q_ASSERT(tabWidget);
 	setAcceptDrops(true);
 }
 
@@ -197,6 +198,7 @@ void DockTabBar::mouseMoveEvent(QMouseEvent *event)
 	}
 	
 	_isStartingDrag = false;
+	_tabWidget->deleteIfEmpty();
 }
 
 void DockTabBar::dragMoveEvent(QDragMoveEvent *event)

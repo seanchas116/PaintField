@@ -87,6 +87,7 @@ void SplitTabDefaultWidget::dropEvent(QDropEvent *event)
 		return;
 	
 	DockTabWidget::moveTab(oldTabWidget, oldIndex, _tabWidget, _tabWidget->count());
+	event->acceptProposedAction();
 }
 
 
@@ -215,6 +216,16 @@ void SplitTabAreaController::setCurrentTab(QWidget *tab)
 	}
 }
 
+void SplitTabAreaController::removeTab(QWidget *tab)
+{
+	auto tabWidget = tabWidgetForTab(tab);
+	if (tabWidget)
+	{
+		tabWidget->removeTab(tabWidget->indexOf(tab));
+		tabWidget->deleteIfEmpty();
+	}
+}
+
 void SplitTabAreaController::onCurrentTabWidgetCurrentChanged(int index)
 {
 	QWidget *tab = _currentTabWidget ? _currentTabWidget->widget(index) : 0;
@@ -251,6 +262,16 @@ void SplitTabAreaController::setCurrentSplit(SplitAreaController *split)
 		_currentSplit = split;
 		setCurrentTabWidget(tabWidgetForCurrentSplit());
 	}
+}
+
+SplitTabWidget *SplitTabAreaController::tabWidgetForTab(QWidget *tab)
+{
+	for (SplitTabWidget *tabWidget : _tabWidgets)
+	{
+		if (tabWidget->contains(tab))
+			return tabWidget;
+	}
+	return 0;
 }
 
 SplitTabWidget *SplitTabAreaController::tabWidgetForSplit(SplitAreaController *split)

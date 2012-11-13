@@ -35,7 +35,7 @@ public:
 	 * @param parent
 	 */
 	Document(const QString &tempName, const QSize &size, Layer *layer, QObject *parent = 0) :
-		Document(tempName, size, Malachite::listFromValue(layer), parent) {}
+		Document(tempName, size, LayerList({layer}), parent) {}
 	
 	QSize size() const { return _size; }
 	int width() const { return _size.width(); }

@@ -1,5 +1,6 @@
 #include <QtGui>
 #include <Malachite/GenericImage>
+#include "util.h"
 
 #include "drawutil.h"
 
@@ -60,6 +61,7 @@ void drawMLImageFast(QPainter *painter, const QPoint &point, const Image &image)
 	int pixelCount = size.width() * size.height();
 	
 	uint8_t *buffer = reinterpret_cast<uint8_t *>(allocateAlignedMemory(pixelCount * 4, 16));
+	
 	copyColorFast(pixelCount, reinterpret_cast<Vec4U8 *>(buffer), image.constBits());
 	
 	QImage qimage(buffer, size.width(), size.height(), QImage::Format_ARGB32_Premultiplied);

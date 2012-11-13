@@ -375,7 +375,7 @@ const Layer *LayerModel::layerForIndex(const QModelIndex &index) const
 	
 	if (index.isValid())
 	{
-		layer = static_cast<Layer *>(index.internalPointer());
+		layer = static_cast<const Layer *>(index.internalPointer());
 		
 		if (!checkLayer(layer))
 		{
@@ -387,6 +387,7 @@ const Layer *LayerModel::layerForIndex(const QModelIndex &index) const
 	{
 		layer = rootLayer();
 	}
+	
 	return layer;
 }
 

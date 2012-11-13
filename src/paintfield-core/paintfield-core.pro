@@ -13,15 +13,14 @@ mac {
   QMAKE_LFLAGS_SONAME = -Wl,-install_name,@executable_path/
 }
 
-INCLUDEPATH += $$PWD $$PWD/../libs $$PWD/../libs/Malachite/include $$PWD/../libs/qjson/include
+INCLUDEPATH += $$PWD $$PWD/../libs $$PWD/../libs/Malachite/include
 
-LIBS += -L$$OUT_PWD/../libs/Malachite/src -L$$OUT_PWD/../libs/Minizip -L$$OUT_PWD/../libs/qjson/lib
+LIBS += -L$$OUT_PWD/../libs/Malachite/src -L$$OUT_PWD/../libs/Minizip
 LIBS += -lfreeimage -lz -lmalachite -lminizip -lqjson
 
 # Input
 HEADERS += application.h \
            canvascontroller.h \
-           canvasview.h \
            document.h \
            documentio.h \
            drawutil.h \
@@ -64,11 +63,12 @@ HEADERS += application.h \
     widgets/splitareacontroller.h \
     workspacecanvasareacontroller.h \
     widgets/floatingdocktabwidget.h \
-    widgets/splittabareacontroller.h
+    widgets/splittabareacontroller.h \
+    canvasview_obsolete.h \
+    canvasview.h
 FORMS += dialogs/exportdialog.ui dialogs/newdocumentdialog.ui
 SOURCES += application.cpp \
            canvascontroller.cpp \
-           canvasview.cpp \
            document.cpp \
            documentio.cpp \
            drawutil.cpp \
@@ -106,4 +106,6 @@ SOURCES += application.cpp \
     widgets/splitareacontroller.cpp \
     workspacecanvasareacontroller.cpp \
     widgets/floatingdocktabwidget.cpp \
-    widgets/splittabareacontroller.cpp
+    widgets/splittabareacontroller.cpp \
+    canvasview_obsolete.cpp \
+    canvasview.cpp
