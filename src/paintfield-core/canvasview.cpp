@@ -45,6 +45,8 @@ CanvasViewViewport::CanvasViewViewport(LayerModel *layerModel, QWidget *parent) 
 	_layerModel(layerModel),
 	_pixmap(layerModel->document()->size())
 {
+	setMouseTracking(true);
+	
 	connect(_layerModel, SIGNAL(tilesUpdated(QPointSet)), this, SLOT(updateTiles(QPointSet)));
 	updateTiles(_layerModel->document()->tileKeys());
 	updateTransforms();

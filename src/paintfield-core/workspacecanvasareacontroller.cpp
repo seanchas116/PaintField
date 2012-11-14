@@ -21,7 +21,7 @@ QWidget *WorkspaceCanvasAreaController::view()
 
 void WorkspaceCanvasAreaController::addCanvas(CanvasController *controller)
 {
-	_tabArea->addTab(controller->view(), controller->view()->windowTitle());
+	_tabArea->addTab(controller->view(), controller->document()->fileName());
 }
 
 void WorkspaceCanvasAreaController::removeCanvas(CanvasController *controller)
