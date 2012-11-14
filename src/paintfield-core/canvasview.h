@@ -33,9 +33,18 @@ signals:
 	
 protected:
 	
+	void keyPressEvent(QKeyEvent *event);
+	void keyReleaseEvent(QKeyEvent *event);
+	void mouseDoubleClickEvent(QMouseEvent *event);
+	void mouseMoveEvent(QMouseEvent *event);
+	void mousePressEvent(QMouseEvent *event);
+	void mouseReleaseEvent(QMouseEvent *event);
 	void customTabletEvent(WidgetTabletEvent *event);
+	
 	void resizeEvent(QResizeEvent *event);
 	void paintEvent(QPaintEvent *event);
+	
+	bool event(QEvent *event);
 	
 private slots:
 	
@@ -43,10 +52,14 @@ private slots:
 	
 private:
 	
+	bool sendCanvasMouseEvent(QMouseEvent *event);
+	bool sendCanvasTabletEvent(QMouseEvent *mouseEvent);
+	bool sendCanvasTabletEvent(WidgetTabletEvent *event);
 	void updateTransforms();
 	
 	LayerModel *_layerModel = 0;
 	Tool *_tool = 0;
+	double _mousePressure = 0;
 	QPixmap _pixmap;
 	QTransform _transformToScene, _transformFromScene, _navigatorTransform;
 };
@@ -66,7 +79,7 @@ public slots:
 	
 	void setTool(const QString &name);
 	
-protected:
+private:
 	
 	CanvasViewViewport *_viewport = 0;
 	Document *_document = 0;

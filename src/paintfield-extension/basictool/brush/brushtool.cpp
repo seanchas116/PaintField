@@ -32,16 +32,14 @@ void BrushTool::drawLayer(SurfacePainter *painter, const Layer *layer)
 	painter->drawTransformedSurface(QPoint(), _surface);
 }
 
-void BrushTool::cursorPressEvent(TabletEvent *event)
+void BrushTool::tabletPressEvent(CanvasTabletEvent *event)
 {
 	event->accept();
 }
 
-void BrushTool::cursorMoveEvent(TabletEvent *event)
+void BrushTool::tabletMoveEvent(CanvasTabletEvent *event)
 {
-#ifdef QT_DEBUG
-	qDebug() << "tablet event x:" << event->data.pos.x << "y:" << event->data.pos.y << "pressure:" << event->data.pressure;
-#endif
+	PAINTFIELD_DEBUG << "tablet event x:" << event->data.pos.x << "y:" << event->data.pos.y << "pressure:" << event->data.pressure;
 	
 	if (_stroker)
 	{
@@ -80,7 +78,7 @@ void BrushTool::cursorMoveEvent(TabletEvent *event)
 	event->accept();
 }
 
-void BrushTool::cursorReleaseEvent(TabletEvent *event)
+void BrushTool::tabletReleaseEvent(CanvasTabletEvent *event)
 {
 	event->accept();
 }

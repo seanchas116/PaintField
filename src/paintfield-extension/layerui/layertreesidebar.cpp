@@ -26,7 +26,7 @@ LayerTreeSidebar::LayerTreeSidebar(CanvasController *canvas, QWidget *parent) :
 	{
 		_treeView->setModel(canvas->layerModel());
 		connect(canvas->document(), SIGNAL(modified()), this, SLOT(updatePropertyView()));
-		connect(canvas->layerModel(), SIGNAL(currentIndexChanged(QModelIndex,QModelIndex)), this, SLOT(updatePropertyView()));
+		connect(canvas->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(updatePropertyView()));
 		updatePropertyView();
 		_treeView->setSelectionModel(canvas->selectionModel());
 	}

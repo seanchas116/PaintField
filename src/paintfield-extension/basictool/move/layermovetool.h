@@ -24,12 +24,12 @@ public slots:
 	
 protected:
 	
-	void cursorPressEvent(TabletEvent *event);
-	void cursorMoveEvent(TabletEvent *event);
-	void cursorReleaseEvent(TabletEvent *event);
+	void tabletPressEvent(CanvasTabletEvent *event);
+	void tabletMoveEvent(CanvasTabletEvent *event);
+	void tabletReleaseEvent(CanvasTabletEvent *event);
 	
 	void beginMoveLayer();
-	void moveLayer(TabletEvent *event);
+	void moveLayer(CanvasTabletEvent *event);
 	void endMoveLayer();
 	
 private:

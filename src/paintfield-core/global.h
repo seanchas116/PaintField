@@ -12,7 +12,8 @@
 namespace PaintField
 {
 
-enum LayerPropertyRole {
+enum LayerPropertyRole
+{
 	RoleName = Qt::UserRole,
 	RoleType,
 	RoleVisible,
@@ -23,21 +24,29 @@ enum LayerPropertyRole {
 	RoleSurface
 };
 
-enum Event {
-	EventTabletMove = QEvent::User,
-	EventTabletPress,
-	EventTabletRelease
-};
-
-enum ImageDataFormat {
+enum EventType
+{
+	EventCanvasTabletMove = QEvent::User,
+	EventCanvasTabletPress,
+	EventCanvasTabletRelease,
 	
+	EventWidgetTabletMove,
+	EventWidgetTabletPress,
+	EventWidgetTabletRelease,
+	
+	EventCanvasMouseMove,
+	EventCanvasMousePress,
+	EventCanvasMouseRelease,
+	EventCanvasMouseDoubleClick
 };
 
-enum ThumbnailSize {
+enum ThumbnailSize
+{
 	ThumbnailSize = 48
 };
 
-enum EditAction {
+enum EditActionType
+{
 	EditActionCopy,
 	EditActionCut,
 	EditActionPaste,

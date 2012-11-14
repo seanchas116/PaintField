@@ -12,30 +12,49 @@ class WidgetTabletEvent : public QInputEvent
 {
 public:
 	
-	WidgetTabletEvent(int type, const QPointF &globalPos, const QPoint &globalPosInt, const QPoint &pos, qreal pressure, int xTilt, int yTilt,
-					  qreal rotation, qreal tangentialPressure, Qt::KeyboardModifiers keyState);
+	WidgetTabletEvent(int type, const QPoint &globalPosInt, const QPoint &posInt, const TabletInputData &globalData, Qt::KeyboardModifiers keyState) :
+		QInputEvent(static_cast<QEvent::Type>(type), keyState),
+		posInt(posInt),
+		globalPosInt(globalPosInt),
+		globalData(globalData)
+	{}
 	
 	QPoint posInt, globalPosInt;
 	TabletInputData globalData;
 };
 
-class TabletEvent : public QInputEvent
+class CanvasTabletEvent : public QInputEvent
 {
 public:
-	TabletEvent(int type, const QPointF &globalPos, const QPoint &globalPosInt, const QPointF &posF, qreal pressure, int xTilt, int yTilt,
-	              qreal rotation, qreal tangentialPressure, Qt::KeyboardModifiers keyState) :
+	
+	CanvasTabletEvent(int type, const Malachite::Vec2D &globalPos, const QPoint &globalPosInt, const TabletInputData &data, Qt::KeyboardModifiers keyState) :
 		QInputEvent(static_cast<QEvent::Type>(type), keyState),
 		globalPos(globalPos),
 		globalPosInt(globalPosInt),
-		data(posF, pressure, rotation, tangentialPressure, Malachite::Vec2D(xTilt, yTilt))
-	{
-		setAccepted(false);
-	}
+		data(data)
+	{}
 	
 	Malachite::Vec2D globalPos;
 	QPoint globalPosInt;
 	TabletInputData data;
 };
+
+class CanvasMouseEvent : public QInputEvent
+{
+public:
+	
+	CanvasMouseEvent(int type, const QPoint &globalPos, const Malachite::Vec2D &pos, Qt::KeyboardModifiers keyState) :
+		QInputEvent(static_cast<QEvent::Type>(type), keyState),
+		globalPos(globalPos),
+		pos(pos)
+	{}
+	
+	QPoint globalPos;
+	Malachite::Vec2D pos;
+};
+
+
+
 
 }
 

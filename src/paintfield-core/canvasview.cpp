@@ -14,6 +14,9 @@ namespace PaintField
 
 using namespace Malachite;
 
+
+
+
 class CanvasRenderer : public LayerRenderer
 {
 public:
@@ -100,6 +103,140 @@ void CanvasViewViewport::updateTransforms()
 {
 	_transformFromScene = QTransform::fromTranslate(- _pixmap.width() / 2, - _pixmap.height() / 2) * _navigatorTransform * QTransform::fromTranslate(geometry().width() / 2, geometry().height() / 2);
 	_transformToScene = _transformFromScene.inverted();
+}
+
+void CanvasViewViewport::keyPressEvent(QKeyEvent *event)
+{
+	if (_tool)
+		_tool->toolEvent(event);
+}
+
+void CanvasViewViewport::keyReleaseEvent(QKeyEvent *event)
+{
+	if (_tool)
+		_tool->toolEvent(event);
+}
+
+void CanvasViewViewport::mouseDoubleClickEvent(QMouseEvent *event)
+{
+	if (_tool)
+		event->setAccepted(sendCanvasMouseEvent(event));
+}
+
+void CanvasViewViewport::mousePressEvent(QMouseEvent *event)
+{
+	if (_tool)
+		event->setAccepted(sendCanvasTabletEvent(event) || sendCanvasMouseEvent(event));
+}
+
+void CanvasViewViewport::mouseMoveEvent(QMouseEvent *event)
+{
+	if (_tool)
+		event->setAccepted(sendCanvasTabletEvent(event) || sendCanvasMouseEvent(event));
+}
+
+void CanvasViewViewport::mouseReleaseEvent(QMouseEvent *event)
+{
+	if (_tool)
+		event->setAccepted(sendCanvasTabletEvent(event) || sendCanvasMouseEvent(event));
+}
+
+void CanvasViewViewport::customTabletEvent(WidgetTabletEvent *event)
+{
+	if (_tool)
+		event->setAccepted(sendCanvasTabletEvent(event));
+}
+
+bool CanvasViewViewport::event(QEvent *event)
+{
+	switch (event->type())
+	{
+		case EventWidgetTabletMove:
+		case EventWidgetTabletPress:
+		case EventWidgetTabletRelease:
+			customTabletEvent(static_cast<WidgetTabletEvent *>(event));
+			return event->isAccepted();
+		default:
+			return QWidget::event(event);
+	}
+}
+
+bool CanvasViewViewport::sendCanvasMouseEvent(QMouseEvent *event)
+{
+	auto toCanvasEventType = [](QEvent::Type type)
+	{
+		switch (type)
+		{
+			default:
+			case QEvent::MouseMove:
+				return EventCanvasMouseMove;
+			case QEvent::MouseButtonPress:
+				return EventCanvasMousePress;
+			case QEvent::MouseButtonRelease:
+				return EventCanvasMouseRelease;
+			case QEvent::MouseButtonDblClick:
+				return EventCanvasMouseDoubleClick;
+		}
+	};
+	
+	CanvasMouseEvent canvasEvent(toCanvasEventType(event->type()), event->globalPos(), event->posF() * _transformToScene, event->modifiers());
+	_tool->toolEvent(&canvasEvent);
+	return canvasEvent.isAccepted();
+}
+
+bool CanvasViewViewport::sendCanvasTabletEvent(WidgetTabletEvent *event)
+{
+	TabletInputData data = event->globalData;
+	Vec2D globalPos = data.pos;
+	data.pos += Vec2D(event->posInt - event->globalPosInt);
+	data.pos *= _transformToScene;
+	
+	auto toCanvasEventType = [](int type)
+	{
+		switch (type)
+		{
+			default:
+			case EventWidgetTabletMove:
+				return EventCanvasTabletMove;
+			case EventWidgetTabletPress:
+				return EventCanvasTabletPress;
+			case EventWidgetTabletRelease:
+				return EventCanvasTabletRelease;
+		}
+	};
+	
+	CanvasTabletEvent canvasEvent(toCanvasEventType(event->type()), globalPos, event->globalPosInt, data, event->modifiers());
+	_tool->toolEvent(&canvasEvent);
+	return canvasEvent.isAccepted();
+}
+
+bool CanvasViewViewport::sendCanvasTabletEvent(QMouseEvent *mouseEvent)
+{
+	auto toCanvasEventType = [](QEvent::Type type)
+	{
+		switch (type)
+		{
+			default:
+			case QEvent::MouseMove:
+				return EventCanvasTabletMove;
+			case QEvent::MouseButtonPress:
+				return EventCanvasTabletPress;
+			case QEvent::MouseButtonRelease:
+				return EventCanvasTabletRelease;
+		}
+	};
+	
+	int type = toCanvasEventType(mouseEvent->type());
+	
+	if (type == EventCanvasTabletPress)
+		_mousePressure = 1.0;
+	if (type == EventCanvasTabletRelease)
+		_mousePressure = 0.0;
+	
+	TabletInputData data(mouseEvent->posF() * _transformToScene, _mousePressure, 0, 0, Vec2D(0));
+	CanvasTabletEvent tabletEvent(type, mouseEvent->globalPos(), mouseEvent->globalPos(), data, mouseEvent->modifiers());
+	_tool->toolEvent(&tabletEvent);
+	return tabletEvent.isAccepted();
 }
 
 void CanvasViewViewport::resizeEvent(QResizeEvent *event)

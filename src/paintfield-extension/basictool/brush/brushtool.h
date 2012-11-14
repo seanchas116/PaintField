@@ -30,9 +30,9 @@ public slots:
 	
 protected:
 	
-	void cursorPressEvent(TabletEvent *event);
-	void cursorMoveEvent(TabletEvent *event);
-	void cursorReleaseEvent(TabletEvent *event);
+	void tabletPressEvent(CanvasTabletEvent *event);
+	void tabletMoveEvent(CanvasTabletEvent *event);
+	void tabletReleaseEvent(CanvasTabletEvent *event);
 	
 	bool canvasEventFilter(QEvent *event);
 	

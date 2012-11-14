@@ -34,12 +34,12 @@ public:
 	/**
 	 * @return The document's current layer index
 	 */
-	QModelIndex currentLayerIndex() { return canvasView()->controller()->selectionModel()->currentIndex(); }
+	QModelIndex currentLayerIndex() { return selectionModel()->currentIndex(); }
 	
 	/**
-	 * @return The document's current laye
+	 * @return The document's current layer
 	 */
-	const Layer *currentLayer() { return document()->layerModel()->layerForIndex(currentLayerIndex()); }
+	const Layer *currentLayer() { return layerModel()->layerForIndex(currentLayerIndex()); }
 	
 	/**
 	 * @return A graphics item which is displayed on top of the canvas
@@ -57,12 +57,19 @@ public:
 	void clearCustomDrawLayer() { _customDrawLayers.clear(); }
 	LayerConstList customDrawLayers() { return _customDrawLayers; }
 	
-	virtual void cursorPressEvent(TabletEvent *event) { event->ignore(); return; }
-	virtual void cursorMoveEvent(TabletEvent *event) { event->ignore(); return; }
-	virtual void cursorReleaseEvent(TabletEvent *event) { event->ignore(); return; }
+	virtual void mouseMoveEvent(CanvasMouseEvent *event) { event->ignore(); return; }
+	virtual void mousePressEvent(CanvasMouseEvent *event) { event->ignore(); return; }
+	virtual void mouseReleaseEvent(CanvasMouseEvent *event) { event->ignore(); return; }
+	virtual void mouseDoubleClickEvent(CanvasMouseEvent *event) { event->ignore(); return; }
+	
+	virtual void tabletMoveEvent(CanvasTabletEvent *event) { event->ignore(); return; }
+	virtual void tabletPressEvent(CanvasTabletEvent *event) { event->ignore(); return; }
+	virtual void tabletReleaseEvent(CanvasTabletEvent *event) { event->ignore(); return; }
 	
 	virtual void keyPressEvent(QKeyEvent *event) { event->ignore(); return; }
 	virtual void keyReleaseEvent(QKeyEvent *event) { event->ignore(); return; }
+	
+	virtual void toolEvent(QEvent *event);
 	
 public slots:
 	
@@ -74,6 +81,7 @@ protected:
 	
 	CanvasView *canvasView() { return static_cast<CanvasView *>(parent()); }
 	Document *document() { return canvasView()->document(); }
+	LayerModel *layerModel() { return document()->layerModel(); }
 	QItemSelectionModel *selectionModel() { return canvasView()->controller()->selectionModel(); }
 	
 private:

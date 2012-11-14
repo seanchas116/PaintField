@@ -1,4 +1,5 @@
 #include <QtGui>
+#include "../debug.h"
 #include "../tabletevent.h"
 
 #include "tableteventfilter.h"
@@ -6,79 +7,73 @@
 namespace PaintField
 {
 
+using namespace Malachite;
+
 bool TabletEventFilter::eventFilter(QObject *watched, QEvent *event)
 {
-	Q_UNUSED(watched);
-	
-	if (event->type() == QEvent::TabletMove || event->type() == QEvent::TabletPress || event->type() == QEvent::TabletRelease)
+	switch (event->type())
 	{
-		QTabletEvent *tabletEvent = static_cast<QTabletEvent *>(event);
-		
-		QWidget *widget = _targetWidget ? _targetWidget : QApplication::widgetAt(tabletEvent->globalPos());
-		
-		if (!widget)
-			return true;
-		
-		PaintField::Event newEventType;
-		switch (event->type())
-		{
-		case QEvent::TabletMove:
-			newEventType = PaintField::EventTabletMove;
-			break;
-		case QEvent::TabletPress:
-			newEventType = PaintField::EventTabletPress;
-			break;
-		case QEvent::TabletRelease:
-			newEventType = PaintField::EventTabletRelease;
-			break;
 		default:
-			event->ignore();
-			return true;
-		}
-		
-		TabletEvent newEvent(newEventType,
-							   tabletEvent->hiResGlobalPos(),
-							   tabletEvent->globalPos(),
-							   QPointF(),
-							   tabletEvent->pressure(),
-							   tabletEvent->xTilt(),
-							   tabletEvent->yTilt(),
-							   tabletEvent->rotation(),
-							   tabletEvent->tangentialPressure(),
-							   tabletEvent->modifiers());
-		
-		newEvent.setAccepted(false);
-		
-		QWidget *widgetRecursve = widget;
-		
-		while (widgetRecursve)
-		{
-			newEvent.data.pos = newEvent.globalPos - widgetRecursve->geometry().topLeft();
-			
-			QCoreApplication::sendEvent(widgetRecursve, &newEvent);
-			
-			if (newEvent.isAccepted())
-				break;
-			
-			widgetRecursve = widgetRecursve->parentWidget();
-		}
-		
-		event->setAccepted(newEvent.isAccepted());
-		
-		if (event->type() == QEvent::TabletPress)
-		{
-			_targetWidget = widget;
-		}
-		
-		if (event->type() == QEvent::TabletRelease)
-		{
-			_targetWidget = 0;
-		}
-		
-		return true;
+			return false;
+		case QEvent::TabletMove:
+		case QEvent::TabletPress:
+		case QEvent::TabletRelease:
+			break;
 	}
 	
-	return false;
+	auto tabletEvent = static_cast<QTabletEvent *>(event);
+	
+	QWidget *window = _targetWindow ? _targetWindow : qobject_cast<QWidget *>(watched);
+	
+	if (!window || window->parent() != 0)
+		return true;
+	
+	event->setAccepted(sendTabletEvent(window, tabletEvent));
+	return true;
+}
+
+bool TabletEventFilter::sendTabletEvent(QWidget *window, QTabletEvent *event)
+{
+	Q_CHECK_PTR(window);
+	Q_CHECK_PTR(event);
+	
+	TabletInputData data(event->hiResGlobalPos(),
+						 event->pressure(),
+						 event->rotation(),
+						 event->tangentialPressure(),
+						 Vec2D(event->xTilt(), event->yTilt()));
+	
+	auto toNewEventType = [](QEvent::Type type)
+	{
+		switch (type)
+		{
+			default:
+			case QEvent::TabletMove:
+				return PaintField::EventWidgetTabletMove;
+			case QEvent::TabletPress:
+				return PaintField::EventWidgetTabletPress;
+			case QEvent::TabletRelease:
+				return PaintField::EventWidgetTabletRelease;
+		}
+	};
+	
+	WidgetTabletEvent newEvent(toNewEventType(event->type()), event->globalPos(), event->pos(), data, event->modifiers());
+	newEvent.setAccepted(false);
+	
+	QWidget *widget = window->childAt(newEvent.posInt);
+	if (!widget)
+		return true;
+	
+	newEvent.posInt = widget->mapFromGlobal(newEvent.globalPosInt);
+	QCoreApplication::sendEvent(widget, &newEvent);
+	
+	if (event->type() == QEvent::TabletPress)
+		_targetWindow = window;
+	
+	if (event->type() == QEvent::TabletRelease)
+		_targetWindow = 0;
+	
+	return newEvent.isAccepted();
 }
 
 }

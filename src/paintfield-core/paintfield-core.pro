@@ -110,4 +110,5 @@ SOURCES += application.cpp \
     widgets/floatingdocktabwidget.cpp \
     widgets/splittabareacontroller.cpp \
     canvasview_obsolete.cpp \
-    canvasview.cpp
+    canvasview.cpp \
+    tool.cpp

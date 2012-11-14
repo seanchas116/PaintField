@@ -1,5 +1,7 @@
 #include <Malachite/Division>
 
+
+#include "paintfield-core/debug.h"
 #include "paintfield-core/tabletevent.h"
 #include "paintfield-core/layer.h"
 #include "paintfield-core/widgets/simplebutton.h"
@@ -54,10 +56,11 @@ LayerMoveTool::LayerMoveTool(CanvasView *parent) :
 
 void LayerMoveTool::drawLayer(SurfacePainter *painter, const Layer *layer)
 {
+	PAINTFIELD_DEBUG << "offset:" << _offset;
 	painter->drawSurface(_offset, layer->surface());
 }
 
-void LayerMoveTool::cursorMoveEvent(TabletEvent *event)
+void LayerMoveTool::tabletMoveEvent(CanvasTabletEvent *event)
 {
 	if (!_layerIsDragged) return;
 	
@@ -65,7 +68,7 @@ void LayerMoveTool::cursorMoveEvent(TabletEvent *event)
 	
 	QPointSet keys;
 	
-	foreach (const QPoint &key, _layer->surface().keys())
+	for (const QPoint &key : _layer->surface().keys())
 	{
 		keys |= Surface::keysForRect(Surface::keyToRect(key).translated(_offset));
 	}
@@ -74,8 +77,9 @@ void LayerMoveTool::cursorMoveEvent(TabletEvent *event)
 	_lastKeys = keys;
 }
 
-void LayerMoveTool::cursorPressEvent(TabletEvent *event)
+void LayerMoveTool::tabletPressEvent(CanvasTabletEvent *event)
 {
+	PAINTFIELD_DEBUG << "pressed";
 	_layer = currentLayer();
 	if (_layer && _layer->type() == Layer::TypeRaster)
 	{
@@ -86,14 +90,15 @@ void LayerMoveTool::cursorPressEvent(TabletEvent *event)
 	}
 }
 
-void LayerMoveTool::cursorReleaseEvent(TabletEvent *event)
+void LayerMoveTool::tabletReleaseEvent(CanvasTabletEvent *event)
 {
+	PAINTFIELD_DEBUG << "released";
 	if (_layerIsDragged)
 	{
 		_offset = event->data.pos.toQPoint() - _dragStartPoint;
 		_layerIsDragged = false;
 		clearCustomDrawLayer();
-		document()->layerModel()->editLayer(currentLayerIndex(), new FSLayerMoveEdit(_offset), tr("Layer Move"));
+		layerModel()->editLayer(currentLayerIndex(), new FSLayerMoveEdit(_offset), tr("Layer Move"));
 	}
 }
 
