@@ -1,10 +1,14 @@
-#ifndef FSSCOPEDTIMER_H
-#define FSSCOPEDTIMER_H
+#ifndef DEBUG_H
+#define DEBUG_H
 
-#include <QElapsedTimer>
 #include <QDebug>
+#include <QElapsedTimer>
 
-namespace PaintField {
+#define PAINTFIELD_WARNING qWarning() << Q_FUNC_INFO << ":"
+#define PAINTFIELD_DEBUG qDebug() << Q_FUNC_INFO << ":"
+
+namespace PaintField
+{
 
 class ScopedTimer
 {
@@ -29,4 +33,5 @@ private:
 
 #define PAINTFIELD_CALC_SCOPE_ELAPSED_TIME	ScopedTimer timer__(Q_FUNC_INFO)
 
-#endif // FSSCOPEDTIMER_H
+
+#endif // DEBUG_H

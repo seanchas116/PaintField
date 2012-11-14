@@ -1,4 +1,5 @@
 #include <QSplitter>
+#include "../interface.h"
 
 #include "splitareacontroller.h"
 

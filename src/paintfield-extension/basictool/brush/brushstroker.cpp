@@ -1,7 +1,7 @@
 #include <QtGui>
 #include <Malachite/CurveSubdivision>
 
-#include "paintfield-core/scopedtimer.h"
+#include "paintfield-core/debug.h"
 #include "paintfield-core/application.h"
 
 #include "brushstroker.h"

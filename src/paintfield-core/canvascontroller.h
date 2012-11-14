@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QPointer>
 
-#include "util.h"
+#include "smartpointer.h"
 #include "module.h"
 #include "canvasview.h"
 
@@ -26,6 +26,8 @@ public:
 	 * @param parent
 	 */
 	CanvasController(Document *document, WorkspaceController *parent);
+	
+	CanvasController(CanvasController *other, WorkspaceController *parent);
 	
 	~CanvasController();
 	
@@ -51,7 +53,11 @@ public:
 	/**
 	 * @return The document the canvas handles
 	 */
-	Document *document() { return _document; }
+	Document *document() { return _document.obj(); }
+	
+	LayerModel *layerModel() { return _document->layerModel(); }
+	
+	QItemSelectionModel *selectionModel() { return _selectionModel; }
 	
 	void addActions(const QActionList &actions) { _actions += actions; }
 	
@@ -94,9 +100,13 @@ public slots:
 	
 private:
 	
+	void commonInit();
+	
 	CanvasView *createView(QWidget *parent = 0);
 	
-	Document *_document = 0;
+	CountableSharedQObjectPointer<Document> _document;
+	QItemSelectionModel *_selectionModel = 0;
+	
 	ScopedQObjectPointer<CanvasView> _view;
 	QActionList _actions;
 	CanvasModuleList _modules;

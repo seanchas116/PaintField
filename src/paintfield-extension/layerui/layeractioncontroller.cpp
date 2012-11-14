@@ -10,7 +10,7 @@ namespace PaintField
 
 LayerActionController::LayerActionController(CanvasController *parent) :
     QObject(parent),
-    _model(parent->document()->layerModel())
+    _canvas(parent)
 {
 	_importAction = createAction("paintfield.layer.import", this, SLOT(importLayer()));
 	_importAction->setText(tr("Import..."));
@@ -43,43 +43,32 @@ void LayerActionController::importLayer()
 	auto layer = new RasterLayer(fileInfo.fileName());
 	layer->setSurface(surface);
 	
-	QModelIndex index = _model->currentIndex();
-	int row = index.isValid() ? index.row() + 1 : _model->rowCount(QModelIndex());
-	_model->addLayer(layer, index.parent(), row, tr("Add Image"));
+	QModelIndex index = _canvas->selectionModel()->currentIndex();
+	int row = index.isValid() ? index.row() + 1 : _canvas->layerModel()->rowCount(QModelIndex());
+	_canvas->layerModel()->addLayer(layer, index.parent(), row, tr("Add Image"));
 }
 
 void LayerActionController::newLayer(Layer::Type type)
 {
-	QModelIndex index = _model->currentIndex();
-	int row = index.isValid() ? index.row() + 1 : _model->rowCount(QModelIndex());
-	_model->newLayer(type, index.parent(), row);
+	QModelIndex index = _canvas->selectionModel()->currentIndex();
+	int row = index.isValid() ? index.row() + 1 : _canvas->layerModel()->rowCount(QModelIndex());
+	_canvas->layerModel()->newLayer(type, index.parent(), row);
 }
 
 void LayerActionController::removeLayers()
 {
-	_model->removeLayers(_model->selectionModel()->selectedIndexes());
+	_canvas->layerModel()->removeLayers(_canvas->selectionModel()->selectedIndexes());
 }
 
 void LayerActionController::mergeLayers()
 {
-	QItemSelection selection = _model->selectionModel()->selection();
+	QItemSelection selection = _canvas->selectionModel()->selection();
 	
 	if (selection.size() == 1)
 	{
 		QItemSelectionRange range = selection.at(0);
-		_model->mergeLayers(range.parent(), range.top(), range.bottom());
+		_canvas->layerModel()->mergeLayers(range.parent(), range.top(), range.bottom());
 	}
-}
-
-void LayerActionController::onCanvasChanged(CanvasController *controller)
-{
-	if (_model)
-		disconnect(_model->selectionModel(), 0, this, 0);
-	
-	_model = controller->document()->layerModel();
-	
-	connect(_model->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(onSelectionChanged(QItemSelection)));
-	onSelectionChanged(_model->selectionModel()->selection());
 }
 
 void LayerActionController::onSelectionChanged(const QItemSelection &selection)

@@ -55,7 +55,7 @@ class CanvasView : public QScrollArea
 {
 	Q_OBJECT
 public:
-	explicit CanvasView(Document *document, CanvasController *controller, QWidget *parent = 0);
+	explicit CanvasView(CanvasController *controller, QWidget *parent = 0);
 	
 	Document *document() { return _document; }
 	CanvasController *controller() { return _controller; }

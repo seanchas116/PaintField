@@ -2,7 +2,7 @@
 #define SPLITAREACONTROLLER_H
 
 #include <QSplitter>
-#include "../util.h"
+#include "../smartpointer.h"
 
 namespace PaintField
 {

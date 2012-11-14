@@ -3,7 +3,7 @@
 #include "drawutil.h"
 #include "tool.h"
 #include "layerrenderer.h"
-#include "scopedtimer.h"
+#include "debug.h"
 #include "canvascontroller.h"
 #include "application.h"
 
@@ -120,12 +120,12 @@ void CanvasViewViewport::paintEvent(QPaintEvent *)
 
 
 
-CanvasView::CanvasView(Document *document, CanvasController *controller, QWidget *parent) :
+CanvasView::CanvasView(CanvasController *controller, QWidget *parent) :
 	QScrollArea(parent),
-	_document(document),
+	_document(controller->document()),
 	_controller(controller)
 {
-	_viewport = new CanvasViewViewport(document->layerModel());
+	_viewport = new CanvasViewViewport(_document->layerModel());
 	setWidget(_viewport);
 }
 

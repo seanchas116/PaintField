@@ -20,6 +20,8 @@ public:
 	QAction *removeAction() { return _removeAction; }
 	QAction *mergeAction() { return _mergeAction; }
 	
+	CanvasController *canvas() { return static_cast<CanvasController *>(parent()); }
+	
 signals:
 	
 public slots:
@@ -32,7 +34,6 @@ public slots:
 	
 private slots:
 	
-	void onCanvasChanged(CanvasController *controller);
 	void onSelectionChanged(const QItemSelection &selection);
 	
 private:
@@ -40,7 +41,7 @@ private:
 	void newLayer(Layer::Type type);
 	void setActionsEnabled(const QList<QAction *> &actions, bool enabled);
 	
-	LayerModel *_model = nullptr;
+	CanvasController *_canvas = nullptr;
 	
 	QAction *_importAction = nullptr, *_newRasterAction = nullptr, *_newGroupAction = nullptr, *_removeAction = nullptr, *_mergeAction = nullptr;
 	

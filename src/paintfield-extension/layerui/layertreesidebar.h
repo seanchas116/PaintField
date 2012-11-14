@@ -18,6 +18,7 @@ namespace PaintField
 class Document;
 class LayerModel;
 class WorkspaceController;
+class CanvasController;
 
 class LayerModelView;
 class DoubleSlider;
@@ -29,7 +30,7 @@ class LayerTreeSidebar : public QWidget
 	
 public:
 	
-	explicit LayerTreeSidebar(LayerModel *model, QWidget *parent = 0);
+	explicit LayerTreeSidebar(CanvasController *model, QWidget *parent = 0);
 	
 	SimpleButton *addButton() { return _addButton; }
 	SimpleButton *removeButton() { return _removeButton; }
@@ -53,7 +54,7 @@ private:
 	void createForms();
 	void newLayerItem(Layer::Type type);
 	
-	LayerModel *_layerModel = 0;
+	CanvasController *_canvas = 0;
 	
 	// forms
 	

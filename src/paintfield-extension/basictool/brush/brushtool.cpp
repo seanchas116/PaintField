@@ -6,7 +6,7 @@
 #include "paintfield-core/workspacecontroller.h"
 #include "paintfield-core/palettemanager.h"
 #include "paintfield-core/tabletevent.h"
-#include "paintfield-core/scopedtimer.h"
+#include "paintfield-core/debug.h"
 #include "paintfield-core/widgets/simplebutton.h"
 
 #include "brushsettingsidebar.h"

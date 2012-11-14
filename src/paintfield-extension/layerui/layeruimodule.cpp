@@ -32,7 +32,7 @@ QWidget *LayerUIModule::createSideBar(const QString &name)
 	{
 		if (canvas())
 		{
-			auto sidebar = new LayerTreeSidebar(canvas()->document()->layerModel());
+			auto sidebar = new LayerTreeSidebar(canvas());
 			
 			QMenu *addMenu = new QMenu(sidebar);
 			

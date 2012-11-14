@@ -1,6 +1,7 @@
 #include <QtGui>
 #include <Malachite/Painter>
 
+#include "debug.h"
 #include "util.h"
 #include "document.h"
 #include "layerrenderer.h"
@@ -32,17 +33,13 @@ LayerModel::LayerModel(const LayerList &layers, Document *parent) :
     QAbstractItemModel(parent),
     _document(parent),
     _rootLayer(new ModelRootLayer(this) ),
-    _selectionModel(new QItemSelectionModel(this, this) ),
     _skipNextUpdate(false)
 {
-	connect(_selectionModel, SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SIGNAL(currentIndexChanged(QModelIndex,QModelIndex)));
 	connect(this, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SIGNAL(layerMetadataChanged(QModelIndex)));
 	connect(_document, SIGNAL(modified()), this, SLOT(update()));
 	
 	_rootLayer->insertChildren(0, layers);
 	_rootLayer->updateThumbnailRecursive(_document->size());
-	
-	_selectionModel->setCurrentIndex(index(0, QModelIndex()), QItemSelectionModel::Current);
 }
 
 void LayerModel::editLayer(const QModelIndex &index, LayerEdit *edit, const QString &description)

@@ -20,26 +20,40 @@ CanvasController::CanvasController(Document *document, WorkspaceController *pare
     QObject(parent),
 	_document(document)
 {
-	document->setParent(this);
+	_document->setParent(0);
+	commonInit();
+}
+
+CanvasController::CanvasController(CanvasController *other, WorkspaceController *parent) :
+	QObject(parent),
+	_document(other->_document)
+{
+	commonInit();
+}
+
+void CanvasController::commonInit()
+{
+	_selectionModel = new QItemSelectionModel(_document->layerModel(), this);
+	_selectionModel->setCurrentIndex(_document->layerModel()->index(0, QModelIndex()), QItemSelectionModel::Current);
 	
 	_actions << createAction("paintfield.file.save", this, SLOT(saveCanvas()));
 	_actions << createAction("paintfield.file.saveAs", this, SLOT(saveAsCanvas()));
 	_actions << createAction("paintfield.file.close", this, SLOT(closeCanvas()));
 	
-	auto undoAction  = document->undoStack()->createUndoAction(this);
+	auto undoAction  = _document->undoStack()->createUndoAction(this);
 	undoAction->setObjectName("paintfield.edit.undo");
 	_actions << undoAction;
 	
-	auto redoAction = document->undoStack()->createRedoAction(this);
+	auto redoAction = _document->undoStack()->createRedoAction(this);
 	redoAction->setObjectName("paintfield.edit.redo");
 	_actions << redoAction;
 }
 
-CanvasController::~CanvasController() {}
+CanvasController::~CanvasController(){}
 
 CanvasView *CanvasController::createView(QWidget *parent)
 {
-	auto view = new CanvasView(_document, this, parent);
+	auto view = new CanvasView(this, parent);
 	_view.reset(view);
 	
 	connect(workspace()->toolManager(), SIGNAL(currentToolChanged(QString)), view, SLOT(setTool(QString)));
@@ -141,27 +155,30 @@ bool CanvasController::saveCanvas()
 
 bool CanvasController::closeCanvas()
 {
-	Document *document = this->document();
-	
-	if (document->isModified())
+	if (_document.count() == 1)
 	{
-		int ret = showMessageBox(QMessageBox::NoIcon,
-								 tr("Do you want to save your changes?"),
-								 tr("The changes will be lost if you don't save them."),
-								 QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel,
-								 QMessageBox::Save);
+		Document *document = this->document();
 		
-		switch (ret)
+		if (document->isModified())
 		{
-			case QMessageBox::Save:
-				if (!saveCanvas())
+			int ret = showMessageBox(QMessageBox::NoIcon,
+									 tr("Do you want to save your changes?"),
+									 tr("The changes will be lost if you don't save them."),
+									 QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel,
+									 QMessageBox::Save);
+			
+			switch (ret)
+			{
+				case QMessageBox::Save:
+					if (!saveCanvas())
+						return false;
+					break;
+				case QMessageBox::Discard:
+					break;
+				case QMessageBox::Cancel:
+				default:
 					return false;
-				break;
-			case QMessageBox::Discard:
-				break;
-			case QMessageBox::Cancel:
-			default:
-				return false;
+			}
 		}
 	}
 	

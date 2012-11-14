@@ -33,7 +33,6 @@ HEADERS += application.h \
            modulemanager.h \
            palettemanager.h \
            randomstring.h \
-           scopedtimer.h \
            tabletapplication.h \
            tabletevent.h \
            tabletinputdata.h \
@@ -65,7 +64,10 @@ HEADERS += application.h \
     widgets/floatingdocktabwidget.h \
     widgets/splittabareacontroller.h \
     canvasview_obsolete.h \
-    canvasview.h
+    canvasview.h \
+    smartpointer.h \
+    interface.h \
+    debug.h
 FORMS += dialogs/exportdialog.ui dialogs/newdocumentdialog.ui
 SOURCES += application.cpp \
            canvascontroller.cpp \

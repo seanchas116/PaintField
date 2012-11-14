@@ -8,6 +8,7 @@
 #include "document.h"
 #include "tabletevent.h"
 #include "canvasview.h"
+#include "canvascontroller.h"
 #include "layerrenderer.h"
 
 class QGraphicsItem;
@@ -33,7 +34,7 @@ public:
 	/**
 	 * @return The document's current layer index
 	 */
-	QModelIndex currentLayerIndex() { return document()->layerModel()->currentIndex(); }
+	QModelIndex currentLayerIndex() { return canvasView()->controller()->selectionModel()->currentIndex(); }
 	
 	/**
 	 * @return The document's current laye
@@ -73,6 +74,7 @@ protected:
 	
 	CanvasView *canvasView() { return static_cast<CanvasView *>(parent()); }
 	Document *document() { return canvasView()->document(); }
+	QItemSelectionModel *selectionModel() { return canvasView()->controller()->selectionModel(); }
 	
 private:
 	

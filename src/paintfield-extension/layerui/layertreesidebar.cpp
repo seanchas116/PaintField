@@ -16,24 +16,24 @@
 namespace PaintField
 {
 
-LayerTreeSidebar::LayerTreeSidebar(LayerModel *model, QWidget *parent) :
+LayerTreeSidebar::LayerTreeSidebar(CanvasController *canvas, QWidget *parent) :
     QWidget(parent),
-    _layerModel(model)
+	_canvas(canvas)
 {
 	createForms();
 	
-	_treeView->setModel(_layerModel);
-	
-	if (_layerModel)
+	if (canvas)
 	{
-		connect(_layerModel->document(), SIGNAL(modified()), this, SLOT(updatePropertyView()));
-		connect(_layerModel, SIGNAL(currentIndexChanged(QModelIndex,QModelIndex)), this, SLOT(updatePropertyView()));
+		_treeView->setModel(canvas->layerModel());
+		connect(canvas->document(), SIGNAL(modified()), this, SLOT(updatePropertyView()));
+		connect(canvas->layerModel(), SIGNAL(currentIndexChanged(QModelIndex,QModelIndex)), this, SLOT(updatePropertyView()));
 		updatePropertyView();
-		_treeView->setSelectionModel(_layerModel->selectionModel());
+		_treeView->setSelectionModel(canvas->selectionModel());
 	}
 	else
+	{
 		setEnabled(false);
-	
+	}
 	updatePropertyView();
 	
 	setWindowTitle(tr("Layer"));
@@ -41,10 +41,10 @@ LayerTreeSidebar::LayerTreeSidebar(LayerModel *model, QWidget *parent) :
 
 void LayerTreeSidebar::updatePropertyView()
 {
-	if (_layerModel && _layerModel->currentIndex().isValid())
+	if (_canvas && _canvas->selectionModel()->currentIndex().isValid())
 	{
 		_formWidget->setEnabled(true);
-		_opacitySpinBox->setValue(_layerModel->currentIndex().data(PaintField::RoleOpacity).toDouble() * 100.0);
+		_opacitySpinBox->setValue(_canvas->selectionModel()->currentIndex().data(PaintField::RoleOpacity).toDouble() * 100.0);
 	}
 	else
 		_formWidget->setEnabled(false);
@@ -52,12 +52,12 @@ void LayerTreeSidebar::updatePropertyView()
 
 void LayerTreeSidebar::setOpacityPercentage(double value)
 {
-	_layerModel->setData(_layerModel->currentIndex(), value / 100.0, PaintField::RoleOpacity);
+	_canvas->layerModel()->setData(_canvas->selectionModel()->currentIndex(), value / 100.0, PaintField::RoleOpacity);
 }
 
 void LayerTreeSidebar::viewFocused()
 {
-	_layerModel->updateDirtyThumbnails();
+	_canvas->layerModel()->updateDirtyThumbnails();
 }
 
 void LayerTreeSidebar::createForms()

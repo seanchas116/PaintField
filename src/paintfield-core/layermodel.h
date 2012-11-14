@@ -131,8 +131,8 @@ public:
 	QStringList childNames(const QModelIndex &index) const { return childNames(layerForIndex(index)); }
 	QStringList childNames(const LayerPath &path) const { return childNames(layerForPath(path)); }
 	
-	QItemSelectionModel *selectionModel() const { return _selectionModel; }
-	QModelIndex currentIndex() const { return _selectionModel->currentIndex(); }
+	//QItemSelectionModel *selectionModel() const { return _selectionModel; }
+	//QModelIndex currentIndex() const { return _selectionModel->currentIndex(); }
 	
 	Malachite::Surface render();
 	
@@ -165,7 +165,7 @@ private:
 	Document *_document = 0;
 	
 	QScopedPointer<ModelRootLayer> _rootLayer;
-	mutable QItemSelectionModel *_selectionModel = 0;
+	//mutable QItemSelectionModel *_selectionModel = 0;
 	
 	bool _skipNextUpdate;
 	QPointSet _updatedTiles;

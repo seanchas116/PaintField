@@ -19,10 +19,10 @@ bool LayerModelViewDelegate::editorEvent(QEvent *event, QAbstractItemModel *mode
 	
 	if (event->type() == QEvent::MouseButtonPress && static_cast<QMouseEvent *>(event)->button() == Qt::RightButton)
 	{
-		LayerModel *layerModel = qobject_cast<LayerModel *>(model);
-		Q_ASSERT(layerModel);
+		LayerModel *layerModel = _actionController->canvas()->layerModel();
+		Q_ASSERT(layerModel == qobject_cast<LayerModel *>(model));
 		
-		layerModel->selectionModel()->select(index, QItemSelectionModel::Select);
+		_actionController->canvas()->selectionModel()->select(index, QItemSelectionModel::Select);
 		
 		QMenu menu;
 		

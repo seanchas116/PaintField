@@ -1,11 +1,7 @@
 #ifndef UTIL_H
 #define UTIL_H
 
-#include <QPointer>
-
-#define PAINTFIELD_WARNING qWarning() << Q_FUNC_INFO << ":"
-#define PAINTFIELD_DEBUG qDebug() << Q_FUNC_INFO << ":"
-
+#include <QObject>
 
 class QAction;
 typedef QList<QAction *> QActionList;
@@ -78,88 +74,6 @@ T *findQObjectReverse(const QList<T *> &list, const QString &id)
 	return 0;
 }
 
-
-template <class T>
-class ScopedQObjectPointer
-{
-public:
-	
-	ScopedQObjectPointer() {}
-	ScopedQObjectPointer(T *p) : _p(p) {}
-	
-	~ScopedQObjectPointer()
-	{
-		destroy();
-	}
-	
-	T *data() const { return _p; }
-	
-	bool isNull() const { return data(); }
-	
-	void reset(T *p = 0)
-	{
-		destroy();
-		_p = p;
-	}
-	
-	void swap(ScopedQObjectPointer<T> &other)
-	{
-		T *p = _p;
-		_p = other._p;
-		other._p = p;
-	}
-	
-	T *take()
-	{
-		T *p = _p;
-		_p = 0;
-		return p;
-	}
-	
-	operator bool() const { return _p; }
-	bool operator!() const { return !_p; }
-	T &operator*() const { return *_p; }
-	T *operator->() const { return _p; }
-	
-private:
-	
-	void destroy()
-	{
-		if (_p) _p->deleteLater();
-		_p = 0;
-	}
-	
-	QPointer<T> _p;
-};
-
-class GuardedQObjectList : public QObject
-{
-	Q_OBJECT
-	
-public:
-	
-	GuardedQObjectList(QObject *parent = 0) : QObject(parent) {}
-	
-	void append(QObject *object)
-	{
-		connect(object, SIGNAL(destroyed(QObject*)), this, SLOT(onObjectDestroyed(QObject*)));
-		_list << object;
-	}
-	
-	QObjectList list() { return _list; }
-	
-private slots:
-	
-	void onObjectDestroyed(QObject *obj)
-	{
-		_list.removeAll(obj);
-	}
-	
-private:
-	
-	QObjectList _list;
-};
-
 /**
  * Load a JSON from a file.
  * @param path
@@ -171,27 +85,6 @@ void applyMacSmallSize(QWidget *widget);
 
 QString unduplicatedName(const QStringList &existingNames, const QString &newName);
 
-class ReproductiveInterface
-{
-public:
-	virtual ~ReproductiveInterface() {}
-	
-	virtual QObject *createNew() = 0;
-	
-	template <class T>
-	T *createNewAs()
-	{
-		auto obj = createNew();
-		auto as = qobject_cast<T *>(obj);
-		Q_ASSERT(as);
-		return as;
-	}
-	
-};
-
 }
-
-Q_DECLARE_INTERFACE(PaintField::ReproductiveInterface, "PaintField.ReproductiveInterface")
-
 
 #endif // UTIL_H
