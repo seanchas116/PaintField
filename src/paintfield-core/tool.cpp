@@ -5,7 +5,7 @@ namespace PaintField
 
 void Tool::toolEvent(QEvent *event)
 {
-	switch(event->type())
+    switch((int)event->type())
 	{
 		case QEvent::KeyPress:
 			keyPressEvent(static_cast<QKeyEvent *>(event));

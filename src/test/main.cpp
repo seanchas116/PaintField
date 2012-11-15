@@ -6,6 +6,8 @@
 
 #include "splittabareatestwidget.h"
 
+#include "paintfield-core/debug.h"
+#include "paintfield-core/canvascontroller.h"
 #include "paintfield-core/canvasview.h"
 #include "paintfield-core/drawutil.h"
 #include "paintfield-core/documentio.h"
@@ -18,7 +20,8 @@ using namespace Malachite;
 
 void test_CanvasView()
 {
-	auto view = new CanvasView(TestUtil::createTestDocument(), 0);
+    auto controller = new CanvasController(TestUtil::createTestDocument(), 0);
+    auto view = new CanvasView(controller);
 	view->show();
 }
 
@@ -54,8 +57,9 @@ void test_DocumentIO_saveLoad()
 		openedDoc = documentIO.load(0);
 	}
 	
-	auto view = new CanvasView(openedDoc, 0);
-	view->show();
+    auto controller = new CanvasController(openedDoc, 0);
+    auto view = new CanvasView(controller);
+    view->show();
 }
 
 void test_DockTabWidget()

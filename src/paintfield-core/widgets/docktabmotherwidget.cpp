@@ -81,8 +81,7 @@ bool DockTabMotherWidget::insertTabWidget(DockTabWidget *tabWidget, const TabWid
 				mainSplitter = _mainVerticalSplitter;
 				break;
 			default:
-				Q_ASSERT(0);
-				break;
+                goto error;
 		}
 		
 		mainSplitter->insertWidget(mainSplitterIndex, splitter);

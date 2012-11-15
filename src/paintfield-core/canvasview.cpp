@@ -151,7 +151,7 @@ void CanvasViewViewport::customTabletEvent(WidgetTabletEvent *event)
 
 bool CanvasViewViewport::event(QEvent *event)
 {
-	switch (event->type())
+    switch ((int)event->type())
 	{
 		case EventWidgetTabletMove:
 		case EventWidgetTabletPress:
@@ -169,7 +169,7 @@ bool CanvasViewViewport::sendCanvasMouseEvent(QMouseEvent *event)
 	{
 		switch (type)
 		{
-			default:
+            default:
 			case QEvent::MouseMove:
 				return EventCanvasMouseMove;
 			case QEvent::MouseButtonPress:
