@@ -25,6 +25,11 @@ QObject *SidebarTabWidget::createNew()
 	return new SidebarTabWidget(this, 0);
 }
 
+bool WorkspaceMotherWidget::isInsertableFrom(DockTabWidget *tabWidget)
+{
+	return qobject_cast<SidebarTabWidget *>(tabWidget);
+}
+
 namespace MenuArranger
 {
 
@@ -194,7 +199,7 @@ WorkspaceView::WorkspaceView(QWidget *parent) :
 {
 	setAnimated(false);
 		
-	_motherWidget = new DockTabMotherWidget;
+	_motherWidget = new WorkspaceMotherWidget;
 	QMainWindow::setCentralWidget(_motherWidget);
 }
 

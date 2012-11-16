@@ -64,30 +64,25 @@ SplitTabDefaultWidget::SplitTabDefaultWidget(SplitTabWidget *tabWidget, QWidget 
 	setAcceptDrops(true);
 }
 
+bool SplitTabDefaultWidget::dropDockTab(DockTabWidget *srcTabWidget, int srcIndex, const QPoint &pos)
+{
+	Q_UNUSED(pos)
+	
+	if (_tabWidget->isInsertableFrom(srcTabWidget))
+	{
+		srcTabWidget->moveTab(srcIndex, _tabWidget, 0);
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
 void SplitTabDefaultWidget::mousePressEvent(QMouseEvent *event)
 {
 	Q_UNUSED(event)
 	emit clicked();
-}
-
-void SplitTabDefaultWidget::dragEnterEvent(QDragEnterEvent *event)
-{
-	if (DockTabWidget::eventIsTabDrag(event))
-		event->acceptProposedAction();
-}
-
-void SplitTabDefaultWidget::dropEvent(QDropEvent *event)
-{
-	DockTabWidget *oldTabWidget;
-	int oldIndex;
-	
-	DockTabWidget::decodeTabDropEvent(event, &oldTabWidget, &oldIndex);
-	
-	if (!oldTabWidget || !_tabWidget->isInsertableFrom(oldTabWidget))
-		return;
-	
-	DockTabWidget::moveTab(oldTabWidget, oldIndex, _tabWidget, _tabWidget->count());
-	event->acceptProposedAction();
 }
 
 

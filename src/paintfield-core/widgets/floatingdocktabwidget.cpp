@@ -32,6 +32,11 @@ void FloatingDockTabWidget::commonInit()
 	}
 }
 
+QObject *FloatingDockTabWidget::createNew()
+{
+	return new FloatingDockTabWidget(this, 0);
+}
+
 void FloatingDockTabWidget::onFocusChanged(QWidget *old, QWidget *now)
 {
 	Q_UNUSED(old);

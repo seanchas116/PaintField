@@ -24,9 +24,21 @@ public:
 	
 };
 
+class DockTabWidget;
+class DockTabBar;
+
+class DockTabDroppableInterface
+{
+public:
+	
+	virtual ~DockTabDroppableInterface() {}
+	virtual bool dropDockTab(DockTabWidget *srcTabWidget, int srcIndex, const QPoint &pos) = 0;
+};
+
 }
 
 Q_DECLARE_INTERFACE(PaintField::ReproductiveInterface, "PaintField.ReproductiveInterface")
+Q_DECLARE_INTERFACE(PaintField::DockTabDroppableInterface, "PaintField.DockTabDroppableInterface")
 
 
 #endif // INTERFACE_H

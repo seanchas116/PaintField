@@ -12,9 +12,10 @@ typedef QList<QSplitter *> QSplitterList;
 namespace PaintField
 {
 
-class DockTabMotherWidget : public QWidget
+class DockTabMotherWidget : public QWidget, public DockTabDroppableInterface
 {
 	Q_OBJECT
+	Q_INTERFACES(PaintField::DockTabDroppableInterface)
 	
 public:
 	
@@ -60,12 +61,13 @@ public:
 	
 	void setCentralWidget(QWidget *widget);
 	
+	bool dropDockTab(DockTabWidget *srcTabWidget, int srcIndex, const QPoint &pos) override;
+	
+	virtual bool isInsertableFrom(DockTabWidget *tabWidget) { Q_UNUSED(tabWidget) return true; }
+	
 protected:
 	
 	QSplitter *createSplitter(Qt::Orientation orientation);
-	
-	void dragEnterEvent(QDragEnterEvent *event);
-	void dropEvent(QDropEvent *event);
 	
 private slots:
 	
@@ -73,7 +75,6 @@ private slots:
 	
 private:
 	
-	bool dropTab(DockTabWidget *tabWidget, int index, const QPoint &pos);
 	TabWidgetArea dropArea(const QPoint &pos);
 	TabWidgetArea dropAreaAt(const QPoint &pos, Direction dir);
 	bool getInsertionDirection(const QPoint &pos, QWidget *widget, Direction dockDir, InsertionDirection &insertDir);

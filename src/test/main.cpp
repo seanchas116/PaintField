@@ -76,7 +76,7 @@ void test_DockTabWidget()
 	motherWidget->show();
 	motherWidget->setFocus();
 	
-	auto tabWidget = new DockTabWidget(0);
+	auto tabWidget = new FloatingDockTabWidget(motherWidget, 0);
 	tabWidget->addTab(new QLabel("Tab 1"), "Tab 1");
 	tabWidget->addTab(new QLabel("Tab 2"), "Tab 2");
 	tabWidget->addTab(new QLabel("Tab 3"), "Tab 3");
@@ -137,12 +137,10 @@ int main(int argc, char *argv[])
 	//test_SplitTabAreaController();
 	//test_TabWidget();
 	//test_TabDocumentAreaNode();
-	//test_DockTabWidget();
+	test_DockTabWidget();
 	//test_DocumentIO_saveLoad();
-	
-	PAINTFIELD_DEBUG << Surface::DefaultTile.constBits();
 	//test_Surface();
-	test_CanvasView();
+	//test_CanvasView();
 	
 	return app.exec();
 }

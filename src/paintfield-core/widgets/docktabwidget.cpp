@@ -39,26 +39,6 @@ void DockTabWidget::moveTab(DockTabWidget *source, int sourceIndex, DockTabWidge
 	dest->setCurrentIndex(destIndex);
 }
 
-void DockTabWidget::decodeTabDropEvent(QDropEvent *event, DockTabWidget **p_tabWidget, int *p_index)
-{
-	DockTabBar *tabBar = qobject_cast<DockTabBar *>(event->source());
-	if (!tabBar)
-	{
-		*p_tabWidget = nullptr;
-		*p_index = 0;
-		return;
-	}
-	
-	QByteArray data = event->mimeData()->data(MIMETYPE_TABINDEX);
-	QDataStream stream(&data, QIODevice::ReadOnly);
-	
-	int index;
-	stream >> index;
-	
-	*p_tabWidget = tabBar->tabWidget();
-	*p_index = index;
-}
-
 bool DockTabWidget::eventIsTabDrag(QDragEnterEvent *event)
 {
 	return event->mimeData()->hasFormat(MIMETYPE_TABINDEX) && qobject_cast<DockTabBar *>(event->source());
@@ -92,7 +72,8 @@ void DockTabWidget::focusOutEvent(QFocusEvent *)
 
 void DockTabWidget::closeEvent(QCloseEvent *event)
 {
-	event->ignore();
+	if (count())
+		event->ignore();
 }
 
 DockTabBar::DockTabBar(DockTabWidget *tabWidget, QWidget *parent) :
@@ -131,99 +112,76 @@ void DockTabBar::mousePressEvent(QMouseEvent *event)
 	
 	if (event->button() == Qt::LeftButton)
 	{
-		_dragStartPos = event->pos();
-		_isStartingDrag = true;
+		_dragIndex = tabAt(event->pos());
+		if (_dragIndex >= 0)
+		{
+			_dragStartPos = event->pos();
+			_isStartingDrag = true;
+		}
 	}
 	QTabBar::mousePressEvent(event);
 }
 
 void DockTabBar::mouseMoveEvent(QMouseEvent *event)
 {
-	if (!_isStartingDrag)
-		return;
-	
-	if (!event->buttons() & Qt::LeftButton)
-		return;
-	
-	if ((event->pos() - _dragStartPos).manhattanLength() < QApplication::startDragDistance())
-		return;
-	
-	int index = tabAt(event->pos());
-	
-	if (index < 0)
-		return;
-	
-	// create data
-	
-	QMimeData *mimeData = new QMimeData;
-	
-	QByteArray data;
-	QDataStream stream(&data, QIODevice::WriteOnly);
-	stream << index;
-	
-	mimeData->setData(MIMETYPE_TABINDEX, data);
-	
-	// create pixmap
-	
-	QRect rect = tabRect(index);
-	QPixmap pixmap(rect.size());
-	
-	render(&pixmap, QPoint(), QRegion(rect));
-	
-	// exec drag
-	
-	QDrag *drag = new QDrag(this);
-	drag->setMimeData(mimeData);
-	drag->setPixmap(pixmap);
-	QPoint offset = _dragStartPos - rect.topLeft();
-	drag->setHotSpot(offset);
-	Qt::DropAction dropAction = drag->exec(Qt::MoveAction | Qt::IgnoreAction);
-	
-	if (dropAction != Qt::MoveAction)	// drop is not accepted
+	QPoint delta = event->pos() - _dragStartPos;
+	if (delta.manhattanLength() < qApp->startDragDistance())
 	{
-		DockTabWidget *newTabWidget = _tabWidget->createNewTabWidget();
-		if (!newTabWidget->isInsertableFrom(_tabWidget))
+		qApp->setOverrideCursor(Qt::SizeAllCursor);
+	}
+}
+
+void DockTabBar::mouseReleaseEvent(QMouseEvent *event)
+{
+	if (_isStartingDrag)
+	{
+		qApp->setOverrideCursor(QCursor());
+		dragDropTab(_dragIndex, mapToGlobal(event->pos()), _dragStartPos - tabRect(_dragIndex).topLeft());
+		_isStartingDrag = false;
+	}
+}
+
+void DockTabBar::dragDropTab(int index, const QPoint &globalPos, const QPoint &dragStartOffset)
+{
+	QWidget *widget = qApp->widgetAt(globalPos);
+	
+	QWidget *droppable = 0;
+	
+	while (widget)
+	{
+		if (qobject_cast<DockTabDroppableInterface *>(widget))
 		{
-			newTabWidget->deleteLater();
+			droppable = widget;
+			break;
 		}
-		else
-		{
-			DockTabWidget::moveTab(_tabWidget, index, newTabWidget, 0);
-			
-			QRect newGeometry = newTabWidget->geometry();
-			newGeometry.moveTopLeft(QCursor::pos() - offset);
-			newTabWidget->setGeometry(newGeometry);
-			newTabWidget->show();
-		}
+		widget = widget->parentWidget();
 	}
 	
-	_isStartingDrag = false;
+	bool dropResult = false;
+	
+	if (droppable)	// drop on the existing widget that accepts dock tab drops
+		dropResult = qobject_cast<DockTabDroppableInterface *>(droppable)->dropDockTab(_tabWidget, index, droppable->mapFromGlobal(globalPos));
+	
+	if (!dropResult)	// create new tab widget
+	{
+		int dstIndex = 0;
+		auto dstTabWidget = _tabWidget->createNewTabWidget();
+		QRect dstGeom = dstTabWidget->geometry();
+		dstGeom.moveTopLeft(globalPos - dragStartOffset);
+		dstTabWidget->setGeometry(dstGeom);
+		
+		_tabWidget->moveTab(index, dstTabWidget, dstIndex);
+		
+		dstTabWidget->show();
+	}
+	
 	_tabWidget->deleteIfEmpty();
 }
 
-void DockTabBar::dragMoveEvent(QDragMoveEvent *event)
+bool DockTabBar::dropDockTab(DockTabWidget *srcTabWidget, int srcIndex, const QPoint &pos)
 {
-	event->accept();
-}
-
-void DockTabBar::dragEnterEvent(QDragEnterEvent *event)
-{
-	if (DockTabWidget::eventIsTabDrag(event))
-		event->acceptProposedAction();
-}
-
-void DockTabBar::dropEvent(QDropEvent *event)
-{
-	DockTabWidget *oldTabWidget;
-	int oldIndex;
-	DockTabWidget::decodeTabDropEvent(event, &oldTabWidget, &oldIndex);
-	
-	if (oldTabWidget && _tabWidget->isInsertableFrom(oldTabWidget))
-	{
-		int newIndex = insertionIndexAt(event->pos());
-		DockTabWidget::moveTab(oldTabWidget, oldIndex, _tabWidget, newIndex);
-		event->acceptProposedAction();
-	}
+	srcTabWidget->moveTab(srcIndex, _tabWidget, insertionIndexAt(pos));
+	return true;
 }
 
 }

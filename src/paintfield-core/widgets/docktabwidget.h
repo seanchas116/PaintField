@@ -32,8 +32,8 @@ public:
 	
 	bool contains(QWidget *widget) { return indexOf(widget) >= 0; }
 	
+	void moveTab(int index, DockTabWidget *dst, int dstIndex) { moveTab(this, index, dst, dstIndex); }
 	static void moveTab(DockTabWidget *source, int sourceIndex, DockTabWidget *dest, int destIndex);
-	static void decodeTabDropEvent(QDropEvent *event, DockTabWidget **p_tabWidget, int *p_index);
 	static bool eventIsTabDrag(QDragEnterEvent *event);
 	
 	virtual bool isInsertableFrom(DockTabWidget *other) { Q_UNUSED(other) return true; }
@@ -56,9 +56,9 @@ public slots:
 	
 protected:
 	
-	void focusInEvent(QFocusEvent *);
-	void focusOutEvent(QFocusEvent *);
-	void closeEvent(QCloseEvent *event);
+	void focusInEvent(QFocusEvent *) override;
+	void focusOutEvent(QFocusEvent *) override;
+	void closeEvent(QCloseEvent *event) override;
 	
 private slots:
 	
@@ -67,14 +67,18 @@ private:
 	bool _autoDeletionEnabled = false;
 };
 
-class DockTabBar : public QTabBar
+class DockTabBar : public QTabBar, public DockTabDroppableInterface
 {
 	Q_OBJECT
+	Q_INTERFACES(PaintField::DockTabDroppableInterface)
+	
 public:
 	
 	DockTabBar(DockTabWidget *tabWidget, QWidget *parent = 0);
 	
 	DockTabWidget *tabWidget() { return _tabWidget; }
+	
+	bool dropDockTab(DockTabWidget *srcTabWidget, int srcIndex, const QPoint &pos) override;
 	
 signals:
 	
@@ -82,20 +86,19 @@ signals:
 	
 protected:
 	
-	void mousePressEvent(QMouseEvent *event);
-	void mouseMoveEvent(QMouseEvent *event);
-	
-	void dragMoveEvent(QDragMoveEvent *event);
-	void dragEnterEvent(QDragEnterEvent *event);
-	void dropEvent(QDropEvent *event);
+	void mousePressEvent(QMouseEvent *event) override;
+	void mouseMoveEvent(QMouseEvent *event) override;
+	void mouseReleaseEvent(QMouseEvent *event) override;
 	
 private:
 	
+	void dragDropTab(int index, const QPoint &globalPos, const QPoint &dragStartOffset);
 	int insertionIndexAt(const QPoint &pos);
 	
 	DockTabWidget *_tabWidget = 0;
 	bool _isStartingDrag = false;
 	QPoint _dragStartPos;
+	int _dragIndex;
 };
 
 }

@@ -38,6 +38,18 @@ private:
 	WorkspaceView *_workspaceView;
 };
 
+class WorkspaceMotherWidget : public DockTabMotherWidget
+{
+	Q_OBJECT
+	Q_INTERFACES(PaintField::DockTabDroppableInterface)
+	
+public:
+	
+	explicit WorkspaceMotherWidget(QWidget *parent = 0) : DockTabMotherWidget(parent) {}
+	
+	bool isInsertableFrom(DockTabWidget *tabWidget) override;
+};
+
 class WorkspaceMenuAction : public QAction
 {
 	Q_OBJECT

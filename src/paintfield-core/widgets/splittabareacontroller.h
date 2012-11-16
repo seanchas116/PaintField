@@ -40,13 +40,16 @@ private:
 	SplitTabAreaController *_tabAreaController;
 };
 
-class SplitTabDefaultWidget : public QWidget
+class SplitTabDefaultWidget : public QWidget, public DockTabDroppableInterface
 {
 	Q_OBJECT
+	Q_INTERFACES(PaintField::DockTabDroppableInterface)
 	
 public:
 	
 	SplitTabDefaultWidget(SplitTabWidget *tabWidget, QWidget *parent);
+	
+	bool dropDockTab(DockTabWidget *srcTabWidget, int srcIndex, const QPoint &pos) override;
 	
 signals:
 	
@@ -55,8 +58,6 @@ signals:
 protected:
 	
 	void mousePressEvent(QMouseEvent *event);
-	void dragEnterEvent(QDragEnterEvent *event);
-	void dropEvent(QDropEvent *event);
 	
 private:
 	

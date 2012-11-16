@@ -134,19 +134,6 @@ void DockTabMotherWidget::setCentralWidget(QWidget *widget)
 	_mainVerticalSplitter->insertWidget(index, widget);
 }
 
-bool DockTabMotherWidget::dropTab(DockTabWidget *tabWidget, int index, const QPoint &pos)
-{
-	TabWidgetArea area = dropArea(pos);
-	
-	if (!area.isValid())
-		return false;
-	
-	auto newTabWidget = tabWidget->createNewTabWidget();
-	DockTabWidget::moveTab(tabWidget, index, newTabWidget, 0);
-	
-	return insertTabWidget(newTabWidget, area);
-}
-
 DockTabMotherWidget::TabWidgetArea DockTabMotherWidget::dropArea(const QPoint &pos)
 {
 	for (int i = Left; i <= Bottom; ++i)
@@ -351,26 +338,20 @@ QRect DockTabMotherWidget::splittersRect(Direction dir)
 	return rect;
 }
 
-void DockTabMotherWidget::dragEnterEvent(QDragEnterEvent *event)
+bool DockTabMotherWidget::dropDockTab(DockTabWidget *srcTabWidget, int srcIndex, const QPoint &pos)
 {
-	if (DockTabWidget::eventIsTabDrag(event))
-		event->acceptProposedAction();
-}
-
-void DockTabMotherWidget::dropEvent(QDropEvent *event)
-{
-	DockTabWidget *srcWidget;
-	int srcIndex;
-	DockTabWidget::decodeTabDropEvent(event, &srcWidget, &srcIndex);
-	if (srcWidget)
-	{
-		if (dropTab(srcWidget, srcIndex, event->pos()))
-		{
-			event->acceptProposedAction();
-			return;
-		}
-	}
-	event->setDropAction(Qt::IgnoreAction);
+	if (!isInsertableFrom(srcTabWidget))
+		return false;
+	
+	TabWidgetArea area = dropArea(pos);
+	
+	if (!area.isValid())
+		return false;
+	
+	auto dstTabWidget = srcTabWidget->createNewTabWidget();
+	srcTabWidget->moveTab(srcIndex, dstTabWidget, 0);
+	
+	return insertTabWidget(dstTabWidget, area);
 }
 
 void DockTabMotherWidget::onTabWidgetWillBeDeleted(DockTabWidget *widget)

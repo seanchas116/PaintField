@@ -9,6 +9,8 @@ namespace PaintField
 class FloatingDockTabWidget : public DockTabWidget
 {
 	Q_OBJECT
+	Q_INTERFACES(PaintField::ReproductiveInterface)
+	
 public:
 	
 	/**
@@ -21,6 +23,8 @@ public:
 	FloatingDockTabWidget(FloatingDockTabWidget *other, QWidget *parent);
 	
 	QWidget *baseWindow() { return _baseWindow; }
+	
+	QObject *createNew() override;
 	
 signals:
 	
