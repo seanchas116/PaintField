@@ -16,9 +16,7 @@ Stroker::Stroker(Surface *surface, const BrushSetting *setting, const Vec4F &arg
 	_originalSurface(*surface),
 	_setting(setting),
 	_argb(argb)
-{
-	qDebug() << Q_FUNC_INFO << ": argb: " << argb.a << argb.r << argb.g << argb.b;
-}
+{}
 
 void Stroker::moveTo(const TabletInputData &data)
 {
@@ -67,9 +65,8 @@ void Stroker::addEditedKeys(const QPointHashToQRect &keysWithRects)
 	{
 		QRect rect = iter.value() | _lastEditedKeysWithRects.value(iter.key(), QRect());
 		_lastEditedKeysWithRects[iter.key()] = rect;
+		_totalEditedKeys << iter.key();
 	}
-	
-	_totalEditedKeys |= keysWithRects.keys().toSet();
 }
 
 QVector<double> Stroker::calcLength(const Polygon &polygon, double *totalLength)

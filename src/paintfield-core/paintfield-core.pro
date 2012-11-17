@@ -63,7 +63,6 @@ HEADERS += application.h \
     workspacecanvasareacontroller.h \
     widgets/floatingdocktabwidget.h \
     widgets/splittabareacontroller.h \
-    canvasview_obsolete.h \
     canvasview.h \
     smartpointer.h \
     interface.h \
@@ -109,6 +108,5 @@ SOURCES += application.cpp \
     workspacecanvasareacontroller.cpp \
     widgets/floatingdocktabwidget.cpp \
     widgets/splittabareacontroller.cpp \
-    canvasview_obsolete.cpp \
     canvasview.cpp \
     tool.cpp

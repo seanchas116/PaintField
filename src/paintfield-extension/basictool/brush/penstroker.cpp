@@ -85,7 +85,7 @@ void PenStroker::drawFirst(const TabletInputData &data)
 
 void PenStroker::drawInterval(const Polygon &polygon, const TabletInputData &dataStart, const TabletInputData &dataEnd)
 {
-	PAINTFIELD_CALC_SCOPE_ELAPSED_TIME;
+	//PAINTFIELD_CALC_SCOPE_ELAPSED_TIME;
 	
 	double totalLength;
 	QVector<double> lengths = calcLength(polygon, &totalLength);
@@ -152,84 +152,5 @@ void PenStroker::drawShape(const FixedMultiPolygon &shape)
 	editor.replace(drawSurface, keys);
 	addEditedKeys(keysWithRects);
 }
-
-/*
-void PenStroker::drawInterval(const Polygon &polygon, const TabletInputData &dataStart, const TabletInputData &dataEnd)
-{
-	double totalLength;
-	QVector<double> lengths = calcLength(polygon, &totalLength);
-	
-	if (totalLength == 0)
-		return;
-	
-	double pressureNormalized = (dataEnd.pressure - dataStart.pressure) / totalLength;
-	double pressure = dataStart.pressure;
-	
-	for (int i = 1; i < polygon.size(); ++i)
-	{
-		pressure += pressureNormalized * lengths.at(i-1);
-		drawOne(polygon.at(i), pressure, true);
-	}
-}
-
-void PenStroker::drawOne(const Vec2D &pos, double pressure, bool drawQuad)
-{
-	qDebug() << "pos" << pos.x << pos.y << "pressure" << pressure;
-	
-	double radius = pressure * setting()->diameter * 0.5;
-	
-	//radius = 0.5 * _radiusPrev + 0.5 * radius;
-	
-	qDebug() << "radius" << radius;
-	
-	Surface drawSurface = originalSurface();
-	SurfacePainter painter(&drawSurface);
-	painter.setArgb(argb());
-	painter.setBlendMode(BlendModeSourceOver);
-	
-	// creating shape
-	
-	FixedMultiPolygon shape;
-	
-	QPainterPath ellipsePath;
-	ellipsePath.addEllipse(pos, radius, radius);
-	shape = FixedMultiPolygon::fromQPainterPath(ellipsePath);
-	
-	if (drawQuad)
-	{
-		shape = shape | FixedMultiPolygon(calcTangentQuadrangle(_radiusPrev, _posPrev, radius, pos));
-	}
-	
-	// divide and draw shapes
-	
-	QPointSet keys = Surface::keysForRect(shape.boundingRect().toAlignedRect());
-	
-	QPointHashToQRect keysWithRects;
-	
-	for (const QPoint &key : keys)
-	{
-		FixedMultiPolygon dividedShape = shape & FixedPolygon::fromRect(Surface::keyToRect(key));
-		
-		QRect dividedBoundingRect = dividedShape.boundingRect().toAlignedRect();
-		
-		FixedMultiPolygon drawShape = _drawnShapes[key] | dividedShape;
-		//drawShape = drawShape & FixedPolygon::fromRect(dividedBoundingRect);
-		
-		if (drawShape.size())
-		{
-			painter.drawTransformedPolygons(drawShape);
-			_drawnShapes[key] = drawShape;
-		}
-		
-		keysWithRects.insert(key, dividedBoundingRect);
-	}
-	
-	_radiusPrev = radius;
-	_posPrev = pos;
-	
-	SurfaceEditor editor(surface());
-	editor.replace(drawSurface, keys);
-	addEditedKeys(keysWithRects);
-}*/
 
 }

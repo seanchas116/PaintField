@@ -73,7 +73,7 @@ void CanvasViewViewport::setTool(Tool *tool)
 
 void CanvasViewViewport::updateTiles(const QPointSet &keys, const QHash<QPoint, QRect> &rects)
 {
-	PAINTFIELD_CALC_SCOPE_ELAPSED_TIME;
+	//PAINTFIELD_CALC_SCOPE_ELAPSED_TIME;
 	
 	CanvasRenderer renderer;
 	renderer.setTool(_tool);
@@ -82,7 +82,7 @@ void CanvasViewViewport::updateTiles(const QPointSet &keys, const QHash<QPoint, 
 	
 	QPointSet renderKeys = rects.isEmpty() ? keys : rects.keys().toSet();
 	
-	PAINTFIELD_DEBUG << rects;
+	//PAINTFIELD_DEBUG << rects;
 	
 	for (const QPoint &key : renderKeys)
 	{

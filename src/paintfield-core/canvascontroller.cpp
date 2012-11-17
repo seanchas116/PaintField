@@ -162,7 +162,7 @@ bool CanvasController::closeCanvas()
 		if (document->isModified())
 		{
 			int ret = showMessageBox(QMessageBox::NoIcon,
-									 tr("Do you want to save your changes?"),
+									 tr("Do you want to save your changes on \"%1\"?").arg(document->fileName()),
 									 tr("The changes will be lost if you don't save them."),
 									 QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel,
 									 QMessageBox::Save);
