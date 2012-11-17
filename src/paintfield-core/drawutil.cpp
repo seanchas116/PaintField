@@ -1,5 +1,6 @@
 #include <QtGui>
 #include <Malachite/GenericImage>
+#include <Malachite/PixelConversion>
 #include "util.h"
 
 #include "drawutil.h"
@@ -10,12 +11,12 @@ namespace PaintField
 using namespace Malachite;
 
 // assumes both dst and src are 16bit aligned
-// count must be a multiple of 4. reminder data is ignored.
 void copyColorFast(int count, Vec4U8 *dst, const Vec4F *src)
 {
 	int countPer4 = count / 4;
+	int rem = count % 4;
 	
-	for (int i = 0; i < countPer4; ++i)
+	while (countPer4--)
 	{
 		Vec4I32 d0 = vecRound(*src * 0xFF);
 		src++;
@@ -37,13 +38,15 @@ void copyColorFast(int count, Vec4U8 *dst, const Vec4F *src)
 		
 		dst += 4;
 	}
+	
+	while (rem--)
+		convertPixel<ImageFormatArgbFast, Vec4U8, ImageFormatArgbFast, Vec4F>(*dst++, *src++);
 }
 
 void drawMLSurface(QPainter *painter, const QPoint &point, const Surface &surface)
 {
-	foreach (const QPoint &key, surface.keys()) {
+	for (const QPoint &key : surface.keys())
 		drawMLImage(painter, point + key * Surface::TileSize, surface.tileForKey(key));
-	}
 }
 
 void drawMLImage(QPainter *painter, const QPoint &point, const Image &image)
@@ -61,11 +64,11 @@ void drawMLImageFast(QPainter *painter, const QPoint &point, const Image &image)
 	QSize size = image.size();
 	int pixelCount = size.width() * size.height();
 	
-	uint8_t *buffer = reinterpret_cast<uint8_t *>(allocateAlignedMemory(pixelCount * 4, 16));
+	Vec4U8 *buffer = reinterpret_cast<Vec4U8 *>(allocateAlignedMemory(pixelCount * sizeof(Vec4U8), 16));
 	
-	copyColorFast(pixelCount, reinterpret_cast<Vec4U8 *>(buffer), image.constBits());
+	copyColorFast(pixelCount, buffer, image.constBits());
 	
-	QImage qimage(buffer, size.width(), size.height(), QImage::Format_ARGB32_Premultiplied);
+	QImage qimage(reinterpret_cast<uint8_t *>(buffer), size.width(), size.height(), QImage::Format_ARGB32_Premultiplied);
 	painter->drawImage(point, qimage);
 	
 	freeAlignedMemory(buffer);
@@ -75,22 +78,20 @@ void drawMLImageFast(QPainter *painter, const QPoint &point, const Image &image,
 {
 	QRect copyRect = rect & image.rect();
 	
-	copyRect.setTop(copyRect.top() / 4 * 4);
+	copyRect.moveTop(copyRect.top() / 4 * 4);
 	
 	if (copyRect.width() % 4)
 		copyRect.setWidth(copyRect.width() / 4 * 4 + 4);
 	
 	int pixelCount = copyRect.width() * copyRect.height();
 	
-	Vec4U8 *buffer = reinterpret_cast<Vec4U8 *>(allocateAlignedMemory(pixelCount * 4, 16));
+	Vec4U8 *buffer = reinterpret_cast<Vec4U8 *>(allocateAlignedMemory(pixelCount * sizeof(Vec4U8), 16));
 	
-	for (int y = copyRect.top(); y <= copyRect.bottom(); ++y)
-	{
-		copyColorFast(copyRect.width(), buffer + y * copyRect.width(), image.constPixelPointer(copyRect.x(), y));
-	}
+	for (int i = 0; i < copyRect.height(); ++i)
+		copyColorFast(copyRect.width(), buffer + i * copyRect.width(), image.constPixelPointer(copyRect.left(), copyRect.top() + i));
 	
 	QImage qimage(reinterpret_cast<uint8_t *>(buffer), copyRect.width(), copyRect.height(), QImage::Format_ARGB32_Premultiplied);
-	painter->drawImage(point + rect.topLeft(), qimage);
+	painter->drawImage(point + copyRect.topLeft(), qimage, rect.translated(-copyRect.topLeft()));
 	
 	freeAlignedMemory(buffer);
 }

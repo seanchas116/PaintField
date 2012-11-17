@@ -65,7 +65,7 @@ void Stroker::addEditedKeys(const QPointHashToQRect &keysWithRects)
 {
 	for (auto iter = keysWithRects.begin(); iter != keysWithRects.end(); ++iter)
 	{
-		QRect rect = iter.value() & _lastEditedKeysWithRects.value(iter.key(), QRect());
+		QRect rect = iter.value() | _lastEditedKeysWithRects.value(iter.key(), QRect());
 		_lastEditedKeysWithRects[iter.key()] = rect;
 	}
 	

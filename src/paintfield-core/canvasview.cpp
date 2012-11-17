@@ -80,37 +80,41 @@ void CanvasViewViewport::updateTiles(const QPointSet &keys, const QHash<QPoint, 
 	
 	Surface surface = renderer.renderToSurface(_layerModel->rootLayer()->children(), keys, rects);
 	
-	/*
-	QPointSet renderKeys = _layerModel->document()->tileKeys();
-	if (!rects.isEmpty())
-		renderKeys &= rects.keys().toSet();
-	else
-		renderKeys &= keys;
-	*/
-
 	QPointSet renderKeys = rects.isEmpty() ? keys : rects.keys().toSet();
-
-	//PAINTFIELD_DEBUG << renderKeys;
+	
+	PAINTFIELD_DEBUG << rects;
 	
 	for (const QPoint &key : renderKeys)
 	{
-		Image tile = Surface::WhiteTile;
+		//Image tile = Surface::WhiteTile;
+		
+		QRect rect;
+		
+		if (!rects.isEmpty())
+			rect = rects.value(key);
+		else
+			rect = QRect(0, 0, Surface::TileSize, Surface::TileSize);
+		
+		Image image(rect.size());
+		image.fill(Color::fromRgbValue(1,1,1).toArgb());
 		
 		if (surface.contains(key))
 		{
-			Painter painter(&tile);
-			painter.drawTransformedImage(QPoint(), surface.tileForKey(key));
+			Painter painter(&image);
+			painter.drawTransformedImage(-rect.topLeft(), surface.tileForKey(key));
 		}
+		
+		QPoint tilePos = key * Surface::TileSize;
 		
 		QPainter painter(&_pixmap);
 		painter.setCompositionMode(QPainter::CompositionMode_Source);
 		
-		drawMLImageFast(&painter, key * Surface::TileSize, tile);
+		drawMLImageFast(&painter, tilePos + rect.topLeft(), image);
 		
 		painter.end();
 		
-		QRect rect(key * Surface::TileSize, tile.size());
-		repaint(_transformFromScene.mapRect(rect));
+		QRect mappedRect = _transformFromScene.mapRect(QRectF(rect.translated(tilePos))).toAlignedRect();
+		repaint(mappedRect);
 	}
 }
 

@@ -1,4 +1,4 @@
-
+#include "paintfield-core/debug.h"
 
 #include "penstroker.h"
 
@@ -85,6 +85,8 @@ void PenStroker::drawFirst(const TabletInputData &data)
 
 void PenStroker::drawInterval(const Polygon &polygon, const TabletInputData &dataStart, const TabletInputData &dataEnd)
 {
+	PAINTFIELD_CALC_SCOPE_ELAPSED_TIME;
+	
 	double totalLength;
 	QVector<double> lengths = calcLength(polygon, &totalLength);
 	
@@ -118,9 +120,7 @@ void PenStroker::drawInterval(const Polygon &polygon, const TabletInputData &dat
 void PenStroker::drawShape(const FixedMultiPolygon &shape)
 {
 	Surface drawSurface = originalSurface();
-	SurfacePainter painter(&drawSurface);
-	painter.setArgb(argb());
-	painter.setBlendMode(BlendModeSourceOver);
+	SurfaceEditor drawSurfaceEditor(&drawSurface);
 	
 	QPointSet keys = Surface::keysForRect(shape.boundingRect().toAlignedRect());
 	
@@ -130,18 +130,22 @@ void PenStroker::drawShape(const FixedMultiPolygon &shape)
 	{
 		FixedMultiPolygon dividedShape = shape & FixedPolygon::fromRect(Surface::keyToRect(key));
 		
-		QRect dividedBoundingRect = dividedShape.boundingRect().toAlignedRect();
-		
-		FixedMultiPolygon drawShape = _drawnShapes[key] | dividedShape;
-		//drawShape = drawShape & FixedPolygon::fromRect(dividedBoundingRect);
-		
-		if (drawShape.size())
+		if (dividedShape.size())
 		{
-			painter.drawTransformedPolygons(drawShape);
+			dividedShape.translate(key * -Surface::TileSize);
+			
+			QRect dividedBoundingRect = dividedShape.boundingRect().toAlignedRect();
+			
+			FixedMultiPolygon drawShape = _drawnShapes[key] | dividedShape;
 			_drawnShapes[key] = drawShape;
+			
+			Painter painter(drawSurfaceEditor.tileRefForKey(key));
+			painter.setArgb(argb());
+			painter.setBlendMode(BlendModeSourceOver);
+			painter.drawTransformedPolygons(drawShape);
+			
+			keysWithRects.insert(key, dividedBoundingRect);
 		}
-		
-		keysWithRects.insert(key, dividedBoundingRect);
 	}
 	
 	SurfaceEditor editor(surface());
