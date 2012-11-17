@@ -9,7 +9,9 @@ namespace PaintField
 TabletApplication::TabletApplication(int &argv, char **args) :
     QApplication(argv, args)
 {
+#ifdef Q_OS_MAC
 	installEventFilter(new TabletEventFilter(this));
+#endif
 }
 
 bool TabletApplication::event(QEvent *event)

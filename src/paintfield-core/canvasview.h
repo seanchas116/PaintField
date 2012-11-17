@@ -39,6 +39,7 @@ protected:
 	void mouseMoveEvent(QMouseEvent *event);
 	void mousePressEvent(QMouseEvent *event);
 	void mouseReleaseEvent(QMouseEvent *event);
+    void tabletEvent(QTabletEvent *event);
 	void customTabletEvent(WidgetTabletEvent *event);
 	
 	void resizeEvent(QResizeEvent *event);

@@ -21,8 +21,8 @@ public:
 	
 	void drawLayer(Malachite::SurfacePainter *painter, const Layer *layer);
 	
-	void setBrushSetting(const BrushSetting *setting) { _brushSetting = setting; }
-	const BrushSetting *brushSetting() const { return _brushSetting; }
+    void setBrushSetting(const BrushSetting *setting) { _brushSetting = setting; }
+    const BrushSetting *brushSetting() const { return _brushSetting; }
 	
 signals:
 	

@@ -80,13 +80,17 @@ void CanvasViewViewport::updateTiles(const QPointSet &keys, const QHash<QPoint, 
 	
 	Surface surface = renderer.renderToSurface(_layerModel->rootLayer()->children(), keys, rects);
 	
+	/*
 	QPointSet renderKeys = _layerModel->document()->tileKeys();
 	if (!rects.isEmpty())
 		renderKeys &= rects.keys().toSet();
 	else
 		renderKeys &= keys;
-	
-	PAINTFIELD_DEBUG << renderKeys;
+	*/
+
+	QPointSet renderKeys = rects.isEmpty() ? keys : rects.keys().toSet();
+
+	//PAINTFIELD_DEBUG << renderKeys;
 	
 	for (const QPoint &key : renderKeys)
 	{
@@ -150,6 +154,30 @@ void CanvasViewViewport::mouseReleaseEvent(QMouseEvent *event)
 {
 	if (_tool)
 		event->setAccepted(sendCanvasTabletEvent(event) || sendCanvasMouseEvent(event));
+}
+
+void CanvasViewViewport::tabletEvent(QTabletEvent *event)
+{
+	auto toNewEventType = [](QEvent::Type type)
+	{
+		switch (type)
+		{
+			default:
+			case QEvent::TabletMove:
+				return PaintField::EventWidgetTabletMove;
+			case QEvent::TabletPress:
+				return PaintField::EventWidgetTabletPress;
+			case QEvent::TabletRelease:
+				return PaintField::EventWidgetTabletRelease;
+		}
+	};
+
+	TabletInputData data(event->hiResGlobalPos(), event->pressure(), event->rotation(), event->tangentialPressure(), Vec2D(event->xTilt(), event->yTilt()));
+	WidgetTabletEvent widgetTabletEvent(toNewEventType(event->type()), event->globalPos(), event->pos(), data, event->modifiers());
+
+	customTabletEvent(&widgetTabletEvent);
+
+	event->setAccepted(widgetTabletEvent.isAccepted());
 }
 
 void CanvasViewViewport::customTabletEvent(WidgetTabletEvent *event)
