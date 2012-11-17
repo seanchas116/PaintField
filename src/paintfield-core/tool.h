@@ -76,6 +76,7 @@ public slots:
 signals:
 	
 	void requestUpdate(const QPointSet &tiles);
+	void requestUpdate(const QHash<QPoint, QRect> &rects);
 	
 protected:
 	

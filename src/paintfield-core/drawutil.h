@@ -11,6 +11,8 @@ void drawMLImage(QPainter *painter, const QPoint &point, const Malachite::Image 
 
 // pixel count of image must be multiple of 4
 void drawMLImageFast(QPainter *painter, const QPoint &point, const Malachite::Image &image);
+void drawMLImageFast(QPainter *painter, const QPoint &point, const Malachite::Image &image, const QRect &rect);
+
 
 inline void drawMLSurface(QPainter *painter, int x, int y, const Malachite::Surface &surface)
 {

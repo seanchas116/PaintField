@@ -33,12 +33,14 @@ HEADERS += \
            toolui/tooluimodule.h \
            basictool/brush/brushsetting.h \
            basictool/brush/brushsettingsidebar.h \
-           basictool/brush/brushstroker.h \
            basictool/brush/brushtool.h \
            basictool/brush/brushtoolmodule.h \
            basictool/move/layermovetool.h \
     basictool/move/layermovetoolmodule.h \
-    extensionmodulefactory.h
+    extensionmodulefactory.h \
+    basictool/brush/stroker.h \
+    basictool/brush/brushstroker.h \
+    basictool/brush/penstroker.h
 SOURCES += \
            colorui/colorsidebar.cpp \
            colorui/coloruimodule.cpp \
@@ -50,9 +52,11 @@ SOURCES += \
            toolui/tooluimodule.cpp \
            basictool/brush/brushsetting.cpp \
            basictool/brush/brushsettingsidebar.cpp \
-           basictool/brush/brushstroker.cpp \
            basictool/brush/brushtool.cpp \
            basictool/brush/brushtoolmodule.cpp \
            basictool/move/layermovetool.cpp \
     basictool/move/layermovetoolmodule.cpp \
-    extensionmodulefactory.cpp
+    extensionmodulefactory.cpp \
+    basictool/brush/stroker.cpp \
+    basictool/brush/brushstroker.cpp \
+    basictool/brush/penstroker.cpp

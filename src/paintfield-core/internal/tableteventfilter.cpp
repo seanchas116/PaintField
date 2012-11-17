@@ -62,7 +62,7 @@ bool TabletEventFilter::sendTabletEvent(QWidget *window, QTabletEvent *event)
 	
 	QWidget *widget = window->childAt(newEvent.posInt);
 	if (!widget)
-		return true;
+		return false;
 	
 	newEvent.posInt = widget->mapFromGlobal(newEvent.globalPosInt);
 	QCoreApplication::sendEvent(widget, &newEvent);

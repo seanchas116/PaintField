@@ -9,6 +9,7 @@ namespace PaintField {
 class RasterLayer;
 class GroupLayer;
 
+
 class LayerRenderer
 {
 public:
@@ -16,7 +17,14 @@ public:
 	LayerRenderer() {}
 	virtual ~LayerRenderer() {}
 	
-	Malachite::Surface renderToSurface(const LayerConstList &layers, const QPointSet &keyClip = QPointSet());
+	/**
+	 * Renders layers to a surface.
+	 * @param layers Layers to render
+	 * @param keyClip Tiles to render (Priority 2)
+	 * @param keyRectClip Tiles and their regions to render (Priority 1)
+	 * @return
+	 */
+	Malachite::Surface renderToSurface(const LayerConstList &layers, const QPointSet &keyClip = QPointSet(), const QHash<QPoint, QRect> &keyRectClip = QHash<QPoint, QRect>());
 	
 protected:
 	

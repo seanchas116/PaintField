@@ -6,12 +6,13 @@ namespace PaintField
 
 using namespace Malachite;
 
-Surface LayerRenderer::renderToSurface(const LayerConstList &layers, const QPointSet &keyClip)
+Surface LayerRenderer::renderToSurface(const LayerConstList &layers, const QPointSet &keyClip, const QHash<QPoint, QRect> &keyRectClip)
 {
 	Surface surface;
 	SurfacePainter painter(&surface);
 	
 	painter.setKeyClip(keyClip);
+	painter.setKeyRectClip(keyRectClip);
 	
 	renderLayers(&painter, layers);
 	

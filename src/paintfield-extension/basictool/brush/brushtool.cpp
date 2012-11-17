@@ -10,7 +10,7 @@
 #include "paintfield-core/widgets/simplebutton.h"
 
 #include "brushsettingsidebar.h"
-#include "brushstroker.h"
+#include "penstroker.h"
 
 #include "brushtool.h"
 
@@ -39,7 +39,7 @@ void BrushTool::tabletPressEvent(CanvasTabletEvent *event)
 
 void BrushTool::tabletMoveEvent(CanvasTabletEvent *event)
 {
-	PAINTFIELD_DEBUG << "tablet event x:" << event->data.pos.x << "y:" << event->data.pos.y << "pressure:" << event->data.pressure;
+	//PAINTFIELD_DEBUG << "tablet event x:" << event->data.pos.x << "y:" << event->data.pos.y << "pressure:" << event->data.pressure;
 	
 	if (_stroker)
 	{
@@ -140,7 +140,7 @@ void BrushTool::endStroke(const TabletInputData &data)
 
 void BrushTool::updateTiles()
 {
-	emit requestUpdate(_stroker->lastEditedKeys());
+	emit requestUpdate(_stroker->lastEditedKeysWithRects());
 	_stroker->clearLastEditedKeys();
 }
 

@@ -1,81 +1,15 @@
-#ifndef FSBRUSHSTROKER_H
-#define FSBRUSHSTROKER_H
+#ifndef BRUSHSTROKER_H
+#define BRUSHSTROKER_H
 
-#include <Malachite/SurfacePainter>
-#include "paintfield-core/tabletinputdata.h"
-#include "brushsetting.h"
+#include "stroker.h"
 
 namespace PaintField
 {
-
-class Stroker
-{
-public:
-	
-	Stroker(Malachite::Surface *surface, const BrushSetting *setting, const Malachite::Vec4F &argb);
-	virtual ~Stroker() {}
-	
-	void moveTo(const TabletInputData &data);
-	void lineTo(const TabletInputData &data);
-	void end();
-	
-	QPointSet lastEditedKeys() const { return _lastEditedKeys; }
-	QPointSet totalEditedKeys() const { return _totalEditedKeys; }
-	
-	void clearLastEditedKeys() { _lastEditedKeys.clear(); }
-	
-	const BrushSetting *setting() const { return _setting; }
-	Malachite::Vec4F argb() const { return _argb; }
-	Malachite::Surface *surface() { return _surface; }
-	
-protected:
-	
-	virtual void drawFirst(const TabletInputData &data) = 0;
-	virtual void drawInterval(const Malachite::Polygon &polygon, const TabletInputData &dataStart, const TabletInputData &dataEnd) = 0;
-	
-	void addEditedKeys(const QPointSet &keys);
-	
-private:
-	
-	Malachite::Surface *_surface = 0;
-	QPointSet _lastEditedKeys, _totalEditedKeys;
-	
-	int _count;
-	TabletInputData  _dataPrev, _dataStart, _dataEnd, _currentData;
-	//MLVec2D _v1, v2;
-	
-	const BrushSetting *_setting = 0;
-	Malachite::Vec4F _argb;
-};
-
-class PenStroker : public Stroker
-{
-public:
-	
-	//using FSStroker::FSStroker;
-	PenStroker(Malachite::Surface *surface, const BrushSetting *setting, const Malachite::Vec4F &argb) : Stroker(surface, setting, argb) {}
-	
-protected:
-	
-	void drawFirst(const TabletInputData &data);
-	void drawInterval(const Malachite::Polygon &polygon, const TabletInputData &dataStart, const TabletInputData &dataEnd);
-	
-private:
-	
-	void drawOne(const Malachite::Vec2D &pos, double pressure, bool drawQuad);
-	
-	static Malachite::Polygon calcTangentQuadrangle(double radius1, const Malachite::Vec2D &center1, double radius2, const Malachite::Vec2D &center2);
-	
-	Malachite::FixedMultiPolygon _drawnShape;
-	double _radiusPrev;
-	Malachite::Vec2D _posPrev;
-};
 
 class BrushStroker : public Stroker
 {
 public:
 	
-	//using FSStroker::FSStroker;
 	BrushStroker(Malachite::Surface *surface, const BrushSetting *setting, const Malachite::Vec4F &argb) : Stroker(surface, setting, argb) {}
 	
 protected:
@@ -95,5 +29,4 @@ private:
 };
 
 }
-
-#endif // FSBRUSHSTROKER_H
+#endif // BRUSHSTROKER_H

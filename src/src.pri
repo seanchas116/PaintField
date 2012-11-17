@@ -4,7 +4,7 @@
 CONFIG(debug, debug|release) {
 	DEFINES += QT_DEBUG
 } else {
-	DEFINES += QT_NO_DEBUG
+	DEFINES += QT_NO_DEBUG QT_NO_DEBUG_STREAM
 }
 
 

@@ -48,9 +48,12 @@ protected:
 	
 private slots:
 	
-	void updateTiles(const QPointSet &keys);
+	void updateTiles(const QPointSet &keys) { updateTiles(keys, QHash<QPoint, QRect>()); }
+	void updateTiles(const QHash<QPoint, QRect> &rects) { updateTiles(QPointSet(), rects); }
 	
 private:
+	
+	void updateTiles(const QPointSet &keys, const QHash<QPoint, QRect> &rects);
 	
 	bool sendCanvasMouseEvent(QMouseEvent *event);
 	bool sendCanvasTabletEvent(QMouseEvent *mouseEvent);

@@ -10,6 +10,7 @@ namespace PaintField
 using namespace Malachite;
 
 // assumes both dst and src are 16bit aligned
+// count must be a multiple of 4. reminder data is ignored.
 void copyColorFast(int count, Vec4U8 *dst, const Vec4F *src)
 {
 	int countPer4 = count / 4;
@@ -66,6 +67,30 @@ void drawMLImageFast(QPainter *painter, const QPoint &point, const Image &image)
 	
 	QImage qimage(buffer, size.width(), size.height(), QImage::Format_ARGB32_Premultiplied);
 	painter->drawImage(point, qimage);
+	
+	freeAlignedMemory(buffer);
+}
+
+void drawMLImageFast(QPainter *painter, const QPoint &point, const Image &image, const QRect &rect)
+{
+	QRect copyRect = rect & image.rect();
+	
+	copyRect.setTop(copyRect.top() / 4 * 4);
+	
+	if (copyRect.width() % 4)
+		copyRect.setWidth(copyRect.width() / 4 * 4 + 4);
+	
+	int pixelCount = copyRect.width() * copyRect.height();
+	
+	Vec4U8 *buffer = reinterpret_cast<Vec4U8 *>(allocateAlignedMemory(pixelCount * 4, 16));
+	
+	for (int y = copyRect.top(); y <= copyRect.bottom(); ++y)
+	{
+		copyColorFast(copyRect.width(), buffer + y * copyRect.width(), image.constPixelPointer(copyRect.x(), y));
+	}
+	
+	QImage qimage(reinterpret_cast<uint8_t *>(buffer), copyRect.width(), copyRect.height(), QImage::Format_ARGB32_Premultiplied);
+	painter->drawImage(point + rect.topLeft(), qimage);
 	
 	freeAlignedMemory(buffer);
 }

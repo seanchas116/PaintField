@@ -65,21 +65,30 @@ void CanvasViewViewport::setTool(Tool *tool)
 {
 	_tool = tool;
 	if (tool)
+	{
 		connect(tool, SIGNAL(requestUpdate(QPointSet)), this, SLOT(updateTiles(QPointSet)));
+		connect(tool, SIGNAL(requestUpdate(QHash<QPoint,QRect>)), this, SLOT(updateTiles(QHash<QPoint,QRect>)));
+	}
 }
 
-void CanvasViewViewport::updateTiles(const QPointSet &tiles)
+void CanvasViewViewport::updateTiles(const QPointSet &keys, const QHash<QPoint, QRect> &rects)
 {
 	PAINTFIELD_CALC_SCOPE_ELAPSED_TIME;
-	
-	QPointSet renderTiles = tiles & _layerModel->document()->tileKeys();
 	
 	CanvasRenderer renderer;
 	renderer.setTool(_tool);
 	
-	Surface surface = renderer.renderToSurface(_layerModel->rootLayer()->children(), renderTiles);
+	Surface surface = renderer.renderToSurface(_layerModel->rootLayer()->children(), keys, rects);
 	
-	for (const QPoint &key : renderTiles)
+	QPointSet renderKeys = _layerModel->document()->tileKeys();
+	if (!rects.isEmpty())
+		renderKeys &= rects.keys().toSet();
+	else
+		renderKeys &= keys;
+	
+	PAINTFIELD_DEBUG << renderKeys;
+	
+	for (const QPoint &key : renderKeys)
 	{
 		Image tile = Surface::WhiteTile;
 		
