@@ -25,7 +25,7 @@ class LayerUIModuleFactory : public ModuleFactory
 {
 public:
 	
-	void initialize(Application *app) override;
+	void initialize(AppController *app) override;
 	
 	QList<CanvasModule *> createCanvasModules(CanvasController *canvas, QObject *parent) override
 	{

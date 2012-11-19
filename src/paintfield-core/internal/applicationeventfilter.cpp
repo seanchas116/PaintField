@@ -2,14 +2,14 @@
 #include "../debug.h"
 #include "../tabletevent.h"
 
-#include "tableteventfilter.h"
+#include "applicationeventfilter.h"
 
 namespace PaintField
 {
 
 using namespace Malachite;
 
-bool TabletEventFilter::eventFilter(QObject *watched, QEvent *event)
+bool ApplicationEventFilter::eventFilter(QObject *watched, QEvent *event)
 {
 	switch (event->type())
 	{
@@ -63,11 +63,17 @@ bool TabletEventFilter::eventFilter(QObject *watched, QEvent *event)
 			
 			return true;
 		}
+		case QEvent::FileOpen:
+		{
+			auto fileOpenEvent = static_cast<QFileOpenEvent *>(event);
+			emit fileOpenRequested(fileOpenEvent->file());
+			return true;
+		}
 	}
 }
 
 #ifdef PAINTFIELD_ENABLE_TABLET_EVENT_FILTER
-bool TabletEventFilter::sendTabletEvent(QWidget *window, QTabletEvent *event)
+bool ApplicationEventFilter::sendTabletEvent(QWidget *window, QTabletEvent *event)
 {
 	Q_CHECK_PTR(window);
 	Q_CHECK_PTR(event);

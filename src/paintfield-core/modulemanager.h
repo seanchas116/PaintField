@@ -14,9 +14,9 @@ public:
 	
 	void addModuleFactory(ModuleFactory *factory);
 	
-	void initialize(Application *app);
+	void initialize(AppController *app);
 	
-	QList<AppModule *> createAppModules(Application *app, QObject *parent);
+	QList<AppModule *> createAppModules(AppController *app, QObject *parent);
 	QList<WorkspaceModule *> createWorkspaceModules(WorkspaceController *workspace, QObject *parent);
 	QList<CanvasModule *> createCanvasModules(CanvasController *canvas, QObject *parent);
 	

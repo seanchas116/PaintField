@@ -1,6 +1,6 @@
 #include <QtGui>
 
-#include "application.h"
+#include "appcontroller.h"
 #include "modulemanager.h"
 #include "util.h"
 
@@ -13,7 +13,7 @@ ToolManager::ToolManager(QObject *parent) :
     QObject(parent),
 	_actionGroup(new QActionGroup(this))
 {
-	createActions(app()->toolDeclarationHash());
+	createActions(appController()->toolDeclarationHash());
 	connect(_actionGroup, SIGNAL(triggered(QAction*)), this, SLOT(onActionTriggered(QAction*)));
 }
 

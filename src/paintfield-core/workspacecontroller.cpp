@@ -1,7 +1,7 @@
 #include <QtGui>
 
 #include "util.h"
-#include "application.h"
+#include "appcontroller.h"
 #include "toolmanager.h"
 #include "palettemanager.h"
 #include "module.h"
@@ -36,11 +36,11 @@ WorkspaceController::WorkspaceController(QObject *parent) :
 	connect(_view.data(), SIGNAL(closeRequested()), this, SLOT(tryClose()));
 	_view->setCentralWidget(_canvasAreaController->view());
 	
-	QVariantMap workspaceItemOrderMap = app()->workspaceItemOrder().toMap();
+	QVariantMap workspaceItemOrderMap = appController()->workspaceItemOrder().toMap();
 	
-	_view->createSideBarFrames(app()->sideBarDeclarationHash(), workspaceItemOrderMap["sidebars"]);
-	_view->createToolBars(app()->toolBarDeclarationHash(), workspaceItemOrderMap["toolbars"]);
-	_view->createMenuBar(app()->actionDeclarationHash(), app()->menuDeclarationHash(), app()->menuBarOrder());
+	_view->createSideBarFrames(appController()->sideBarDeclarationHash(), workspaceItemOrderMap["sidebars"]);
+	_view->createToolBars(appController()->toolBarDeclarationHash(), workspaceItemOrderMap["toolbars"]);
+	_view->createMenuBar(appController()->actionDeclarationHash(), appController()->menuDeclarationHash(), appController()->menuBarOrder());
 }
 
 void WorkspaceController::updateView()
@@ -134,7 +134,7 @@ void WorkspaceController::addCanvas(CanvasController *canvas)
 {
 	_canvasControllers << canvas;
 	connect(canvas, SIGNAL(shouldBeDeleted(CanvasController*)), this, SLOT(removeCanvas(CanvasController*)));
-	canvas->addModules(app()->moduleManager()->createCanvasModules(canvas, canvas));
+	canvas->addModules(appController()->moduleManager()->createCanvasModules(canvas, canvas));
 	
 	emit canvasAdded(canvas);
 }
@@ -154,18 +154,18 @@ void WorkspaceController::removeCanvas(CanvasController *canvas)
 
 void WorkspaceController::updateWorkspaceItems()
 {
-	for (const QString &name : app()->sidebarNames())
+	for (const QString &name : appController()->sidebarNames())
 	{
-		QWidget *sidebar = createSideBarForWorkspace(app()->modules(), modules(), name);
+		QWidget *sidebar = createSideBarForWorkspace(appController()->modules(), modules(), name);
 		if (sidebar)
 			_view->setSidebar(name, sidebar);
 	}
 	
-	for (const QString &name : app()->toolbarNames())
+	for (const QString &name : appController()->toolbarNames())
 	{
 		QToolBar *toolBar = _view->toolBar(name);
 		if (toolBar)
-			updateToolBar(app()->modules(), modules(), currentCanvasModules(), toolBar, name);
+			updateToolBar(appController()->modules(), modules(), currentCanvasModules(), toolBar, name);
 	}
 }
 
@@ -173,14 +173,14 @@ void WorkspaceController::updateWorkspaceItemsForCanvas(CanvasController *canvas
 {
 	Q_UNUSED(canvas)
 	
-	for (const QString &name : app()->sidebarNames())
+	for (const QString &name : appController()->sidebarNames())
 	{
 		QWidget *sidebar = createSideBarForCanvas(currentCanvasModules(), name);
 		if (sidebar)
 			_view->setSidebar(name, sidebar);
 	}
 	
-	for (const QString &name : app()->toolbarNames())
+	for (const QString &name : appController()->toolbarNames())
 	{
 		QToolBar *toolBar = _view->toolBar(name);
 		if (toolBar)
@@ -190,7 +190,7 @@ void WorkspaceController::updateWorkspaceItemsForCanvas(CanvasController *canvas
 
 void WorkspaceController::updateMenuBar()
 {
-	QActionList actions = app()->actions() + this->actions() + currentCanvasActions();
+	QActionList actions = appController()->actions() + this->actions() + currentCanvasActions();
 	_view->associateMenuBarWithActions(actions);
 }
 

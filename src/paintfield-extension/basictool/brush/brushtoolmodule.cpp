@@ -1,4 +1,4 @@
-#include "paintfield-core/application.h"
+#include "paintfield-core/appcontroller.h"
 #include "paintfield-core/widgets/simplebutton.h"
 
 #include "brushtool.h"
@@ -35,7 +35,7 @@ QWidget *BrushToolModule::createSideBar(const QString &name)
 	return 0;
 }
 
-void BrushToolModuleFactory::initialize(Application *app)
+void BrushToolModuleFactory::initialize(AppController *app)
 {
 	{
 		QString text = QObject::tr("Brush");

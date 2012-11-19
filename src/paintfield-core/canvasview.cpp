@@ -5,7 +5,7 @@
 #include "layerrenderer.h"
 #include "debug.h"
 #include "canvascontroller.h"
-#include "application.h"
+#include "appcontroller.h"
 
 #include "canvasview.h"
 
@@ -73,7 +73,7 @@ void CanvasViewViewport::setTool(Tool *tool)
 
 void CanvasViewViewport::updateTiles(const QPointSet &keys, const QHash<QPoint, QRect> &rects)
 {
-	//PAINTFIELD_CALC_SCOPE_ELAPSED_TIME;
+	PAINTFIELD_CALC_SCOPE_ELAPSED_TIME;
 	
 	CanvasRenderer renderer;
 	renderer.setTool(_tool);
@@ -311,7 +311,7 @@ CanvasView::CanvasView(CanvasController *controller, QWidget *parent) :
 
 void CanvasView::setTool(const QString &name)
 {
-	Tool *tool = createTool(app()->modules(), controller()->workspace()->modules(), controller()->modules(), name, this);
+	Tool *tool = createTool(appController()->modules(), controller()->workspace()->modules(), controller()->modules(), name, this);
 	_viewport->setTool(tool);
 }
 

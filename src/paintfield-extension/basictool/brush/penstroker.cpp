@@ -1,3 +1,4 @@
+#include <float.h>
 #include "paintfield-core/debug.h"
 
 #include "penstroker.h"
@@ -7,6 +8,45 @@ using namespace Malachite;
 namespace PaintField
 {
 
+PenStroker::PenStroker(Surface *surface, const BrushSetting *setting, const Vec4F &argb) :
+	Stroker(surface, setting, argb)
+{
+}
+
+Polygon PenStroker::calcTangentQuadrangle(double r1, const Vec2D &k1, double r2, const Vec2D &k2, double d)
+{
+	double s = (r2 - r1) / d;
+	double ss = s*s;
+	
+	if (ss >= 1.0)
+		return Polygon();
+	
+	double c = sqrt(1.0 - ss);
+	
+	double ns = -s;
+	double nc = -c;
+	
+	Vec2D k1_k2 = k2 - k1;
+	Vec2D k1_k2_0 = k1_k2.extract0();
+	Vec2D k1_k2_1 = k1_k2.extract1();
+	
+	Vec2D vp = Vec2D(ns, c) * k1_k2_0 + Vec2D(nc, ns) * k1_k2_1;
+	Vec2D vq = Vec2D(ns, nc) * k1_k2_0 + Vec2D(c, ns) * k1_k2_1;
+	
+	Vec2D t = Vec2D(r1, r2) / d;
+	Vec2D t1 = t.extract0();
+	Vec2D t2 = t.extract1();
+	
+	Polygon poly(4);
+	poly[0] = k1 + vq * t1;
+	poly[1] = k2 + vq * t2;
+	poly[2] = k2 + vp * t2;
+	poly[3] = k1 + vp * t1;
+	
+	return poly;
+}
+
+/*
 Polygon PenStroker::calcTangentQuadrangle(double radius1, const Vec2D &center1, double radius2, const Vec2D &center2)
 {
 	double r1, r2;
@@ -68,7 +108,7 @@ Polygon PenStroker::calcTangentQuadrangle(double radius1, const Vec2D &center1, 
 	poly[3] = k1 + k1q1;
 	
 	return poly;
-}
+}*/
 
 void PenStroker::drawFirst(const TabletInputData &data)
 {
@@ -102,12 +142,16 @@ void PenStroker::drawInterval(const Polygon &polygon, const TabletInputData &dat
 	
 	for (int i = 1; i < polygon.size(); ++i)
 	{
+		if (lengths.at(i-1) == 0)
+			continue;
+		
 		pressure += pressureNormalized * lengths.at(i-1);
 		
 		double prevRadius = radius;
 		radius = pressure * _radiusBase;
 		
-		shape = shape | FixedMultiPolygon(calcTangentQuadrangle(prevRadius, polygon.at(i-1), radius, polygon.at(i)));
+		shape = shape | FixedMultiPolygon(calcTangentQuadrangle(prevRadius, polygon.at(i-1), radius, polygon.at(i), lengths.at(i-1)));
+		//shape = shape | FixedPolygon(Polygon::fromEllipse(polygon.at(i), Vec2D(radius)));
 		
 		QPainterPath ellipsePath;
 		ellipsePath.addEllipse(polygon.at(i), radius, radius);
@@ -149,7 +193,7 @@ void PenStroker::drawShape(const FixedMultiPolygon &shape)
 	}
 	
 	SurfaceEditor editor(surface());
-	editor.replace(drawSurface, keys);
+	editor.replace(drawSurface, keysWithRects.keys().toSet());
 	addEditedKeys(keysWithRects);
 }
 

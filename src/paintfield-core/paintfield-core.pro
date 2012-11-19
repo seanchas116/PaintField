@@ -19,7 +19,7 @@ LIBS += -L$$OUT_PWD/../libs/Malachite/src -L$$OUT_PWD/../libs/Minizip
 LIBS += -lfreeimage -lz -lmalachite -lminizip -lqjson
 
 # Input
-HEADERS += application.h \
+HEADERS += \
            canvascontroller.h \
            document.h \
            documentio.h \
@@ -66,9 +66,15 @@ HEADERS += application.h \
     canvasview.h \
     smartpointer.h \
     interface.h \
-    debug.h
+    debug.h \
+    qtsingleapplication/qtsingleapplication.h \
+    qtsingleapplication/qtlockedfile.h \
+    qtsingleapplication/qtlocalpeer.h \
+    appcontroller.h \
+    application.h \
+    internal/applicationeventfilter.h
 FORMS += dialogs/exportdialog.ui dialogs/newdocumentdialog.ui
-SOURCES += application.cpp \
+SOURCES += \
            canvascontroller.cpp \
            document.cpp \
            documentio.cpp \
@@ -109,4 +115,9 @@ SOURCES += application.cpp \
     widgets/floatingdocktabwidget.cpp \
     widgets/splittabareacontroller.cpp \
     canvasview.cpp \
-    tool.cpp
+    tool.cpp \
+    qtsingleapplication/qtsingleapplication.cpp \
+    qtsingleapplication/qtlocalpeer.cpp \
+    appcontroller.cpp \
+    application.cpp \
+    internal/applicationeventfilter.cpp

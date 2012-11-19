@@ -1,6 +1,6 @@
 #include <QMenu>
 
-#include "paintfield-core/application.h"
+#include "paintfield-core/appcontroller.h"
 #include "paintfield-core/widgets/simplebutton.h"
 #include "layertreesidebar.h"
 #include "layeractioncontroller.h"
@@ -57,7 +57,7 @@ QWidget *LayerUIModule::createSideBar(const QString &name)
 	return 0;
 }
 
-void LayerUIModuleFactory::initialize(Application *app)
+void LayerUIModuleFactory::initialize(AppController *app)
 {
 	app->declareMenu("paintfield.layer", QObject::tr("Layer"));
 	

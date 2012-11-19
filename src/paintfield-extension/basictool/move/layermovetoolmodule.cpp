@@ -1,4 +1,4 @@
-#include "paintfield-core/application.h"
+#include "paintfield-core/appcontroller.h"
 #include "paintfield-core/widgets/simplebutton.h"
 
 #include "layermovetool.h"
@@ -17,7 +17,7 @@ Tool *LayerMoveToolModule::createTool(const QString &name, CanvasView *view)
 	return 0;
 }
 
-void LayerMoveToolModuleFactory::initialize(Application *app)
+void LayerMoveToolModuleFactory::initialize(AppController *app)
 {
 	QString text = QObject::tr("Layer Move");
 	QIcon icon = SimpleButton::createSimpleIconSet(":/icons/24x24/move.svg", QSize(24,24));

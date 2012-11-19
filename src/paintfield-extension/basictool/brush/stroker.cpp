@@ -2,7 +2,7 @@
 #include <Malachite/CurveSubdivision>
 
 #include "paintfield-core/debug.h"
-#include "paintfield-core/application.h"
+#include "paintfield-core/appcontroller.h"
 
 #include "stroker.h"
 

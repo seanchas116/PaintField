@@ -3,7 +3,7 @@
 #include "paintfield-core/widgets/loosespinbox.h"
 #include "paintfield-core/widgets/doubleslider.h"
 
-#include "paintfield-core/application.h"
+#include "paintfield-core/appcontroller.h"
 #include "paintfield-core/util.h"
 
 #include "brushtool.h"

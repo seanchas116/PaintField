@@ -1,4 +1,4 @@
-#include "paintfield-core/application.h"
+#include "paintfield-core/appcontroller.h"
 #include "paintfield-core/workspacecontroller.h"
 #include "paintfield-core/palettemanager.h"
 
@@ -41,7 +41,7 @@ QWidget *ColorUIModule::createSideBar(const QString &name)
 	return 0;
 }
 
-void ColorUIModuleFactory::initialize(Application *app)
+void ColorUIModuleFactory::initialize(AppController *app)
 {
 	app->declareSideBar(_colorSidebarName, SidebarDeclaration(QObject::tr("Color")));
 }

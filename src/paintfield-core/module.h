@@ -14,7 +14,7 @@ typedef QList<QAction *> QActionList;
 namespace PaintField
 {
 
-class Application;
+class AppController;
 class WorkspaceController;
 class CanvasController;
 class CanvasView;
@@ -96,12 +96,12 @@ class AppModule : public Module
 	Q_OBJECT
 public:
 	
-	explicit AppModule(Application *app, QObject *parent) : Module(parent), _app(app) {}
-	Application *app() { return _app; }
+	explicit AppModule(AppController *app, QObject *parent) : Module(parent), _app(app) {}
+	AppController *app() { return _app; }
 	
 private:
 	
-	Application *_app;
+	AppController *_app;
 };
 typedef QList<AppModule *> AppModuleList;
 
@@ -114,9 +114,9 @@ class ModuleFactory
 {
 public:
 	
-	virtual void initialize(Application *app) = 0;
+	virtual void initialize(AppController *app) = 0;
 	
-	virtual AppModuleList createAppModules(Application *app, QObject *parent);
+	virtual AppModuleList createAppModules(AppController *app, QObject *parent);
 	virtual WorkspaceModuleList createWorkspaceModules(WorkspaceController *workspace, QObject *parent);
 	virtual CanvasModuleList createCanvasModules(CanvasController *canvas, QObject *parent);
 	

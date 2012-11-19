@@ -39,7 +39,7 @@ void BrushTool::tabletPressEvent(CanvasTabletEvent *event)
 
 void BrushTool::tabletMoveEvent(CanvasTabletEvent *event)
 {
-    PAINTFIELD_DEBUG << "tablet event x:" << event->data.pos.x << "y:" << event->data.pos.y << "pressure:" << event->data.pressure;
+	//PAINTFIELD_DEBUG << "tablet event x:" << event->data.pos.x << "y:" << event->data.pos.y << "pressure:" << event->data.pressure;
 	
 	if (_stroker)
 	{
@@ -130,9 +130,12 @@ void BrushTool::endStroke(const TabletInputData &data)
 	_stroker->end();
 	updateTiles();
 	
-	//documentModel()->setData(documentModel()->indexForLayer(_layer), QVariant::fromValue(_surface), FSGlobal::RoleSurface, tr("Brush"));
-	document()->layerModel()->makeSkipNextUpdate();
-	document()->layerModel()->editLayer(document()->layerModel()->indexForLayer(_layer), new LayerSurfaceEdit(_surface, _stroker->totalEditedKeys()), tr("Brush"));
+	if (_layer && _layer == currentLayer())
+	{
+		document()->layerModel()->makeSkipNextUpdate();
+		document()->layerModel()->editLayer(document()->layerModel()->indexForLayer(_layer), new LayerSurfaceEdit(_surface, _stroker->totalEditedKeys()), tr("Brush"));
+		
+	}
 	
 	_stroker.reset();
 	clearCustomDrawLayer();

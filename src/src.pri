@@ -1,5 +1,5 @@
 
-
+QT += core gui network
 
 CONFIG(debug, debug|release) {
 	DEFINES += QT_DEBUG

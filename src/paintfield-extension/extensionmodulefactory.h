@@ -10,7 +10,7 @@ class ExtensionModuleFactory : public ModuleFactory
 {
 public:
 	ExtensionModuleFactory();
-	void initialize(Application *app) { Q_UNUSED(app) }
+	void initialize(AppController *app) { Q_UNUSED(app) }
 };
 
 }

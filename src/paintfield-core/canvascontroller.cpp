@@ -1,6 +1,6 @@
 #include <QtGui>
 
-#include "application.h"
+#include "appcontroller.h"
 #include "toolmanager.h"
 #include "documentio.h"
 #include "workspacecontroller.h"

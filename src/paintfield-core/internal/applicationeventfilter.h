@@ -1,5 +1,5 @@
-#ifndef FSTABLETEVENTFILTER_H
-#define FSTABLETEVENTFILTER_H
+#ifndef APPLICATIONEVENTFILTER_H
+#define APPLICATIONEVENTFILTER_H
 
 #include <QObject>
 #include <QTabletEvent>
@@ -15,11 +15,11 @@ namespace PaintField
 
 class CanvasTabletEvent;
 
-class TabletEventFilter : public QObject
+class ApplicationEventFilter : public QObject
 {
 	Q_OBJECT
 public:
-	explicit TabletEventFilter(QObject *parent = 0) : QObject(parent), _targetWindow(0) {}
+	explicit ApplicationEventFilter(QObject *parent = 0) : QObject(parent), _targetWindow(0) {}
 	
 	bool eventFilter(QObject *watched, QEvent *event);
 	
@@ -34,6 +34,8 @@ signals:
 	void tabletActiveChanged(bool active);
 	void tabletPointerTypeChanged(QTabletEvent::PointerType type);
 	void tabletIdChanged(quint64 id);
+	
+	void fileOpenRequested(const QString &path);
 	
 public slots:
 	
@@ -50,4 +52,4 @@ private:
 
 }
 
-#endif // FSTABLETEVENTFILTER_H
+#endif // APPLICATIONEVENTFILTER_H

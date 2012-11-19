@@ -2,7 +2,7 @@
 #define FSTOOLMANAGER_H
 
 #include <QObject>
-#include "application.h"
+#include "appcontroller.h"
 
 class QActionGroup;
 

@@ -22,7 +22,7 @@ void Module::updateToolBar(QToolBar *toolBar, const QString &name)
 	Q_UNUSED(name)
 }
 
-AppModuleList ModuleFactory::createAppModules(Application *app, QObject *parent)
+AppModuleList ModuleFactory::createAppModules(AppController *app, QObject *parent)
 {
 	Q_UNUSED(app)
 	Q_UNUSED(parent)

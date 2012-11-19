@@ -1,4 +1,4 @@
-#include "application.h"
+#include "appcontroller.h"
 #include "modulemanager.h"
 
 #include "workspacemanager.h"
@@ -62,8 +62,8 @@ void WorkspaceManager::addWorkspace(WorkspaceController *workspace)
 	connect(workspace, SIGNAL(focused()), this, SLOT(onWorkspaceFocusIn()));
 	connect(workspace, SIGNAL(shouldBeDeleted(WorkspaceController*)), this, SLOT(removeWorkspace(WorkspaceController*)));
 	
-	workspace->addModules(app()->moduleManager()->createWorkspaceModules(workspace, workspace));
-	workspace->addNullCanvasModules(app()->moduleManager()->createCanvasModules(0, workspace));
+	workspace->addModules(appController()->moduleManager()->createWorkspaceModules(workspace, workspace));
+	workspace->addNullCanvasModules(appController()->moduleManager()->createCanvasModules(0, workspace));
 	
 	emit workspaceAdded(workspace);
 	

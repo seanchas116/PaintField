@@ -1,107 +1,41 @@
-#ifndef FSAPPLICATION_H
-#define FSAPPLICATION_H
+#ifndef APPLICATION_H
+#define APPLICATION_H
 
-#include <QMainWindow>
-#include "tabletapplication.h"
+#include "qtsingleapplication/qtsingleapplication.h"
+#include <QTabletEvent>
 
-#include "util.h"
-#include "palettemanager.h"
-#include "workspacemanager.h"
-#include "global.h"
+#ifdef Q_OS_MAC
+#define PAINTFIELD_ENABLE_TABLET_EVENT_FILTER
+#endif
 
 namespace PaintField
 {
 
-class ModuleManager;
-class AppModule;
-class ModuleFactory;
-
-class Application : public TabletApplication
+class Application : public QtSingleApplication
 {
 	Q_OBJECT
 public:
 	
-	Application(int &argv, char **args);
+	typedef QtSingleApplication super;
 	
-	int exec();
-	
-	/**
-	 * @return The workspace manager
-	 */
-	WorkspaceManager *workspaceManager() { return _workspaceManager; }
-	
-	void loadMenuBarOrderFromJson(const QString &path) { _menuBarOrder = loadJsonFromFile(path); }
-	void loadWorkspaceItemOrderFromJson(const QString &path) { _workspaceItemOrder = loadJsonFromFile(path); }
-	void loadKeyMapFromJson(const QString &path);
-	
-	void setMenuBarOrder(const QVariant &order) { _menuBarOrder = order; }
-	QVariant menuBarOrder() const { return _menuBarOrder; }
-	
-	void setWorkspaceItemOrder(const QVariant &order) { _workspaceItemOrder = order; }
-	QVariant workspaceItemOrder() const { return _workspaceItemOrder; }
-	
-	ModuleManager *moduleManager() { return _moduleManager; }
-	void addModuleFactory(ModuleFactory *factory);
-	
-	void declareTool(const QString &name, const ToolDeclaration &info) { _toolDeclarationHash[name] = info; }
-	void declareAction(const QString &name, const ActionDeclaration &info) { _actionDeclarationHash[name] = info; }
-	void declareSideBar(const QString &name, const SidebarDeclaration &info) { _sideBarDeclarationHash[name] = info; }
-	void declareToolbar(const QString &name, const ToolbarDeclaration &info) { _toolbarInfoHash[name] = info; }
-	void declareMenu(const QString &id, const MenuDeclaration &info) { _menuDeclarationHash[id] = info; }
-	
-	ToolDeclarationHash toolDeclarationHash() const { return _toolDeclarationHash; }
-	ActionDeclarationHash actionDeclarationHash() const { return _actionDeclarationHash; }
-	SideBarDeclarationHash sideBarDeclarationHash() const { return _sideBarDeclarationHash; }
-	ToolBarDeclarationHash toolBarDeclarationHash() const { return _toolbarInfoHash; }
-	MenuDeclarationHash menuDeclarationHash() const { return _menuDeclarationHash; }
-	
-	QStringList toolNames() const { return _toolDeclarationHash.keys(); }
-	QStringList actionNames() const { return _actionDeclarationHash.keys(); }
-	QStringList sidebarNames() const { return _sideBarDeclarationHash.keys(); }
-	QStringList toolbarNames() const { return _toolbarInfoHash.keys(); }
-	QStringList menuNames() const { return _menuDeclarationHash.keys(); }
-	
-	void overrideActionShortcut(const QString &name, const QKeySequence &shortcut);
-	
-	void addModules(const QList<AppModule *> &modules);
-	QList<AppModule *> modules() { return _modules; }
-	
-	void addActions(const QList<QAction *> &actions) { _actions += actions; }
-	QList<QAction *> actions() { return _actions; }
+	Application(int &argc, char **argv);
 	
 signals:
 	
-public slots:
+	void tabletActivated();
+	void tabletDeactivated();
+	void tabletActiveChanged(bool active);
+	void tabletPointerTypeChanged(QTabletEvent::PointerType type);
+	void tabletIdChanged(quint64 id);
 	
-	void minimizeCurrentWindow();
-	void zoomCurrentWindow();
+public slots:
 	
 protected:
 	
 private:
 	
-	WorkspaceManager *_workspaceManager = 0;
-	
-	QVariant _menuBarOrder, _workspaceItemOrder;
-	
-	ToolDeclarationHash _toolDeclarationHash;
-	ActionDeclarationHash _actionDeclarationHash;
-	SideBarDeclarationHash _sideBarDeclarationHash;
-	ToolBarDeclarationHash _toolbarInfoHash;
-	MenuDeclarationHash _menuDeclarationHash;
-	
-	ModuleManager *_moduleManager = 0;
-	
-	QList<AppModule *> _modules;
-	
-	QList<QAction *> _actions;
 };
-
-/**
- * @return The instance of Application
- */
-inline Application *app() { return static_cast<Application *>(QCoreApplication::instance()); }
 
 }
 
-#endif // FSAPPLICATION_H
+#endif // APPLICATION_H

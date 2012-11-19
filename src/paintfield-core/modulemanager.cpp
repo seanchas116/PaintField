@@ -1,6 +1,6 @@
 #include <QMetaObject>
 
-#include "application.h"
+#include "appcontroller.h"
 #include "module.h"
 
 #include "modulemanager.h"
@@ -21,13 +21,13 @@ void ModuleManager::addModuleFactory(ModuleFactory *factory)
 		addModuleFactory(subFactory);
 }
 
-void ModuleManager::initialize(Application *app)
+void ModuleManager::initialize(AppController *app)
 {
 	for (auto factory : _factories)
 		factory->initialize(app);
 }
 
-QList<AppModule *> ModuleManager::createAppModules(Application *app, QObject *parent)
+QList<AppModule *> ModuleManager::createAppModules(AppController *app, QObject *parent)
 {
 	QList<AppModule *> modules;
 	
