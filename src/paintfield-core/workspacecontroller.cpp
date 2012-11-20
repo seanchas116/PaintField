@@ -33,6 +33,7 @@ WorkspaceController::WorkspaceController(QObject *parent) :
 	_actions << createAction("paintfield.file.new", this, SLOT(newCanvas()));
 	_actions << createAction("paintfield.file.open", this, SLOT(openCanvas()));
 	
+	connect(this, SIGNAL(currentCanvasChanged(CanvasController*)), _view.data(), SLOT(setCurrentCanvas(CanvasController*)));
 	connect(_view.data(), SIGNAL(closeRequested()), this, SLOT(tryClose()));
 	_view->setCentralWidget(_canvasAreaController->view());
 	

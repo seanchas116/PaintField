@@ -41,6 +41,8 @@ public:
 	
 	void addCanvas(CanvasController *canvas);
 	
+	QList<CanvasController *> canvases() { return _canvasControllers; }
+	
 signals:
 	
 	void currentCanvasChanged(CanvasController *canvas);

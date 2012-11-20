@@ -77,7 +77,22 @@ CanvasController *CanvasController::fromNew(WorkspaceController *parent)
 	
 	RasterLayer *layer = new RasterLayer(tr("Untitled Layer"));
 	
-	Document *document = new Document(tr("Untitled"), dialog.documentSize(), layer);
+	QStringList existingTempNames;
+	
+	for (WorkspaceController *workspace : appController()->workspaceManager()->workspaces())
+	{
+		for (CanvasController *canvas : workspace->canvases())
+		{
+			Document *eachDoc = canvas->document();
+			
+			if (eachDoc->filePath().isEmpty())
+				existingTempNames << eachDoc->tempName();
+		}
+	}
+	
+	QString tempName = unduplicatedName(existingTempNames, tr("Untitled"));
+	
+	Document *document = new Document(tempName, dialog.documentSize(), layer);
 	return new CanvasController(document, parent);
 }
 

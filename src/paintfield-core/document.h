@@ -74,6 +74,7 @@ signals:
 	void modified();
 	void modifiedChanged(bool modified);
 	void filePathChanged(const QString &filePath);
+	void fileNameChanged(const QString &fileName);
 	
 	void undoTextChanged(const QString &name);
 	void redoTextChangdd(const QString &name);

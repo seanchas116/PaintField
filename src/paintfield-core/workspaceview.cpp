@@ -1,5 +1,6 @@
 #include <QtGui>
 #include "widgets/docktabmotherwidget.h"
+#include "canvascontroller.h"
 
 #include "workspaceview.h"
 
@@ -201,6 +202,8 @@ WorkspaceView::WorkspaceView(QWidget *parent) :
 		
 	_motherWidget = new WorkspaceMotherWidget;
 	QMainWindow::setCentralWidget(_motherWidget);
+	
+	onCurrentCanvasPropertyChanged();
 }
 
 void WorkspaceView::setCentralWidget(QWidget *widget)
@@ -341,6 +344,38 @@ QToolBar *WorkspaceView::toolBar(const QString &id)
 void WorkspaceView::associateMenuBarWithActions(const QActionList &actions)
 {
 	MenuArranger::associateMenuBarWithActions(menuBar(), actions);
+}
+
+void WorkspaceView::setCurrentCanvas(CanvasController *canvas)
+{
+	if (_currentCanvas)
+	{
+		disconnect(_currentCanvas->document(), 0, this, 0);
+	}
+	
+	_currentCanvas = canvas;
+	
+	if (_currentCanvas)
+	{
+		connect(canvas->document(), SIGNAL(modifiedChanged(bool)), this, SLOT(onCurrentCanvasPropertyChanged()));
+		connect(canvas->document(), SIGNAL(filePathChanged(QString)), this, SLOT(onCurrentCanvasPropertyChanged()));
+		onCurrentCanvasPropertyChanged();
+	}
+}
+
+void WorkspaceView::onCurrentCanvasPropertyChanged()
+{
+	if (_currentCanvas)
+	{
+		setWindowModified(_currentCanvas->document()->isModified());
+		setWindowFilePath(_currentCanvas->document()->filePath());
+		setWindowTitle(_currentCanvas->document()->fileName() + "[*] - PaintField");
+	}
+	else
+	{
+		setWindowModified(false);
+		setWindowTitle("PaintField");
+	}
 }
 
 void WorkspaceView::closeEvent(QCloseEvent *event)

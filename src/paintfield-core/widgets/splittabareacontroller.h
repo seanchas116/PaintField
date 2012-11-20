@@ -111,6 +111,8 @@ public:
 	
 	void registerTabWidget(SplitTabWidget *widget);
 	
+	SplitTabWidget *tabWidgetForTab(QWidget *tab);
+	
 signals:
 	
 	void currentTabChanged(QWidget *tab);
@@ -136,7 +138,6 @@ private:
 	
 	void setCurrentSplit(SplitAreaController *split);
 	
-	SplitTabWidget *tabWidgetForTab(QWidget *tab);
 	SplitTabWidget *tabWidgetForSplit(SplitAreaController *split);
 	SplitTabWidget *tabWidgetForCurrentSplit() { return tabWidgetForSplit(_currentSplit); }
 	SplitAreaController *splitForWidget(QWidget *widget);

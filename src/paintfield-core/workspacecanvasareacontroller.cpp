@@ -19,19 +19,30 @@ QWidget *WorkspaceCanvasAreaController::view()
 	return _tabArea->view();
 }
 
-void WorkspaceCanvasAreaController::addCanvas(CanvasController *controller)
+void WorkspaceCanvasAreaController::addCanvas(CanvasController *canvas)
 {
-	_tabArea->addTab(controller->view(), controller->document()->fileName());
+	_tabArea->addTab(canvas->view(), canvas->document()->fileName());
 }
 
-void WorkspaceCanvasAreaController::removeCanvas(CanvasController *controller)
+void WorkspaceCanvasAreaController::removeCanvas(CanvasController *canvas)
 {
-	_tabArea->removeTab(controller->view());
+	_tabArea->removeTab(canvas->view());
 }
 
-void WorkspaceCanvasAreaController::setCurrentCanvas(CanvasController *controller)
+void WorkspaceCanvasAreaController::setCurrentCanvas(CanvasController *canvas)
 {
-	_tabArea->setCurrentTab(controller ? controller->view() : 0);
+	if (_currentCanvas)
+	{
+		disconnect(_currentCanvas->document(), SIGNAL(filePathChanged(QString)), this, SLOT(onCurrentCanvasPropertyChanged()));
+	}
+	
+	_currentCanvas = canvas;
+	_tabArea->setCurrentTab(canvas ? canvas->view() : 0);
+	
+	if (_currentCanvas)
+	{
+		connect(_currentCanvas->document(), SIGNAL(filePathChanged(QString)), this, SLOT(onCurrentCanvasPropertyChanged()));
+	}
 }
 
 void WorkspaceCanvasAreaController::split(Qt::Orientation orientation)
@@ -49,6 +60,12 @@ void WorkspaceCanvasAreaController::onCurrentTabChanged(QWidget *tab)
 	CanvasView *view = qobject_cast<CanvasView *>(tab);
 	if (view)
 		emit currentCanvasChanged(view->controller());
+}
+
+void WorkspaceCanvasAreaController::onCurrentCanvasPropertyChanged()
+{
+	auto tabWidget = _tabArea->tabWidgetForTab(_currentCanvas->view());
+	tabWidget->setTabText(tabWidget->indexOf(_currentCanvas->view()), _currentCanvas->document()->fileName());
 }
 
 }

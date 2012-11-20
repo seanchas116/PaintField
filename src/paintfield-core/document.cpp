@@ -37,6 +37,7 @@ void Document::setFilePath(const QString &filePath)
 		return;
 	_filePath = filePath;
 	emit filePathChanged(filePath);
+	emit fileNameChanged(fileName());
 }
 
 void Document::onUndoneOrRedone()

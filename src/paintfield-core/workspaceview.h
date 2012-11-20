@@ -113,12 +113,18 @@ signals:
 	
 public slots:
 	
+	void setCurrentCanvas(CanvasController *canvas);
+	
 protected:
 	
 	void closeEvent(QCloseEvent *event);
 	
 	void focusInEvent(QFocusEvent *);
 	void focusOutEvent(QFocusEvent *);
+	
+private slots:
+	
+	void onCurrentCanvasPropertyChanged();
 	
 private:
 	
@@ -131,6 +137,8 @@ private:
 	QList<WorkspaceTabWidget *> _tabWidgets;
 	QList<SideBarFrame *> _sideBarFrames;
 	QList<QToolBar *> _toolBars;
+	
+	CanvasController *_currentCanvas = 0;
 };
 
 }

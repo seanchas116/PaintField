@@ -20,13 +20,13 @@ public:
 	
 signals:
 	
-	void currentCanvasChanged(CanvasController *controller);
+	void currentCanvasChanged(CanvasController *canvas);
 	
 public slots:
 	
-	void addCanvas(CanvasController *controller);
-	void removeCanvas(CanvasController *controller);
-	void setCurrentCanvas(CanvasController *controller);
+	void addCanvas(CanvasController *canvas);
+	void removeCanvas(CanvasController *canvas);
+	void setCurrentCanvas(CanvasController *canvas);
 	
 	void splitVertically() { split(Qt::Vertical); }
 	void splitHorizontally() { split(Qt::Horizontal); }
@@ -36,10 +36,12 @@ public slots:
 private slots:
 	
 	void onCurrentTabChanged(QWidget *tab);
+	void onCurrentCanvasPropertyChanged();
 	
 private:
 	
-	SplitTabAreaController *_tabArea;
+	SplitTabAreaController *_tabArea = 0;
+	CanvasController *_currentCanvas = 0;
 };
 
 }
