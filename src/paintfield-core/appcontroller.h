@@ -49,6 +49,9 @@ public:
 	void declareToolbar(const QString &name, const ToolbarDeclaration &info) { _toolbarInfoHash[name] = info; }
 	void declareMenu(const QString &id, const MenuDeclaration &info) { _menuDeclarationHash[id] = info; }
 	
+	void declareTool(const QString &name, const QString &text, const QIcon &icon, const QStringList &supportedLayerTypes) { declareTool(name, ToolDeclaration(text, icon, supportedLayerTypes)); }
+	void declareAction(const QString &name, const QString &text, const QKeySequence &defaultShortcut = QKeySequence()) { declareAction(name, ActionDeclaration(text, defaultShortcut)); }
+	
 	ToolDeclarationHash toolDeclarationHash() const { return _toolDeclarationHash; }
 	ActionDeclarationHash actionDeclarationHash() const { return _actionDeclarationHash; }
 	SideBarDeclarationHash sideBarDeclarationHash() const { return _sideBarDeclarationHash; }
@@ -68,6 +71,8 @@ public:
 	
 	void addActions(const QList<QAction *> &actions) { _actions += actions; }
 	QList<QAction *> actions() { return _actions; }
+	
+	QString unduplicatedTempName(const QString &name);
 	
 	static AppController *instance() { return _instance; }
 	
@@ -104,7 +109,7 @@ private:
 };
 
 /**
- * @return The instance of Application
+ * @return The instance of AppController
  */
 inline AppController *appController() { return AppController::instance(); }
 

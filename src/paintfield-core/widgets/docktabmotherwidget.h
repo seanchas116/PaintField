@@ -62,8 +62,7 @@ public:
 	void setCentralWidget(QWidget *widget);
 	
 	bool dropDockTab(DockTabWidget *srcTabWidget, int srcIndex, const QPoint &pos) override;
-	
-	virtual bool isInsertableFrom(DockTabWidget *tabWidget) { Q_UNUSED(tabWidget) return true; }
+	bool tabIsInsertable(DockTabWidget *src, int srcIndex) override { Q_UNUSED(src) Q_UNUSED(srcIndex) return true; }
 	
 protected:
 	

@@ -57,10 +57,10 @@ enum EditActionType
 struct ToolDeclaration
 {
 	ToolDeclaration() {}
-	ToolDeclaration(const QString &text, const QIcon &icon, const QVector<int> &supportedLayerTypes) : text(text), icon(icon), supportedLayerTypes(supportedLayerTypes) {}
+	ToolDeclaration(const QString &text, const QIcon &icon, const QStringList &supportedLayerTypes) : text(text), icon(icon), supportedLayerTypes(supportedLayerTypes) {}
 	QString text;
 	QIcon icon;
-	QVector<int> supportedLayerTypes;
+	QStringList supportedLayerTypes;
 };
 typedef QHash<QString, ToolDeclaration> ToolDeclarationHash;
 

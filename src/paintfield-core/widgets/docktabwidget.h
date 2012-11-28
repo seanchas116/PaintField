@@ -36,9 +36,8 @@ public:
 	static void moveTab(DockTabWidget *source, int sourceIndex, DockTabWidget *dest, int destIndex);
 	static bool eventIsTabDrag(QDragEnterEvent *event);
 	
-	virtual bool isInsertableFrom(DockTabWidget *other) { Q_UNUSED(other) return true; }
+	virtual bool tabIsInsertable(DockTabWidget *other, int index) { Q_UNUSED(other) Q_UNUSED(index) return true; }
 	virtual void insertTab(int index, QWidget *widget, const QString &title) { QTabWidget::insertTab(index, widget, title); }
-	//virtual DockTabWidget *createAnother(QWidget *parent = 0);
 	
 	QObject *createNew() override;
 	DockTabWidget *createNewTabWidget() { return createNewAs<DockTabWidget>(); }
@@ -78,6 +77,11 @@ public:
 	
 	DockTabWidget *tabWidget() { return _tabWidget; }
 	
+	bool tabIsInsertable(DockTabWidget *src, int srcIndex) override
+	{
+		return _tabWidget->tabIsInsertable(src, srcIndex);
+	}
+
 	bool dropDockTab(DockTabWidget *srcTabWidget, int srcIndex, const QPoint &pos) override;
 	
 signals:

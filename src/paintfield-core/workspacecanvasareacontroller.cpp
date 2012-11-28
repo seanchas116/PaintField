@@ -12,6 +12,7 @@ WorkspaceCanvasAreaController::WorkspaceCanvasAreaController(QWidget *baseWindow
 	_tabArea(new SplitTabAreaController(baseWindow, this))
 {
 	connect(_tabArea, SIGNAL(currentTabChanged(QWidget*)), this, SLOT(onCurrentTabChanged(QWidget*)));
+	connect(_tabArea, SIGNAL(tabCloseRequested(QWidget*)), this, SLOT(onTabCloseRequested(QWidget*)));
 }
 
 QWidget *WorkspaceCanvasAreaController::view()
@@ -60,6 +61,13 @@ void WorkspaceCanvasAreaController::onCurrentTabChanged(QWidget *tab)
 	CanvasView *view = qobject_cast<CanvasView *>(tab);
 	if (view)
 		emit currentCanvasChanged(view->controller());
+}
+
+void WorkspaceCanvasAreaController::onTabCloseRequested(QWidget *tab)
+{
+	CanvasView *view = qobject_cast<CanvasView *>(tab);
+	if (view)
+		view->controller()->closeCanvas();
 }
 
 void WorkspaceCanvasAreaController::onCurrentCanvasPropertyChanged()

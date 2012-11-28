@@ -85,6 +85,8 @@ void applyMacSmallSize(QWidget *widget);
 
 QString unduplicatedName(const QStringList &existingNames, const QString &newName);
 
+QString fileDialogFilterFromExtensions(const QStringList &extensions);
+
 }
 
 #endif // UTIL_H

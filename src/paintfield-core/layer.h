@@ -243,6 +243,8 @@ public:
 	virtual Type type() const = 0;
 	virtual bool canHaveChildren() const { return false; }
 	
+	static Layer *createFromImageFile(const QString &path, QSize *imageSize = 0);
+	
 protected:
 	
 private:

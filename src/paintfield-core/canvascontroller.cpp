@@ -1,4 +1,5 @@
 #include <QtGui>
+#include <Malachite/ImageIO>
 
 #include "appcontroller.h"
 #include "toolmanager.h"
@@ -12,6 +13,8 @@
 #include "canvasview.h"
 
 #include "canvascontroller.h"
+
+using namespace Malachite;
 
 namespace PaintField
 {
@@ -77,22 +80,7 @@ CanvasController *CanvasController::fromNew(WorkspaceController *parent)
 	
 	RasterLayer *layer = new RasterLayer(tr("Untitled Layer"));
 	
-	QStringList existingTempNames;
-	
-	for (WorkspaceController *workspace : appController()->workspaceManager()->workspaces())
-	{
-		for (CanvasController *canvas : workspace->canvases())
-		{
-			Document *eachDoc = canvas->document();
-			
-			if (eachDoc->filePath().isEmpty())
-				existingTempNames << eachDoc->tempName();
-		}
-	}
-	
-	QString tempName = unduplicatedName(existingTempNames, tr("Untitled"));
-	
-	Document *document = new Document(tempName, dialog.documentSize(), layer);
+	Document *document = new Document(appController()->unduplicatedTempName(tr("Untitled")), dialog.documentSize(), {layer});
 	return new CanvasController(document, parent);
 }
 
@@ -101,22 +89,55 @@ CanvasController *CanvasController::fromOpen(WorkspaceController *parent)
 	QString filePath = QFileDialog::getOpenFileName(0,
 	                                                tr("Open"),
 	                                                QDir::homePath(),
-	                                                tr("PaintField Project (*.pfproj)"));
+	                                                tr("PaintField Project") + " (*.pfield)");
 	if (filePath.isEmpty())	// cancelled
 		return 0;
 	
-	DocumentIO documentIO(filePath);
+	return fromSavedFile(filePath, parent);
+}
+
+CanvasController *CanvasController::fromNewFromImageFile(WorkspaceController *parent)
+{
+	QString filePath = QFileDialog::getOpenFileName(0,
+	                                                tr("Open"),
+	                                                QDir::homePath(),
+	                                                tr("Image File") + " " + fileDialogFilterFromExtensions(ImageImporter::importableExtensions()));
+	
+	if (filePath.isEmpty())
+		return 0;
+	
+	return fromImageFile(filePath, parent);
+}
+
+CanvasController *CanvasController::fromSavedFile(const QString &path, WorkspaceController *parent)
+{
+	DocumentIO documentIO(path);
 	if (!documentIO.openUnzip())
 	{
 		QMessageBox::warning(0, tr("Failed to open file."), QString());
+		return 0;
 	}
 	
 	Document *document = documentIO.load(0);
+	
 	if (document == 0)
 	{	// failed to open
 		QMessageBox::warning(0, tr("Failed to open file."), QString());
+		return 0;
 	}
 	
+	return new CanvasController(document, parent);
+}
+
+CanvasController *CanvasController::fromImageFile(const QString &path, WorkspaceController *parent)
+{
+	QSize size;
+	
+	auto layer = Layer::createFromImageFile(path, &size);
+	if (!layer)
+		return 0;
+	
+	auto document = new Document(layer->name(), size, {layer});
 	return new CanvasController(document, parent);
 }
 
@@ -127,7 +148,7 @@ bool CanvasController::saveAsCanvas()
 	QString filePath = QFileDialog::getSaveFileName(0,
 	                                                tr("Save As"),
 	                                                QDir::homePath(),
-	                                                tr("PaintField Project (*.pfproj)"));
+													tr("PaintField Project") + " (*.pfield)");
 	if (filePath.isEmpty())
 		return false;
 	

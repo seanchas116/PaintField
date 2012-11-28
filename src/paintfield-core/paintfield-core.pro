@@ -72,7 +72,8 @@ HEADERS += \
     qtsingleapplication/qtlocalpeer.h \
     appcontroller.h \
     application.h \
-    internal/applicationeventfilter.h
+    internal/applicationeventfilter.h \
+    widgets/vanishingscrollbar.h
 FORMS += dialogs/exportdialog.ui dialogs/newdocumentdialog.ui
 SOURCES += \
            canvascontroller.cpp \
@@ -120,4 +121,5 @@ SOURCES += \
     qtsingleapplication/qtlocalpeer.cpp \
     appcontroller.cpp \
     application.cpp \
-    internal/applicationeventfilter.cpp
+    internal/applicationeventfilter.cpp \
+    widgets/vanishingscrollbar.cpp

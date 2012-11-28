@@ -36,6 +36,7 @@ public slots:
 private slots:
 	
 	void onCurrentTabChanged(QWidget *tab);
+	void onTabCloseRequested(QWidget *tab);
 	void onCurrentCanvasPropertyChanged();
 	
 private:

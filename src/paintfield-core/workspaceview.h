@@ -28,7 +28,7 @@ public:
 	SidebarTabWidget(WorkspaceView *workspaceView, QWidget *parent);
 	SidebarTabWidget(SidebarTabWidget *other, QWidget *parent);
 	
-	bool isInsertableFrom(DockTabWidget *other) override;
+	bool tabIsInsertable(DockTabWidget *other, int index) override;
 	QObject *createNew() override;
 	
 private:
@@ -45,9 +45,13 @@ class WorkspaceMotherWidget : public DockTabMotherWidget
 	
 public:
 	
-	explicit WorkspaceMotherWidget(QWidget *parent = 0) : DockTabMotherWidget(parent) {}
+	explicit WorkspaceMotherWidget(WorkspaceView *workspaceView, QWidget *parent = 0) : DockTabMotherWidget(parent), _workspaceView(workspaceView) {}
 	
-	bool isInsertableFrom(DockTabWidget *tabWidget) override;
+	bool tabIsInsertable(DockTabWidget *src, int srcIndex) override;
+	
+private:
+	
+	WorkspaceView *_workspaceView;
 };
 
 class WorkspaceMenuAction : public QAction

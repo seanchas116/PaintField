@@ -15,8 +15,9 @@ SidebarTabWidget::SidebarTabWidget(SidebarTabWidget *other, QWidget *parent) :
 	FloatingDockTabWidget(other, parent)
 {}
 
-bool SidebarTabWidget::isInsertableFrom(DockTabWidget *other)
+bool SidebarTabWidget::tabIsInsertable(DockTabWidget *other, int index)
 {
+	Q_UNUSED(index)
 	SidebarTabWidget *tabWidget = qobject_cast<SidebarTabWidget *>(other);
 	return tabWidget && tabWidget->baseWindow() == baseWindow();
 }
@@ -26,10 +27,17 @@ QObject *SidebarTabWidget::createNew()
 	return new SidebarTabWidget(this, 0);
 }
 
-bool WorkspaceMotherWidget::isInsertableFrom(DockTabWidget *tabWidget)
+
+
+bool WorkspaceMotherWidget::tabIsInsertable(DockTabWidget *src, int srcIndex)
 {
-	return qobject_cast<SidebarTabWidget *>(tabWidget);
+	Q_UNUSED(srcIndex)
+	
+	SidebarTabWidget *tabWidget = qobject_cast<SidebarTabWidget *>(src);
+	return tabWidget && tabWidget->baseWindow() == _workspaceView;
 }
+
+
 
 namespace MenuArranger
 {
@@ -200,7 +208,7 @@ WorkspaceView::WorkspaceView(QWidget *parent) :
 {
 	setAnimated(false);
 		
-	_motherWidget = new WorkspaceMotherWidget;
+	_motherWidget = new WorkspaceMotherWidget(this, 0);
 	QMainWindow::setCentralWidget(_motherWidget);
 	
 	onCurrentCanvasPropertyChanged();

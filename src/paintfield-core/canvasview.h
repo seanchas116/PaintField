@@ -68,7 +68,7 @@ private:
 	QTransform _transformToScene, _transformFromScene, _navigatorTransform;
 };
 
-class CanvasView : public QScrollArea
+class CanvasView : public QAbstractScrollArea
 {
 	Q_OBJECT
 public:
@@ -82,6 +82,10 @@ signals:
 public slots:
 	
 	void setTool(const QString &name);
+	
+protected:
+	
+	void paintEvent(QPaintEvent *);
 	
 private:
 	

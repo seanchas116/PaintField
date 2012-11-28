@@ -45,6 +45,11 @@ public:
 	 */
 	static CanvasController *fromOpen(WorkspaceController *parent);
 	
+	static CanvasController *fromNewFromImageFile(WorkspaceController *parent);
+	
+	static CanvasController *fromSavedFile(const QString &path, WorkspaceController *parent);
+	static CanvasController *fromImageFile(const QString &path, WorkspaceController *parent);
+	
 	/**
 	 * @return The workspace controller which have the canvas controller
 	 */

@@ -32,6 +32,7 @@ WorkspaceController::WorkspaceController(QObject *parent) :
 	
 	_actions << createAction("paintfield.file.new", this, SLOT(newCanvas()));
 	_actions << createAction("paintfield.file.open", this, SLOT(openCanvas()));
+	_actions << createAction("paintfield.file.newFromImageFile", this, SLOT(newCanvasFromImageFile()));
 	
 	connect(this, SIGNAL(currentCanvasChanged(CanvasController*)), _view.data(), SLOT(setCurrentCanvas(CanvasController*)));
 	connect(_view.data(), SIGNAL(closeRequested()), this, SLOT(tryClose()));
@@ -69,24 +70,17 @@ void WorkspaceController::addNullCanvasModules(const CanvasModuleList &modules)
 
 void WorkspaceController::newCanvas()
 {
-	CanvasController *controller = CanvasController::fromNew(this);
-	
-	if (controller)
-	{
-		addCanvas(controller);
-		setCurrentCanvas(controller);
-	}
+	addAndSetCurrentCanvas(CanvasController::fromNew(this));
+}
+
+void WorkspaceController::newCanvasFromImageFile()
+{
+	addAndSetCurrentCanvas(CanvasController::fromNewFromImageFile(this));
 }
 
 void WorkspaceController::openCanvas()
 {
-	CanvasController *controller = CanvasController::fromOpen(this);
-	
-	if (controller)
-	{
-		addCanvas(controller);
-		setCurrentCanvas(controller);
-	}
+	addAndSetCurrentCanvas(CanvasController::fromOpen(this));
 }
 
 bool WorkspaceController::tryClose()
@@ -133,11 +127,23 @@ bool WorkspaceController::eventFilter(QObject *watched, QEvent *event)
 
 void WorkspaceController::addCanvas(CanvasController *canvas)
 {
+	if (!canvas)
+		return;
+	
 	_canvasControllers << canvas;
 	connect(canvas, SIGNAL(shouldBeDeleted(CanvasController*)), this, SLOT(removeCanvas(CanvasController*)));
 	canvas->addModules(appController()->moduleManager()->createCanvasModules(canvas, canvas));
 	
 	emit canvasAdded(canvas);
+}
+
+void WorkspaceController::addAndSetCurrentCanvas(CanvasController *canvas)
+{
+	if (canvas)
+	{
+		addCanvas(canvas);
+		setCurrentCanvas(canvas);
+	}
 }
 
 void WorkspaceController::removeCanvas(CanvasController *canvas)

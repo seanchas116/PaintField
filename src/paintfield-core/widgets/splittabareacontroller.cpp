@@ -26,12 +26,15 @@ SplitTabWidget::SplitTabWidget(SplitTabWidget *other, QWidget *parent) :
 
 void SplitTabWidget::commonInit()
 {
+	setTabsClosable(true);
 	_tabAreaController->registerTabWidget(this);
 	connect(this, SIGNAL(focusIn()), this, SLOT(notifyTabChange()));
 }
 
-bool SplitTabWidget::isInsertableFrom(DockTabWidget *other)
+bool SplitTabWidget::tabIsInsertable(DockTabWidget *other, int index)
 {
+	Q_UNUSED(index)
+	
 	SplitTabWidget *tabWidget = qobject_cast<SplitTabWidget *>(other);
 	
 	return tabWidget && tabWidget->baseWindow() == baseWindow();
@@ -68,15 +71,13 @@ bool SplitTabDefaultWidget::dropDockTab(DockTabWidget *srcTabWidget, int srcInde
 {
 	Q_UNUSED(pos)
 	
-	if (_tabWidget->isInsertableFrom(srcTabWidget))
-	{
-		srcTabWidget->moveTab(srcIndex, _tabWidget, 0);
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	srcTabWidget->moveTab(srcIndex, _tabWidget, 0);
+	return true;
+}
+
+bool SplitTabDefaultWidget::tabIsInsertable(DockTabWidget *src, int srcIndex)
+{
+	return _tabWidget->tabIsInsertable(src, srcIndex);
 }
 
 void SplitTabDefaultWidget::mousePressEvent(QMouseEvent *event)
@@ -231,6 +232,14 @@ void SplitTabAreaController::onCurrentTabWidgetCurrentChanged(int index)
 	}
 }
 
+void SplitTabAreaController::onTabWidgetCloseRequested(int index)
+{
+	auto tabWidget = qobject_cast<SplitTabWidget *>(sender());
+	
+	if (tabWidget && _tabWidgets.contains(tabWidget))
+		emit tabCloseRequested(tabWidget->widget(index));
+}
+
 void SplitTabAreaController::onBaseWindowFocusChanged(bool focused)
 {
 	if (focused)
@@ -295,6 +304,7 @@ SplitAreaController *SplitTabAreaController::splitForTabWidget(SplitTabWidget *t
 void SplitTabAreaController::registerTabWidget(SplitTabWidget *widget)
 {
 	connect(widget, SIGNAL(willBeAutomaticallyDeleted(DockTabWidget*)), this, SLOT(onTabWidgetAboutToBeDeleted(DockTabWidget*)));
+	connect(widget, SIGNAL(tabCloseRequested(int)), this, SLOT(onTabWidgetCloseRequested(int)));
 	_tabWidgets << widget;
 }
 

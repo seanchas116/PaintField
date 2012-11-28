@@ -21,7 +21,6 @@ public:
 		Q_ASSERT(as);
 		return as;
 	}
-	
 };
 
 class DockTabWidget;
@@ -33,6 +32,7 @@ public:
 	
 	virtual ~DockTabDroppableInterface() {}
 	virtual bool dropDockTab(DockTabWidget *srcTabWidget, int srcIndex, const QPoint &pos) = 0;
+	virtual bool tabIsInsertable(DockTabWidget *src, int srcIndex) = 0;
 };
 
 }

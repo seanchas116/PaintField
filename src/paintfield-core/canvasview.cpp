@@ -291,7 +291,7 @@ void CanvasViewViewport::resizeEvent(QResizeEvent *event)
 void CanvasViewViewport::paintEvent(QPaintEvent *)
 {
 	QPainter painter(this);
-	painter.setTransform(_transformFromScene);
+	//painter.setTransform(_transformFromScene);
 	painter.drawPixmap(0, 0, _pixmap);
 }
 
@@ -301,18 +301,23 @@ void CanvasViewViewport::paintEvent(QPaintEvent *)
 
 
 CanvasView::CanvasView(CanvasController *controller, QWidget *parent) :
-	QScrollArea(parent),
+	QAbstractScrollArea(parent),
 	_document(controller->document()),
 	_controller(controller)
 {
 	_viewport = new CanvasViewViewport(_document->layerModel());
-	setWidget(_viewport);
+	setViewport(_viewport);
 }
 
 void CanvasView::setTool(const QString &name)
 {
 	Tool *tool = createTool(appController()->modules(), controller()->workspace()->modules(), controller()->modules(), name, this);
 	_viewport->setTool(tool);
+}
+
+void CanvasView::paintEvent(QPaintEvent *)
+{
+	_viewport->update();
 }
 
 

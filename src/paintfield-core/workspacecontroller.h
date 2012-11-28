@@ -39,6 +39,7 @@ public:
 	void addNullCanvasActions(const QActionList &actions) { _nullCanvasActions += actions; }
 	QActionList nullCanvasActions() { return _nullCanvasActions; }
 	
+	void addAndSetCurrentCanvas(CanvasController *canvas);
 	void addCanvas(CanvasController *canvas);
 	
 	QList<CanvasController *> canvases() { return _canvasControllers; }
@@ -68,6 +69,8 @@ public slots:
 	 * Creates a new document and adds a canvas of it.
 	 */
 	void newCanvas();
+	
+	void newCanvasFromImageFile();
 	
 	/**
 	 * Opens a document and adds a canvas of it.

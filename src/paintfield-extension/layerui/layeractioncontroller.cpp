@@ -32,16 +32,9 @@ void LayerActionController::importLayer()
 	if (filePath.isEmpty())
 		return;
 	
-	Malachite::ImageImporter importer(filePath);
-	
-	Malachite::Surface surface = importer.toSurface();
-	if (surface.isNull())
+	auto layer = Layer::createFromImageFile(filePath);
+	if (!layer)
 		return;
-	
-	QFileInfo fileInfo(filePath);
-	
-	auto layer = new RasterLayer(fileInfo.fileName());
-	layer->setSurface(surface);
 	
 	QModelIndex index = _canvas->selectionModel()->currentIndex();
 	int row = index.isValid() ? index.row() + 1 : _canvas->layerModel()->rowCount(QModelIndex());

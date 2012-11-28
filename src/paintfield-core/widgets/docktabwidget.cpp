@@ -145,13 +145,16 @@ void DockTabBar::dragDropTab(int index, const QPoint &globalPos, const QPoint &d
 {
 	QWidget *widget = qApp->widgetAt(globalPos);
 	
-	QWidget *droppable = 0;
+	QWidget *droppableWidget = 0;
+	DockTabDroppableInterface *droppable = 0;
 	
 	while (widget)
 	{
-		if (qobject_cast<DockTabDroppableInterface *>(widget))
+		droppable = qobject_cast<DockTabDroppableInterface *>(widget);
+		
+		if (droppable)
 		{
-			droppable = widget;
+			droppableWidget = widget;
 			break;
 		}
 		widget = widget->parentWidget();
@@ -159,8 +162,8 @@ void DockTabBar::dragDropTab(int index, const QPoint &globalPos, const QPoint &d
 	
 	bool dropResult = false;
 	
-	if (droppable)	// drop on the existing widget that accepts dock tab drops
-		dropResult = qobject_cast<DockTabDroppableInterface *>(droppable)->dropDockTab(_tabWidget, index, droppable->mapFromGlobal(globalPos));
+	if (droppable && droppable->tabIsInsertable(_tabWidget, index))	// drop on the existing widget that accepts dock tab drops
+		dropResult = qobject_cast<DockTabDroppableInterface *>(droppableWidget)->dropDockTab(_tabWidget, index, droppableWidget->mapFromGlobal(globalPos));
 	
 	if (!dropResult)	// create new tab widget
 	{

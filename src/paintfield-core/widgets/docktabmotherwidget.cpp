@@ -340,9 +340,6 @@ QRect DockTabMotherWidget::splittersRect(Direction dir)
 
 bool DockTabMotherWidget::dropDockTab(DockTabWidget *srcTabWidget, int srcIndex, const QPoint &pos)
 {
-	if (!isInsertableFrom(srcTabWidget))
-		return false;
-	
 	TabWidgetArea area = dropArea(pos);
 	
 	if (!area.isValid())

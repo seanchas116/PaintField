@@ -4,6 +4,7 @@
 		"children":
 		[
 			"paintfield.file.new",
+			"paintfield.file.newFromImageFile",
 			"paintfield.file.open",
 			"",
 			"paintfield.file.close",

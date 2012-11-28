@@ -25,7 +25,7 @@ public:
 	SplitTabWidget(SplitTabAreaController *tabAreaController, QWidget *baseWindow, QWidget *parent);
 	SplitTabWidget(SplitTabWidget *other, QWidget *parent);
 	
-	bool isInsertableFrom(DockTabWidget *other) override;
+	bool tabIsInsertable(DockTabWidget *other, int index) override;
 	void insertTab(int index, QWidget *widget, const QString &title) override;
 	QObject *createNew() override;
 	
@@ -50,6 +50,7 @@ public:
 	SplitTabDefaultWidget(SplitTabWidget *tabWidget, QWidget *parent);
 	
 	bool dropDockTab(DockTabWidget *srcTabWidget, int srcIndex, const QPoint &pos) override;
+	bool tabIsInsertable(DockTabWidget *src, int srcIndex) override;
 	
 signals:
 	
@@ -116,6 +117,7 @@ public:
 signals:
 	
 	void currentTabChanged(QWidget *tab);
+	void tabCloseRequested(QWidget *tab);
 	
 public slots:
 	
@@ -130,6 +132,7 @@ public slots:
 private slots:
 	
 	void onCurrentTabWidgetCurrentChanged(int index);
+	void onTabWidgetCloseRequested(int index);
 	void onBaseWindowFocusChanged(bool focused);
 	
 	void onTabWidgetAboutToBeDeleted(DockTabWidget *widget);

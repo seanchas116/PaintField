@@ -26,17 +26,6 @@ public:
 	 */
 	Document(const QString &tempName, const QSize &size, const LayerList &layers, QObject *parent = 0);
 	
-	/**
-	 * Constructs a document.
-	 * This is an overloaded function.
-	 * @param tempName
-	 * @param size
-	 * @param layer
-	 * @param parent
-	 */
-	Document(const QString &tempName, const QSize &size, Layer *layer, QObject *parent = 0) :
-		Document(tempName, size, LayerList({layer}), parent) {}
-	
 	QSize size() const { return _size; }
 	int width() const { return _size.width(); }
 	int height() const { return _size.height(); }

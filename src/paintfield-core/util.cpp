@@ -57,4 +57,18 @@ QString unduplicatedName(const QStringList &existingNames, const QString &name)
 	}
 }
 
+QString fileDialogFilterFromExtensions(const QStringList &extensions)
+{
+	QString ret;
+	
+	ret += "(";
+	
+	for (auto ext : extensions)
+		ret += "* " + ext;
+	
+	ret += ")";
+	
+	return ret;
+}
+
 }

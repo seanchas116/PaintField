@@ -14,6 +14,7 @@
 #include "paintfield-core/widgets/docktabmotherwidget.h"
 #include "paintfield-core/widgets/splittabareacontroller.h"
 #include "paintfield-core/widgets/tabwidget.h"
+#include "paintfield-core/widgets/vanishingscrollbar.h"
 
 using namespace Malachite;
 
@@ -125,6 +126,32 @@ void test_SplitTabAreaController()
 	widget->show();
 }
 
+void test_scrollarea()
+{
+	auto abstractScrollArea = new QAbstractScrollArea;
+	
+	auto label = new QLabel("Label");
+	
+	abstractScrollArea->setViewport(label);
+	label->setVisible(true);
+	abstractScrollArea->show();
+}
+
+void test_VanishingScrollBar()
+{
+	auto createScrollBar = [](Qt::Orientation orientation)
+	{
+		auto bar = new VanishingScrollBar(orientation);
+		bar->setMinimum(0);
+		bar->setMaximum(100);
+		bar->setPageStep(25);
+		return bar;
+	};
+	
+	createScrollBar(Qt::Horizontal)->show();
+	createScrollBar(Qt::Vertical)->show();
+}
+
 int main(int argc, char *argv[])
 {
 	QApplication app(argc, argv);
@@ -137,10 +164,12 @@ int main(int argc, char *argv[])
 	//test_SplitTabAreaController();
 	//test_TabWidget();
 	//test_TabDocumentAreaNode();
-	test_DockTabWidget();
+	//test_DockTabWidget();
 	//test_DocumentIO_saveLoad();
 	//test_Surface();
 	//test_CanvasView();
+	//test_scrollarea();
+	test_VanishingScrollBar();
 	
 	return app.exec();
 }

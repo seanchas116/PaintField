@@ -17,32 +17,56 @@ AppController::AppController(QObject *parent) :
 	_workspaceManager = new WorkspaceManager(this);
 	_moduleManager = new ModuleManager(this);
 	
-	declareMenu("paintfield.file", tr("File"));
+	declareMenu("paintfield.file",
+	            tr("File"));
 	
-	declareAction("paintfield.file.new", tr("New..."));
-	declareAction("paintfield.file.open", tr("Open..."));
-	declareAction("paintfield.file.close", tr("Close"));
-	declareAction("paintfield.file.save", tr("Save"));
-	declareAction("paintfield.file.saveAs", tr("Save As..."));
-	declareAction("paintfield.file.export", tr("Export..."));
-	declareAction("paintfield.file.quit", tr("Quit"));
+	declareAction("paintfield.file.new",
+	              tr("New..."));
 	
-	declareMenu("paintfield.edit", tr("Edit"));
+	declareAction("paintfield.file.newFromImageFile",
+	              tr("New from Image File..."));
 	
-	declareAction("paintfield.edit.undo", tr("Undo"));
-	declareAction("paintfield.edit.redo", tr("Redo"));
-	declareAction("paintfield.edit.cut", tr("Cut"));
-	declareAction("paintfield.edit.copy", tr("Copy"));
-	declareAction("paintfield.edit.paste", tr("Paste"));
-	declareAction("paintfield.edit.delete", tr("Delete"));
-	declareAction("paintfield.edit.selectAll", tr("Select All"));
+	declareAction("paintfield.file.open",
+	              tr("Open..."));
+	declareAction("paintfield.file.close",
+	              tr("Close"));
+	declareAction("paintfield.file.save",
+	              tr("Save"));
+	declareAction("paintfield.file.saveAs",
+	              tr("Save As..."));
+	declareAction("paintfield.file.export",
+	              tr("Export..."));
+	declareAction("paintfield.file.quit",
+	              tr("Quit"));
 	
-	declareMenu("paintfield.window", tr("Window"));
+	declareMenu("paintfield.edit",
+	            tr("Edit"));
 	
-	declareAction("paintfield.window.minimize", tr("Minimize"));
-	declareAction("paintfield.window.zoom", tr("Zoom"));
+	declareAction("paintfield.edit.undo",
+	              tr("Undo"));
+	declareAction("paintfield.edit.redo",
+	              tr("Redo"));
+	declareAction("paintfield.edit.cut",
+	              tr("Cut"));
+	declareAction("paintfield.edit.copy",
+	              tr("Copy"));
+	declareAction("paintfield.edit.paste",
+	              tr("Paste"));
+	declareAction("paintfield.edit.delete",
+	              tr("Delete"));
+	declareAction("paintfield.edit.selectAll",
+	              tr("Select All"));
 	
-	declareMenu("paintfield.help", tr("Help"));
+	declareMenu("paintfield.window",
+	            tr("Window"));
+	
+	declareAction("paintfield.window.minimize",
+	              tr("Minimize"));
+	declareAction("paintfield.window.zoom",
+	              tr("Zoom"));
+	
+	declareMenu("paintfield.help",
+	            tr("Help"));
 	
 	_actions << createAction("paintfield.file.quit", _workspaceManager, SLOT(tryCloseAll()));
 	_actions << createAction("paintfield.window.minimize", this, SLOT(minimizeCurrentWindow()));
@@ -108,6 +132,24 @@ void AppController::addModules(const AppModuleList &modules)
 		addActions(module->actions());
 	
 	_modules += modules;
+}
+
+QString AppController::unduplicatedTempName(const QString &name)
+{
+	QStringList existingTempNames;
+	
+	for (WorkspaceController *workspace : workspaceManager()->workspaces())
+	{
+		for (CanvasController *canvas : workspace->canvases())
+		{
+			Document *eachDoc = canvas->document();
+			
+			if (eachDoc->filePath().isEmpty())
+				existingTempNames << eachDoc->tempName();
+		}
+	}
+	
+	return unduplicatedName(existingTempNames, name);
 }
 
 AppController *AppController::_instance = 0;

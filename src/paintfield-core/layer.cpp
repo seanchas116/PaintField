@@ -1,4 +1,7 @@
+#include <QtGui>
+
 #include <Malachite/Painter>
+#include <Malachite/ImageIO>
 
 #include "thumbnail.h"
 #include "drawutil.h"
@@ -319,6 +322,25 @@ void GroupLayer::updateThumbnail(const QSize &size)
 	painter.drawPixmap(38, 38, folderIcon);
 	
 	setThumbnail(thumbnail);
+}
+
+Layer *Layer::createFromImageFile(const QString &path, QSize *imageSize)
+{
+	Malachite::ImageImporter importer(path);
+	
+	Malachite::Surface surface = importer.toSurface();
+	if (surface.isNull())
+		return 0;
+	
+	QFileInfo fileInfo(path);
+	
+	auto layer = new RasterLayer(fileInfo.fileName());
+	layer->setSurface(surface);
+	
+	if (imageSize)
+		*imageSize = importer.size();
+	
+	return layer;
 }
 
 
