@@ -152,6 +152,27 @@ void test_VanishingScrollBar()
 	createScrollBar(Qt::Vertical)->show();
 }
 
+void test_VanishingScrollBar_vanishing()
+{
+	auto widget = new QWidget;
+	auto layout = new QHBoxLayout;
+	
+	auto bar = new VanishingScrollBar(Qt::Vertical);
+	bar->setMinimum(0);
+	bar->setMaximum(100);
+	bar->setPageStep(25);
+	
+	auto button = new QPushButton("press");
+	
+	QObject::connect(button, SIGNAL(pressed()), bar, SLOT(startAnimation()));
+	
+	layout->addWidget(bar);
+	layout->addWidget(button);
+	widget->setLayout(layout);
+	
+	widget->show();
+}
+
 int main(int argc, char *argv[])
 {
 	QApplication app(argc, argv);
@@ -169,7 +190,8 @@ int main(int argc, char *argv[])
 	//test_Surface();
 	//test_CanvasView();
 	//test_scrollarea();
-	test_VanishingScrollBar();
+	//test_VanishingScrollBar();
+	test_VanishingScrollBar_vanishing();
 	
 	return app.exec();
 }

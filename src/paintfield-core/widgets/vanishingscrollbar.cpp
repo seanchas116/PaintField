@@ -1,12 +1,57 @@
 #include <QtGui>
+#include <cfloat>
 #include "vanishingscrollbar.h"
 
-VanishingScrollBar::VanishingScrollBar(Qt::Orientation orientation, QWidget *parent) :
-    QAbstractSlider(parent)
+namespace PaintField
 {
+
+VanishingScrollBar::VanishingScrollBar(Qt::Orientation orientation, QWidget *parent) :
+    QAbstractSlider(parent),
+    _pauseAnimation(new QPauseAnimation(this)),
+    _vanishingAnimation(new QPropertyAnimation(this, "vanishingLevel", this))
+{
+	_pauseAnimation->setDuration(durationWaiting());
+	_vanishingAnimation->setDuration(durationVanishing());
+	
+	connect(_pauseAnimation, SIGNAL(finished()), _vanishingAnimation, SLOT(start()));
+	connect(_vanishingAnimation, SIGNAL(finished()), this, SLOT(vanish()));
+	_vanishingAnimation->setDuration(durationWaiting() + durationVanishing());
+	_vanishingAnimation->setStartValue(1.0);
+	_vanishingAnimation->setEndValue(0.0);
+	
 	setOrientation(orientation);
 	onOrientationChanged();
 }
+
+void VanishingScrollBar::startAnimation()
+{
+	_pauseAnimation->stop();
+	_vanishingAnimation->stop();
+	
+	setVanished(false);
+	setVanishingLevel(1.0);
+	update();
+	_pauseAnimation->start();
+}
+
+void VanishingScrollBar::setVanished(bool x)
+{
+	_isVanished = x;
+	update();
+	
+	if (x)
+		emit vanished();
+}
+
+void VanishingScrollBar::onOrientationChanged()
+{
+	resize(sizeHint());
+	setSizePolicy(sizePolicyForOrientation(orientation()));
+}
+
+
+
+// override functions
 
 QSize VanishingScrollBar::sizeHint() const
 {
@@ -18,12 +63,17 @@ void VanishingScrollBar::sliderChange(SliderChange change)
 {
 	if (change == SliderOrientationChange)
 		onOrientationChanged();
+	else
+		startAnimation();
 	
 	update();
 }
 
 void VanishingScrollBar::paintEvent(QPaintEvent *)
 {
+	if (_isVanished)
+		return;
+	
 	QPainter painter(this);
 	
 	double begin, end;
@@ -34,13 +84,14 @@ void VanishingScrollBar::paintEvent(QPaintEvent *)
 	painter.setRenderHint(QPainter::Antialiasing, true);
 	painter.setPen(Qt::NoPen);
 	painter.setBrush(Qt::black);
+	painter.setOpacity(0.5 * _vanishingLevel);
 	
 	painter.drawPath(path);
 }
 
 void VanishingScrollBar::mousePressEvent(QMouseEvent *event)
 {
-	if (event->button() == Qt::LeftButton && _barRect.contains(event->pos()))
+	if (!_isVanished && event->button() == Qt::LeftButton && _barRect.contains(event->pos()))
 	{
 		_isDragged = true;
 		_dragStartPos = scrollPos(event->pos(), orientation());
@@ -50,6 +101,7 @@ void VanishingScrollBar::mousePressEvent(QMouseEvent *event)
 	}
 	else
 	{
+		_isDragged = false;
 		event->ignore();
 	}
 }
@@ -67,6 +119,7 @@ void VanishingScrollBar::mouseMoveEvent(QMouseEvent *event)
 		
 		double diff = double(scrollPos(event->pos(), orientation()) - _dragStartPos) / double(validLen);
 		setValue(_dragStartValue + diff * (maximum() - minimum() + pageStep()));
+		
 		event->accept();
 	}
 	else
@@ -86,12 +139,6 @@ void VanishingScrollBar::mouseReleaseEvent(QMouseEvent *event)
 	{
 		event->ignore();
 	}
-}
-
-void VanishingScrollBar::onOrientationChanged()
-{
-	resize(sizeHint());
-	setSizePolicy(sizePolicyForOrientation(orientation()));
 }
 
 // static functions
@@ -152,5 +199,7 @@ QPainterPath VanishingScrollBar::scrollBarPath(const QRect &rect, Qt::Orientatio
 	auto path = QPainterPath();
 	path.addRoundedRect(rect, radius, radius);
 	return path;
+}
+
 }
 
