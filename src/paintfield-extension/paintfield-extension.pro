@@ -40,7 +40,8 @@ HEADERS += \
     extensionmodulefactory.h \
     basictool/brush/stroker.h \
     basictool/brush/brushstroker.h \
-    basictool/brush/penstroker.h
+    basictool/brush/penstroker.h \
+    navigator/navigatorview.h
 SOURCES += \
            colorui/colorsidebar.cpp \
            colorui/coloruimodule.cpp \
@@ -59,4 +60,8 @@ SOURCES += \
     extensionmodulefactory.cpp \
     basictool/brush/stroker.cpp \
     basictool/brush/brushstroker.cpp \
-    basictool/brush/penstroker.cpp
+    basictool/brush/penstroker.cpp \
+    navigator/navigatorview.cpp
+
+RESOURCES += \
+    resources/resources.qrc

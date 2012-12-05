@@ -20,8 +20,7 @@ BrushSettingSidebar::BrushSettingSidebar(BrushSetting *setting, QWidget *parent)
 {
 	QFormLayout *layout = new QFormLayout();
 	
-	DoubleSlider *slider = new DoubleSlider();
-	slider->setOrientation(Qt::Horizontal);
+	DoubleSlider *slider = new DoubleSlider(Qt::Horizontal);
 	slider->setMaximum(1000);
 	slider->setMinimum(1);
 	slider->setDoubleMaximum(100.0);

@@ -1,4 +1,6 @@
 #include <QtGui>
+#include "../debug.h"
+
 #include "simplebutton.h"
 
 namespace PaintField
@@ -24,7 +26,7 @@ QIcon SimpleButton::createSimpleIconSet(const QPixmap &originalPixmap, const QSi
 	
 	if (basePixmap.isNull())
 	{
-		qWarning() << "fsCreateSimpleIconSet: basePixmap is null";
+		PAINTFIELD_DEBUG << "pixmap is null";
 		return QIcon();
 	}
 	
@@ -71,6 +73,12 @@ SimpleButton::SimpleButton(const QString &basePixmapFile, const QSize &size, QWi
 		setIcon(icon);
 		setIconSize(icon.availableSizes().at(0));
 	}
+}
+
+SimpleButton::SimpleButton(const QString &basePixmapFile, const QSize &size, QObject *obj, const char *slot, QWidget *parent) :
+    SimpleButton(basePixmapFile, size, parent)
+{
+	connect(this, SIGNAL(pressed()), obj, slot);
 }
 
 QSize SimpleButton::sizeHint() const

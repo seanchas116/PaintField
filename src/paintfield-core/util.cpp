@@ -71,4 +71,20 @@ QString fileDialogFilterFromExtensions(const QStringList &extensions)
 	return ret;
 }
 
+QTransform makeTransform(double scale, double rotation, const QPointF &translation)
+{
+	QTransform transform;
+	
+	if (rotation)
+		transform.rotate(rotation);
+	
+	if (scale != 1.0)
+		transform.scale(scale, scale);
+	
+	if (translation != QPointF(0, 0))
+		transform.translate(translation.x(), translation.y());
+	
+	return transform;
+}
+
 }

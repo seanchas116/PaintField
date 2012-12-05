@@ -22,7 +22,7 @@ public:
 	constexpr static int barWidth() { return 8; }
 	constexpr static int barMargin() { return 2; }
 	constexpr static int durationWaiting() { return 1000; }
-	constexpr static int durationVanishing() { return 100; }
+	constexpr static int durationVanishing() { return 200; }
 	
 	VanishingScrollBar(Qt::Orientation orientation, QWidget *parent = 0);
 	
@@ -47,7 +47,7 @@ public slots:
 	
 	void startAnimation();
 	void setVanished(bool x);
-	void vanish() { setVanished(false); }
+	void vanish() { setVanished(true); }
 	
 protected:
 	
@@ -58,6 +58,8 @@ protected:
 	void mousePressEvent(QMouseEvent *event) override;
 	void mouseMoveEvent(QMouseEvent *event) override;
 	void mouseReleaseEvent(QMouseEvent *event) override;
+	
+	void wheelEvent(QWheelEvent *);
 	
 private:
 	

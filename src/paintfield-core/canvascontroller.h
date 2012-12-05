@@ -107,6 +107,8 @@ private:
 	
 	void commonInit();
 	
+	void updateTransform();
+	
 	CanvasView *createView(QWidget *parent = 0);
 	
 	CountableSharedQObjectPointer<Document> _document;

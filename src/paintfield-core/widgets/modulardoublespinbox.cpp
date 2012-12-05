@@ -13,7 +13,6 @@ ModularDoubleSpinBox::ModularDoubleSpinBox(QWidget *parent) :
 
 void ModularDoubleSpinBox::stepBy(int steps)
 {
-	qDebug() << Q_FUNC_INFO;
 	double v = value() + singleStep() * steps;
 	setValue(fmod(v, maximum()));
 }

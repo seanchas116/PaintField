@@ -16,6 +16,8 @@
 #include "paintfield-core/widgets/tabwidget.h"
 #include "paintfield-core/widgets/vanishingscrollbar.h"
 
+#include "paintfield-extension/navigator/navigatorview.h"
+
 using namespace Malachite;
 
 
@@ -173,6 +175,13 @@ void test_VanishingScrollBar_vanishing()
 	widget->show();
 }
 
+void test_NavigatorView()
+{
+	auto view = new NavigatorView;
+	applyMacSmallSize(view);
+	view->show();
+}
+
 int main(int argc, char *argv[])
 {
 	QApplication app(argc, argv);
@@ -191,7 +200,8 @@ int main(int argc, char *argv[])
 	//test_CanvasView();
 	//test_scrollarea();
 	//test_VanishingScrollBar();
-	test_VanishingScrollBar_vanishing();
+	//test_VanishingScrollBar_vanishing();
+	test_NavigatorView();
 	
 	return app.exec();
 }

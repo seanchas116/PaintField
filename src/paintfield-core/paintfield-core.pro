@@ -57,7 +57,6 @@ HEADERS += \
            widgets/widgetgroup.h \
     dialogs/messagebox.h \
     widgets/docktabwidget.h \
-    widgets/docktabmotherwidget.h \
     widgets/tabwidget.h \
     widgets/splitareacontroller.h \
     workspacecanvasareacontroller.h \
@@ -73,7 +72,9 @@ HEADERS += \
     appcontroller.h \
     application.h \
     internal/applicationeventfilter.h \
-    widgets/vanishingscrollbar.h
+    widgets/vanishingscrollbar.h \
+    widgets/docktabmotherwidget.h \
+    signalconverter.h
 FORMS += dialogs/exportdialog.ui dialogs/newdocumentdialog.ui
 SOURCES += \
            canvascontroller.cpp \
@@ -122,4 +123,5 @@ SOURCES += \
     appcontroller.cpp \
     application.cpp \
     internal/applicationeventfilter.cpp \
-    widgets/vanishingscrollbar.cpp
+    widgets/vanishingscrollbar.cpp \
+    signalconverter.cpp

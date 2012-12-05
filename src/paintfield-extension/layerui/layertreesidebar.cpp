@@ -70,8 +70,7 @@ void LayerTreeSidebar::createForms()
 	_treeView->setDropIndicatorShown(true);
 	connect(_treeView, SIGNAL(windowFocused()), this, SLOT(viewFocused()));
 	
-	_opacitySlider = new DoubleSlider();
-	_opacitySlider->setOrientation(Qt::Horizontal);
+	_opacitySlider = new DoubleSlider(Qt::Horizontal);
 	_opacitySlider->setMinimum(0);
 	_opacitySlider->setMaximum(1000);
 	_opacitySlider->setDoubleMinimum(0.0);

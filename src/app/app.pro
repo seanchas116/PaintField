@@ -31,4 +31,3 @@ mac {
 
 # Input
 SOURCES += main.cpp
-RESOURCES += resources/resources.qrc

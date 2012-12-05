@@ -40,7 +40,7 @@ void BrushToolModuleFactory::initialize(AppController *app)
 	{
 		QString text = QObject::tr("Brush");
 		QIcon icon = SimpleButton::createSimpleIconSet(":/icons/24x24/brush.svg", QSize(24,24));
-		QVector<int> supportedTypes = { Layer::TypeRaster };
+		QStringList supportedTypes = { "raster" };
 		app->declareTool(_brushToolName, ToolDeclaration(text, icon, supportedTypes));
 	}
 	{

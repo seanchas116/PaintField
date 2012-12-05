@@ -20,5 +20,16 @@
         <file>icons/24x24/brush.svg</file>
         <file>icons/24x24/select.svg</file>
         <file>icons/32x32/split.svg</file>
+        <file>icons/16x16/disabled.svg</file>
+        <file>icons/16x16/enabled.svg</file>
+        <file>icons/16x16/mirror.svg</file>
+        <file>icons/16x16/revert.svg</file>
+        <file>icons/16x16/rotateBoldRight.svg</file>
+        <file>icons/16x16/zoom.svg</file>
+        <file>icons/16x16/zoomIn.svg</file>
+        <file>icons/16x16/zoomOut.svg</file>
+        <file>icons/16x16/rotateBoldLeft.svg</file>
+        <file>icons/16x16/rotateLeft.svg</file>
+        <file>icons/16x16/rotateRight.svg</file>
     </qresource>
 </RCC>

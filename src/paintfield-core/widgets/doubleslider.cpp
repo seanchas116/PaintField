@@ -3,8 +3,8 @@
 namespace PaintField
 {
 
-DoubleSlider::DoubleSlider(QWidget *parent) :
-	QSlider(parent),
+DoubleSlider::DoubleSlider(Qt::Orientation orientation, QWidget *parent) :
+	QSlider(orientation, parent),
 	_doubleValue(0.0),
 	_doubleMax(1.0),
 	_doubleMin(0.0)
@@ -36,17 +36,17 @@ void DoubleSlider::setDoubleMinimum(double min)
 
 void DoubleSlider::setDoubleValue(double x)
 {
-	x = qBound(_doubleMin, x, _doubleMax);
-	
-	int i = minimum() + qRound((double)(maximum() - minimum()) / (_doubleMax - _doubleMin) * (x - _doubleMin));
-	
-	if (i == value())
-		return;
-	
-	setValue(i);
-	
-	_doubleValue = x;
-	emit doubleValueChanged(_doubleValue);
+	if (_doubleValue != x)
+	{
+		_doubleValue = x;
+		
+		x = qBound(_doubleMin, x, _doubleMax);
+		
+		int i = minimum() + round((x - _doubleMin) * double(maximum() - minimum()) / (_doubleMax - _doubleMin));
+		setValue(i);
+		
+		emit doubleValueChanged(x);
+	}
 }
 
 void DoubleSlider::onRangeChanged()
@@ -56,7 +56,7 @@ void DoubleSlider::onRangeChanged()
 
 void DoubleSlider::onIntValueChanged(int x)
 {
-	_doubleValue = _doubleMin + (_doubleMax - _doubleMin) / (double)(maximum() - minimum()) * (double)(x - minimum());
+	_doubleValue = double(x - minimum()) * (_doubleMax - _doubleMin) / double(maximum() - minimum());
 	
 	emit doubleValueChanged(_doubleValue);
 }

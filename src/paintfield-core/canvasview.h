@@ -11,23 +11,41 @@ namespace PaintField
 class Tool;
 class CanvasController;
 
-class CanvasViewViewport : public QWidget
+class CanvasView : public QWidget
 {
 	Q_OBJECT
 	
 public:
 	
-	CanvasViewViewport(LayerModel *layerModel, QWidget *parent = 0);
+	CanvasView(CanvasController *canvas, QWidget *parent = 0);
 	
 	QTransform transformToScene() const { return _transformToScene; }
 	QTransform transformFromScene() const { return _transformFromScene; }
 	
-	void setNavigatorTransform(const QTransform &transform);
 	QTransform navigatorTransform() const { return _navigatorTransform; }
 	
+	double scale() const { return _scale; }
+	double rotation() const { return _rotation; }
+	QPoint translation() const { return _translation; }
+	
+	CanvasController *controller() { return _canvas; }
+	Document *document() { return _document; }
+	LayerModel *layerModel() { return _document->layerModel(); }
+	
+public slots:
+	
+	void setScale(double value);
+	void setRotation(double value);
+	void setTranslation(const QPoint &value);
+	
+	void setTool(const QString &name);
 	void setTool(Tool *tool);
 	
 signals:
+	
+	void scaleChanged(double value);
+	void rotationChanged(double value);
+	void translationChanged(const QPoint &value);
 	
 	void resized(const QSize &size);
 	
@@ -61,37 +79,15 @@ private:
 	bool sendCanvasTabletEvent(WidgetTabletEvent *event);
 	void updateTransforms();
 	
-	LayerModel *_layerModel = 0;
+	CanvasController *_canvas = 0;
+	Document *_document = 0;
 	Tool *_tool = 0;
 	double _mousePressure = 0;
 	QPixmap _pixmap;
 	QTransform _transformToScene, _transformFromScene, _navigatorTransform;
-};
-
-class CanvasView : public QAbstractScrollArea
-{
-	Q_OBJECT
-public:
-	explicit CanvasView(CanvasController *controller, QWidget *parent = 0);
-	
-	Document *document() { return _document; }
-	CanvasController *controller() { return _controller; }
-	
-signals:
-	
-public slots:
-	
-	void setTool(const QString &name);
-	
-protected:
-	
-	void paintEvent(QPaintEvent *);
-	
-private:
-	
-	CanvasViewViewport *_viewport = 0;
-	Document *_document = 0;
-	CanvasController *_controller = 0;
+	double _scale;
+	double _rotation;
+	QPoint _translation;
 };
 
 }

@@ -2,6 +2,7 @@
 #define UTIL_H
 
 #include <QObject>
+#include <QTransform>
 
 class QAction;
 typedef QList<QAction *> QActionList;
@@ -86,6 +87,8 @@ void applyMacSmallSize(QWidget *widget);
 QString unduplicatedName(const QStringList &existingNames, const QString &newName);
 
 QString fileDialogFilterFromExtensions(const QStringList &extensions);
+
+QTransform makeTransform(double scale, double rotation, const QPointF &translation);
 
 }
 

@@ -40,28 +40,59 @@ private:
 };
 
 
-CanvasViewViewport::CanvasViewViewport(LayerModel *layerModel, QWidget *parent) :
-	QWidget(parent),
-	_layerModel(layerModel),
-	_pixmap(layerModel->document()->size())
+CanvasView::CanvasView(CanvasController *canvas, QWidget *parent) :
+    QWidget(parent),
+    _canvas(canvas),
+    _document(canvas->document()),
+    _pixmap(_document->size())
 {
 	setMouseTracking(true);
 	
-	connect(_layerModel, SIGNAL(tilesUpdated(QPointSet)), this, SLOT(updateTiles(QPointSet)));
-	updateTiles(_layerModel->document()->tileKeys());
+	connect(layerModel(), SIGNAL(tilesUpdated(QPointSet)), this, SLOT(updateTiles(QPointSet)));
+	updateTiles(layerModel()->document()->tileKeys());
 	updateTransforms();
 	
 	int width = qMax(_pixmap.width(), _pixmap.height()) * 3;
 	resize(width, width);
 }
 
-void CanvasViewViewport::setNavigatorTransform(const QTransform &transform)
+void CanvasView::setScale(double value)
 {
-	_navigatorTransform = transform;
-	updateTransforms();
+	if (_scale != value)
+	{
+		_scale = value;
+		updateTransforms();
+		emit scaleChanged(value);
+	}
 }
 
-void CanvasViewViewport::setTool(Tool *tool)
+void CanvasView::setRotation(double value)
+{
+	if (_rotation != value)
+	{
+		_rotation = value;
+		updateTransforms();
+		emit rotationChanged(value);
+	}
+}
+
+void CanvasView::setTranslation(const QPoint &value)
+{
+	if (_translation != value)
+	{
+		_translation = value;
+		updateTransforms();
+		emit translationChanged(value);
+	}
+}
+
+void CanvasView::setTool(const QString &name)
+{
+	Tool *tool = createTool(appController()->modules(), controller()->workspace()->modules(), controller()->modules(), name, this);
+	setTool(tool);
+}
+
+void CanvasView::setTool(Tool *tool)
 {
 	_tool = tool;
 	if (tool)
@@ -71,14 +102,14 @@ void CanvasViewViewport::setTool(Tool *tool)
 	}
 }
 
-void CanvasViewViewport::updateTiles(const QPointSet &keys, const QHash<QPoint, QRect> &rects)
+void CanvasView::updateTiles(const QPointSet &keys, const QHash<QPoint, QRect> &rects)
 {
 	PAINTFIELD_CALC_SCOPE_ELAPSED_TIME;
 	
 	CanvasRenderer renderer;
 	renderer.setTool(_tool);
 	
-	Surface surface = renderer.renderToSurface(_layerModel->rootLayer()->children(), keys, rects);
+	Surface surface = renderer.renderToSurface(layerModel()->rootLayer()->children(), keys, rects);
 	
 	QPointSet renderKeys = rects.isEmpty() ? keys : rects.keys().toSet();
 	
@@ -118,49 +149,50 @@ void CanvasViewViewport::updateTiles(const QPointSet &keys, const QHash<QPoint, 
 	}
 }
 
-void CanvasViewViewport::updateTransforms()
+void CanvasView::updateTransforms()
 {
+	_navigatorTransform = makeTransform(_scale, _rotation, _translation);
 	_transformFromScene = QTransform::fromTranslate(- _pixmap.width() / 2, - _pixmap.height() / 2) * _navigatorTransform * QTransform::fromTranslate(geometry().width() / 2, geometry().height() / 2);
 	_transformToScene = _transformFromScene.inverted();
 }
 
-void CanvasViewViewport::keyPressEvent(QKeyEvent *event)
+void CanvasView::keyPressEvent(QKeyEvent *event)
 {
 	if (_tool)
 		_tool->toolEvent(event);
 }
 
-void CanvasViewViewport::keyReleaseEvent(QKeyEvent *event)
+void CanvasView::keyReleaseEvent(QKeyEvent *event)
 {
 	if (_tool)
 		_tool->toolEvent(event);
 }
 
-void CanvasViewViewport::mouseDoubleClickEvent(QMouseEvent *event)
+void CanvasView::mouseDoubleClickEvent(QMouseEvent *event)
 {
 	if (_tool)
 		event->setAccepted(sendCanvasMouseEvent(event));
 }
 
-void CanvasViewViewport::mousePressEvent(QMouseEvent *event)
+void CanvasView::mousePressEvent(QMouseEvent *event)
 {
 	if (_tool)
 		event->setAccepted(sendCanvasTabletEvent(event) || sendCanvasMouseEvent(event));
 }
 
-void CanvasViewViewport::mouseMoveEvent(QMouseEvent *event)
+void CanvasView::mouseMoveEvent(QMouseEvent *event)
 {
 	if (_tool)
 		event->setAccepted(sendCanvasTabletEvent(event) || sendCanvasMouseEvent(event));
 }
 
-void CanvasViewViewport::mouseReleaseEvent(QMouseEvent *event)
+void CanvasView::mouseReleaseEvent(QMouseEvent *event)
 {
 	if (_tool)
 		event->setAccepted(sendCanvasTabletEvent(event) || sendCanvasMouseEvent(event));
 }
 
-void CanvasViewViewport::tabletEvent(QTabletEvent *event)
+void CanvasView::tabletEvent(QTabletEvent *event)
 {
 	auto toNewEventType = [](QEvent::Type type)
 	{
@@ -184,15 +216,15 @@ void CanvasViewViewport::tabletEvent(QTabletEvent *event)
 	event->setAccepted(widgetTabletEvent.isAccepted());
 }
 
-void CanvasViewViewport::customTabletEvent(WidgetTabletEvent *event)
+void CanvasView::customTabletEvent(WidgetTabletEvent *event)
 {
 	if (_tool)
 		event->setAccepted(sendCanvasTabletEvent(event));
 }
 
-bool CanvasViewViewport::event(QEvent *event)
+bool CanvasView::event(QEvent *event)
 {
-    switch ((int)event->type())
+	switch ((int)event->type())
 	{
 		case EventWidgetTabletMove:
 		case EventWidgetTabletPress:
@@ -204,13 +236,13 @@ bool CanvasViewViewport::event(QEvent *event)
 	}
 }
 
-bool CanvasViewViewport::sendCanvasMouseEvent(QMouseEvent *event)
+bool CanvasView::sendCanvasMouseEvent(QMouseEvent *event)
 {
 	auto toCanvasEventType = [](QEvent::Type type)
 	{
 		switch (type)
 		{
-            default:
+			default:
 			case QEvent::MouseMove:
 				return EventCanvasMouseMove;
 			case QEvent::MouseButtonPress:
@@ -227,7 +259,7 @@ bool CanvasViewViewport::sendCanvasMouseEvent(QMouseEvent *event)
 	return canvasEvent.isAccepted();
 }
 
-bool CanvasViewViewport::sendCanvasTabletEvent(WidgetTabletEvent *event)
+bool CanvasView::sendCanvasTabletEvent(WidgetTabletEvent *event)
 {
 	TabletInputData data = event->globalData;
 	Vec2D globalPos = data.pos;
@@ -253,7 +285,7 @@ bool CanvasViewViewport::sendCanvasTabletEvent(WidgetTabletEvent *event)
 	return canvasEvent.isAccepted();
 }
 
-bool CanvasViewViewport::sendCanvasTabletEvent(QMouseEvent *mouseEvent)
+bool CanvasView::sendCanvasTabletEvent(QMouseEvent *mouseEvent)
 {
 	auto toCanvasEventType = [](QEvent::Type type)
 	{
@@ -282,42 +314,17 @@ bool CanvasViewViewport::sendCanvasTabletEvent(QMouseEvent *mouseEvent)
 	return tabletEvent.isAccepted();
 }
 
-void CanvasViewViewport::resizeEvent(QResizeEvent *event)
+void CanvasView::resizeEvent(QResizeEvent *event)
 {
 	updateTransforms();
 	event->accept();
 }
 
-void CanvasViewViewport::paintEvent(QPaintEvent *)
+void CanvasView::paintEvent(QPaintEvent *)
 {
 	QPainter painter(this);
 	//painter.setTransform(_transformFromScene);
 	painter.drawPixmap(0, 0, _pixmap);
-}
-
-
-
-
-
-
-CanvasView::CanvasView(CanvasController *controller, QWidget *parent) :
-	QAbstractScrollArea(parent),
-	_document(controller->document()),
-	_controller(controller)
-{
-	_viewport = new CanvasViewViewport(_document->layerModel());
-	setViewport(_viewport);
-}
-
-void CanvasView::setTool(const QString &name)
-{
-	Tool *tool = createTool(appController()->modules(), controller()->workspace()->modules(), controller()->modules(), name, this);
-	_viewport->setTool(tool);
-}
-
-void CanvasView::paintEvent(QPaintEvent *)
-{
-	_viewport->update();
 }
 
 

@@ -222,4 +222,5 @@ bool CanvasController::closeCanvas()
 	return true;
 }
 
+
 }

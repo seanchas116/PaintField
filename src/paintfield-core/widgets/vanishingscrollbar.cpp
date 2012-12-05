@@ -15,7 +15,7 @@ VanishingScrollBar::VanishingScrollBar(Qt::Orientation orientation, QWidget *par
 	
 	connect(_pauseAnimation, SIGNAL(finished()), _vanishingAnimation, SLOT(start()));
 	connect(_vanishingAnimation, SIGNAL(finished()), this, SLOT(vanish()));
-	_vanishingAnimation->setDuration(durationWaiting() + durationVanishing());
+	_vanishingAnimation->setDuration(durationVanishing());
 	_vanishingAnimation->setStartValue(1.0);
 	_vanishingAnimation->setEndValue(0.0);
 	
@@ -80,6 +80,8 @@ void VanishingScrollBar::paintEvent(QPaintEvent *)
 	std::tie(begin, end) = scrollBarBeginEndPos(value(), minimum(), maximum(), pageStep());
 	_barRect = scrollBarRect(begin, end, rect(), barMargin(), orientation());
 	auto path = scrollBarPath(_barRect, orientation());
+	//auto outerPath = scrollBarPath(_barRect.adjusted(-1,-1,1,1), orientation());
+	//auto stroke = path.subtracted(outerPath);
 	
 	painter.setRenderHint(QPainter::Antialiasing, true);
 	painter.setPen(Qt::NoPen);
@@ -87,6 +89,9 @@ void VanishingScrollBar::paintEvent(QPaintEvent *)
 	painter.setOpacity(0.5 * _vanishingLevel);
 	
 	painter.drawPath(path);
+	
+	//painter.setPen(Qt::white);
+	//painter.drawPath(stroke);
 }
 
 void VanishingScrollBar::mousePressEvent(QMouseEvent *event)
@@ -139,6 +144,11 @@ void VanishingScrollBar::mouseReleaseEvent(QMouseEvent *event)
 	{
 		event->ignore();
 	}
+}
+
+void VanishingScrollBar::wheelEvent(QWheelEvent *event)
+{
+	event->ignore();
 }
 
 // static functions

@@ -79,7 +79,8 @@ void ColorSlider::setValue(double x)
 
 void ColorSlider::setValue8Bit(int x)
 {
-	setValue(double(x) * (1.0 / 255.0));
+	if (value8Bit() != x)
+		setValue(double(x) * (1.0 / 255.0));
 }
 
 void ColorSlider::resizeEvent(QResizeEvent *)

@@ -10,7 +10,7 @@ class DoubleSlider : public QSlider
 {
 	Q_OBJECT
 public:
-	explicit DoubleSlider(QWidget *parent = 0);
+	DoubleSlider(Qt::Orientation orientation, QWidget *parent = 0);
 	
 	void setDoubleMaximum(double max);
 	void setDoubleMinimum(double min);
