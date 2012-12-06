@@ -20,6 +20,8 @@ public:
 	
 	double value() const { return _value; }
 	
+	void setRange(double min, double max) { setMinimum(min); setMaximum(max); }
+	
 	void setMaximum(double max) { _max = max; updateText(); }
 	double maximum() const { return _max; }
 	

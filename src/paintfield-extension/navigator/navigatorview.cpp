@@ -1,4 +1,5 @@
 #include <QtGui>
+#include <Malachite/Division>
 #include "paintfield-core/widgets/simplebutton.h"
 #include "paintfield-core/widgets/doubleslider.h"
 #include "paintfield-core/widgets/loosespinbox.h"
@@ -16,7 +17,7 @@ NavigatorView::NavigatorView(QWidget *parent) :
 
 void NavigatorView::setScale(double scale)
 {
-	scale = qBound(exp2(_scaleLogMin), scale, exp2(_scaleLogMax));
+	scale = qBound(scaleMin(), scale, scaleMax());
 	
 	if (_scale != scale)
 	{
@@ -27,7 +28,9 @@ void NavigatorView::setScale(double scale)
 
 void NavigatorView::setRotation(int rotation)
 {
-	rotation = qBound(_rotationMin, rotation, _rotationMax);
+	rotation = Malachite::IntDivision(rotation + 180 * 16, 360 * 16).rem() - 180 * 16;
+	if (rotation == -180 * 16)
+		rotation += 360 * 16;
 	
 	if (_rotation != rotation)
 	{
@@ -79,13 +82,12 @@ QLayout *NavigatorView::createScaleRotationUILayout()
 		
 		// slider value: log2(scale()) * resolution
 		auto slider = new QSlider(Qt::Horizontal);
-		slider->setMinimum(_scaleLogMin * resolution);
-		slider->setMaximum(_scaleLogMax * resolution);
-		slider->setValue(1 * resolution);
+		slider->setRange(_scaleLogMin * resolution, _scaleLogMax * resolution);
+		slider->setValue(0);
 		
 		auto to = [](const QVariant &normalValue)
 		{
-			return log2(normalValue.toDouble()) * resolution;
+			return qRound(log2(normalValue.toDouble()) * resolution);
 		};
 		
 		auto from = [](const QVariant &intLogValue)
@@ -116,11 +118,10 @@ QLayout *NavigatorView::createScaleRotationUILayout()
 		// scale spin box (percentage)
 		
 		auto spinBox = new LooseSpinBox;
-		spinBox->setValue(100);
-		spinBox->setMinimum(scaleMin() * 100);
-		spinBox->setMaximum(scaleMax() * 100);
+		spinBox->setRange(scaleMin() * 100.0, scaleMax() * 100.0);
 		spinBox->setDecimals(1);
 		spinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
+		spinBox->setValue(100);
 		
 		auto toPercent = [](const QVariant &value) { return value.toDouble() * 100.0; };
 		auto fromPercent = [](const QVariant &value) { return value.toDouble() / 100.0; };
@@ -144,8 +145,7 @@ QLayout *NavigatorView::createScaleRotationUILayout()
 		// rotation slider
 		
 		auto slider = new QSlider(Qt::Horizontal);
-		slider->setMinimum(_rotationMin);
-		slider->setMaximum(_rotationMax);
+		slider->setRange(_rotationMin, _rotationMax);
 		slider->setValue(0);
 		
 		connect(this, SIGNAL(rotationChanged(int)), slider, SLOT(setValue(int)));
@@ -171,8 +171,7 @@ QLayout *NavigatorView::createScaleRotationUILayout()
 		
 		auto spinBox = new LooseSpinBox;
 		spinBox->setValue(0);
-		spinBox->setMaximum(180);
-		spinBox->setMinimum(-180);
+		spinBox->setRange(INT_MIN, INT_MAX);
 		spinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 		
 		auto to = [](const QVariant &normalValue)
@@ -182,7 +181,7 @@ QLayout *NavigatorView::createScaleRotationUILayout()
 		
 		auto from = [](const QVariant &spinBoxValue)
 		{
-			return round(spinBoxValue.toDouble() * 16.0);
+			return qRound(spinBoxValue.toDouble() * 16.0);
 		};
 		
 		auto signalConverter = new SignalConverter(to, from, this);

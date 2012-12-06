@@ -59,10 +59,10 @@ private:
 	double scaleMin() const { return exp2(_scaleLogMin); }
 	double scaleMax() const { return exp2(_scaleLogMax); }
 	
-	int zoomLevel() const { return round(log2(_scale) / _scaleLogStep); }
+	int zoomLevel() const { return qRound(log2(_scale) / _scaleLogStep); }
 	void setZoomLevel(int x) { setScale(exp2(x * _scaleLogStep)); }
 	
-	int rotationLevel() const { return (_rotation + _rotationStep / 2) / _rotationStep; }
+	int rotationLevel() const { return qRound(double(_rotation) / double(_rotationStep)); }
 	void setRotationLevel(int x) { setRotation(x * _rotationStep); }
 	
 	QLayout *createScaleRotationUILayout();
@@ -77,7 +77,7 @@ private:
 	double _scaleLogStep = 0.5;
 	
 	int _rotationMin = -180 * 16, _rotationMax= 180 * 16;
-	int _rotationStep = 16;
+	int _rotationStep = 15 * 16;
 };
 
 }
