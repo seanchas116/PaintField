@@ -163,7 +163,7 @@ void WorkspaceController::updateWorkspaceItems()
 {
 	for (const QString &name : appController()->sidebarNames())
 	{
-		QWidget *sidebar = createSideBarForWorkspace(appController()->modules(), modules(), name);
+		QWidget *sidebar = sideBarForWorkspace(appController()->modules(), modules(), name);
 		if (sidebar)
 			_view->setSidebar(name, sidebar);
 	}
@@ -182,7 +182,7 @@ void WorkspaceController::updateWorkspaceItemsForCanvas(CanvasController *canvas
 	
 	for (const QString &name : appController()->sidebarNames())
 	{
-		QWidget *sidebar = createSideBarForCanvas(currentCanvasModules(), name);
+		QWidget *sidebar = sideBarForCanvas(currentCanvasModules(), name);
 		if (sidebar)
 			_view->setSidebar(name, sidebar);
 	}

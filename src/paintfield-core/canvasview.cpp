@@ -146,8 +146,6 @@ void CanvasView::updateTiles(const QPointSet &keys, const QHash<QPoint, QRect> &
 		
 		QRect mappedRect = _transformFromScene.mapRect(QRectF(rect.translated(tilePos))).toAlignedRect();
 		
-		PAINTFIELD_DEBUG << _transformFromScene;
-		
 		repaint(mappedRect);
 	}
 }

@@ -7,6 +7,7 @@ namespace PaintField
 {
 
 class LayerActionController;
+class LayerTreeSidebar;
 
 class LayerUIModule : public CanvasModule
 {
@@ -14,11 +15,12 @@ class LayerUIModule : public CanvasModule
 public:
 	LayerUIModule(CanvasController *canvas, QObject *parent);
 	
-	QWidget *createSideBar(const QString &name) override;
+	QWidget *sideBar(const QString &name) override;
 	
 private:
 	
 	LayerActionController *_actionController;
+	LayerTreeSidebar *_treeSidebar;
 };
 
 class LayerUIModuleFactory : public ModuleFactory

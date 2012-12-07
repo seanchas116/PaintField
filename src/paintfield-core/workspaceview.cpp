@@ -159,11 +159,13 @@ void SideBarFrame::setSideBar(QWidget *sideBar)
 	if (_sideBar)
 	{
 		_layout->removeWidget(_sideBar);
-		_sideBar->deleteLater();
+		_sideBar->setParent(0);
+		_sideBar->hide();
 	}
 	
 	_sideBar = sideBar;
 	_layout->addWidget(_sideBar);
+	_sideBar->show();
 }
 
 void WorkspaceMenuAction::setBackendAction(QAction *action)
@@ -336,7 +338,6 @@ void WorkspaceView::setSidebar(const QString &id, QWidget *sidebar)
 			return;
 		}
 	}
-	sidebar->deleteLater();
 }
 
 QToolBar *WorkspaceView::toolBar(const QString &id)

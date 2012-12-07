@@ -37,13 +37,11 @@ public:
 	virtual Tool *createTool(const QString &name, CanvasView *view);
 	
 	/**
-	 * Creates a sidebar.
-	 * If "this" is a canvas module, this function is called when the current canvas is changed.
-	 * Otherwise, it is called when a new workspace is added.
-	 * @param name
+	 * Returns a sidebar which the module has.
+	 * @param name sidebar's name
 	 * @return 
 	 */
-	virtual QWidget *createSideBar(const QString &name);
+	virtual QWidget *sideBar(const QString &name);
 	
 	/**
 	 * Updates a toolbar.
@@ -106,8 +104,8 @@ private:
 typedef QList<AppModule *> AppModuleList;
 
 Tool *createTool(const AppModuleList &appModules, const WorkspaceModuleList &workspaceModules, const CanvasModuleList &canvasModules, const QString &name, CanvasView *view);
-QWidget *createSideBarForWorkspace(const AppModuleList &appModules, const WorkspaceModuleList &workspaceModules, const QString &name);
-QWidget *createSideBarForCanvas(const CanvasModuleList &canvasModules, const QString &name);
+QWidget *sideBarForWorkspace(const AppModuleList &appModules, const WorkspaceModuleList &workspaceModules, const QString &name);
+QWidget *sideBarForCanvas(const CanvasModuleList &canvasModules, const QString &name);
 void updateToolBar(const AppModuleList &appModules, const WorkspaceModuleList &workspaceModules, const CanvasModuleList &canvasModules, QToolBar *toolBar, const QString &name);
 
 class ModuleFactory : public QObject

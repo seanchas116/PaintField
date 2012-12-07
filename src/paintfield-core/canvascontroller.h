@@ -74,7 +74,7 @@ public:
 	void addModules(const CanvasModuleList &modules);
 	CanvasModuleList modules() { return _modules; }
 	
-	CanvasView *view() { return _view ? _view.data() : createView(); }
+	CanvasView *view() { return _view.data(); }
 	
 signals:
 	

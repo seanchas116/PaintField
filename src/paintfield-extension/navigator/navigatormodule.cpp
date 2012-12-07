@@ -10,33 +10,16 @@ namespace PaintField
 const QString _navigatorSidebarName = "paintfield.sidebar.navigator";
 
 NavigatorModule::NavigatorModule(CanvasController *canvas, QObject *parent) :
-    CanvasModule(canvas, parent)
+    CanvasModule(canvas, parent),
+    _controller(new NavigatorController(canvas, this))
 {
-	if (canvas)
-	{
-		_navigatorController = new NavigatorController(canvas->view(), canvas);
-	}
 }
 
-QWidget *NavigatorModule::createSideBar(const QString &name)
+QWidget *NavigatorModule::sideBar(const QString &name)
 {
 	if (name == _navigatorSidebarName)
-	{
-		if (canvas())
-		{
-			return _navigatorController->createView();
-		}
-		else
-		{
-			auto view = new NavigatorView;
-			view->setEnabled(false);
-			return view;
-		}
-	}
-	else
-	{
-		return 0;
-	}
+		return _controller->view();
+	return 0;
 }
 
 void NavigatorModuleFactory::initialize(AppController *app)

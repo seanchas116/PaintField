@@ -10,7 +10,7 @@ Tool *Module::createTool(const QString &name, CanvasView *view)
 	return 0;
 }
 
-QWidget *Module::createSideBar(const QString &name)
+QWidget *Module::sideBar(const QString &name)
 {
 	Q_UNUSED(name)
 	return 0;
@@ -67,32 +67,32 @@ Tool *createTool(const AppModuleList &appModules, const WorkspaceModuleList &wor
 	return 0;
 }
 
-QWidget *createSideBarForWorkspace(const AppModuleList &appModules, const WorkspaceModuleList &workspaceModules, const QString &name)
+QWidget *sideBarForWorkspace(const AppModuleList &appModules, const WorkspaceModuleList &workspaceModules, const QString &name)
 {
 	QWidget *sidebar;
 	
 	for (Module *module : appModules)
 	{
-		sidebar = module->createSideBar(name);
+		sidebar = module->sideBar(name);
 		if (sidebar)
 			return sidebar;
 	}
 	for (Module *module : workspaceModules)
 	{
-		sidebar = module->createSideBar(name);
+		sidebar = module->sideBar(name);
 		if (sidebar)
 			return sidebar;
 	}
 	return 0;
 }
 
-QWidget *createSideBarForCanvas(const CanvasModuleList &canvasModules, const QString &name)
+QWidget *sideBarForCanvas(const CanvasModuleList &canvasModules, const QString &name)
 {
 	QWidget *sidebar;
 	
 	for (Module *module : canvasModules)
 	{
-		sidebar = module->createSideBar(name);
+		sidebar = module->sideBar(name);
 		if (sidebar)
 			return sidebar;
 	}

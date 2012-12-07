@@ -8,6 +8,8 @@
 namespace PaintField
 {
 
+class BrushSettingSidebar;
+
 class BrushToolModule : public WorkspaceModule
 {
 	Q_OBJECT
@@ -15,9 +17,11 @@ public:
 	BrushToolModule(WorkspaceController *workspace, QObject *parent);
 	
 	Tool *createTool(const QString &name, CanvasView *parent) override;
-	QWidget *createSideBar(const QString &name) override;
+	QWidget *sideBar(const QString &name) override;
 	
 private:
+	
+	BrushSettingSidebar *_sidebar;
 	BrushSetting _setting;
 };
 

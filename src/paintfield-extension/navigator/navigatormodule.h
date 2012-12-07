@@ -8,6 +8,7 @@ namespace PaintField
 {
 
 class NavigatorController;
+class NavigatorView;
 
 class NavigatorModule : public CanvasModule
 {
@@ -15,7 +16,7 @@ class NavigatorModule : public CanvasModule
 public:
 	NavigatorModule(CanvasController *canvas, QObject *parent);
 	
-	QWidget *createSideBar(const QString &name) override;
+	QWidget *sideBar(const QString &name) override;
 	
 signals:
 	
@@ -23,7 +24,7 @@ public slots:
 	
 private:
 	
-	NavigatorController *_navigatorController = 0;
+	NavigatorController *_controller = 0;
 };
 
 class NavigatorModuleFactory : public ModuleFactory

@@ -6,22 +6,23 @@
 
 namespace PaintField {
 
-class CanvasView;
+class CanvasController;
 
 class NavigatorController : public QObject
 {
 	Q_OBJECT
 public:
-	NavigatorController(CanvasView *canvasView, QObject *parent = 0);
+	NavigatorController(CanvasController *canvas, QObject *parent = 0);
 	
-	QWidget *createView();
+	NavigatorView *view() { return _view; }
 	
 signals:
 	
 public slots:
 	
 private:
-	CanvasView *_canvasView;
+	
+	NavigatorView *_view;
 };
 
 } // namespace PaintField

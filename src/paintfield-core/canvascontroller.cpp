@@ -50,6 +50,8 @@ void CanvasController::commonInit()
 	auto redoAction = _document->undoStack()->createRedoAction(this);
 	redoAction->setObjectName("paintfield.edit.redo");
 	_actions << redoAction;
+	
+	_view.reset(createView());
 }
 
 CanvasController::~CanvasController(){}
@@ -57,7 +59,6 @@ CanvasController::~CanvasController(){}
 CanvasView *CanvasController::createView(QWidget *parent)
 {
 	auto view = new CanvasView(this, parent);
-	_view.reset(view);
 	
 	connect(workspace()->toolManager(), SIGNAL(currentToolChanged(QString)), view, SLOT(setTool(QString)));
 	view->setTool(workspace()->toolManager()->currentTool());

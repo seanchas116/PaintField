@@ -57,6 +57,7 @@ void NavigatorView::createWidgets()
 	auto mainLayout = new QVBoxLayout;
 	mainLayout->addLayout(createScaleRotationUILayout());
 	mainLayout->addLayout(createMiscUILayout());
+	mainLayout->addStretch(1);
 	
 	setLayout(mainLayout);
 }

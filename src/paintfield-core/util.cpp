@@ -35,7 +35,8 @@ QVariant loadJsonFromFile(const QString &path)
 void applyMacSmallSize(QWidget *widget)
 {
 	widget->setAttribute(Qt::WA_MacSmallSize);
-	foreach (QObject *object, widget->children())
+	
+	for (QObject *object : widget->children())
 	{
 		QWidget *widget = qobject_cast<QWidget *>(object);
 		if (widget)

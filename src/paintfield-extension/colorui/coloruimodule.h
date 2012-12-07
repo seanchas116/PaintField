@@ -6,19 +6,23 @@
 namespace PaintField
 {
 
+class ColorSidebar;
+
 class ColorUIModule : public WorkspaceModule
 {
 	Q_OBJECT
 public:
 	ColorUIModule(WorkspaceController *workspace, QObject *parent);
 	
-	QWidget *createSideBar(const QString &name) override;
+	QWidget *sideBar(const QString &name) override;
 	
 signals:
 	
 public slots:
 	
 private:
+	
+	ColorSidebar *_sidebar = 0;
 };
 
 class ColorUIModuleFactory : public ModuleFactory
