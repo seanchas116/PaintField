@@ -90,6 +90,12 @@ QString fileDialogFilterFromExtensions(const QStringList &extensions);
 
 QTransform makeTransform(double scale, double rotation, const QPointF &translation);
 
+inline void connectMutual(QObject *object1, const char *signal, QObject *object2, const char *slot)
+{
+	QObject::connect(object1, signal, object2, slot);
+	QObject::connect(object2, signal, object1, slot);
+}
+
 }
 
 #endif // UTIL_H

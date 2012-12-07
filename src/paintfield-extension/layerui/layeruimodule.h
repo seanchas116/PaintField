@@ -23,14 +23,21 @@ private:
 
 class LayerUIModuleFactory : public ModuleFactory
 {
+	Q_OBJECT
 public:
+	
+	LayerUIModuleFactory(QObject *parent = 0) : ModuleFactory(parent) {}
 	
 	void initialize(AppController *app) override;
 	
-	QList<CanvasModule *> createCanvasModules(CanvasController *canvas, QObject *parent) override
+	CanvasModuleList createCanvasModules(CanvasController *canvas, QObject *parent) override
 	{
 		return { new LayerUIModule(canvas, parent) };
 	}
+
+private:
+	
+	QString _name;
 };
 
 }

@@ -85,8 +85,8 @@ private:
 	double _mousePressure = 0;
 	QPixmap _pixmap;
 	QTransform _transformToScene, _transformFromScene, _navigatorTransform;
-	double _scale;
-	double _rotation;
+	double _scale = 1.0;
+	double _rotation = 0.0;
 	QPoint _translation;
 };
 

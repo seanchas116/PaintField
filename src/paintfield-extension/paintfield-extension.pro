@@ -41,7 +41,9 @@ HEADERS += \
     basictool/brush/stroker.h \
     basictool/brush/brushstroker.h \
     basictool/brush/penstroker.h \
-    navigator/navigatorview.h
+    navigator/navigatorview.h \
+    navigator/navigatorcontroller.h \
+    navigator/navigatormodule.h
 SOURCES += \
            colorui/colorsidebar.cpp \
            colorui/coloruimodule.cpp \
@@ -61,7 +63,9 @@ SOURCES += \
     basictool/brush/stroker.cpp \
     basictool/brush/brushstroker.cpp \
     basictool/brush/penstroker.cpp \
-    navigator/navigatorview.cpp
+    navigator/navigatorview.cpp \
+    navigator/navigatorcontroller.cpp \
+    navigator/navigatormodule.cpp
 
 RESOURCES += \
     resources/resources.qrc

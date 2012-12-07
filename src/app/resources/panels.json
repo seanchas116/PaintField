@@ -4,6 +4,7 @@
         "right":
         [
             [
+                ["paintfield.sidebar.navigator"],
                 ["paintfield.sidebar.color", "paintfield.sidebar.brushSettings"],
                 ["paintfield.sidebar.layerTree"]
             ]

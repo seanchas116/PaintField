@@ -59,14 +59,14 @@ QWidget *LayerUIModule::createSideBar(const QString &name)
 
 void LayerUIModuleFactory::initialize(AppController *app)
 {
-	app->declareMenu("paintfield.layer", QObject::tr("Layer"));
+	app->declareMenu("paintfield.layer", tr("Layer"));
 	
-	app->declareAction("paintfield.layer.newRaster", QObject::tr("New Layer"));
-	app->declareAction("paintfield.layer.newGroup", QObject::tr("New Group"));
-	app->declareAction("paintfield.layer.import", QObject::tr("Import..."));
-	app->declareAction("paintfield.layer.merge", QObject::tr("Merge"));
+	app->declareAction("paintfield.layer.newRaster", tr("New Layer"));
+	app->declareAction("paintfield.layer.newGroup", tr("New Group"));
+	app->declareAction("paintfield.layer.import", tr("Import..."));
+	app->declareAction("paintfield.layer.merge", tr("Merge"));
 	
-	app->declareSideBar(_layerTreeSidebarName, SidebarDeclaration(QObject::tr("Layers")));
+	app->declareSideBar(_layerTreeSidebarName, SidebarDeclaration(tr("Layers")));
 }
 
 }

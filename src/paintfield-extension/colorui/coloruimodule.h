@@ -23,7 +23,10 @@ private:
 
 class ColorUIModuleFactory : public ModuleFactory
 {
+	Q_OBJECT
 public:
+	
+	ColorUIModuleFactory(QObject *parent = 0) : ModuleFactory(parent) {}
 	
 	void initialize(AppController *app) override;
 	

@@ -17,7 +17,11 @@ public:
 
 class ToolUIModuleFactory : public ModuleFactory
 {
+	Q_OBJECT
 public:
+	
+	ToolUIModuleFactory(QObject *parent = 0) : ModuleFactory(parent) {}
+	
 	void initialize(AppController *app) override;
 	QList<WorkspaceModule *> createWorkspaceModules(WorkspaceController *workspace, QObject *parent) override
 	{

@@ -3,19 +3,22 @@
 #include "colorui/coloruimodule.h"
 #include "layerui/layeruimodule.h"
 #include "toolui/tooluimodule.h"
+#include "navigator/navigatormodule.h"
 
 #include "extensionmodulefactory.h"
 
 namespace PaintField
 {
 
-ExtensionModuleFactory::ExtensionModuleFactory()
+ExtensionModuleFactory::ExtensionModuleFactory(QObject *parent) :
+    ModuleFactory(parent)
 {
-	addSubModuleFactory(new BrushToolModuleFactory);
-	addSubModuleFactory(new LayerMoveToolModuleFactory);
-	addSubModuleFactory(new ColorUIModuleFactory);
-	addSubModuleFactory(new LayerUIModuleFactory);
-	addSubModuleFactory(new ToolUIModuleFactory);
+	addSubModuleFactory(new BrushToolModuleFactory(this));
+	addSubModuleFactory(new LayerMoveToolModuleFactory(this));
+	addSubModuleFactory(new ColorUIModuleFactory(this));
+	addSubModuleFactory(new LayerUIModuleFactory(this));
+	addSubModuleFactory(new ToolUIModuleFactory(this));
+	addSubModuleFactory(new NavigatorModuleFactory(this));
 }
 
 }

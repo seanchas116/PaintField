@@ -22,7 +22,11 @@ public slots:
 
 class LayerMoveToolModuleFactory : public ModuleFactory
 {
+	Q_OBJECT
+	
 public:
+	
+	LayerMoveToolModuleFactory(QObject *parent = 0) : ModuleFactory(parent) {}
 	
 	void initialize(AppController *app) override;
 	

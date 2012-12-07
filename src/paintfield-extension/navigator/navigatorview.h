@@ -8,6 +8,7 @@ namespace PaintField {
 class NavigatorView : public QWidget
 {
 	Q_OBJECT
+	
 public:
 	explicit NavigatorView(QWidget *parent = 0);
 	
@@ -17,36 +18,47 @@ public:
 	double scale() const { return _scale; }
 	
 	/**
-	 * @return Rotation (degrees * 16)
+	 * @return Rotation degrees
 	 */
-	int rotation() const { return _rotation; }
+	double rotation() const { return _rotationD;}
 	
 	/**
 	 * @return Translation
 	 */
 	QPoint translation() const { return _translation; }
 	
+	/**
+	 * Sets the log2-scale step of scale.
+	 * This value is used when zoom-in or zoom-out button is pressed.
+	 * @param step
+	 */
 	void setScaleLogStep(double step) { _scaleLogStep = step; }
-	void setRotationStep(int step) { _rotationStep = step; }
+	
+	/**
+	 * Sets the rotation step.
+	 * This value is used when rotate-left or rotate-right button is pressed.
+	 * @param step
+	 */
+	void setRotationStep(int step) { _rotationDStep = step; }
 	
 signals:
 	
-	void scaleChanged(double value);
-	void rotationChanged(int value);
-	void translationChanged(const QPoint &value);
-	void xChanged(int x);
-	void yChanged(int y);
+	void scaleChanged(double scale);
+	void rotationChanged(double rotation);
+	void translationChanged(const QPoint &translation);
+	void translationXChanged(int x);
+	void translationYChanged(int y);
 	
 public slots:
 	
-	void setScale(double value);
-	void setRotation(int value);
-	void setTranslation(const QPoint &value);
-	void setX(int x) { setTranslation(QPoint(x, _translation.y())); }
-	void setY(int y) { setTranslation(QPoint(_translation.x(), y)); }
+	void setScale(double scale);
+	void setRotation(double rotation);
+	void setTranslation(const QPoint &translation);
+	void setTranslationX(int x) { setTranslation(QPoint(x, _translation.y())); }
+	void setTranslationY(int y) { setTranslation(QPoint(_translation.x(), y)); }
 	
-	void revertScale() { setScale(1); }
-	void revertRotation() { setRotation(0); }
+	void resetScale() { setScale(1); }
+	void resetRotation() { setRotation(0); }
 	void zoomOut() { setZoomLevel(zoomLevel() - 1); }
 	void zoomIn() { setZoomLevel(zoomLevel() + 1); }
 	void rotateLeft() { setRotationLevel(rotationLevel() - 1); }
@@ -62,22 +74,27 @@ private:
 	int zoomLevel() const { return qRound(log2(_scale) / _scaleLogStep); }
 	void setZoomLevel(int x) { setScale(exp2(x * _scaleLogStep)); }
 	
-	int rotationLevel() const { return qRound(double(_rotation) / double(_rotationStep)); }
-	void setRotationLevel(int x) { setRotation(x * _rotationStep); }
+	int rotationLevel() const { return qRound(_rotationD / _rotationDStep); }
+	void setRotationLevel(int x) { setRotation(x * _rotationDStep); }
 	
 	QLayout *createScaleRotationUILayout();
 	QLayout *createMiscUILayout();
 	void createWidgets(); 
 	
 	double _scale = 1.0;
-	int _rotation = 0;
+	
+	//int _rotation = 0;
 	QPoint _translation;
 	
 	double _scaleLogMin = -7, _scaleLogMax = 5;
 	double _scaleLogStep = 0.5;
 	
-	int _rotationMin = -180 * 16, _rotationMax= 180 * 16;
-	int _rotationStep = 15 * 16;
+	//int _rotationMin = -180 * 16, _rotationMax= 180 * 16;
+	//int _rotationStep = 15 * 16;
+	
+	double _rotationD = 0, _rotationDStep = 15.0;
+	
+	constexpr static int _spinBoxWidth = 50;
 };
 
 }

@@ -8,8 +8,11 @@ namespace PaintField
 
 class ExtensionModuleFactory : public ModuleFactory
 {
+	Q_OBJECT
+	
 public:
-	ExtensionModuleFactory();
+	
+	ExtensionModuleFactory(QObject *parent = 0);
 	void initialize(AppController *app) { Q_UNUSED(app) }
 };
 

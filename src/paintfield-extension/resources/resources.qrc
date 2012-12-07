@@ -14,9 +14,6 @@
         <file>icons/24x24/move.svg</file>
         <file>icons/24x24/selectEllipse.svg</file>
         <file>icons/24x24/selectRect.svg</file>
-        <file>keymap.json</file>
-        <file>menubar.json</file>
-        <file>panels.json</file>
         <file>icons/24x24/brush.svg</file>
         <file>icons/24x24/select.svg</file>
         <file>icons/32x32/split.svg</file>

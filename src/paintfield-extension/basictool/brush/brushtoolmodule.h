@@ -25,6 +25,8 @@ class BrushToolModuleFactory : public ModuleFactory
 {
 public:
 	
+	explicit BrushToolModuleFactory(QObject *parent = 0) : ModuleFactory(parent) {}
+	
 	void initialize(AppController *app) override;
 	
 	WorkspaceModuleList createWorkspaceModules(WorkspaceController *workspace, QObject *parent) override

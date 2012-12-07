@@ -145,6 +145,9 @@ void CanvasView::updateTiles(const QPointSet &keys, const QHash<QPoint, QRect> &
 		painter.end();
 		
 		QRect mappedRect = _transformFromScene.mapRect(QRectF(rect.translated(tilePos))).toAlignedRect();
+		
+		PAINTFIELD_DEBUG << _transformFromScene;
+		
 		repaint(mappedRect);
 	}
 }
@@ -154,6 +157,7 @@ void CanvasView::updateTransforms()
 	_navigatorTransform = makeTransform(_scale, _rotation, _translation);
 	_transformFromScene = QTransform::fromTranslate(- _pixmap.width() / 2, - _pixmap.height() / 2) * _navigatorTransform * QTransform::fromTranslate(geometry().width() / 2, geometry().height() / 2);
 	_transformToScene = _transformFromScene.inverted();
+	update();
 }
 
 void CanvasView::keyPressEvent(QKeyEvent *event)
@@ -323,7 +327,7 @@ void CanvasView::resizeEvent(QResizeEvent *event)
 void CanvasView::paintEvent(QPaintEvent *)
 {
 	QPainter painter(this);
-	//painter.setTransform(_transformFromScene);
+	painter.setTransform(_transformFromScene);
 	painter.drawPixmap(0, 0, _pixmap);
 }
 

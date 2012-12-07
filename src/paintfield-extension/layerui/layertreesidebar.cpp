@@ -35,8 +35,6 @@ LayerTreeSidebar::LayerTreeSidebar(CanvasController *canvas, QWidget *parent) :
 		setEnabled(false);
 	}
 	updatePropertyView();
-	
-	setWindowTitle(tr("Layer"));
 }
 
 void LayerTreeSidebar::updatePropertyView()

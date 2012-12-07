@@ -110,9 +110,13 @@ QWidget *createSideBarForWorkspace(const AppModuleList &appModules, const Worksp
 QWidget *createSideBarForCanvas(const CanvasModuleList &canvasModules, const QString &name);
 void updateToolBar(const AppModuleList &appModules, const WorkspaceModuleList &workspaceModules, const CanvasModuleList &canvasModules, QToolBar *toolBar, const QString &name);
 
-class ModuleFactory
+class ModuleFactory : public QObject
 {
+	Q_OBJECT
+	
 public:
+	
+	explicit ModuleFactory(QObject *parent = 0) : QObject(parent) {}
 	
 	virtual void initialize(AppController *app) = 0;
 	
