@@ -166,7 +166,7 @@ void test_VanishingScrollBar_vanishing()
 	
 	auto button = new QPushButton("press");
 	
-	QObject::connect(button, SIGNAL(pressed()), bar, SLOT(startAnimation()));
+	QObject::connect(button, SIGNAL(pressed()), bar, SLOT(wakeUp()));
 	
 	layout->addWidget(bar);
 	layout->addWidget(button);
@@ -200,8 +200,8 @@ int main(int argc, char *argv[])
 	//test_CanvasView();
 	//test_scrollarea();
 	//test_VanishingScrollBar();
-	//test_VanishingScrollBar_vanishing();
-	test_NavigatorView();
+	test_VanishingScrollBar_vanishing();
+	//test_NavigatorView();
 	
 	return app.exec();
 }

@@ -1,5 +1,6 @@
 #include <QtGui>
 
+#include "widgets/vanishingscrollbar.h"
 #include "drawutil.h"
 #include "tool.h"
 #include "layerrenderer.h"
@@ -13,8 +14,6 @@ namespace PaintField
 {
 
 using namespace Malachite;
-
-
 
 
 class CanvasRenderer : public LayerRenderer
@@ -42,6 +41,8 @@ private:
 
 CanvasView::CanvasView(CanvasController *canvas, QWidget *parent) :
     QWidget(parent),
+    _scrollBarX(new VanishingScrollBar(Qt::Horizontal, this)),
+    _scrollBarY(new VanishingScrollBar(Qt::Vertical, this)),
     _canvas(canvas),
     _document(canvas->document()),
     _pixmap(_document->size())
@@ -52,8 +53,12 @@ CanvasView::CanvasView(CanvasController *canvas, QWidget *parent) :
 	updateTiles(layerModel()->document()->tileKeys());
 	updateTransforms();
 	
-	int width = qMax(_pixmap.width(), _pixmap.height()) * 3;
-	resize(width, width);
+	//int width = qMax(_pixmap.width(), _pixmap.height()) * 3;
+	//resize(width, width);
+	moveScrollBars();
+	
+	connect(_scrollBarX, SIGNAL(valueChanged(int)), this, SLOT(onScrollBarXChanged(int)));
+	connect(_scrollBarY, SIGNAL(valueChanged(int)), this, SLOT(onScrollBarYChanged(int)));
 }
 
 void CanvasView::setScale(double value)
@@ -78,11 +83,16 @@ void CanvasView::setRotation(double value)
 
 void CanvasView::setTranslation(const QPoint &value)
 {
-	if (_translation != value)
+	QPoint newValue;
+	
+	newValue.setX(qBound(-_maxAbsTranslation.x(), value.x(), _maxAbsTranslation.x()));
+	newValue.setY(qBound(-_maxAbsTranslation.y(), value.y(), _maxAbsTranslation.y()));
+	
+	if (_translation != newValue)
 	{
-		_translation = value;
+		_translation = newValue;
 		updateTransforms();
-		emit translationChanged(value);
+		emit translationChanged(newValue);
 	}
 }
 
@@ -155,7 +165,62 @@ void CanvasView::updateTransforms()
 	_navigatorTransform = makeTransform(_scale, _rotation, _translation);
 	_transformFromScene = QTransform::fromTranslate(- _pixmap.width() / 2, - _pixmap.height() / 2) * _navigatorTransform * QTransform::fromTranslate(geometry().width() / 2, geometry().height() / 2);
 	_transformToScene = _transformFromScene.inverted();
+	
+	updateScrollBarRange();
+	updateScrollBarValue();
+	
 	update();
+}
+
+void CanvasView::onScrollBarXChanged(int value)
+{
+	int x = -(value - _maxAbsTranslation.x());
+	setTranslation(x, _translation.y());
+}
+
+void CanvasView::onScrollBarYChanged(int value)
+{
+	int y = -(value - _maxAbsTranslation.y());
+	setTranslation(_translation.x(), y);
+}
+
+void CanvasView::updateScrollBarValue()
+{
+	_scrollBarX->setValue(-_translation.x() + _maxAbsTranslation.x());
+	_scrollBarY->setValue(-_translation.y() + _maxAbsTranslation.y());
+}
+
+void CanvasView::updateScrollBarRange()
+{
+	int diamater = ceil(hypot(_pixmap.width(), _pixmap.height()));
+	
+	_maxAbsTranslation = QPoint(diamater + this->width(), diamater + this->height());
+	
+	_scrollBarX->setRange(0, 2 * _maxAbsTranslation.x());
+	_scrollBarY->setRange(0, 2 * _maxAbsTranslation.y());
+	_scrollBarX->setPageStep(this->width());
+	_scrollBarY->setPageStep(this->height());
+}
+
+void CanvasView::moveScrollBars()
+{
+	int barWidthX = _scrollBarX->totalBarWidth();
+	int barWidthY = _scrollBarY->totalBarWidth();
+	
+	auto widgetRect = QRect(QPoint(), geometry().size());
+	
+	auto scrollBarXRect = widgetRect.adjusted(0, widgetRect.height() - barWidthY, -barWidthX, 0);
+	auto scrollBarYRect = widgetRect.adjusted(widgetRect.width() - barWidthX, 0, 0, -barWidthY);
+	
+	_scrollBarX->setGeometry(scrollBarXRect);
+	_scrollBarY->setGeometry(scrollBarYRect);
+	
+	/*
+	_scrollBarX->move(0, this->height() - barWidthX);
+	_scrollBarX->resize(this->width() - barWidthY, barWidthX);
+	_scrollBarY->move(this->width() - barWidthY, 0);
+	_scrollBarY->resize(barWidthY, this->height() - barWidthX);
+	*/
 }
 
 void CanvasView::keyPressEvent(QKeyEvent *event)
@@ -222,6 +287,18 @@ void CanvasView::customTabletEvent(WidgetTabletEvent *event)
 {
 	if (_tool)
 		event->setAccepted(sendCanvasTabletEvent(event));
+}
+
+void CanvasView::wheelEvent(QWheelEvent *event)
+{
+	QPoint delta;
+	
+	if (event->orientation() == Qt::Horizontal)
+		delta.setX(event->delta());
+	else
+		delta.setY(event->delta());
+	
+	setTranslation(_translation + delta);
 }
 
 bool CanvasView::event(QEvent *event)
@@ -319,12 +396,17 @@ bool CanvasView::sendCanvasTabletEvent(QMouseEvent *mouseEvent)
 void CanvasView::resizeEvent(QResizeEvent *event)
 {
 	updateTransforms();
+	moveScrollBars();
 	event->accept();
 }
 
 void CanvasView::paintEvent(QPaintEvent *)
 {
 	QPainter painter(this);
+	
+	painter.setRenderHint(QPainter::Antialiasing);
+	painter.setRenderHint(QPainter::SmoothPixmapTransform);
+	
 	painter.setTransform(_transformFromScene);
 	painter.drawPixmap(0, 0, _pixmap);
 }

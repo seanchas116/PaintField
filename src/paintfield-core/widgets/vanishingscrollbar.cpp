@@ -1,30 +1,47 @@
 #include <QtGui>
 #include <cfloat>
+#include "../debug.h"
+#include "../callbackanimation.h"
+
 #include "vanishingscrollbar.h"
 
 namespace PaintField
 {
 
 VanishingScrollBar::VanishingScrollBar(Qt::Orientation orientation, QWidget *parent) :
-    QAbstractSlider(parent),
-    _pauseAnimation(new QPauseAnimation(this)),
-    _vanishingAnimation(new QPropertyAnimation(this, "vanishingLevel", this))
+	QAbstractSlider(parent),
+	_pauseAnimation(new QPauseAnimation(this)),
+	_vanishingAnimation(new CallbackAnimation(this))
 {
 	_pauseAnimation->setDuration(durationWaiting());
 	_vanishingAnimation->setDuration(durationVanishing());
 	
 	connect(_pauseAnimation, SIGNAL(finished()), _vanishingAnimation, SLOT(start()));
 	connect(_vanishingAnimation, SIGNAL(finished()), this, SLOT(vanish()));
+	
 	_vanishingAnimation->setDuration(durationVanishing());
 	_vanishingAnimation->setStartValue(1.0);
 	_vanishingAnimation->setEndValue(0.0);
+	
+	auto vanishingCallback = [this](const QVariant &variant)
+	{
+		this->setVanishingLevel(variant.toDouble());
+	};
+	
+	_vanishingAnimation->setCallback(vanishingCallback);
 	
 	setOrientation(orientation);
 	onOrientationChanged();
 }
 
-void VanishingScrollBar::startAnimation()
+void VanishingScrollBar::wakeUp()
 {
+	PAINTFIELD_DEBUG << "waking up";
+	PAINTFIELD_DEBUG << "min" << minimum();
+	PAINTFIELD_DEBUG << "max" << maximum();
+	PAINTFIELD_DEBUG << "pageStep" << pageStep();
+	PAINTFIELD_DEBUG << "value" << value();
+	
 	_pauseAnimation->stop();
 	_vanishingAnimation->stop();
 	
@@ -64,7 +81,7 @@ void VanishingScrollBar::sliderChange(SliderChange change)
 	if (change == SliderOrientationChange)
 		onOrientationChanged();
 	else
-		startAnimation();
+		wakeUp();
 	
 	update();
 }
@@ -79,7 +96,7 @@ void VanishingScrollBar::paintEvent(QPaintEvent *)
 	double begin, end;
 	std::tie(begin, end) = scrollBarBeginEndPos(value(), minimum(), maximum(), pageStep());
 	_barRect = scrollBarRect(begin, end, rect(), barMargin(), orientation());
-	auto path = scrollBarPath(_barRect, orientation());
+	auto path = scrollBarPath(_barRect);
 	//auto outerPath = scrollBarPath(_barRect.adjusted(-1,-1,1,1), orientation());
 	//auto stroke = path.subtracted(outerPath);
 	
@@ -197,14 +214,9 @@ QRect VanishingScrollBar::scrollBarRect(double begin, double end, const QRect &r
 	return drawRect;
 }
 
-QPainterPath VanishingScrollBar::scrollBarPath(const QRect &rect, Qt::Orientation orientation)
+QPainterPath VanishingScrollBar::scrollBarPath(const QRect &rect)
 {
-	double radius;
-	
-	if (orientation == Qt::Horizontal)
-		radius = rect.height() * 0.5;
-	else
-		radius = rect.width() * 0.5;
+	double radius = qMin(rect.width(), rect.height()) * 0.5;
 	
 	auto path = QPainterPath();
 	path.addRoundedRect(rect, radius, radius);

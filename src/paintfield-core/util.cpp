@@ -76,14 +76,14 @@ QTransform makeTransform(double scale, double rotation, const QPointF &translati
 {
 	QTransform transform;
 	
+	if (translation != QPointF(0, 0))
+		transform.translate(translation.x(), translation.y());
+	
 	if (rotation)
 		transform.rotate(rotation);
 	
 	if (scale != 1.0)
 		transform.scale(scale, scale);
-	
-	if (translation != QPointF(0, 0))
-		transform.translate(translation.x(), translation.y());
 	
 	return transform;
 }

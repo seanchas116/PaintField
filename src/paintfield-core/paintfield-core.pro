@@ -74,7 +74,8 @@ HEADERS += \
     internal/applicationeventfilter.h \
     widgets/vanishingscrollbar.h \
     widgets/docktabmotherwidget.h \
-    signalconverter.h
+    signalconverter.h \
+    callbackanimation.h
 FORMS += dialogs/exportdialog.ui dialogs/newdocumentdialog.ui
 SOURCES += \
            canvascontroller.cpp \
@@ -124,4 +125,5 @@ SOURCES += \
     application.cpp \
     internal/applicationeventfilter.cpp \
     widgets/vanishingscrollbar.cpp \
-    signalconverter.cpp
+    signalconverter.cpp \
+    callbackanimation.cpp

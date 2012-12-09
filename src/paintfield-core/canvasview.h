@@ -10,6 +10,7 @@ namespace PaintField
 
 class Tool;
 class CanvasController;
+class VanishingScrollBar;
 
 class CanvasView : public QWidget
 {
@@ -28,6 +29,8 @@ public:
 	double rotation() const { return _rotation; }
 	QPoint translation() const { return _translation; }
 	
+	QPoint maxAbsTranslation() const { return _maxAbsTranslation; }
+	
 	CanvasController *controller() { return _canvas; }
 	Document *document() { return _document; }
 	LayerModel *layerModel() { return _document->layerModel(); }
@@ -37,6 +40,7 @@ public slots:
 	void setScale(double value);
 	void setRotation(double value);
 	void setTranslation(const QPoint &value);
+	void setTranslation(int x, int y) { setTranslation(QPoint(x, y)); }
 	
 	void setTool(const QString &name);
 	void setTool(Tool *tool);
@@ -46,6 +50,7 @@ signals:
 	void scaleChanged(double value);
 	void rotationChanged(double value);
 	void translationChanged(const QPoint &value);
+	void maxAbsTranslationChanged(const QPoint &value);
 	
 	void resized(const QSize &size);
 	
@@ -57,8 +62,10 @@ protected:
 	void mouseMoveEvent(QMouseEvent *event);
 	void mousePressEvent(QMouseEvent *event);
 	void mouseReleaseEvent(QMouseEvent *event);
-    void tabletEvent(QTabletEvent *event);
+	void tabletEvent(QTabletEvent *event);
 	void customTabletEvent(WidgetTabletEvent *event);
+	
+	void wheelEvent(QWheelEvent *event);
 	
 	void resizeEvent(QResizeEvent *event);
 	void paintEvent(QPaintEvent *event);
@@ -70,6 +77,9 @@ private slots:
 	void updateTiles(const QPointSet &keys) { updateTiles(keys, QHash<QPoint, QRect>()); }
 	void updateTiles(const QHash<QPoint, QRect> &rects) { updateTiles(QPointSet(), rects); }
 	
+	void onScrollBarXChanged(int value);
+	void onScrollBarYChanged(int value);
+	
 private:
 	
 	void updateTiles(const QPointSet &keys, const QHash<QPoint, QRect> &rects);
@@ -78,16 +88,27 @@ private:
 	bool sendCanvasTabletEvent(QMouseEvent *mouseEvent);
 	bool sendCanvasTabletEvent(WidgetTabletEvent *event);
 	void updateTransforms();
+	void updateScrollBarValue();
+	void updateScrollBarRange();
+	void moveScrollBars();
+	
+	VanishingScrollBar *_scrollBarX, *_scrollBarY;
 	
 	CanvasController *_canvas = 0;
 	Document *_document = 0;
 	Tool *_tool = 0;
+	
 	double _mousePressure = 0;
+	
 	QPixmap _pixmap;
+	
 	QTransform _transformToScene, _transformFromScene, _navigatorTransform;
+	
 	double _scale = 1.0;
 	double _rotation = 0.0;
 	QPoint _translation;
+	
+	QPoint _maxAbsTranslation;
 };
 
 }

@@ -10,12 +10,11 @@ class QPauseAnimation;
 namespace PaintField
 {
 
+class CallbackAnimation;
+
 class VanishingScrollBar : public QAbstractSlider
 {
 	Q_OBJECT
-	
-	Q_PROPERTY(double vanishingLevel READ vanishingLevel WRITE setVanishingLevel)
-	Q_PROPERTY(bool vanished READ isVanished WRITE setVanished)
 	
 public:
 	
@@ -23,19 +22,14 @@ public:
 	constexpr static int barMargin() { return 2; }
 	constexpr static int durationWaiting() { return 1000; }
 	constexpr static int durationVanishing() { return 200; }
+	constexpr static int totalBarWidth() { return barWidth() + 2 * barMargin(); }
 	
 	VanishingScrollBar(Qt::Orientation orientation, QWidget *parent = 0);
 	
 	bool isVanished() const { return _isVanished; }
-	QRect barRect() const { return _barRect; }
-	
-	void setVanishingLevel(double level)
-	{
-		_vanishingLevel = level;
-		update();
-	}
-	
 	double vanishingLevel() const { return _vanishingLevel; }
+	
+	QRect barRect() const { return _barRect; }
 	
 	QSize sizeHint() const final;
 	
@@ -45,9 +39,7 @@ signals:
 	
 public slots:
 	
-	void startAnimation();
-	void setVanished(bool x);
-	void vanish() { setVanished(true); }
+	void wakeUp();
 	
 protected:
 	
@@ -61,6 +53,17 @@ protected:
 	
 	void wheelEvent(QWheelEvent *);
 	
+private slots:
+	
+	void setVanishingLevel(double level)
+	{
+		_vanishingLevel = level;
+		update();
+	}
+	
+	void setVanished(bool x);
+	void vanish() { setVanished(true); }
+	
 private:
 	
 	void onOrientationChanged();
@@ -69,7 +72,7 @@ private:
 	static int scrollPos(const QPoint &mousePos, Qt::Orientation orientation);
 	static std::tuple<double, double> scrollBarBeginEndPos(int value, int min, int max, int pageStep);
 	static QRect scrollBarRect(double begin, double end, const QRect &rect, int margin, Qt::Orientation orientation);
-	static QPainterPath scrollBarPath(const QRect &rect, Qt::Orientation orientation);
+	static QPainterPath scrollBarPath(const QRect &rect);
 	
 	QRect _barRect;
 	bool _isDragged = false;
@@ -78,7 +81,7 @@ private:
 	bool _isVanished = true;
 	
 	QPauseAnimation *_pauseAnimation = 0;
-	QPropertyAnimation *_vanishingAnimation = 0;
+	CallbackAnimation *_vanishingAnimation = 0;
 };
 
 }
