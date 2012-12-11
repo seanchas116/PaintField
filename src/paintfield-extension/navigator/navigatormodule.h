@@ -16,15 +16,10 @@ class NavigatorModule : public CanvasModule
 public:
 	NavigatorModule(CanvasController *canvas, QObject *parent);
 	
-	QWidget *sideBar(const QString &name) override;
-	
 signals:
 	
 public slots:
 	
-private:
-	
-	NavigatorController *_controller = 0;
 };
 
 class NavigatorModuleFactory : public ModuleFactory

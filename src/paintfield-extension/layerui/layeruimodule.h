@@ -1,6 +1,7 @@
 #ifndef LAYERUIMODULE_H
 #define LAYERUIMODULE_H
 
+#include "paintfield-core/smartpointer.h"
 #include "paintfield-core/module.h"
 
 namespace PaintField
@@ -15,12 +16,6 @@ class LayerUIModule : public CanvasModule
 public:
 	LayerUIModule(CanvasController *canvas, QObject *parent);
 	
-	QWidget *sideBar(const QString &name) override;
-	
-private:
-	
-	LayerActionController *_actionController;
-	LayerTreeSidebar *_treeSidebar;
 };
 
 class LayerUIModuleFactory : public ModuleFactory

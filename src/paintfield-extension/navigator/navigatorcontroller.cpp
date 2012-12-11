@@ -9,15 +9,22 @@ NavigatorController::NavigatorController(CanvasController *canvas, QObject *pare
     QObject(parent),
     _view(new NavigatorView)
 {
+	NavigatorView *navigatorView = _view.data();
+	
 	if (canvas)
 	{
-		connectMutual(_view, SIGNAL(scaleChanged(double)), canvas->view(), SLOT(setScale(double)));
-		connectMutual(_view, SIGNAL(rotationChanged(double)), canvas->view(), SLOT(setRotation(double)));
-		connectMutual(_view, SIGNAL(translationChanged(QPoint)), canvas->view(), SLOT(setTranslation(QPoint)));
+		connect(navigatorView, SIGNAL(scaleChanged(double)), canvas->view(), SLOT(setViewScale(double)));
+		connect(canvas->view(), SIGNAL(scaleChanged(double)), navigatorView, SLOT(setScale(double)));
+		
+		connect(navigatorView, SIGNAL(rotationChanged(double)), canvas->view(), SLOT(setViewRotation(double)));
+		connect(canvas->view(), SIGNAL(rotationChanged(double)), navigatorView, SLOT(setRotation(double)));
+		
+		connect(navigatorView, SIGNAL(translationChanged(QPoint)), canvas->view(), SLOT(setTranslation(QPoint)));
+		connect(canvas->view(), SIGNAL(translationChanged(QPoint)), navigatorView, SLOT(setTranslation(QPoint)));
 	}
 	else
 	{
-		_view->setEnabled(false);
+		navigatorView->setEnabled(false);
 	}
 }
 

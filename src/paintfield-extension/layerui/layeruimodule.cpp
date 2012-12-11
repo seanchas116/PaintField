@@ -13,42 +13,35 @@ namespace PaintField
 const QString _layerTreeSidebarName = "paintfield.sidebar.layerTree";
 
 LayerUIModule::LayerUIModule(CanvasController *canvas, QObject *parent) :
-    CanvasModule(canvas, parent),
-    _treeSidebar(new LayerTreeSidebar(canvas))
+    CanvasModule(canvas, parent)
 {
+	auto sideBar = new LayerTreeSidebar(canvas, 0);
+	addSideBar(_layerTreeSidebarName, sideBar);
+	
 	if (canvas)
 	{
-		_actionController = new LayerActionController(canvas);
+		auto actionController = new LayerActionController(canvas);
 		
-		addAction(_actionController->importAction());
-		addAction(_actionController->newRasterAction());
-		addAction(_actionController->newGroupAction());
-		addAction(_actionController->mergeAction());
+		addAction(actionController->importAction());
+		addAction(actionController->newRasterAction());
+		addAction(actionController->newGroupAction());
+		addAction(actionController->mergeAction());
 		
-		auto sidebar = _treeSidebar;
+		QMenu *addMenu = new QMenu(sideBar);
 		
-		QMenu *addMenu = new QMenu(sidebar);
+		addMenu->addAction(actionController->newRasterAction());
+		addMenu->addAction(actionController->newGroupAction());
+		addMenu->addAction(actionController->importAction());
 		
-		addMenu->addAction(_actionController->newRasterAction());
-		addMenu->addAction(_actionController->newGroupAction());
-		addMenu->addAction(_actionController->importAction());
+		sideBar->addButton()->setMenu(addMenu);
 		
-		sidebar->addButton()->setMenu(addMenu);
+		connect(sideBar->removeButton(), SIGNAL(pressed()), actionController, SLOT(removeLayers()));
 		
-		connect(sidebar->removeButton(), SIGNAL(pressed()), _actionController, SLOT(removeLayers()));
+		QMenu *miscMenu = new QMenu(sideBar);
+		miscMenu->addAction(actionController->mergeAction());
 		
-		QMenu *miscMenu = new QMenu(sidebar);
-		miscMenu->addAction(_actionController->mergeAction());
-		
-		sidebar->miscButton()->setMenu(miscMenu);
+		sideBar->miscButton()->setMenu(miscMenu);
 	}
-}
-
-QWidget *LayerUIModule::sideBar(const QString &name)
-{
-	if (name == _layerTreeSidebarName)
-		return _treeSidebar;
-	return 0;
 }
 
 void LayerUIModuleFactory::initialize(AppController *app)

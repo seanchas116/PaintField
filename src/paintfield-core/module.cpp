@@ -1,18 +1,31 @@
+#include <QWidget>
+
 #include "module.h"
 
 namespace PaintField
 {
 
+Module::~Module()
+{
+	for (auto sideBar : _sideBars)
+		sideBar->deleteLater();
+}
+
+void Module::addSideBar(const QString &name, QWidget *sideBar)
+{
+	if (_sideBars.contains(name))
+	{
+		sideBar->deleteLater();
+		return;
+	}
+	
+	_sideBars.insert(name, sideBar);
+}
+
 Tool *Module::createTool(const QString &name, CanvasView *view)
 {
 	Q_UNUSED(name)
 	Q_UNUSED(view)
-	return 0;
-}
-
-QWidget *Module::sideBar(const QString &name)
-{
-	Q_UNUSED(name)
 	return 0;
 }
 

@@ -49,6 +49,10 @@ signals:
 	void translationXChanged(int x);
 	void translationYChanged(int y);
 	
+	void scaleSliderValueChanged(int value);
+	void scalePercentageChanged(double value);
+	void rotationSliderValueChanged(int value);
+	
 public slots:
 	
 	void setScale(double scale);
@@ -57,14 +61,14 @@ public slots:
 	void setTranslationX(int x) { setTranslation(QPoint(x, _translation.y())); }
 	void setTranslationY(int y) { setTranslation(QPoint(_translation.x(), y)); }
 	
+private slots:
+	
 	void resetScale() { setScale(1); }
 	void resetRotation() { setRotation(0); }
 	void zoomOut() { setZoomLevel(zoomLevel() - 1); }
 	void zoomIn() { setZoomLevel(zoomLevel() + 1); }
 	void rotateLeft() { setRotationLevel(rotationLevel() - 1); }
 	void rotateRight() { setRotationLevel(rotationLevel() + 1); }
-	
-private slots:
 	
 private:
 	
@@ -83,7 +87,6 @@ private:
 	
 	double _scale = 1.0;
 	
-	//int _rotation = 0;
 	QPoint _translation;
 	
 	double _scaleLogMin = -7, _scaleLogMax = 5;
@@ -95,6 +98,9 @@ private:
 	double _rotationD = 0, _rotationDStep = 15.0;
 	
 	constexpr static int _spinBoxWidth = 50;
+	constexpr static int _scaleSliderResolution = 32;
+	
+	QPoint _originalTranslation;
 };
 
 }

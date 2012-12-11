@@ -2,6 +2,7 @@
 #define PAINTFIELD_NAVIGATORCONTROLLER_H
 
 #include <QObject>
+#include "paintfield-core/smartpointer.h"
 #include "navigatorview.h"
 
 namespace PaintField {
@@ -14,7 +15,7 @@ class NavigatorController : public QObject
 public:
 	NavigatorController(CanvasController *canvas, QObject *parent = 0);
 	
-	NavigatorView *view() { return _view; }
+	NavigatorView *view() { return _view.data(); }
 	
 signals:
 	
@@ -22,7 +23,7 @@ public slots:
 	
 private:
 	
-	NavigatorView *_view;
+	ScopedQObjectPointer<NavigatorView> _view;
 };
 
 } // namespace PaintField

@@ -1,3 +1,4 @@
+#include "application.h"
 #include "appcontroller.h"
 #include "modulemanager.h"
 

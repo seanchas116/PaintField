@@ -51,26 +51,24 @@ void CanvasController::commonInit()
 	redoAction->setObjectName("paintfield.edit.redo");
 	_actions << redoAction;
 	
-	_view.reset(createView());
+	_view.reset(new CanvasView(this, 0));
+	
+	connect(workspace()->toolManager(), SIGNAL(currentToolChanged(QString)), this, SLOT(onToolChanged(QString)));
+	onToolChanged(workspace()->toolManager()->currentTool());
 }
 
 CanvasController::~CanvasController(){}
-
-CanvasView *CanvasController::createView(QWidget *parent)
-{
-	auto view = new CanvasView(this, parent);
-	
-	connect(workspace()->toolManager(), SIGNAL(currentToolChanged(QString)), view, SLOT(setTool(QString)));
-	view->setTool(workspace()->toolManager()->currentTool());
-	
-	return view;
-}
 
 void CanvasController::addModules(const CanvasModuleList &modules)
 {
 	for (CanvasModule *module : modules)
 		addActions(module->actions());
 	_modules += modules;
+}
+
+void CanvasController::onToolChanged(const QString &name)
+{
+	_view->setTool(createTool(appController()->modules(), workspace()->modules(), modules(), name, _view.data()));
 }
 
 CanvasController *CanvasController::fromNew(WorkspaceController *parent)

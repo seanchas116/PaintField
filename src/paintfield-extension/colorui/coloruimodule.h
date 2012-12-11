@@ -1,6 +1,7 @@
 #ifndef COLORMODULE_H
 #define COLORMODULE_H
 
+#include "paintfield-core/smartpointer.h"
 #include "paintfield-core/module.h"
 
 namespace PaintField
@@ -14,15 +15,9 @@ class ColorUIModule : public WorkspaceModule
 public:
 	ColorUIModule(WorkspaceController *workspace, QObject *parent);
 	
-	QWidget *sideBar(const QString &name) override;
-	
 signals:
 	
 public slots:
-	
-private:
-	
-	ColorSidebar *_sidebar = 0;
 };
 
 class ColorUIModuleFactory : public ModuleFactory

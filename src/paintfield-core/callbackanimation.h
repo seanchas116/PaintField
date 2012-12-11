@@ -15,6 +15,17 @@ public:
 	
 	void setCallback(const std::function<void(QVariant)> &callback) { _callback = callback; }
 	
+	template <typename T>
+	void setCallbackForType(const std::function<void(T)> &callback)
+	{
+		auto newCallback = [=](const QVariant &variant)
+		{
+			callback(variant.value<T>());
+		};
+		
+		setCallback(newCallback);
+	}
+	
 signals:
 	
 public slots:

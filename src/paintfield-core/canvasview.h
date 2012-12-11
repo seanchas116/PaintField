@@ -2,6 +2,7 @@
 #define CANVASVIEW_H
 
 #include <QScrollArea>
+#include "smartpointer.h"
 #include "tabletevent.h"
 #include "document.h"
 
@@ -19,6 +20,7 @@ class CanvasView : public QWidget
 public:
 	
 	CanvasView(CanvasController *canvas, QWidget *parent = 0);
+	~CanvasView();
 	
 	QTransform transformToScene() const { return _transformToScene; }
 	QTransform transformFromScene() const { return _transformFromScene; }
@@ -35,15 +37,42 @@ public:
 	Document *document() { return _document; }
 	LayerModel *layerModel() { return _document->layerModel(); }
 	
+	void setTool(Tool *tool);
+	
 public slots:
 	
+	/**
+	 * Sets the scale of the canvas, with a central point on its center.
+	 * translation is not changed.
+	 * @param value
+	 */
 	void setScale(double value);
+	
+	/**
+	 * Sets the scale of the canvas, with a central point on the center of the view.
+	 * translation is changed proportionally.
+	 * @param value
+	 */
+	void setViewScale(double value);
+	
+	/**
+	 * Sets the rotation of the canvas, with a central point on its center.
+	 * @param value
+	 */
 	void setRotation(double value);
+	
+	/**
+	 * Sets the rotation of the canvas, with a central point on the center of the view.
+	 * @param value
+	 */
+	void setViewRotation(double value);
+	
+	/**
+	 * Sets the translation of the canvas.
+	 * @param value
+	 */
 	void setTranslation(const QPoint &value);
 	void setTranslation(int x, int y) { setTranslation(QPoint(x, y)); }
-	
-	void setTool(const QString &name);
-	void setTool(Tool *tool);
 	
 signals:
 	
@@ -96,7 +125,8 @@ private:
 	
 	CanvasController *_canvas = 0;
 	Document *_document = 0;
-	Tool *_tool = 0;
+	
+	ScopedQObjectPointer<Tool> _tool;
 	
 	double _mousePressure = 0;
 	
@@ -107,6 +137,10 @@ private:
 	double _scale = 1.0;
 	double _rotation = 0.0;
 	QPoint _translation;
+	
+	double _backupScale = 1.0;
+	double _backupRotation = 0.0;
+	QPoint _backupTranslation;
 	
 	QPoint _maxAbsTranslation;
 };

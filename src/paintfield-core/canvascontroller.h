@@ -103,13 +103,13 @@ public slots:
 	 */
 	bool closeCanvas();
 	
+private slots:
+	
+	void onToolChanged(const QString &name);
+	
 private:
 	
 	void commonInit();
-	
-	void updateTransform();
-	
-	CanvasView *createView(QWidget *parent = 0);
 	
 	CountableSharedQObjectPointer<Document> _document;
 	QItemSelectionModel *_selectionModel = 0;

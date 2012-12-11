@@ -61,6 +61,9 @@ CanvasView::CanvasView(CanvasController *canvas, QWidget *parent) :
 	connect(_scrollBarY, SIGNAL(valueChanged(int)), this, SLOT(onScrollBarYChanged(int)));
 }
 
+CanvasView::~CanvasView()
+{}
+
 void CanvasView::setScale(double value)
 {
 	if (_scale != value)
@@ -68,6 +71,25 @@ void CanvasView::setScale(double value)
 		_scale = value;
 		updateTransforms();
 		emit scaleChanged(value);
+	}
+}
+
+void CanvasView::setViewScale(double scale)
+{
+	if (_scale != scale)
+	{
+		_scale = scale;
+		emit scaleChanged(scale);
+		
+		QPoint translation = _backupTranslation * (scale / _backupScale);
+		
+		if (_translation != translation)
+		{
+			_translation = translation;
+			emit translationChanged(translation);
+		}
+		
+		updateTransforms();
 	}
 }
 
@@ -81,6 +103,28 @@ void CanvasView::setRotation(double value)
 	}
 }
 
+void CanvasView::setViewRotation(double rotation)
+{
+	if (_rotation != rotation)
+	{
+		_rotation = rotation;
+		emit rotationChanged(rotation);
+		
+		QTransform transform;
+		transform.rotate(rotation - _backupRotation);
+		
+		QPoint translation = transform.map(_backupTranslation);
+		
+		if (_translation != translation)
+		{
+			_translation = translation;
+			emit translationChanged(_translation);
+		}
+		
+		updateTransforms();
+	}
+}
+
 void CanvasView::setTranslation(const QPoint &value)
 {
 	QPoint newValue;
@@ -91,20 +135,19 @@ void CanvasView::setTranslation(const QPoint &value)
 	if (_translation != newValue)
 	{
 		_translation = newValue;
+		
+		_backupTranslation = newValue;
+		_backupScale = _scale;
+		_backupRotation = _rotation;
+		
 		updateTransforms();
 		emit translationChanged(newValue);
 	}
 }
 
-void CanvasView::setTool(const QString &name)
-{
-	Tool *tool = createTool(appController()->modules(), controller()->workspace()->modules(), controller()->modules(), name, this);
-	setTool(tool);
-}
-
 void CanvasView::setTool(Tool *tool)
 {
-	_tool = tool;
+	_tool.reset(tool);
 	if (tool)
 	{
 		connect(tool, SIGNAL(requestUpdate(QPointSet)), this, SLOT(updateTiles(QPointSet)));
@@ -117,7 +160,7 @@ void CanvasView::updateTiles(const QPointSet &keys, const QHash<QPoint, QRect> &
 	PAINTFIELD_CALC_SCOPE_ELAPSED_TIME;
 	
 	CanvasRenderer renderer;
-	renderer.setTool(_tool);
+	renderer.setTool(_tool.data());
 	
 	Surface surface = renderer.renderToSurface(layerModel()->rootLayer()->children(), keys, rects);
 	
@@ -162,7 +205,19 @@ void CanvasView::updateTiles(const QPointSet &keys, const QHash<QPoint, QRect> &
 
 void CanvasView::updateTransforms()
 {
-	_navigatorTransform = makeTransform(_scale, _rotation, _translation);
+	QTransform transform;
+	
+	if (_translation != QPoint())
+		transform.translate(_translation.x(), _translation.y());
+	
+	if (_scale != 1.0)
+		transform.scale(_scale, _scale);
+	
+	if (_rotation)
+		transform.rotate(_rotation);
+	
+	_navigatorTransform = transform;
+	//_navigatorTransform = makeTransform(_scale, _rotation, _translation);
 	_transformFromScene = QTransform::fromTranslate(- _pixmap.width() / 2, - _pixmap.height() / 2) * _navigatorTransform * QTransform::fromTranslate(geometry().width() / 2, geometry().height() / 2);
 	_transformToScene = _transformFromScene.inverted();
 	
@@ -192,9 +247,9 @@ void CanvasView::updateScrollBarValue()
 
 void CanvasView::updateScrollBarRange()
 {
-	int diamater = ceil(hypot(_pixmap.width(), _pixmap.height()));
+	int radius = ceil(hypot(_pixmap.width(), _pixmap.height()) * _scale * 0.5);
 	
-	_maxAbsTranslation = QPoint(diamater + this->width(), diamater + this->height());
+	_maxAbsTranslation = QPoint(radius + this->width(), radius + this->height());
 	
 	_scrollBarX->setRange(0, 2 * _maxAbsTranslation.x());
 	_scrollBarY->setRange(0, 2 * _maxAbsTranslation.y());
@@ -291,14 +346,14 @@ void CanvasView::customTabletEvent(WidgetTabletEvent *event)
 
 void CanvasView::wheelEvent(QWheelEvent *event)
 {
-	QPoint delta;
+	QAbstractSlider *scrollBar;
 	
 	if (event->orientation() == Qt::Horizontal)
-		delta.setX(event->delta());
+		scrollBar = _scrollBarX;
 	else
-		delta.setY(event->delta());
+		scrollBar = _scrollBarY;
 	
-	setTranslation(_translation + delta);
+	scrollBar->setValue(scrollBar->value() - event->delta());
 }
 
 bool CanvasView::event(QEvent *event)

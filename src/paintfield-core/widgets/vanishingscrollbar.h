@@ -26,15 +26,15 @@ public:
 	
 	VanishingScrollBar(Qt::Orientation orientation, QWidget *parent = 0);
 	
-	bool isVanished() const { return _isVanished; }
-	double vanishingLevel() const { return _vanishingLevel; }
-	
 	QRect barRect() const { return _barRect; }
 	
 	QSize sizeHint() const final;
 	
+	bool isAwake() const { return _isAwake; }
+	
 signals:
 	
+	void wokeUp();
 	void vanished();
 	
 public slots:
@@ -55,14 +55,8 @@ protected:
 	
 private slots:
 	
-	void setVanishingLevel(double level)
-	{
-		_vanishingLevel = level;
-		update();
-	}
-	
-	void setVanished(bool x);
-	void vanish() { setVanished(true); }
+	void setBarOpacity(double level);
+	void vanish();
 	
 private:
 	
@@ -77,8 +71,8 @@ private:
 	QRect _barRect;
 	bool _isDragged = false;
 	int _dragStartPos = 0, _dragStartValue = 0;
-	double _vanishingLevel = 0;
-	bool _isVanished = true;
+	double _barOpacity = 0;
+	bool _isAwake = false;
 	
 	QPauseAnimation *_pauseAnimation = 0;
 	CallbackAnimation *_vanishingAnimation = 0;

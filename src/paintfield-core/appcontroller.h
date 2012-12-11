@@ -2,7 +2,6 @@
 #define FSAPPLICATION_H
 
 #include <QMainWindow>
-#include "tabletapplication.h"
 
 #include "util.h"
 #include "palettemanager.h"

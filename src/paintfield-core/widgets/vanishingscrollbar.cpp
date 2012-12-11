@@ -1,9 +1,12 @@
 #include <QtGui>
 #include <cfloat>
+#include <functional>
 #include "../debug.h"
 #include "../callbackanimation.h"
 
 #include "vanishingscrollbar.h"
+
+using namespace std;
 
 namespace PaintField
 {
@@ -25,7 +28,7 @@ VanishingScrollBar::VanishingScrollBar(Qt::Orientation orientation, QWidget *par
 	
 	auto vanishingCallback = [this](const QVariant &variant)
 	{
-		this->setVanishingLevel(variant.toDouble());
+		this->setBarOpacity(variant.toDouble());
 	};
 	
 	_vanishingAnimation->setCallback(vanishingCallback);
@@ -36,28 +39,27 @@ VanishingScrollBar::VanishingScrollBar(Qt::Orientation orientation, QWidget *par
 
 void VanishingScrollBar::wakeUp()
 {
-	PAINTFIELD_DEBUG << "waking up";
-	PAINTFIELD_DEBUG << "min" << minimum();
-	PAINTFIELD_DEBUG << "max" << maximum();
-	PAINTFIELD_DEBUG << "pageStep" << pageStep();
-	PAINTFIELD_DEBUG << "value" << value();
-	
 	_pauseAnimation->stop();
 	_vanishingAnimation->stop();
 	
-	setVanished(false);
-	setVanishingLevel(1.0);
+	setBarOpacity(1.0);
 	update();
 	_pauseAnimation->start();
+	
+	_isAwake = true;
+	emit wokeUp();
 }
 
-void VanishingScrollBar::setVanished(bool x)
+void VanishingScrollBar::setBarOpacity(double level)
 {
-	_isVanished = x;
+	_barOpacity = level;
 	update();
-	
-	if (x)
-		emit vanished();
+}
+
+void VanishingScrollBar::vanish()
+{
+	_isAwake = false;
+	emit vanished();
 }
 
 void VanishingScrollBar::onOrientationChanged()
@@ -88,7 +90,7 @@ void VanishingScrollBar::sliderChange(SliderChange change)
 
 void VanishingScrollBar::paintEvent(QPaintEvent *)
 {
-	if (_isVanished)
+	if (!_isAwake)
 		return;
 	
 	QPainter painter(this);
@@ -103,7 +105,7 @@ void VanishingScrollBar::paintEvent(QPaintEvent *)
 	painter.setRenderHint(QPainter::Antialiasing, true);
 	painter.setPen(Qt::NoPen);
 	painter.setBrush(Qt::black);
-	painter.setOpacity(0.5 * _vanishingLevel);
+	painter.setOpacity(0.5 * _barOpacity);
 	
 	painter.drawPath(path);
 	
@@ -113,7 +115,7 @@ void VanishingScrollBar::paintEvent(QPaintEvent *)
 
 void VanishingScrollBar::mousePressEvent(QMouseEvent *event)
 {
-	if (!_isVanished && event->button() == Qt::LeftButton && _barRect.contains(event->pos()))
+	if (_isAwake && event->button() == Qt::LeftButton && _barRect.contains(event->pos()))
 	{
 		_isDragged = true;
 		_dragStartPos = scrollPos(event->pos(), orientation());

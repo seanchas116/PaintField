@@ -1,6 +1,7 @@
 #ifndef BRUSHTOOLMODULE_H
 #define BRUSHTOOLMODULE_H
 
+#include "paintfield-core/smartpointer.h"
 #include "paintfield-core/module.h"
 
 #include "brushsetting.h"
@@ -17,11 +18,9 @@ public:
 	BrushToolModule(WorkspaceController *workspace, QObject *parent);
 	
 	Tool *createTool(const QString &name, CanvasView *parent) override;
-	QWidget *sideBar(const QString &name) override;
 	
 private:
 	
-	BrushSettingSidebar *_sidebar;
 	BrushSetting _setting;
 };
 

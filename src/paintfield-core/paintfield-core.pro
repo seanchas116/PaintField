@@ -33,7 +33,6 @@ HEADERS += \
            modulemanager.h \
            palettemanager.h \
            randomstring.h \
-           tabletapplication.h \
            tabletevent.h \
            tabletinputdata.h \
            thumbnail.h \
@@ -46,7 +45,6 @@ HEADERS += \
            dialogs/exportdialog.h \
            dialogs/newdocumentdialog.h \
            internal/layermodelcommand.h \
-           internal/tableteventfilter.h \
            widgets/colorbutton.h \
            widgets/colorslider.h \
            widgets/colorwheel.h \
@@ -90,7 +88,6 @@ SOURCES += \
            modulemanager.cpp \
            palettemanager.cpp \
            randomstring.cpp \
-           tabletapplication.cpp \
            thumbnail.cpp \
            toolmanager.cpp \
            util.cpp \
@@ -100,7 +97,6 @@ SOURCES += \
            dialogs/exportdialog.cpp \
            dialogs/newdocumentdialog.cpp \
            internal/layermodelcommand.cpp \
-           internal/tableteventfilter.cpp \
            widgets/colorbutton.cpp \
            widgets/colorslider.cpp \
            widgets/colorwheel.cpp \

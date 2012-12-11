@@ -27,6 +27,8 @@ public:
 	
 	explicit Module(QObject *parent = 0) : QObject(parent) {}
 	
+	~Module();
+	
 	/**
 	 * Creates a Tool, which is installed in CanvasView and delegates editing.
 	 * This function is called when a new canvas is added or the current tool is changed for each canvas.
@@ -35,13 +37,6 @@ public:
 	 * @return 
 	 */
 	virtual Tool *createTool(const QString &name, CanvasView *view);
-	
-	/**
-	 * Returns a sidebar which the module has.
-	 * @param name sidebar's name
-	 * @return 
-	 */
-	virtual QWidget *sideBar(const QString &name);
 	
 	/**
 	 * Updates a toolbar.
@@ -54,9 +49,14 @@ public:
 	
 	void addAction(QAction *action) { _actions << action; }
 	
+	QHash<QString, QWidget *> sideBars() { return _sideBars; }
+	QWidget *sideBar(const QString &name) { return _sideBars.value(name, 0); }
+	void addSideBar(const QString &name, QWidget *sideBar);
+	
 private:
 	
 	QActionList _actions;
+	QHash<QString, QWidget *> _sideBars;
 };
 
 class CanvasModule : public Module

@@ -102,11 +102,20 @@ bool ApplicationEventFilter::sendTabletEvent(QWidget *window, QTabletEvent *even
 	newEvent.setAccepted(false);
 	
 	QWidget *widget = window->childAt(newEvent.posInt);
-	if (!widget)
-		return false;
 	
-	newEvent.posInt = widget->mapFromGlobal(newEvent.globalPosInt);
-	QCoreApplication::sendEvent(widget, &newEvent);
+	forever
+	{
+		if (!widget)
+			return false;
+		
+		newEvent.posInt = widget->mapFromGlobal(newEvent.globalPosInt);
+		QCoreApplication::sendEvent(widget, &newEvent);
+		
+		if (newEvent.isAccepted())
+			break;
+		
+		widget = widget->parentWidget();
+	}
 	
 	if (event->type() == QEvent::TabletPress)
 		_targetWindow = window;

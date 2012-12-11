@@ -12,29 +12,22 @@ namespace PaintField
 const QString _colorSidebarName = "paintfield.sidebar.color";
 
 ColorUIModule::ColorUIModule(WorkspaceController *workspace, QObject *parent) :
-    WorkspaceModule(workspace, parent),
-    _sidebar(new ColorSidebar)
+    WorkspaceModule(workspace, parent)
 {
+	auto sideBar = new ColorSidebar;
+	addSideBar(_colorSidebarName, sideBar);
+	
 	PaletteManager *paletteManager = workspace->paletteManager();
 	
-	connect(paletteManager, SIGNAL(colorChanged(int,Malachite::Color)), _sidebar, SLOT(setColor(int,Malachite::Color)));
-	connect(paletteManager, SIGNAL(currentIndexChanged(int)), _sidebar, SLOT(setCurrentIndex(int)));
-	connect(_sidebar, SIGNAL(colorChanged(int,Malachite::Color)), paletteManager, SLOT(setColor(int,Malachite::Color)));
-	connect(_sidebar, SIGNAL(currentIndexChanged(int)), paletteManager, SLOT(setCurrentIndex(int)));
+	connect(paletteManager, SIGNAL(colorChanged(int,Malachite::Color)), sideBar, SLOT(setColor(int,Malachite::Color)));
+	connect(paletteManager, SIGNAL(currentIndexChanged(int)), sideBar, SLOT(setCurrentIndex(int)));
+	connect(sideBar, SIGNAL(colorChanged(int,Malachite::Color)), paletteManager, SLOT(setColor(int,Malachite::Color)));
+	connect(sideBar, SIGNAL(currentIndexChanged(int)), paletteManager, SLOT(setCurrentIndex(int)));
 	
-	_sidebar->setCurrentIndex(paletteManager->currentIndex());
+	sideBar->setCurrentIndex(paletteManager->currentIndex());
 	
 	for (int i = 0; i < paletteManager->colorCount(); ++i)
-	{
-		_sidebar->setColor(i, paletteManager->color(i));
-	}
-}
-
-QWidget *ColorUIModule::sideBar(const QString &name)
-{
-	if (name == _colorSidebarName)
-		return _sidebar;
-	return 0;
+		sideBar->setColor(i, paletteManager->color(i));
 }
 
 void ColorUIModuleFactory::initialize(AppController *app)
