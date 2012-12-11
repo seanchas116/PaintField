@@ -78,6 +78,14 @@ void SplitAreaController::promote(Index index)
 	}
 }
 
+QList<SplitAreaController *> SplitAreaController::childSplits()
+{
+	if (isSplitted())
+		return { childSplitRef(First).data(), childSplitRef(Second).data() };
+	else
+		return {};
+}
+
 SplitAreaController *SplitAreaController::firstNonSplittedDescendant()
 {
 	SplitAreaController *split = this;

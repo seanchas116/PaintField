@@ -32,6 +32,8 @@ public:
 	
 	bool contains(QWidget *widget) { return indexOf(widget) >= 0; }
 	
+	QWidgetList tabs();
+	
 	void moveTab(int index, DockTabWidget *dst, int dstIndex) { moveTab(this, index, dst, dstIndex); }
 	static void moveTab(DockTabWidget *source, int sourceIndex, DockTabWidget *dest, int destIndex);
 	static bool eventIsTabDrag(QDragEnterEvent *event);
@@ -42,11 +44,14 @@ public:
 	QObject *createNew() override;
 	DockTabWidget *createNewTabWidget() { return createNewAs<DockTabWidget>(); }
 	
+	void requestCloseAllTabs();
+	
 signals:
 	
 	void tabMovedIn();
 	void tabClicked();
 	void willBeAutomaticallyDeleted(DockTabWidget *widget);
+	void closeAllTabsRequested();
 	
 public slots:
 	

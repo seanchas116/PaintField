@@ -155,7 +155,12 @@ void SplitTabAreaController::splitCurrentSplit(Qt::Orientation orientation)
 
 void SplitTabAreaController::closeCurrentSplit()
 {
+	if (_currentSplit == _rootSplit)
+		return;
+	
 	auto tabWidget = tabWidgetForCurrentSplit();
+	
+	tabWidget->requestCloseAllTabs();
 	
 	if (tabWidget->count())
 		return;
@@ -182,7 +187,7 @@ void SplitTabAreaController::setCurrentTabWidget(SplitTabWidget *tabWidget)
 		
 		SplitAreaController *split = splitForTabWidget(tabWidget);
 		if (split)
-			_currentSplit = split;
+			setCurrentSplit(split);
 		
 		if (tabWidget)
 		{
@@ -237,10 +242,16 @@ void SplitTabAreaController::onCurrentTabWidgetCurrentChanged(int index)
 
 void SplitTabAreaController::onTabWidgetCloseRequested(int index)
 {
-	auto tabWidget = qobject_cast<SplitTabWidget *>(sender());
-	
-	if (tabWidget && _tabWidgets.contains(tabWidget))
+	auto tabWidget = senderTabWidget();
+	if (tabWidget)
 		emit tabCloseRequested(tabWidget->widget(index));
+}
+
+void SplitTabAreaController::onTabWidgetCloseAllRequested()
+{
+	auto tabWidget = senderTabWidget();
+	if (tabWidget)
+		emit tabsCloseRequested(tabWidget->tabs());
 }
 
 void SplitTabAreaController::onTabWidgetAboutToBeDeleted(DockTabWidget *widget)
@@ -261,7 +272,17 @@ void SplitTabAreaController::setCurrentSplit(SplitAreaController *split)
 	if (_currentSplit != split)
 	{
 		_currentSplit = split;
+		setSplittable(_currentSplit == _rootSplit);
 		setCurrentTabWidget(tabWidgetForCurrentSplit());
+	}
+}
+
+void SplitTabAreaController::setSplittable(bool splittable)
+{
+	if (_isSplittable != splittable)
+	{
+		_isSplittable = splittable;
+		emit splittableChanged(splittable);
 	}
 }
 
@@ -298,10 +319,20 @@ SplitAreaController *SplitTabAreaController::splitForTabWidget(SplitTabWidget *t
 	return _rootSplit->findSplit(predicate);
 }
 
+SplitTabWidget *SplitTabAreaController::senderTabWidget()
+{
+	SplitTabWidget *tabWidget = qobject_cast<SplitTabWidget *>(sender());
+	if (tabWidget && _tabWidgets.contains(tabWidget))
+		return tabWidget;
+	else
+		return 0;
+}
+
 void SplitTabAreaController::registerTabWidget(SplitTabWidget *widget)
 {
 	connect(widget, SIGNAL(willBeAutomaticallyDeleted(DockTabWidget*)), this, SLOT(onTabWidgetAboutToBeDeleted(DockTabWidget*)));
 	connect(widget, SIGNAL(tabCloseRequested(int)), this, SLOT(onTabWidgetCloseRequested(int)));
+	connect(widget, SIGNAL(closeAllTabsRequested()), this, SLOT(onTabWidgetCloseAllRequested()));
 	_tabWidgets << widget;
 }
 

@@ -25,6 +25,22 @@ DockTabWidget::DockTabWidget(DockTabWidget *other, QWidget *parent) :
 	//connect(this, SIGNAL(currentChanged(int)), this, SLOT(onCurrentIndexChanged(int)));
 }
 
+QWidgetList DockTabWidget::tabs()
+{
+	QWidgetList list;
+	
+	for (int i = 0; i < count(); ++i)
+		list << widget(i);
+	
+	return list;
+}
+
+void DockTabWidget::requestCloseAllTabs()
+{
+	if (count())
+		emit closeAllTabsRequested();
+}
+
 void DockTabWidget::moveTab(DockTabWidget *source, int sourceIndex, DockTabWidget *dest, int destIndex)
 {
 	if (source == dest && sourceIndex < destIndex)
@@ -67,8 +83,12 @@ void DockTabWidget::mousePressEvent(QMouseEvent *event)
 
 void DockTabWidget::closeEvent(QCloseEvent *event)
 {
+	requestCloseAllTabs();
+	
 	if (count())
 		event->ignore();
+	else
+		event->accept();
 }
 
 DockTabBar::DockTabBar(DockTabWidget *tabWidget, QWidget *parent) :

@@ -1,7 +1,7 @@
 #ifndef WORKSPACECANVASAREACONTROLLER_H
 #define WORKSPACECANVASAREACONTROLLER_H
 
-#include <QObject>
+#include <QWidget>
 
 namespace PaintField
 {
@@ -37,6 +37,7 @@ private slots:
 	
 	void onCurrentTabChanged(QWidget *tab);
 	void onTabCloseRequested(QWidget *tab);
+	void onTabsCloseRequested(const QWidgetList &tabs);
 	void onCurrentCanvasPropertyChanged();
 	
 private:

@@ -125,6 +125,8 @@ public:
 	 */
 	FloatingDockTabWidget *tabWidgetForTab(QWidget *tab);
 	
+	bool isSplittable() const;
+	
 signals:
 	
 	/**
@@ -139,6 +141,10 @@ signals:
 	 */
 	void tabCloseRequested(QWidget *tab);
 	
+	void tabsCloseRequested(const QWidgetList &tabs);
+	
+	void splittableChanged(bool x);
+	
 public slots:
 	
 	void splitCurrentSplit(Qt::Orientation orientation);
@@ -151,6 +157,7 @@ private slots:
 	void setCurrentTabWidget(SplitTabWidget *tabWidget);
 	void onCurrentTabWidgetCurrentChanged(int index);
 	void onTabWidgetCloseRequested(int index);
+	void onTabWidgetCloseAllRequested();
 	
 	void onTabWidgetAboutToBeDeleted(DockTabWidget *widget);
 	
@@ -160,10 +167,13 @@ private:
 	
 	void setCurrentSplit(SplitAreaController *splitCurrentSplit);
 	
+	void setSplittable(bool splittable);
+	
 	SplitTabWidget *tabWidgetForSplit(SplitAreaController *splitCurrentSplit);
 	SplitTabWidget *tabWidgetForCurrentSplit() { return tabWidgetForSplit(_currentSplit); }
 	SplitAreaController *splitForWidget(QWidget *widget);
 	SplitAreaController *splitForTabWidget(SplitTabWidget *tabWidget);
+	SplitTabWidget *senderTabWidget();
 	
 	SplitAreaController *_rootSplit = 0;
 	SplitAreaController *_currentSplit = 0;
@@ -171,6 +181,8 @@ private:
 	QList<SplitTabWidget *> _tabWidgets;
 	SplitTabWidget *_currentTabWidget = 0;
 	QWidget *_currentTab = 0;
+	
+	bool _isSplittable = false;
 };
 
 }

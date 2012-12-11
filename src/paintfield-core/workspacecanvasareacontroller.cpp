@@ -13,6 +13,7 @@ WorkspaceCanvasAreaController::WorkspaceCanvasAreaController(QWidget *baseWindow
 {
 	connect(_tabArea, SIGNAL(currentTabChanged(QWidget*)), this, SLOT(onCurrentTabChanged(QWidget*)));
 	connect(_tabArea, SIGNAL(tabCloseRequested(QWidget*)), this, SLOT(onTabCloseRequested(QWidget*)));
+	connect(_tabArea, SIGNAL(tabsCloseRequested(QWidgetList)), this, SLOT(onTabsCloseRequested(QWidgetList)));
 }
 
 QWidget *WorkspaceCanvasAreaController::view()
@@ -68,6 +69,12 @@ void WorkspaceCanvasAreaController::onTabCloseRequested(QWidget *tab)
 	CanvasView *view = qobject_cast<CanvasView *>(tab);
 	if (view)
 		view->controller()->closeCanvas();
+}
+
+void WorkspaceCanvasAreaController::onTabsCloseRequested(const QWidgetList &tabs)
+{
+	for (auto tab : tabs)
+		onTabCloseRequested(tab);
 }
 
 void WorkspaceCanvasAreaController::onCurrentCanvasPropertyChanged()

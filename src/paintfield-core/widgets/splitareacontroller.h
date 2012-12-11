@@ -63,13 +63,7 @@ public:
 	
 	SplitAreaController *childSplit(Index index) { return childSplitRef(index).data(); }
 	
-	QList<SplitAreaController *> childSplits()
-	{
-		if (isSplitted())
-			return { childSplitRef(First).data(), childSplitRef(Second).data() };
-		else
-			return {};
-	}
+	QList<SplitAreaController *> childSplits();
 	
 	/**
 	 * @return The first widget which is not splitted.
