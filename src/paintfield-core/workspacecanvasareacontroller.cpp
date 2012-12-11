@@ -48,7 +48,7 @@ void WorkspaceCanvasAreaController::setCurrentCanvas(CanvasController *canvas)
 
 void WorkspaceCanvasAreaController::split(Qt::Orientation orientation)
 {
-	_tabArea->split(orientation);
+	_tabArea->splitCurrentSplit(orientation);
 }
 
 void WorkspaceCanvasAreaController::closeCurrentSplit()

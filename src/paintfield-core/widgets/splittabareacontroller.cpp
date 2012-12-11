@@ -1,4 +1,5 @@
 #include <QtGui>
+#include "../debug.h"
 
 #include "splittabareacontroller.h"
 
@@ -28,7 +29,8 @@ void SplitTabWidget::commonInit()
 {
 	setTabsClosable(true);
 	_tabAreaController->registerTabWidget(this);
-	connect(this, SIGNAL(focusIn()), this, SLOT(notifyTabChange()));
+	connect(this, SIGNAL(tabClicked()), this, SLOT(notifyTabChange()));
+	connect(this, SIGNAL(tabMovedIn()), this, SLOT(notifyTabChange()));
 }
 
 bool SplitTabWidget::tabIsInsertable(DockTabWidget *other, int index)
@@ -106,21 +108,17 @@ SplitTabStackedWidget::SplitTabStackedWidget(SplitTabAreaController *tabAreaCont
 	setCurrentIndex(IndexDefaultWidget);
 	
 	connect(tabWidget, SIGNAL(currentChanged(int)), this, SLOT(onTabWidgetCurrentChanged(int)));
-	connect(tabWidget, SIGNAL(tabClicked()), this, SLOT(onStackedWidgetClicked()));
-	connect(_defaultWidget, SIGNAL(clicked()), this, SLOT(onStackedWidgetClicked()));
+	connect(_defaultWidget, SIGNAL(clicked()), _tabWidget, SIGNAL(tabClicked()));
 }
 
 void SplitTabStackedWidget::onTabWidgetCurrentChanged(int index)
 {
+	PAINTFIELD_DEBUG;
+	
 	if (index >= 0)
 		setCurrentIndex(IndexTabWidget);
 	else
 		setCurrentIndex(IndexDefaultWidget);
-}
-
-void SplitTabStackedWidget::onStackedWidgetClicked()
-{
-	_tabAreaController->setCurrentTabWidget(_tabWidget);
 }
 
 QObject *SplitTabStackedWidget::createNew()
@@ -138,8 +136,6 @@ QObject *SplitTabStackedWidget::createNew()
 SplitTabAreaController::SplitTabAreaController(QWidget *baseWindow, QObject *parent) :
 	QObject(parent)
 {
-	connect(baseWindow, SIGNAL(focusChanged(bool)), this, SLOT(onBaseWindowFocusChanged(bool)));
-	
 	auto tabWidget = new SplitTabWidget(this, baseWindow, 0);
 	auto stackedWidget = new SplitTabStackedWidget(this, tabWidget, 0);
 	_rootSplit = new SplitAreaController(stackedWidget, 0);
@@ -151,7 +147,7 @@ void SplitTabAreaController::addTab(QWidget *tab, const QString &title)
 	tabWidgetForSplit(_currentSplit)->addTab(tab, title);
 }
 
-void SplitTabAreaController::split(Qt::Orientation orientation)
+void SplitTabAreaController::splitCurrentSplit(Qt::Orientation orientation)
 {
 	_currentSplit->insert(SplitAreaController::Second, orientation);
 	setCurrentSplit(_currentSplit->childSplit(SplitAreaController::First));
@@ -159,8 +155,13 @@ void SplitTabAreaController::split(Qt::Orientation orientation)
 
 void SplitTabAreaController::closeCurrentSplit()
 {
-	if (tabWidgetForCurrentSplit()->count())
+	auto tabWidget = tabWidgetForCurrentSplit();
+	
+	if (tabWidget->count())
 		return;
+	
+	onTabWidgetAboutToBeDeleted(tabWidget);
+	tabWidget->deleteLater();
 	
 	_currentSplit->parentSplit()->close(_currentSplit->index());
 	setCurrentSplit(_currentSplit->parentSplit()->firstNonSplittedDescendant());
@@ -168,6 +169,8 @@ void SplitTabAreaController::closeCurrentSplit()
 
 void SplitTabAreaController::setCurrentTabWidget(SplitTabWidget *tabWidget)
 {
+	PAINTFIELD_DEBUG;
+	
 	Q_ASSERT(tabWidget == 0 ||  _tabWidgets.contains(tabWidget));
 	
 	if (_currentTabWidget != tabWidget)
@@ -240,12 +243,6 @@ void SplitTabAreaController::onTabWidgetCloseRequested(int index)
 		emit tabCloseRequested(tabWidget->widget(index));
 }
 
-void SplitTabAreaController::onBaseWindowFocusChanged(bool focused)
-{
-	if (focused)
-		setCurrentTabWidget(tabWidgetForCurrentSplit());
-}
-
 void SplitTabAreaController::onTabWidgetAboutToBeDeleted(DockTabWidget *widget)
 {
 	SplitTabWidget *tabWidget = qobject_cast<SplitTabWidget *>(widget);
@@ -268,7 +265,7 @@ void SplitTabAreaController::setCurrentSplit(SplitAreaController *split)
 	}
 }
 
-SplitTabWidget *SplitTabAreaController::tabWidgetForTab(QWidget *tab)
+FloatingDockTabWidget *SplitTabAreaController::tabWidgetForTab(QWidget *tab)
 {
 	for (SplitTabWidget *tabWidget : _tabWidgets)
 	{
@@ -292,9 +289,9 @@ SplitAreaController *SplitTabAreaController::splitForWidget(QWidget *widget)
 
 SplitAreaController *SplitTabAreaController::splitForTabWidget(SplitTabWidget *tabWidget)
 {
-	auto predicate = [tabWidget](SplitAreaController *split)->bool
+	auto predicate = [tabWidget](SplitAreaController *splitCurrentSplit)->bool
 	{
-		SplitTabStackedWidget *stacked = qobject_cast<SplitTabStackedWidget *>(split->widget());
+		SplitTabStackedWidget *stacked = qobject_cast<SplitTabStackedWidget *>(splitCurrentSplit->widget());
 		return stacked && stacked->tabWidget() == tabWidget;
 	};
 	

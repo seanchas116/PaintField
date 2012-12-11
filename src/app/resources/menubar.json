@@ -43,6 +43,15 @@
 		]
 	},
 	{
+		"menu": "paintfield.view",
+		"children":
+		[
+			"paintfield.view.splitVertically",
+			"paintfield.view.splitHorizontally",
+			"paintfield.view.closeCurrentSplit"
+		]
+	},
+	{
 		"menu": "paintfield.window",
 		"children":
 		[

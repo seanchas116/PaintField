@@ -19,8 +19,8 @@ signals:
 public slots:
 	
 	void addTab();
-	void splitHorizontal() { _controller->split(Qt::Horizontal); }
-	void splitVertical() { _controller->split(Qt::Vertical); }
+	void splitHorizontal() { _controller->splitCurrentSplit(Qt::Horizontal); }
+	void splitVertical() { _controller->splitCurrentSplit(Qt::Vertical); }
 	void close() { _controller->closeCurrentSplit(); }
 	
 	void onTabChanged(QWidget *tab);

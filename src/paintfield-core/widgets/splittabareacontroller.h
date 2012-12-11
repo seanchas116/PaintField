@@ -84,7 +84,6 @@ signals:
 private slots:
 	
 	void onTabWidgetCurrentChanged(int index);
-	void onStackedWidgetClicked();
 	
 private:
 	
@@ -102,46 +101,66 @@ private:
 class SplitTabAreaController : public QObject
 {
 	Q_OBJECT
+	friend class SplitTabWidget;
+	friend class SplitTabStackedWidget;
 	
 public:
 	SplitTabAreaController(QWidget *baseWindow, QObject *parent = 0);
 	
+	/**
+	 * @return The view
+	 */
 	QWidget *view() { return _rootSplit->splitter(); }
 	
+	/**
+	 * Adds a tab.
+	 * @param tab
+	 * @param title
+	 */
 	void addTab(QWidget *tab, const QString &title);
 	
-	void registerTabWidget(SplitTabWidget *widget);
-	
-	SplitTabWidget *tabWidgetForTab(QWidget *tab);
+	/**
+	 * @param tab
+	 * @return The tab widget which contains tab
+	 */
+	FloatingDockTabWidget *tabWidgetForTab(QWidget *tab);
 	
 signals:
 	
+	/**
+	 * The current tab is changed.
+	 * @param tab
+	 */
 	void currentTabChanged(QWidget *tab);
+	
+	/**
+	 * A tab is requested to be closed.
+	 * @param tab
+	 */
 	void tabCloseRequested(QWidget *tab);
 	
 public slots:
 	
-	void split(Qt::Orientation orientation);
+	void splitCurrentSplit(Qt::Orientation orientation);
 	void closeCurrentSplit();
-	
-	void setCurrentTabWidget(SplitTabWidget *tabWidget);
 	void setCurrentTab(QWidget *tab);
-	
 	void removeTab(QWidget *tab);
 	
 private slots:
 	
+	void setCurrentTabWidget(SplitTabWidget *tabWidget);
 	void onCurrentTabWidgetCurrentChanged(int index);
 	void onTabWidgetCloseRequested(int index);
-	void onBaseWindowFocusChanged(bool focused);
 	
 	void onTabWidgetAboutToBeDeleted(DockTabWidget *widget);
 	
 private:
 	
-	void setCurrentSplit(SplitAreaController *split);
+	void registerTabWidget(SplitTabWidget *widget);
 	
-	SplitTabWidget *tabWidgetForSplit(SplitAreaController *split);
+	void setCurrentSplit(SplitAreaController *splitCurrentSplit);
+	
+	SplitTabWidget *tabWidgetForSplit(SplitAreaController *splitCurrentSplit);
 	SplitTabWidget *tabWidgetForCurrentSplit() { return tabWidgetForSplit(_currentSplit); }
 	SplitAreaController *splitForWidget(QWidget *widget);
 	SplitAreaController *splitForTabWidget(SplitTabWidget *tabWidget);

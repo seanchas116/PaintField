@@ -30,6 +30,10 @@ WorkspaceController::WorkspaceController(QObject *parent) :
 	connect(this, SIGNAL(currentCanvasChanged(CanvasController*)), _canvasAreaController, SLOT(setCurrentCanvas(CanvasController*)));
 	connect(_canvasAreaController, SIGNAL(currentCanvasChanged(CanvasController*)), this, SLOT(setCurrentCanvas(CanvasController*)));
 	
+	_actions << createAction("paintfield.view.splitVertically", _canvasAreaController, SLOT(splitVertically()));
+	_actions << createAction("paintfield.view.splitHorizontally", _canvasAreaController, SLOT(splitHorizontally()));
+	_actions << createAction("paintfield.view.closeCurrentSplit", _canvasAreaController, SLOT(closeCurrentSplit()));
+	
 	_actions << createAction("paintfield.file.new", this, SLOT(newCanvas()));
 	_actions << createAction("paintfield.file.open", this, SLOT(openCanvas()));
 	_actions << createAction("paintfield.file.newFromImageFile", this, SLOT(newCanvasFromImageFile()));

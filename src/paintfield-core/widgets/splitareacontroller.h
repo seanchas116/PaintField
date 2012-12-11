@@ -18,33 +18,79 @@ public:
 		Second = 1
 	};
 	
-	SplitAreaController(QWidget *widget, QObject *parentSplit);
+	/**
+	 * Constructs a controller of a split area.
+	 * "this" will take ownership of the widget.
+	 * @param widget A content widget
+	 * @param parent
+	 */
+	SplitAreaController(QWidget *widget, QObject *parent);
 	
 	Index anotherIndex(Index index) { return index == First ? Second : First; }
 	
 	void insert(Index index, Qt::Orientation orientation);
+	
+	/**
+	 * Closes a child split area.
+	 * It and its descendant split areas will be deleted.
+	 * @param index
+	 */
 	void close(Index index) { promote(anotherIndex(index)); }
 	
+	/**
+	 * @return Whether "this" is splitted (there are child split areas)
+	 */
 	bool isSplitted() { return !_widget; }
 	
-	QWidget *view() { return _splitter.data(); }
+	QWidget *view() { return splitter(); }
 	
+	/**
+	 * @return The splitter. Returns a valid splitter no matter "this" is splitted.
+	 */
 	QSplitter *splitter() { return _splitter.data(); }
+	
+	/**
+	 * @return The content widget. Returns 0 if "this" is splitted.
+	 */
 	QWidget *widget() { return _widget; }
 	
+	/**
+	 * @return Parent split area controller or 0 (no parent).
+	 */
 	SplitAreaController *parentSplit() { return _parent; }
+	
 	Index index() { return _index; }
 	
 	SplitAreaController *childSplit(Index index) { return childSplitRef(index).data(); }
 	
-	QList<SplitAreaController *> childSplits() { return isSplitted() ? QList<SplitAreaController *>({ childSplitRef(First).data(), childSplitRef(Second).data() }) : QList<SplitAreaController *>(); }
+	QList<SplitAreaController *> childSplits()
+	{
+		if (isSplitted())
+			return { childSplitRef(First).data(), childSplitRef(Second).data() };
+		else
+			return {};
+	}
 	
+	/**
+	 * @return The first widget which is not splitted.
+	 */
 	SplitAreaController *firstNonSplittedDescendant();
 	
+	/**
+	 * @param widget
+	 * @return The first widget which contains the widget
+	 */
 	SplitAreaController *findSplitForWidget(QWidget *widget);
 	
+	/**
+	 * @param pred Predicate function
+	 * @return The first widget for which pred(widget) == true
+	 */
 	template <typename Predicate> SplitAreaController *findSplit(Predicate pred);
 	
+	/**
+	 * @return The widgets which "this" and its descendants contain
+	 */
 	QWidgetList descendantWidgets();
 	
 private:

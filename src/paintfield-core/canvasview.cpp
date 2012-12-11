@@ -47,6 +47,9 @@ CanvasView::CanvasView(CanvasController *canvas, QWidget *parent) :
     _document(canvas->document()),
     _pixmap(_document->size())
 {
+	// TODO: can tablet events set focus?
+	setFocusPolicy(Qt::ClickFocus);
+	
 	setMouseTracking(true);
 	
 	connect(layerModel(), SIGNAL(tilesUpdated(QPointSet)), this, SLOT(updateTiles(QPointSet)));
@@ -278,6 +281,11 @@ void CanvasView::moveScrollBars()
 	*/
 }
 
+void CanvasView::onClicked()
+{
+	controller()->workspace()->setCurrentCanvas(controller());
+}
+
 void CanvasView::keyPressEvent(QKeyEvent *event)
 {
 	if (_tool)
@@ -298,6 +306,8 @@ void CanvasView::mouseDoubleClickEvent(QMouseEvent *event)
 
 void CanvasView::mousePressEvent(QMouseEvent *event)
 {
+	onClicked();
+	
 	if (_tool)
 		event->setAccepted(sendCanvasTabletEvent(event) || sendCanvasMouseEvent(event));
 }
@@ -329,7 +339,10 @@ void CanvasView::tabletEvent(QTabletEvent *event)
 				return PaintField::EventWidgetTabletRelease;
 		}
 	};
-
+	
+	if (event->type() == QEvent::TabletPress)
+		onClicked();
+	
 	TabletInputData data(event->hiResGlobalPos(), event->pressure(), event->rotation(), event->tangentialPressure(), Vec2D(event->xTilt(), event->yTilt()));
 	WidgetTabletEvent widgetTabletEvent(toNewEventType(event->type()), event->globalPos(), event->pos(), data, event->modifiers());
 
@@ -340,6 +353,9 @@ void CanvasView::tabletEvent(QTabletEvent *event)
 
 void CanvasView::customTabletEvent(WidgetTabletEvent *event)
 {
+	if (int(event->type()) == EventWidgetTabletPress)
+		onClicked();
+	
 	if (_tool)
 		event->setAccepted(sendCanvasTabletEvent(event));
 }

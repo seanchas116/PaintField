@@ -109,6 +109,8 @@ private slots:
 	void onScrollBarXChanged(int value);
 	void onScrollBarYChanged(int value);
 	
+	void onClicked();
+	
 private:
 	
 	void updateTiles(const QPointSet &keys, const QHash<QPoint, QRect> &rects);

@@ -57,6 +57,16 @@ AppController::AppController(QObject *parent) :
 	declareAction("paintfield.edit.selectAll",
 	              tr("Select All"));
 	
+	declareMenu("paintfield.view",
+	            tr("View"));
+	
+	declareAction("paintfield.view.splitVertically",
+	              tr("Split Vertically"));
+	declareAction("paintfield.view.splitHorizontally",
+	              tr("Split Horizontally"));
+	declareAction("paintfield.view.closeCurrentSplit",
+	              tr("Close current split"));
+	
 	declareMenu("paintfield.window",
 	            tr("Window"));
 	

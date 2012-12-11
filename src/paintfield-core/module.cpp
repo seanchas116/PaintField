@@ -13,7 +13,9 @@ Module::~Module()
 
 void Module::addSideBar(const QString &name, QWidget *sideBar)
 {
-	if (_sideBars.contains(name))
+	Q_CHECK_PTR(sideBar);
+	
+	if (_sideBars.contains(name) && _sideBars.value(name) == sideBar)
 	{
 		sideBar->deleteLater();
 		return;

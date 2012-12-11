@@ -37,6 +37,7 @@ void DockTabWidget::moveTab(DockTabWidget *source, int sourceIndex, DockTabWidge
 	
 	dest->insertTab(destIndex, widget, text);
 	dest->setCurrentIndex(destIndex);
+	emit dest->tabMovedIn();
 }
 
 bool DockTabWidget::eventIsTabDrag(QDragEnterEvent *event)
@@ -58,16 +59,10 @@ QObject *DockTabWidget::createNew()
 	return new DockTabWidget(this, 0);
 }
 
-void DockTabWidget::focusInEvent(QFocusEvent *)
+void DockTabWidget::mousePressEvent(QMouseEvent *event)
 {
-	PAINTFIELD_DEBUG << "focus in";
-	emit focusIn();
-}
-
-void DockTabWidget::focusOutEvent(QFocusEvent *)
-{
-	PAINTFIELD_DEBUG << "focus out";
-	emit focusOut();
+	PAINTFIELD_DEBUG;
+	event->ignore();
 }
 
 void DockTabWidget::closeEvent(QCloseEvent *event)

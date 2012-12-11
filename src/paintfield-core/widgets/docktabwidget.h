@@ -44,9 +44,8 @@ public:
 	
 signals:
 	
+	void tabMovedIn();
 	void tabClicked();
-	void focusIn();
-	void focusOut();
 	void willBeAutomaticallyDeleted(DockTabWidget *widget);
 	
 public slots:
@@ -55,8 +54,7 @@ public slots:
 	
 protected:
 	
-	void focusInEvent(QFocusEvent *) override;
-	void focusOutEvent(QFocusEvent *) override;
+	void mousePressEvent(QMouseEvent *event) override;
 	void closeEvent(QCloseEvent *event) override;
 	
 private slots:
