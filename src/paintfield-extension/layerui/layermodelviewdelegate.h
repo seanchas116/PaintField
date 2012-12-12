@@ -6,13 +6,13 @@
 namespace PaintField
 {
 
-class LayerActionController;
+class LayerUIController;
 
 class LayerModelViewDelegate : public QStyledItemDelegate
 {
 	Q_OBJECT
 public:
-	explicit LayerModelViewDelegate(LayerActionController *actionController, QObject *parent = 0);
+	explicit LayerModelViewDelegate(LayerUIController *actionController, QObject *parent = 0);
 	
 	bool editorEvent(QEvent *event, QAbstractItemModel *model, const QStyleOptionViewItem &option, const QModelIndex &index);
 	
@@ -21,7 +21,7 @@ signals:
 public slots:
 	
 private:
-	LayerActionController *_actionController;
+	LayerUIController *_actionController;
 };
 
 }

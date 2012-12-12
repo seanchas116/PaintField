@@ -22,7 +22,6 @@ DockTabWidget::DockTabWidget(DockTabWidget *other, QWidget *parent) :
 	DockTabWidget(parent)
 {
 	resize(other->size());
-	//connect(this, SIGNAL(currentChanged(int)), this, SLOT(onCurrentIndexChanged(int)));
 }
 
 QWidgetList DockTabWidget::tabs()

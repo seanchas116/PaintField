@@ -1,13 +1,13 @@
 #include <QtGui>
 #include "paintfield-core/layermodel.h"
 
-#include "layeractioncontroller.h"
+#include "layeruicontroller.h"
 #include "layermodelviewdelegate.h"
 
 namespace PaintField
 {
 
-LayerModelViewDelegate::LayerModelViewDelegate(LayerActionController *actionController, QObject *parent) :
+LayerModelViewDelegate::LayerModelViewDelegate(LayerUIController *actionController, QObject *parent) :
 	QStyledItemDelegate(parent),
 	_actionController(actionController)
 {
@@ -17,19 +17,26 @@ bool LayerModelViewDelegate::editorEvent(QEvent *event, QAbstractItemModel *mode
 {
 	Q_UNUSED(option);
 	
-	if (event->type() == QEvent::MouseButtonPress && static_cast<QMouseEvent *>(event)->button() == Qt::RightButton)
+	if (event->type() == QEvent::MouseButtonPress)
 	{
-		LayerModel *layerModel = _actionController->canvas()->layerModel();
-		Q_ASSERT(layerModel == qobject_cast<LayerModel *>(model));
+		auto mouseEvent = static_cast<QMouseEvent *>(event);
 		
-		_actionController->canvas()->selectionModel()->select(index, QItemSelectionModel::Select);
-		
-		QMenu menu;
-		
-		menu.addAction(tr("Remove"), _actionController, SLOT(removeLayer()));
+		if (mouseEvent->button() == Qt::RightButton)
+		{
+			LayerModel *layerModel = _actionController->canvas()->layerModel();
+			Q_ASSERT(layerModel == qobject_cast<LayerModel *>(model));
+			
+			_actionController->canvas()->selectionModel()->select(index, QItemSelectionModel::Select);
+			
+			QMenu menu;
+			menu.addAction(tr("Remove"), _actionController, SLOT(removeLayers()));
+			menu.exec(mouseEvent->globalPos());
+			
+			return true;
+		}
 	}
 	
-	return true;
+	return false;
 }
 
 }

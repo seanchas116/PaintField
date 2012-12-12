@@ -10,7 +10,7 @@ class LayerModelView : public QTreeView
 {
 	Q_OBJECT
 public:
-	explicit LayerModelView(QWidget *parent = 0) : QTreeView(parent) {}
+	explicit LayerModelView(QWidget *parent = 0);
 	
 signals:
 	

@@ -113,8 +113,6 @@ SplitTabStackedWidget::SplitTabStackedWidget(SplitTabAreaController *tabAreaCont
 
 void SplitTabStackedWidget::onTabWidgetCurrentChanged(int index)
 {
-	PAINTFIELD_DEBUG;
-	
 	if (index >= 0)
 		setCurrentIndex(IndexTabWidget);
 	else
@@ -174,8 +172,6 @@ void SplitTabAreaController::closeCurrentSplit()
 
 void SplitTabAreaController::setCurrentTabWidget(SplitTabWidget *tabWidget)
 {
-	PAINTFIELD_DEBUG;
-	
 	Q_ASSERT(tabWidget == 0 ||  _tabWidgets.contains(tabWidget));
 	
 	if (_currentTabWidget != tabWidget)

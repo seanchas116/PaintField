@@ -7,7 +7,7 @@
 namespace PaintField
 {
 
-class LayerActionController;
+class LayerUIController;
 class LayerTreeSidebar;
 
 class LayerUIModule : public CanvasModule

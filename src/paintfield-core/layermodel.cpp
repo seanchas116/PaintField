@@ -322,9 +322,8 @@ QMimeData *LayerModel::mimeData(const QModelIndexList &indexes) const
 	QByteArray encodedData;
 	QDataStream stream(&encodedData, QIODevice::WriteOnly);
 	
-	foreach (const QModelIndex &index, indexes) {
-		stream << reinterpret_cast<quint64>(index.internalPointer() );
-	}
+	for (const QModelIndex &index : indexes)
+		stream << reinterpret_cast<quint64>(index.internalPointer());
 	
 	mimeData->setData("application/x-freestyle-internal-layer-ref", encodedData);
 	
@@ -347,13 +346,15 @@ bool LayerModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int 
 	QDataStream stream(&encodedData, QIODevice::ReadOnly);
 	QModelIndexList indexes;
 	
-	while (!stream.atEnd() ) {
+	while (!stream.atEnd())
+	{
 		quint64 p;
 		stream >> p;
 		indexes << indexForLayer(reinterpret_cast<Layer *>(p));
 	}
 	
-	switch (action) {
+	switch (action)
+	{
 	case Qt::CopyAction:
 		copyLayers(indexes, parent, row);
 		break;
@@ -390,7 +391,7 @@ const Layer *LayerModel::layerForIndex(const QModelIndex &index) const
 
 bool LayerModel::checkIndexes(const QModelIndexList &indexes) const
 {
-	foreach (const QModelIndex &index, indexes)
+	for (const QModelIndex &index : indexes)
 	{
 		if (!checkIndex(index))
 			return false;
@@ -411,7 +412,7 @@ QModelIndex LayerModel::indexForLayer(const Layer *layer) const
 const Layer *LayerModel::layerForPath(const LayerPath &path) const
 {
 	const Layer *layer = rootLayer();
-	foreach (const QString &name, path)
+	for (const QString &name : path)
 	{
 		layer = layer->child(name);
 		if (!layer)
@@ -441,7 +442,7 @@ LayerPathList LayerModel::pathsForIndexes(const QModelIndexList &indexes) const
 {
 	LayerPathList paths;
 	
-	foreach (const QModelIndex &index, indexes)
+	for (const QModelIndex &index : indexes)
 		paths << pathForIndex(index);
 	
 	return paths;

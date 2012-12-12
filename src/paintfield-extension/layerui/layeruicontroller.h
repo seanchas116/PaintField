@@ -7,12 +7,12 @@
 namespace PaintField
 {
 
-class LayerActionController : public QObject
+class LayerUIController : public QObject
 {
 	Q_OBJECT
 public:
 	
-	LayerActionController(CanvasController *parent);
+	LayerUIController(CanvasController *parent);
 	
 	QAction *importAction() { return _importAction; }
 	QAction *newRasterAction() { return _newRasterAction; }

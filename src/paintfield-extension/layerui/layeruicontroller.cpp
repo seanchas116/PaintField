@@ -3,12 +3,12 @@
 
 #include "paintfield-core/util.h"
 
-#include "layeractioncontroller.h"
+#include "layeruicontroller.h"
 
 namespace PaintField
 {
 
-LayerActionController::LayerActionController(CanvasController *parent) :
+LayerUIController::LayerUIController(CanvasController *parent) :
     QObject(parent),
     _canvas(parent)
 {
@@ -23,7 +23,7 @@ LayerActionController::LayerActionController(CanvasController *parent) :
 	_mergeAction->setText(tr("Merge"));
 }
 
-void LayerActionController::importLayer()
+void LayerUIController::importLayer()
 {
 	QString filePath = QFileDialog::getOpenFileName(0,
 													QObject::tr("Add Layer From Image File"),
@@ -41,19 +41,19 @@ void LayerActionController::importLayer()
 	_canvas->layerModel()->addLayer(layer, index.parent(), row, tr("Add Image"));
 }
 
-void LayerActionController::newLayer(Layer::Type type)
+void LayerUIController::newLayer(Layer::Type type)
 {
 	QModelIndex index = _canvas->selectionModel()->currentIndex();
 	int row = index.isValid() ? index.row() + 1 : _canvas->layerModel()->rowCount(QModelIndex());
 	_canvas->layerModel()->newLayer(type, index.parent(), row);
 }
 
-void LayerActionController::removeLayers()
+void LayerUIController::removeLayers()
 {
 	_canvas->layerModel()->removeLayers(_canvas->selectionModel()->selectedIndexes());
 }
 
-void LayerActionController::mergeLayers()
+void LayerUIController::mergeLayers()
 {
 	QItemSelection selection = _canvas->selectionModel()->selection();
 	
@@ -64,13 +64,13 @@ void LayerActionController::mergeLayers()
 	}
 }
 
-void LayerActionController::onSelectionChanged(const QItemSelection &selection)
+void LayerUIController::onSelectionChanged(const QItemSelection &selection)
 {
 	_mergeAction->setEnabled(selection.size() == 1);
 	setActionsEnabled(_actionsForLayers, selection.size());
 }
 
-void LayerActionController::setActionsEnabled(const QList<QAction *> &actions, bool enabled)
+void LayerUIController::setActionsEnabled(const QList<QAction *> &actions, bool enabled)
 {
 	for (QAction *action : actions)
 		action->setEnabled(enabled);

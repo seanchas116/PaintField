@@ -9,6 +9,8 @@
 #include "paintfield-core/workspacecontroller.h"
 #include "paintfield-core/document.h"
 
+#include "layeruicontroller.h"
+#include "layermodelviewdelegate.h"
 #include "layermodelview.h"
 
 #include "layertreesidebar.h"
@@ -16,19 +18,20 @@
 namespace PaintField
 {
 
-LayerTreeSidebar::LayerTreeSidebar(CanvasController *canvas, QWidget *parent) :
+LayerTreeSidebar::LayerTreeSidebar(LayerUIController *layerUIController, QWidget *parent) :
     QWidget(parent),
-	_canvas(canvas)
+    _layerUIController(layerUIController),
+    _canvas(layerUIController ? layerUIController->canvas() : 0)
 {
 	createForms();
 	
-	if (canvas)
+	if (_canvas)
 	{
-		_treeView->setModel(canvas->layerModel());
-		connect(canvas->document(), SIGNAL(modified()), this, SLOT(updatePropertyView()));
-		connect(canvas->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(updatePropertyView()));
+		_treeView->setModel(_canvas->layerModel());
+		connect(_canvas->document(), SIGNAL(modified()), this, SLOT(updatePropertyView()));
+		connect(_canvas->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(updatePropertyView()));
 		updatePropertyView();
-		_treeView->setSelectionModel(canvas->selectionModel());
+		_treeView->setSelectionModel(_canvas->selectionModel());
 	}
 	else
 	{
@@ -61,6 +64,7 @@ void LayerTreeSidebar::viewFocused()
 void LayerTreeSidebar::createForms()
 {
 	_treeView = new LayerModelView();
+	_treeView->setItemDelegate(new LayerModelViewDelegate(_layerUIController, this));
 	_treeView->setHeaderHidden(true);
 	_treeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
 	_treeView->setDragDropMode(QAbstractItemView::DragDrop);
@@ -101,17 +105,35 @@ void LayerTreeSidebar::createForms()
 	_formWidget = new QWidget();
 	_formWidget->setLayout(formLayout);
 	
-	_addButton = new SimpleButton(":/icons/16x16/add.svg", QSize(16,16));
-	_addButton->setMargins(4, 0, 4, 0);
-	_removeButton = new SimpleButton(":/icons/16x16/subtract.svg", QSize(16,16));
-	_removeButton->setMargins(4, 0, 4, 0);
-	_miscButton = new SimpleButton(":/icons/16x16/menuDown.svg", QSize(16,16));
-	_miscButton->setMargins(4, 0, 4, 0);
+	auto addButton = new SimpleButton(":/icons/16x16/add.svg", QSize(16,16));
+	addButton->setMargins(4, 0, 4, 0);
+	auto removeButton = new SimpleButton(":/icons/16x16/subtract.svg", QSize(16,16));
+	removeButton->setMargins(4, 0, 4, 0);
+	auto miscButton = new SimpleButton(":/icons/16x16/menuDown.svg", QSize(16,16));
+	miscButton->setMargins(4, 0, 4, 0);
+	
+	if (_layerUIController)
+	{
+		QMenu *addMenu = new QMenu(this);
+		
+		addMenu->addAction(_layerUIController->newRasterAction());
+		addMenu->addAction(_layerUIController->newGroupAction());
+		addMenu->addAction(_layerUIController->importAction());
+		
+		addButton->setMenu(addMenu);
+		
+		connect(removeButton, SIGNAL(pressed()), _layerUIController, SLOT(removeLayers()));
+		
+		QMenu *miscMenu = new QMenu(this);
+		miscMenu->addAction(_layerUIController->mergeAction());
+		
+		miscButton->setMenu(miscMenu);
+	}
 	
 	QHBoxLayout *buttonLayout = new QHBoxLayout();
-	buttonLayout->addWidget(_addButton);
-	buttonLayout->addWidget(_removeButton);
-	buttonLayout->addWidget(_miscButton);
+	buttonLayout->addWidget(addButton);
+	buttonLayout->addWidget(removeButton);
+	buttonLayout->addWidget(miscButton);
 	buttonLayout->addStretch(1);
 	buttonLayout->setContentsMargins(5, 5, 5, 5);
 	buttonLayout->setSpacing(0);

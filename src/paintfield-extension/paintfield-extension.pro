@@ -25,7 +25,6 @@ LIBS += -lpaintfield-core
 HEADERS += \
            colorui/colorsidebar.h \
            colorui/coloruimodule.h \
-           layerui/layeractioncontroller.h \
            layerui/layermodelview.h \
            layerui/layermodelviewdelegate.h \
            layerui/layertreesidebar.h \
@@ -43,11 +42,11 @@ HEADERS += \
     basictool/brush/penstroker.h \
     navigator/navigatorview.h \
     navigator/navigatorcontroller.h \
-    navigator/navigatormodule.h
+    navigator/navigatormodule.h \
+    layerui/layeruicontroller.h
 SOURCES += \
            colorui/colorsidebar.cpp \
            colorui/coloruimodule.cpp \
-           layerui/layeractioncontroller.cpp \
            layerui/layermodelview.cpp \
            layerui/layermodelviewdelegate.cpp \
            layerui/layertreesidebar.cpp \
@@ -65,7 +64,8 @@ SOURCES += \
     basictool/brush/penstroker.cpp \
     navigator/navigatorview.cpp \
     navigator/navigatorcontroller.cpp \
-    navigator/navigatormodule.cpp
+    navigator/navigatormodule.cpp \
+    layerui/layeruicontroller.cpp
 
 RESOURCES += \
     resources/resources.qrc

@@ -19,6 +19,7 @@ class Document;
 class LayerModel;
 class WorkspaceController;
 class CanvasController;
+class LayerUIController;
 
 class LayerModelView;
 class DoubleSlider;
@@ -30,11 +31,7 @@ class LayerTreeSidebar : public QWidget
 	
 public:
 	
-	explicit LayerTreeSidebar(CanvasController *model, QWidget *parent = 0);
-	
-	SimpleButton *addButton() { return _addButton; }
-	SimpleButton *removeButton() { return _removeButton; }
-	SimpleButton *miscButton() { return _miscButton; }
+	explicit LayerTreeSidebar(LayerUIController *layerUIController, QWidget *parent = 0);
 	
 public slots:
 	
@@ -50,9 +47,9 @@ private slots:
 	
 private:
 	
-	void setItemSelected(bool selected);
 	void createForms();
-	void newLayerItem(Layer::Type type);
+	
+	LayerUIController *_layerUIController = 0;
 	
 	CanvasController *_canvas = 0;
 	
@@ -66,8 +63,6 @@ private:
 	QComboBox *_blendModeComboBox = 0;
 	
 	QWidget *_formWidget = 0;
-	
-	SimpleButton *_addButton = 0, *_removeButton = 0, *_miscButton = 0;
 };
 
 }
