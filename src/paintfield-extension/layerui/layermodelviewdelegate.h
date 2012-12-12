@@ -10,6 +10,8 @@ class LayerUIController;
 
 class LayerModelViewDelegate : public QStyledItemDelegate
 {
+	typedef QStyledItemDelegate super;
+	
 	Q_OBJECT
 public:
 	explicit LayerModelViewDelegate(LayerUIController *actionController, QObject *parent = 0);

@@ -205,26 +205,26 @@ bool Layer::setProperty(const QVariant &data, int role)
 {
 	switch (role)
 	{
-	case PaintField::RoleName:
-		_name = data.toString();
-		return true;
-	case PaintField::RoleVisible:
-		_isVisible = data.toBool();
-		return true;
-	case PaintField::RoleLocked:
-		_isLocked = data.toBool();
-		return true;
-	case PaintField::RoleThumbnail:
-		_thumbnail = data.value<QPixmap>();
-		return true;
-	case PaintField::RoleOpacity:
-		_opacity = data.toDouble();
-		return true;
-	case PaintField::RoleBlendMode:
-		_blendMode = data.toInt();
-		return true;
-	default:
-		return false;
+		case PaintField::RoleName:
+			_name = data.toString();
+			return true;
+		case PaintField::RoleVisible:
+			_isVisible = data.toBool();
+			return true;
+		case PaintField::RoleLocked:
+			_isLocked = data.toBool();
+			return true;
+		case PaintField::RoleThumbnail:
+			_thumbnail = data.value<QPixmap>();
+			return true;
+		case PaintField::RoleOpacity:
+			_opacity = data.toDouble();
+			return true;
+		case PaintField::RoleBlendMode:
+			_blendMode = data.toInt();
+			return true;
+		default:
+			return false;
 	}
 }
 
@@ -232,24 +232,24 @@ QVariant Layer::property(int role) const
 {
 	switch (role)
 	{
-	case PaintField::RoleName:
-		return _name;
-	case PaintField::RoleType:
-		return type();
-	case PaintField::RoleVisible:
-		return _isVisible;
-	case PaintField::RoleLocked:
-		return _isLocked;
-	case PaintField::RoleThumbnail:
-		return _thumbnail;
-	case PaintField::RoleOpacity:
-		return _opacity;
-	case PaintField::RoleBlendMode:
-		return _blendMode;
-	case PaintField::RoleSurface:
-		return QVariant::fromValue(surface());
-	default:
-		return QVariant();
+		case PaintField::RoleName:
+			return _name;
+		case PaintField::RoleType:
+			return type();
+		case PaintField::RoleVisible:
+			return _isVisible;
+		case PaintField::RoleLocked:
+			return _isLocked;
+		case PaintField::RoleThumbnail:
+			return _thumbnail;
+		case PaintField::RoleOpacity:
+			return _opacity;
+		case PaintField::RoleBlendMode:
+			return _blendMode;
+		case PaintField::RoleSurface:
+			return QVariant::fromValue(surface());
+		default:
+			return QVariant();
 	}
 }
 
@@ -288,7 +288,7 @@ QPointSet Layer::tileKeysRecursive() const
 	keys |= tileKeys();
 	
 	for (const Layer *child : _children)
-		keys != child->tileKeysRecursive();
+		keys |= child->tileKeysRecursive();
 	
 	return keys;
 }

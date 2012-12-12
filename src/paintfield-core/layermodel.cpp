@@ -216,25 +216,31 @@ void LayerModel::mergeLayers(const QModelIndex &parent, int from, int to)
 	
 	pushCommand(command);
 }
+
+/*
+QMap<int, QVariant> LayerModel::itemData(const QModelIndex &index) const
+{
+	auto layer = layerForIndex(index);
+	
+	QMap<int, QVariant> map;
+	map[Qt::EditRole] = layer->property(PaintField::RoleName);
+	map[Qt::DecorationRole] = layer->property(PaintField::RoleThumbnail);
+	map[Qt::CheckStateRole] = layer->property(PaintField::RoleVisible);
+	
+	return map;
+}*/
+
 QVariant LayerModel::data(const QModelIndex &index, int role) const
 {
-	if (!index.isValid() )
+	if (!index.isValid())
 		return QVariant();
 	
-	switch (role)
-	{
-	case Qt::EditRole:
-	case Qt::DisplayRole:
-		role = PaintField::RoleName;
-		break;
-	case Qt::DecorationRole:
-		role = PaintField::RoleThumbnail;
-		break;
-	default:
-		break;
-	}
+	auto value = layerForIndex(index)->property(normalizeItemRole(role));
 	
-	return layerForIndex(index)->property(role);
+	if (role == Qt::CheckStateRole)
+		return value.toBool() ? Qt::Checked : Qt::Unchecked;
+	
+	return value;
 }
 
 bool LayerModel::setData(const QModelIndex &index, const QVariant &value, int role)
@@ -244,23 +250,37 @@ bool LayerModel::setData(const QModelIndex &index, const QVariant &value, int ro
 
 bool LayerModel::setData(const QModelIndex &index, const QVariant &value, int role, const QString &description)
 {
+	PAINTFIELD_DEBUG << role;
+	PAINTFIELD_DEBUG << value;
+	
 	QString text = description;
 	
 	if (!index.isValid())
 		return false;
 	
+	role = normalizeItemRole(role);
+	
+	// set description text if possible
 	switch (role)
 	{
-	case Qt::EditRole:
-	case Qt::DisplayRole:
-		role = PaintField::RoleName;
-		
-		if (description.isNull())
-			text = tr("Rename Layer");
-		
-		break;
-	default:
-		break;
+		case PaintField::RoleName:
+			if (description.isNull())
+				text = tr("Rename Layer");
+			break;
+		case PaintField::RoleVisible:
+			if (description.isNull())
+				text = tr("Change visibility");
+			break;
+		case PaintField::RoleBlendMode:
+			if (description.isNull())
+				text = tr("Change Blend Mode");
+			break;
+		case PaintField::RoleOpacity:
+			if (description.isNull())
+				text = tr("Change Opacity");
+			break;
+		default:
+			break;
 	}
 	
 	if (data(index, role) == value)
@@ -276,10 +296,13 @@ bool LayerModel::setData(const QModelIndex &index, const QVariant &value, int ro
 
 Qt::ItemFlags LayerModel::flags(const QModelIndex &index) const
 {
+	Qt::ItemFlags layerFlags = Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsDragEnabled | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
+	Qt::ItemFlags groupFlags = layerFlags | Qt::ItemIsDropEnabled;
+	
 	if (layerForIndex(index)->type() == Layer::TypeGroup)
-		return Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsDropEnabled | Qt::ItemIsDragEnabled | Qt::ItemIsEnabled;
+		return groupFlags;
 	else
-		return Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsDragEnabled | Qt::ItemIsEnabled;
+		return layerFlags;
 }
 
 QModelIndex LayerModel::index(int row, int column, const QModelIndex &parent) const
@@ -458,6 +481,21 @@ Malachite::Surface LayerModel::render()
 void LayerModel::updateDirtyThumbnails()
 {
 	_rootLayer->updateDirtyThumbnailRecursive(_document->size());
+}
+
+int LayerModel::normalizeItemRole(int role) const
+{
+	switch (role)
+	{
+		case Qt::EditRole: case Qt::DisplayRole:
+			return PaintField::RoleName;
+		case Qt::DecorationRole:
+			return PaintField::RoleThumbnail;
+		case Qt::CheckStateRole:
+			return PaintField::RoleVisible;
+		default:
+			return role;
+	}
 }
 
 void LayerModel::pushCommand(QUndoCommand *command)

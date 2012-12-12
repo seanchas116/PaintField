@@ -92,6 +92,7 @@ public:
 	void renameLayer(const QModelIndex &index, const QString &newName);
 	void mergeLayers(const QModelIndex &parent, int from, int to);
 	
+	//QMap<int, QVariant> itemData(const QModelIndex &index) const;
 	QVariant data(const QModelIndex &index, int role) const;
 	bool setData(const QModelIndex &index, const QVariant &value, int role, const QString &description);
 	bool setData(const QModelIndex &index, const QVariant &value, int role);
@@ -146,6 +147,8 @@ public slots:
 	void updateDirtyThumbnails();
 	
 protected:
+	
+	int normalizeItemRole(int role) const;
 	
 	void pushCommand(QUndoCommand *command);
 	

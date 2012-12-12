@@ -24,6 +24,7 @@ bool LayerModelViewDelegate::editorEvent(QEvent *event, QAbstractItemModel *mode
 		if (mouseEvent->button() == Qt::RightButton)
 		{
 			LayerModel *layerModel = _actionController->canvas()->layerModel();
+			Q_CHECK_PTR(layerModel);
 			Q_ASSERT(layerModel == qobject_cast<LayerModel *>(model));
 			
 			_actionController->canvas()->selectionModel()->select(index, QItemSelectionModel::Select);
@@ -36,7 +37,7 @@ bool LayerModelViewDelegate::editorEvent(QEvent *event, QAbstractItemModel *mode
 		}
 	}
 	
-	return false;
+	return super::editorEvent(event, model, option, index);
 }
 
 }

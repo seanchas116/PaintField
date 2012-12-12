@@ -23,6 +23,9 @@ Surface LayerRenderer::renderToSurface(const LayerConstList &layers, const QPoin
 
 void LayerRenderer::renderLayer(SurfacePainter *painter, const Layer *layer)
 {
+	if (!layer->isVisible() || !layer->opacity())
+		return;
+	
 	double opacity = painter->opacity();
 	painter->setOpacity(layer->opacity() * opacity);
 	
