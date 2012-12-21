@@ -1,16 +1,23 @@
 #ifndef PENSTROKER_H
 #define PENSTROKER_H
 
-#include "stroker.h"
+#include "brushstroker.h"
+#include <Malachite/BlendMode>
 
-namespace PaintField
-{
+namespace PaintField {
 
-class PenStroker : public Stroker
+class BrushStrokerPen : public BrushStroker
 {
 public:
 	
-	PenStroker(Malachite::Surface *surface, const BrushSetting *setting, const Malachite::Vec4F &argb);
+	struct Settings
+	{
+		int blendMode = Malachite::BlendModeSourceOver;
+	};
+	
+	BrushStrokerPen(Malachite::Surface *surface);
+	
+	void loadSettings(const QVariantMap &settings) override;
 	
 protected:
 	
@@ -27,6 +34,22 @@ private:
 	
 	QHash<QPoint, Malachite::FixedMultiPolygon> _drawnShapes;
 	double _radiusBase;
+	double _diameter = 10;
+	
+	Settings _settings;
+};
+
+class BrushSourcePenFactory : public BrushStrokerFactory
+{
+	Q_OBJECT
+	
+public:
+	
+	explicit BrushSourcePenFactory(QObject *parent = 0) : BrushStrokerFactory(parent) {}
+	
+	QString name() const override { return "paintfield.brush.pen"; }
+	QVariantMap defaultSettings() const override;
+	BrushStroker *createStroker(Malachite::Surface *surface) override;
 };
 
 }

@@ -2,6 +2,7 @@
 #define FSAPPLICATION_H
 
 #include <QMainWindow>
+#include <QDir>
 
 #include "util.h"
 #include "palettemanager.h"
@@ -75,6 +76,9 @@ public:
 	
 	static AppController *instance() { return _instance; }
 	
+	QString builtinContentsDir() const;
+	QString userContentsDir() const;
+	
 signals:
 	
 public slots:
@@ -87,6 +91,9 @@ public slots:
 protected:
 	
 private:
+	
+	void declareMenus();
+	void createActions();
 	
 	WorkspaceManager *_workspaceManager = 0;
 	

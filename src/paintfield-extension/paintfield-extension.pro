@@ -30,20 +30,23 @@ HEADERS += \
            layerui/layertreesidebar.h \
            layerui/layeruimodule.h \
            toolui/tooluimodule.h \
-           basictool/brush/brushsetting.h \
-           basictool/brush/brushsettingsidebar.h \
            basictool/brush/brushtool.h \
            basictool/brush/brushtoolmodule.h \
            basictool/move/layermovetool.h \
     basictool/move/layermovetoolmodule.h \
     extensionmodulefactory.h \
-    basictool/brush/stroker.h \
-    basictool/brush/brushstroker.h \
-    basictool/brush/penstroker.h \
     navigator/navigatorview.h \
     navigator/navigatorcontroller.h \
     navigator/navigatormodule.h \
-    layerui/layeruicontroller.h
+    layerui/layeruicontroller.h \
+    basictool/brush/brushlibrarymodel.h \
+    basictool/brush/brushlibrarycontroller.h \
+    basictool/brush/brushlibraryview.h \
+    basictool/brush/brushpresetmanager.h \
+    basictool/brush/brushstroker.h \
+    basictool/brush/brushstrokerfactorymanager.h \
+    basictool/brush/brushstrokerpen.h \
+    basictool/brush/brushstrokercustombrush.h
 SOURCES += \
            colorui/colorsidebar.cpp \
            colorui/coloruimodule.cpp \
@@ -52,20 +55,23 @@ SOURCES += \
            layerui/layertreesidebar.cpp \
            layerui/layeruimodule.cpp \
            toolui/tooluimodule.cpp \
-           basictool/brush/brushsetting.cpp \
-           basictool/brush/brushsettingsidebar.cpp \
            basictool/brush/brushtool.cpp \
            basictool/brush/brushtoolmodule.cpp \
            basictool/move/layermovetool.cpp \
     basictool/move/layermovetoolmodule.cpp \
     extensionmodulefactory.cpp \
-    basictool/brush/stroker.cpp \
-    basictool/brush/brushstroker.cpp \
-    basictool/brush/penstroker.cpp \
     navigator/navigatorview.cpp \
     navigator/navigatorcontroller.cpp \
     navigator/navigatormodule.cpp \
-    layerui/layeruicontroller.cpp
+    layerui/layeruicontroller.cpp \
+    basictool/brush/brushlibrarymodel.cpp \
+    basictool/brush/brushlibrarycontroller.cpp \
+    basictool/brush/brushlibraryview.cpp \
+    basictool/brush/brushpresetmanager.cpp \
+    basictool/brush/brushstroker.cpp \
+    basictool/brush/brushstrokerfactorymanager.cpp \
+    basictool/brush/brushstrokerpen.cpp \
+    basictool/brush/brushstrokercustombrush.cpp
 
 RESOURCES += \
     resources/resources.qrc

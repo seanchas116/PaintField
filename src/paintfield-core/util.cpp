@@ -1,5 +1,8 @@
 #include <QtGui>
-#include "qjson/parser.h"
+#include <qjson/parser.h>
+#include <qjson/serializer.h>
+
+#include "debug.h"
 #include "util.h"
 
 namespace PaintField
@@ -24,12 +27,29 @@ QVariant loadJsonFromFile(const QString &path)
 	QFile file(path);
 	if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
 	{
-		qWarning() << Q_FUNC_INFO << ": failed to open file";
+		PAINTFIELD_DEBUG << "failed to open file";
 		return QVariant();
 	}
 	
 	QJson::Parser parser;
 	return parser.parse(&file);
+}
+
+bool saveJsonToFile(const QString &path, const QVariant &data)
+{
+	QJson::Serializer serializer;
+	bool ok;
+	
+	QFile file(path);
+	
+	if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+	{
+		PAINTFIELD_DEBUG << "failed to save file";
+		return false;
+	}
+	serializer.serialize(data, &file, &ok);
+	
+	return ok;
 }
 
 void applyMacSmallSize(QWidget *widget)

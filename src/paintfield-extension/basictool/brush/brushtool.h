@@ -3,30 +3,31 @@
 
 #include <QObject>
 #include "paintfield-core/tool.h"
-#include "brushsetting.h"
 
-namespace PaintField
-{
+namespace PaintField {
 
-class Stroker;
 class TabletInputData;
+class BrushStroker;
+class BrushStrokerFactory;
+class BrushToolModule;
 
 class BrushTool : public Tool
 {
 	Q_OBJECT
 public:
 	
-	explicit BrushTool(CanvasView *parent = 0);
+	BrushTool(CanvasView *parent = 0);
 	~BrushTool();
 	
 	void drawLayer(Malachite::SurfacePainter *painter, const Layer *layer);
 	
-    void setBrushSetting(const BrushSetting *setting) { _brushSetting = setting; }
-    const BrushSetting *brushSetting() const { return _brushSetting; }
-	
 signals:
 	
 public slots:
+	
+	void setColor(const Malachite::Color &color) { _argb = color.toArgb(); }
+	void setStrokerFactory(BrushStrokerFactory *factory) { _strokerFactory = factory; }
+	void setBrushSettings(const QVariantMap &settings);
 	
 protected:
 	
@@ -46,11 +47,13 @@ private:
 	
 	void setPrevData(const TabletInputData &data);
 	
-	QScopedPointer<Stroker> _stroker;
+	Malachite::Vec4F _argb;
+	BrushStrokerFactory *_strokerFactory = 0;
+	QScopedPointer<BrushStroker> _stroker;
+	QVariantMap _settings;
 	TabletInputData _dataPrev, _dataBeforePrev;
 	bool _dataPrevSet = false, _trailing = false;
 	bool _trailingEnabled = false;
-	const BrushSetting *_brushSetting = 0;
 	const Layer *_layer = 0;
 	Malachite::Surface _surface;
 };

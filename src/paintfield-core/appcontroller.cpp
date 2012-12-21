@@ -17,6 +17,17 @@ AppController::AppController(QObject *parent) :
 	_workspaceManager = new WorkspaceManager(this);
 	_moduleManager = new ModuleManager(this);
 	
+	declareMenus();
+	createActions();
+	
+	// prepare directiries
+	
+	QDir documentDir(QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation));
+	documentDir.mkpath("PaintField/Contents/Brush Presets");
+}
+
+void AppController::declareMenus()
+{
 	declareMenu("paintfield.file",
 	            tr("File"));
 	
@@ -77,7 +88,10 @@ AppController::AppController(QObject *parent) :
 	
 	declareMenu("paintfield.help",
 	            tr("Help"));
-	
+}
+
+void AppController::createActions()
+{
 	_actions << createAction("paintfield.file.quit", _workspaceManager, SLOT(tryCloseAll()));
 	_actions << createAction("paintfield.window.minimize", this, SLOT(minimizeCurrentWindow()));
 	_actions << createAction("paintfield.window.zoom", this, SLOT(zoomCurrentWindow()));
@@ -160,6 +174,16 @@ QString AppController::unduplicatedTempName(const QString &name)
 	}
 	
 	return unduplicatedName(existingTempNames, name);
+}
+
+QString AppController::builtinContentsDir() const
+{
+	return QDir(qApp->applicationDirPath()).filePath("Contents");
+}
+
+QString AppController::userContentsDir() const
+{
+	return QDir(QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation)).filePath("PaintField/Contents");
 }
 
 AppController *AppController::_instance = 0;

@@ -14,9 +14,9 @@ signals:
 	
 public slots:
 	
-	void saveLoad();
-	
 private slots:
+	
+	void saveLoad();
 };
 
 

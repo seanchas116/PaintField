@@ -1,32 +1,83 @@
-#ifndef BRUSHSTROKER_H
-#define BRUSHSTROKER_H
+#ifndef FSBRUSHSTROKER_H
+#define FSBRUSHSTROKER_H
 
-#include "stroker.h"
+#include <Malachite/SurfacePainter>
+#include "paintfield-core/tabletinputdata.h"
 
-namespace PaintField
-{
+namespace PaintField {
 
-class BrushStroker : public Stroker
+class BrushStroker
 {
 public:
 	
-	BrushStroker(Malachite::Surface *surface, const BrushSetting *setting, const Malachite::Vec4F &argb) : Stroker(surface, setting, argb) {}
+	BrushStroker(Malachite::Surface *surface);
+	virtual ~BrushStroker() {}
+	
+	void setRadius(double radius) { _radius = radius; }
+	double radius() const { return _radius; }
+	
+	void setArgb(const Malachite::Vec4F &argb) { _argb = argb; }
+	Malachite::Vec4F argb() const { return _argb; }
+	
+	virtual void loadSettings(const QVariantMap &settings) = 0;
+	
+	void moveTo(const TabletInputData &data);
+	void lineTo(const TabletInputData &data);
+	void end();
+	
+	QPointHashToQRect lastEditedKeysWithRects() const { return _lastEditedKeysWithRects; }
+	QPointSet totalEditedKeys() const { return _totalEditedKeys; }
+	
+	void clearLastEditedKeys() { _lastEditedKeysWithRects.clear(); }
+	
+	Malachite::Surface *surface() { return _surface; }
+	Malachite::Surface originalSurface() { return _originalSurface; }
+	
+	static QVector<double> calcLength(const Malachite::Polygon &polygon, double *totalLength);
 	
 protected:
 	
-	void drawFirst(const TabletInputData &data);
-	void drawInterval(const Malachite::Polygon &polygon, const TabletInputData &dataStart, const TabletInputData &dataEnd);
+	virtual void drawFirst(const TabletInputData &data) = 0;
+	virtual void drawInterval(const Malachite::Polygon &polygon, const TabletInputData &dataStart, const TabletInputData &dataEnd) = 0;
+	
+	void addEditedKeys(const QPointHashToQRect &keysWithRects);
 	
 private:
 	
-	void drawSegment(const Malachite::Vec2D &p1, const Malachite::Vec2D &p2, double length, TabletInputData &data, double pressureNormalized, double rotationNormalized, double tangentialPressureNormalized, const Malachite::Vec2D &tiltNormalized);
+	Malachite::Surface *_surface = 0;
+	Malachite::Surface _originalSurface;
 	
-	void drawDab(const TabletInputData &data);
-	Malachite::Image drawDabImage(const TabletInputData &data, QRect *resultRect);
+	QPointSet _totalEditedKeys;
+	QPointHashToQRect _lastEditedKeysWithRects;
 	
-	double _carryOver;
-	double _lastMinorRadius;
+	int _count;
+	TabletInputData  _dataPrev, _dataStart, _dataEnd, _currentData;
+	//MLVec2D _v1, v2;
+	
+	Malachite::Vec4F _argb;
+	double _radius = 10;
+};
+
+class BrushStrokerFactory : public QObject
+{
+	Q_OBJECT
+public:
+	explicit BrushStrokerFactory(QObject *parent = 0) : QObject(parent) {}
+	
+	virtual QString name() const = 0;
+	
+	virtual QVariantMap defaultSettings() const = 0;
+	virtual BrushStroker *createStroker(Malachite::Surface *surface) = 0;
+	
+signals:
+	
+public slots:
+	
+protected:
+	
+private:
 };
 
 }
-#endif // BRUSHSTROKER_H
+
+#endif // FSBRUSHSTROKER_H

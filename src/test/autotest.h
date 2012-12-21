@@ -14,8 +14,7 @@ public:
 	
 	void addTestObject(QObject *obj)
 	{
-		if (!findQObject(_objects, obj->objectName()))
-			_objects << obj;
+		_objects << obj;
 	}
 	
 	template <class T>
@@ -40,5 +39,18 @@ private:
 };
 
 extern AutoTest autoTest;
+
+template <class T>
+class AutoTestRegisterer
+{
+public:
+	
+	AutoTestRegisterer()
+	{
+		autoTest.addTestClass<T>();
+	}
+};
+
+#define AUTOTEST_ADD_CLASS(CLASS) static AutoTestRegisterer<CLASS> t;
 
 #endif // AUTOTEST_H

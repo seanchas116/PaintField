@@ -15,6 +15,7 @@
 #include "paintfield-core/widgets/splittabareacontroller.h"
 #include "paintfield-core/widgets/tabwidget.h"
 #include "paintfield-core/widgets/vanishingscrollbar.h"
+#include "paintfield-core/librarymodel.h"
 
 #include "paintfield-extension/navigator/navigatorview.h"
 
@@ -182,11 +183,34 @@ void test_NavigatorView()
 	view->show();
 }
 
+void test_LibraryModel()
+{
+	auto model = new LibraryModel;
+	model->addRootPath("/Users/iofg2100/Desktop/Test", "Test");
+	
+	auto tempDir = QDir::temp();
+	
+	tempDir.mkdir("test");
+	tempDir.cd("test");
+	
+	QFile file(tempDir.filePath("01.txt"));
+	file.open(QIODevice::WriteOnly);
+	file.close();
+	
+	qDebug() << model->pathFromItem(model->item(0)->child(6)->child(0));
+	
+	auto view = new QColumnView;
+	view->setModel(model);
+	
+	view->show();
+}
+
 int main(int argc, char *argv[])
 {
 	QApplication app(argc, argv);
 	
-	//autoTest.run();
+	autoTest.addTestClass<Test_DocumentIO>();
+	autoTest.run();
 	
 	//auto testObj = new TestObject;
 	//QObject::connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)), testObj, SLOT(onFocusChanged(QWidget*,QWidget*)));
@@ -200,8 +224,9 @@ int main(int argc, char *argv[])
 	//test_CanvasView();
 	//test_scrollarea();
 	//test_VanishingScrollBar();
-	test_VanishingScrollBar_vanishing();
+	//test_VanishingScrollBar_vanishing();
 	//test_NavigatorView();
+	test_LibraryModel();
 	
 	return app.exec();
 }

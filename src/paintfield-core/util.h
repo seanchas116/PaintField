@@ -82,6 +82,8 @@ T *findQObjectReverse(const QList<T *> &list, const QString &id)
  */
 QVariant loadJsonFromFile(const QString &path);
 
+bool saveJsonToFile(const QString &path, const QVariant &data);
+
 void applyMacSmallSize(QWidget *widget);
 
 QString unduplicatedName(const QStringList &existingNames, const QString &newName);

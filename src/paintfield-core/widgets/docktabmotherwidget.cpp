@@ -1,5 +1,6 @@
 #include <QtGui>
 
+#include "debug.h"
 #include "docktabwidget.h"
 
 #include "docktabmotherwidget.h"
@@ -81,7 +82,7 @@ bool DockTabMotherWidget::insertTabWidget(DockTabWidget *tabWidget, const TabWid
 				mainSplitter = _mainVerticalSplitter;
 				break;
 			default:
-                goto error;
+				goto error;
 		}
 		
 		mainSplitter->insertWidget(mainSplitterIndex, splitter);
@@ -101,7 +102,8 @@ bool DockTabMotherWidget::insertTabWidget(DockTabWidget *tabWidget, const TabWid
 	
 error:
 	
-	tabWidget->deleteLater();
+	PAINTFIELD_WARNING << "failed";
+	//tabWidget->deleteLater();
 	return false;
 }
 

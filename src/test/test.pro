@@ -38,7 +38,8 @@ SOURCES += main.cpp \
     test_document.cpp \
     testutil.cpp \
     testobject.cpp \
-    splittabareatestwidget.cpp
+    splittabareatestwidget.cpp \
+    test_librarymodel.cpp
 
 HEADERS += \
     autotest.h \
@@ -46,4 +47,5 @@ HEADERS += \
     test_document.h \
     testutil.h \
     testobject.h \
-    splittabareatestwidget.h
+    splittabareatestwidget.h \
+    test_librarymodel.h

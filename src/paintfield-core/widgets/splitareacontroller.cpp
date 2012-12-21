@@ -1,4 +1,5 @@
 #include <QSplitter>
+#include <QDebug>
 #include "../interface.h"
 
 #include "splitareacontroller.h"
@@ -21,6 +22,7 @@ void SplitAreaController::insert(Index index, Qt::Orientation orientation)
 		return;
 	
 	_splitter->setOrientation(orientation);
+	_widget->setParent(0);
 	
 	auto node = new SplitAreaController(_widget, this);
 	auto newNode = new SplitAreaController(qobject_cast<ReproductiveInterface *>(_widget)->createNewAs<QWidget>(), this);

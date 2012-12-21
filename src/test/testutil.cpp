@@ -1,3 +1,4 @@
+#include <QtCore>
 #include <Malachite/Painter>
 #include "testutil.h"
 
@@ -5,6 +6,26 @@ using namespace Malachite;
 
 namespace TestUtil
 {
+
+QDir createTestDir()
+{
+	auto tempDir = QDir::temp();
+	
+	QProcess process;
+	process.start("rm -rf " + tempDir.filePath("test"));
+	process.waitForFinished();
+	
+	tempDir.mkdir("test");
+	tempDir.cd("test");
+	
+	return tempDir;
+}
+
+void createTestFile(const QString &path)
+{
+	QFile file(path);
+	file.open(QIODevice::WriteOnly);
+}
 
 Document *createTestDocument(QObject *parent)
 {

@@ -1,3 +1,4 @@
+#include <QtCore>
 #include "paintfield-core/documentio.h"
 
 #include "testutil.h"
@@ -10,9 +11,10 @@ Test_DocumentIO::Test_DocumentIO(QObject *parent) :
 
 void Test_DocumentIO::saveLoad()
 {
-	const QString path = "/Users/iofg2100/Desktop/test/test.pfield";
+	auto tempDir = TestUtil::createTestDir();
+	auto path = tempDir.filePath("test.pfield");
 	
-	Document *doc = TestUtil::createTestDocument(this);
+	auto doc = TestUtil::createTestDocument(this);
 	
 	{
 		DocumentIO documentIO;
@@ -24,4 +26,8 @@ void Test_DocumentIO::saveLoad()
 		DocumentIO documentIO(path);
 		openedDoc = documentIO.load(this);
 	}
+	
+	QCOMPARE(doc->layerModel()->rootLayer()->childCount(), openedDoc->layerModel()->rootLayer()->childCount());
 }
+
+AUTOTEST_ADD_CLASS(Test_DocumentIO)

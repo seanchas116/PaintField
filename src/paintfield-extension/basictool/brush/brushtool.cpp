@@ -9,16 +9,14 @@
 #include "paintfield-core/debug.h"
 #include "paintfield-core/widgets/simplebutton.h"
 
-#include "brushsettingsidebar.h"
-#include "penstroker.h"
+#include "brushstroker.h"
 
 #include "brushtool.h"
 
 
 using namespace Malachite;
 
-namespace PaintField
-{
+namespace PaintField {
 
 BrushTool::BrushTool(CanvasView *parent) :
 	Tool(parent)
@@ -85,16 +83,22 @@ void BrushTool::tabletReleaseEvent(CanvasTabletEvent *event)
 
 void BrushTool::beginStroke(const TabletInputData &data)
 {
-	PAINTFIELD_CALC_SCOPE_ELAPSED_TIME;
+	if (!_strokerFactory)
+		return;
 	
 	_layer = currentLayer();
+	
 	if (_layer->type() != Layer::TypeRaster)
-	{
 		return;
-	}
+	
+	PAINTFIELD_CALC_SCOPE_ELAPSED_TIME;
 	
 	_surface = _layer->surface();
-	_stroker.reset(new PenStroker(&_surface, _brushSetting, canvasView()->controller()->workspace()->paletteManager()->currentColor().toArgb()));
+	
+	_stroker.reset(_strokerFactory->createStroker(&_surface));
+	_stroker->loadSettings(_settings);
+	_stroker->setArgb(_argb);
+	
 	addCustomDrawLayer(_layer);
 	
 	// discard pressure for the 1st time to reduce overshoot
@@ -134,7 +138,6 @@ void BrushTool::endStroke(const TabletInputData &data)
 	{
 		document()->layerModel()->makeSkipNextUpdate();
 		document()->layerModel()->editLayer(document()->layerModel()->indexForLayer(_layer), new LayerSurfaceEdit(_surface, _stroker->totalEditedKeys()), tr("Brush"));
-		
 	}
 	
 	_stroker.reset();
@@ -162,5 +165,9 @@ void BrushTool::setPrevData(const TabletInputData &data)
 	}
 }
 
+void BrushTool::setBrushSettings(const QVariantMap &settings)
+{
+	_settings = settings;
+}
 
 }

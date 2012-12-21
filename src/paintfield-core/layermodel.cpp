@@ -250,9 +250,6 @@ bool LayerModel::setData(const QModelIndex &index, const QVariant &value, int ro
 
 bool LayerModel::setData(const QModelIndex &index, const QVariant &value, int role, const QString &description)
 {
-	PAINTFIELD_DEBUG << role;
-	PAINTFIELD_DEBUG << value;
-	
 	QString text = description;
 	
 	if (!index.isValid())
