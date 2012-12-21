@@ -17,8 +17,9 @@ public:
 	template <class Widget>
 	void addWidgets(const QList<Widget *> &widgets)
 	{
-		foreach (Widget *widget, widgets)
-			addWidget(widget);
+		_widgets.reserve(_widgets.size() + widgets.size());
+		for (Widget *widget : widgets)
+			_widgets << widget;
 	}
 	
 signals:

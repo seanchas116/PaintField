@@ -168,7 +168,6 @@ void BrushTool::setPrevData(const TabletInputData &data)
 
 void BrushTool::setBrushSize(int size)
 {
-	PAINTFIELD_DEBUG;
 	_size = size;
 }
 

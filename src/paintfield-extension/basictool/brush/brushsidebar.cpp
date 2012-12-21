@@ -60,7 +60,6 @@ void BrushSideBar::setBrushSize(int size)
 {
 	if (_brushSize != size)
 	{
-		PAINTFIELD_DEBUG;
 		_brushSize = size;
 		emit brushSizeChanged(size);
 	}

@@ -168,7 +168,7 @@ ColorSliderPanel::ColorSliderPanel(QWidget *parent) :
 	
 	connect(this, SIGNAL(rgbSelectedChanged(bool)), groupRgb, SLOT(setVisible(bool)));
 	connect(this, SIGNAL(rgb8SelectedChanged(bool)), groupRgb8, SLOT(setVisible(bool)));
-	connect(this, SIGNAL(hsvSelectedChanged(bool)), groupRgb8, SLOT(setVisible(bool)));
+	connect(this, SIGNAL(hsvSelectedChanged(bool)), groupHsv, SLOT(setVisible(bool)));
 	
 	setLayout(layout);
 	
