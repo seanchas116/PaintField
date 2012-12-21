@@ -19,7 +19,7 @@ class ApplicationEventFilter : public QObject
 {
 	Q_OBJECT
 public:
-	explicit ApplicationEventFilter(QObject *parent = 0) : QObject(parent), _targetWindow(0) {}
+	explicit ApplicationEventFilter(QObject *parent = 0);
 	
 	bool eventFilter(QObject *watched, QEvent *event);
 	
@@ -43,7 +43,7 @@ private:
 	
 #ifdef PAINTFIELD_ENABLE_TABLET_EVENT_FILTER
 	bool sendTabletEvent(QWidget *window, QTabletEvent *event);
-	QWidget *_targetWindow;
+	QWidget *_targetWindow = 0;
 #endif
 	bool _isTabletActive = false;
 	QTabletEvent::PointerType _tabletPointerType = QTabletEvent::UnknownPointer;

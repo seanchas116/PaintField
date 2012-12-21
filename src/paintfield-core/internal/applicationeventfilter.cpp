@@ -9,6 +9,10 @@ namespace PaintField
 
 using namespace Malachite;
 
+ApplicationEventFilter::ApplicationEventFilter(QObject *parent) :
+    QObject(parent)
+{}
+
 bool ApplicationEventFilter::eventFilter(QObject *watched, QEvent *event)
 {
 	switch (event->type())
@@ -24,11 +28,13 @@ bool ApplicationEventFilter::eventFilter(QObject *watched, QEvent *event)
 			
 			QWidget *window = _targetWindow ? _targetWindow : qobject_cast<QWidget *>(watched);
 			
-			if (!window || window->parent() != 0)
+			if (!window)
 				return true;
 			
-			event->setAccepted(sendTabletEvent(window, tabletEvent));
-			return true;
+			bool accepted = sendTabletEvent(window, tabletEvent);
+			
+			event->setAccepted(accepted);
+			return accepted;
 		}
 #endif
 		case QEvent::TabletEnterProximity:
@@ -117,11 +123,14 @@ bool ApplicationEventFilter::sendTabletEvent(QWidget *window, QTabletEvent *even
 		widget = widget->parentWidget();
 	}
 	
-	if (event->type() == QEvent::TabletPress)
-		_targetWindow = window;
-	
-	if (event->type() == QEvent::TabletRelease)
-		_targetWindow = 0;
+	if (window->hasMouseTracking())
+	{
+		if (event->type() == QEvent::TabletPress)
+			_targetWindow = window;
+		
+		if (event->type() == QEvent::TabletRelease)
+			_targetWindow = 0;
+	}
 	
 	return newEvent.isAccepted();
 }

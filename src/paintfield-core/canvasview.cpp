@@ -47,6 +47,8 @@ CanvasView::CanvasView(CanvasController *canvas, QWidget *parent) :
     _document(canvas->document()),
     _pixmap(_document->size())
 {
+	setMouseTracking(true);
+	
 	// TODO: can tablet events set focus?
 	setFocusPolicy(Qt::ClickFocus);
 	
