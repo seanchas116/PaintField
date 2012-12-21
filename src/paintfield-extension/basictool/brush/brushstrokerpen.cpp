@@ -120,7 +120,7 @@ void BrushStrokerPen::drawShape(const FixedMultiPolygon &shape)
 			
 			Painter painter(drawSurfaceEditor.tileRefForKey(key));
 			painter.setArgb(argb());
-			painter.setBlendMode(BlendModeSourceOver);
+			painter.setBlendMode(_settings.blendMode);
 			painter.drawTransformedPolygons(drawShape);
 			
 			keysWithRects.insert(key, dividedBoundingRect);
