@@ -285,6 +285,7 @@ void CanvasView::moveScrollBars()
 
 void CanvasView::onClicked()
 {
+	setFocus();
 	controller()->workspace()->setCurrentCanvas(controller());
 }
 

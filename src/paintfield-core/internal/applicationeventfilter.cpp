@@ -26,7 +26,7 @@ bool ApplicationEventFilter::eventFilter(QObject *watched, QEvent *event)
 		{
 			auto tabletEvent = static_cast<QTabletEvent *>(event);
 			
-			QWidget *window = _targetWindow ? _targetWindow : qobject_cast<QWidget *>(watched);
+			QWidget *window = _trackedWindow ? _trackedWindow : qobject_cast<QWidget *>(watched);
 			
 			if (!window)
 				return true;
@@ -84,6 +84,20 @@ bool ApplicationEventFilter::sendTabletEvent(QWidget *window, QTabletEvent *even
 	Q_CHECK_PTR(window);
 	Q_CHECK_PTR(event);
 	
+	// start tracking widget
+	if (window->hasMouseTracking() && event->type() == QEvent::TabletPress)
+	{
+		_trackedWindow = window;
+		_tabletEventAcceptedInTargetWindow = true;
+	}
+	
+	if (event->type() == QEvent::TabletRelease)
+		_trackedWindow = 0;
+	
+	// does not handle tablet event if once the tracked widget ignored it
+	if (_trackedWindow && !_tabletEventAcceptedInTargetWindow)
+		return false;
+	
 	TabletInputData data(event->hiResGlobalPos(),
 						 event->pressure(),
 						 event->rotation(),
@@ -123,14 +137,8 @@ bool ApplicationEventFilter::sendTabletEvent(QWidget *window, QTabletEvent *even
 		widget = widget->parentWidget();
 	}
 	
-	if (window->hasMouseTracking())
-	{
-		if (event->type() == QEvent::TabletPress)
-			_targetWindow = window;
-		
-		if (event->type() == QEvent::TabletRelease)
-			_targetWindow = 0;
-	}
+	if (_trackedWindow && event->type() == QEvent::TabletPress)
+		_tabletEventAcceptedInTargetWindow = newEvent.isAccepted();
 	
 	return newEvent.isAccepted();
 }

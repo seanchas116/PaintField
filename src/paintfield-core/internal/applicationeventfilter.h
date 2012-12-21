@@ -43,7 +43,8 @@ private:
 	
 #ifdef PAINTFIELD_ENABLE_TABLET_EVENT_FILTER
 	bool sendTabletEvent(QWidget *window, QTabletEvent *event);
-	QWidget *_targetWindow = 0;
+	QWidget *_trackedWindow = 0;
+	bool _tabletEventAcceptedInTargetWindow = false;
 #endif
 	bool _isTabletActive = false;
 	QTabletEvent::PointerType _tabletPointerType = QTabletEvent::UnknownPointer;
