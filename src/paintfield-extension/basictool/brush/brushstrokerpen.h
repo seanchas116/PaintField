@@ -33,9 +33,6 @@ private:
 	//static Malachite::Polygon calcTangentQuadrangle(double radius1, const Malachite::Vec2D &center1, double radius2, const Malachite::Vec2D &center2);
 	
 	QHash<QPoint, Malachite::FixedMultiPolygon> _drawnShapes;
-	double _radiusBase;
-	double _diameter = 10;
-	
 	Settings _settings;
 };
 

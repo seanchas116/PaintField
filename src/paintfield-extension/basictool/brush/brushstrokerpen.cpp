@@ -48,9 +48,8 @@ BrushStrokerPen::BrushStrokerPen(Surface *surface) :
 void BrushStrokerPen::drawFirst(const TabletInputData &data)
 {
 	_drawnShapes.clear();
-	_radiusBase = _diameter * 0.5;
 	
-	double radius = data.pressure * _radiusBase;
+	double radius = data.pressure * radiusBase();
 	
 	QPainterPath ellipsePath;
 	ellipsePath.addEllipse(data.pos, radius, radius);
@@ -73,7 +72,7 @@ void BrushStrokerPen::drawInterval(const Polygon &polygon, const TabletInputData
 	
 	FixedMultiPolygon shape;
 	
-	double radius = pressure * _radiusBase;
+	double radius = pressure * radiusBase();
 	
 	for (int i = 1; i < polygon.size(); ++i)
 	{
@@ -83,7 +82,7 @@ void BrushStrokerPen::drawInterval(const Polygon &polygon, const TabletInputData
 		pressure += pressureNormalized * lengths.at(i-1);
 		
 		double prevRadius = radius;
-		radius = pressure * _radiusBase;
+		radius = pressure * radiusBase();
 		
 		shape = shape | FixedMultiPolygon(calcTangentQuadrangle(prevRadius, polygon.at(i-1), radius, polygon.at(i), lengths.at(i-1)));
 		//shape = shape | FixedPolygon(Polygon::fromEllipse(polygon.at(i), Vec2D(radius)));

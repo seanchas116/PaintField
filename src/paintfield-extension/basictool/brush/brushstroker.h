@@ -13,8 +13,8 @@ public:
 	BrushStroker(Malachite::Surface *surface);
 	virtual ~BrushStroker() {}
 	
-	void setRadius(double radius) { _radius = radius; }
-	double radius() const { return _radius; }
+	void setRadiusBase(double radius) { _radiusBase = radius; }
+	double radiusBase() const { return _radiusBase; }
 	
 	void setArgb(const Malachite::Vec4F &argb) { _argb = argb; }
 	Malachite::Vec4F argb() const { return _argb; }
@@ -55,7 +55,7 @@ private:
 	//MLVec2D _v1, v2;
 	
 	Malachite::Vec4F _argb;
-	double _radius = 10;
+	double _radiusBase = 10;
 };
 
 class BrushStrokerFactory : public QObject

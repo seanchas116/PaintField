@@ -2,6 +2,8 @@
 #include "paintfield-core/widgets/simplebutton.h"
 #include "paintfield-core/debug.h"
 
+#include "brushpreferencesmanager.h"
+#include "brushsidebar.h"
 #include "brushstrokerfactorymanager.h"
 #include "brushpresetmanager.h"
 #include "brushlibrarycontroller.h"
@@ -14,11 +16,13 @@ namespace PaintField {
 
 const QString _brushToolName("paintfield.tool.brush");
 const QString _brushLibrarySidebarName("paintfield.sidebar.brushLibrary");
+const QString _brushSideBarName("paintfield.sidebar.brush");
 
 BrushToolModule::BrushToolModule(WorkspaceController *workspace, QObject *parent) :
     WorkspaceModule(workspace, parent),
     _presetManager(new BrushPresetManager(this)),
-    _strokerFactoryManager(new BrushStrokerFactoryManager(this))
+    _strokerFactoryManager(new BrushStrokerFactoryManager(this)),
+    _preferencesManager(new BrushPreferencesManager(this))
 {
 	_strokerFactoryManager->addFactory(new BrushSourcePenFactory);
 	connect(_presetManager, SIGNAL(strokerChanged(QString)), this, SLOT(onStrokerChanged(QString)));
@@ -26,6 +30,15 @@ BrushToolModule::BrushToolModule(WorkspaceController *workspace, QObject *parent
 	auto libraryController = new BrushLibraryController(_presetManager, this);
 	
 	addSideBar(_brushLibrarySidebarName, libraryController->view());
+	
+	{
+		auto brushSideBar = new BrushSideBar;
+		connect(brushSideBar, SIGNAL(brushSizeChanged(int)), _preferencesManager, SLOT(setBrushSize(int)));
+		connect(_preferencesManager, SIGNAL(brushSizeChanged(int)), brushSideBar, SLOT(setBrushSize(int)));
+		connect(_presetManager, SIGNAL(metadataChanged(BrushPresetMetadata)), brushSideBar, SLOT(setPresetMetadata(BrushPresetMetadata)));
+		
+		addSideBar(_brushSideBarName, brushSideBar);
+	}
 }
 
 Tool *BrushToolModule::createTool(const QString &name, CanvasView *parent)
@@ -42,6 +55,9 @@ Tool *BrushToolModule::createTool(const QString &name, CanvasView *parent)
 		
 		tool->setStrokerFactory(_strokerFactoryManager->factory(_presetManager->stroker()));
 		tool->setBrushSettings(_presetManager->settings());
+		
+		connect(_preferencesManager, SIGNAL(brushSizeChanged(int)), tool, SLOT(setBrushSize(int)));
+		tool->setBrushSize(_preferencesManager->brushSize());
 		
 		return tool;
 	}
@@ -65,6 +81,7 @@ void BrushToolModuleFactory::initialize(AppController *app)
 	
 	{
 		app->declareSideBar(_brushLibrarySidebarName, SidebarDeclaration(tr("Brush Library")));
+		app->declareSideBar(_brushSideBarName, SidebarDeclaration(tr("Brush")));
 	}
 }
 

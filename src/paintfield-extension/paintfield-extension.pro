@@ -46,7 +46,9 @@ HEADERS += \
     basictool/brush/brushstroker.h \
     basictool/brush/brushstrokerfactorymanager.h \
     basictool/brush/brushstrokerpen.h \
-    basictool/brush/brushstrokercustombrush.h
+    basictool/brush/brushstrokercustombrush.h \
+    basictool/brush/brushpreferencesmanager.h \
+    basictool/brush/brushsidebar.h
 SOURCES += \
            colorui/colorsidebar.cpp \
            colorui/coloruimodule.cpp \
@@ -71,7 +73,9 @@ SOURCES += \
     basictool/brush/brushstroker.cpp \
     basictool/brush/brushstrokerfactorymanager.cpp \
     basictool/brush/brushstrokerpen.cpp \
-    basictool/brush/brushstrokercustombrush.cpp
+    basictool/brush/brushstrokercustombrush.cpp \
+    basictool/brush/brushpreferencesmanager.cpp \
+    basictool/brush/brushsidebar.cpp
 
 RESOURCES += \
     resources/resources.qrc

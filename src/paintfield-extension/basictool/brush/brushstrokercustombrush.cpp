@@ -81,7 +81,7 @@ Image BrushStrokerCustomBrush::drawDabImage(const TabletInputData &data, QRect *
 	Q_ASSERT(data.pressure > 0);
 	
 	Vec2D radiusVec;
-	radiusVec.x = radius() * data.pressure;
+	radiusVec.x = radiusBase() * data.pressure;
 	radiusVec.y = radiusVec.x * (1.0 - _setting.flattening);
 	
 	_lastMinorRadius = radiusVec.y;

@@ -5,7 +5,8 @@
         [
             [
                 ["paintfield.sidebar.navigator"],
-                ["paintfield.sidebar.color", "paintfield.sidebar.brushSettings"],
+                ["paintfield.sidebar.color"],
+                ["paintfield.sidebar.brush"],
                 ["paintfield.sidebar.brushLibrary"],
                 ["paintfield.sidebar.layerTree"]
             ]

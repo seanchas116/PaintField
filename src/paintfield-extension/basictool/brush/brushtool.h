@@ -28,6 +28,7 @@ public slots:
 	void setColor(const Malachite::Color &color) { _argb = color.toArgb(); }
 	void setStrokerFactory(BrushStrokerFactory *factory) { _strokerFactory = factory; }
 	void setBrushSettings(const QVariantMap &settings);
+	void setBrushSize(int size);
 	
 protected:
 	
@@ -51,6 +52,7 @@ private:
 	BrushStrokerFactory *_strokerFactory = 0;
 	QScopedPointer<BrushStroker> _stroker;
 	QVariantMap _settings;
+	int _size;
 	TabletInputData _dataPrev, _dataBeforePrev;
 	bool _dataPrevSet = false, _trailing = false;
 	bool _trailingEnabled = false;

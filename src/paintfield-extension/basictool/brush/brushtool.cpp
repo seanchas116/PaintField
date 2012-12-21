@@ -98,6 +98,7 @@ void BrushTool::beginStroke(const TabletInputData &data)
 	_stroker.reset(_strokerFactory->createStroker(&_surface));
 	_stroker->loadSettings(_settings);
 	_stroker->setArgb(_argb);
+	_stroker->setRadiusBase(double(_size) * 0.5);
 	
 	addCustomDrawLayer(_layer);
 	
@@ -163,6 +164,12 @@ void BrushTool::setPrevData(const TabletInputData &data)
 		_dataPrev = data;
 		_dataPrevSet = true;
 	}
+}
+
+void BrushTool::setBrushSize(int size)
+{
+	PAINTFIELD_DEBUG;
+	_size = size;
 }
 
 void BrushTool::setBrushSettings(const QVariantMap &settings)

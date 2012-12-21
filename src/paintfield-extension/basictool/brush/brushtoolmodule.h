@@ -10,6 +10,7 @@ class BrushSettingSidebar;
 class BrushPresetManager;
 class BrushStrokerFactory;
 class BrushStrokerFactoryManager;
+class BrushPreferencesManager;
 
 class BrushToolModule : public WorkspaceModule
 {
@@ -34,6 +35,7 @@ private:
 	
 	BrushPresetManager *_presetManager = 0;
 	BrushStrokerFactoryManager *_strokerFactoryManager = 0;
+	BrushPreferencesManager *_preferencesManager = 0;
 };
 
 class BrushToolModuleFactory : public ModuleFactory
