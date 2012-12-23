@@ -21,6 +21,9 @@ public:
 	
 	void drawLayer(Malachite::SurfacePainter *painter, const Layer *layer);
 	
+	void drawCustomCursor(QPainter *painter, const Malachite::Vec2D &pos);
+	QRect customCursorRect(const Malachite::Vec2D &pos);
+	
 signals:
 	
 public slots:
@@ -52,7 +55,7 @@ private:
 	BrushStrokerFactory *_strokerFactory = 0;
 	QScopedPointer<BrushStroker> _stroker;
 	QVariantMap _settings;
-	int _size;
+	int _brushSize;
 	TabletInputData _dataPrev, _dataBeforePrev;
 	bool _dataPrevSet = false, _trailing = false;
 	bool _trailingEnabled = false;

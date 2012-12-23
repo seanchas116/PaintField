@@ -38,35 +38,13 @@ bool ApplicationEventFilter::eventFilter(QObject *watched, QEvent *event)
 		}
 #endif
 		case QEvent::TabletEnterProximity:
+		{
+			emit tabletEntered(static_cast<QTabletEvent *>(event));
+			return true;
+		}
 		case QEvent::TabletLeaveProximity:
 		{
-			QTabletEvent *tabletEvent = static_cast<QTabletEvent *>(event);
-			
-			if (tabletEvent->type() == QEvent::TabletEnterProximity)
-			{
-				_isTabletActive = true;
-				emit tabletActiveChanged(true);
-				emit tabletActivated();
-				
-				if (_tabletPointerType != tabletEvent->pointerType())
-				{
-					_tabletPointerType = tabletEvent->pointerType();
-					emit tabletPointerTypeChanged(_tabletPointerType);
-				}
-				
-				if (_tabletId != tabletEvent->uniqueId())
-				{
-					_tabletId = tabletEvent->uniqueId();
-					emit tabletIdChanged(_tabletId);
-				}
-			}
-			else
-			{
-				_isTabletActive = false;
-				emit tabletActiveChanged(false);
-				emit tabletDeactivated();
-			}
-			
+			emit tabletLeft(static_cast<QTabletEvent *>(event));
 			return true;
 		}
 		case QEvent::FileOpen:

@@ -23,17 +23,10 @@ public:
 	
 	bool eventFilter(QObject *watched, QEvent *event);
 	
-	bool isTabletActive() const { return _isTabletActive; }
-	QTabletEvent::PointerType tabletPointerType() const { return _tabletPointerType; }
-	quint64 tabletId() const { return _tabletId; }
-	
 signals:
 	
-	void tabletActivated();
-	void tabletDeactivated();
-	void tabletActiveChanged(bool active);
-	void tabletPointerTypeChanged(QTabletEvent::PointerType type);
-	void tabletIdChanged(quint64 id);
+	void tabletEntered(QTabletEvent *ev);
+	void tabletLeft(QTabletEvent *ev);
 	
 	void fileOpenRequested(const QString &path);
 	
@@ -42,13 +35,12 @@ public slots:
 private:
 	
 #ifdef PAINTFIELD_ENABLE_TABLET_EVENT_FILTER
+	
 	bool sendTabletEvent(QWidget *window, QTabletEvent *event);
 	QWidget *_trackedWindow = 0;
 	bool _tabletEventAcceptedInTargetWindow = false;
+	
 #endif
-	bool _isTabletActive = false;
-	QTabletEvent::PointerType _tabletPointerType = QTabletEvent::UnknownPointer;
-	qint64 _tabletId = 0;
 };
 
 }

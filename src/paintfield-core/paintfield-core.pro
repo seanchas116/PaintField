@@ -75,7 +75,8 @@ HEADERS += \
     signalconverter.h \
     callbackanimation.h \
     librarymodel.h \
-    list.h
+    list.h \
+    widgets/navigatablearea.h
 FORMS += dialogs/exportdialog.ui dialogs/newdocumentdialog.ui
 SOURCES += \
            canvascontroller.cpp \
@@ -125,4 +126,5 @@ SOURCES += \
     widgets/vanishingscrollbar.cpp \
     signalconverter.cpp \
     callbackanimation.cpp \
-    librarymodel.cpp
+    librarymodel.cpp \
+    widgets/navigatablearea.cpp

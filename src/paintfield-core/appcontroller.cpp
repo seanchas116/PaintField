@@ -9,13 +9,13 @@
 namespace PaintField
 {
 
-AppController::AppController(QObject *parent) :
-	QObject(parent)
+AppController::AppController(Application *app, QObject *parent) :
+	QObject(parent),
+    _app(app),
+    _workspaceManager(new WorkspaceManager(this)),
+    _moduleManager(new ModuleManager(this))
 {
 	_instance = this;
-	
-	_workspaceManager = new WorkspaceManager(this);
-	_moduleManager = new ModuleManager(this);
 	
 	declareMenus();
 	createActions();
@@ -76,7 +76,7 @@ void AppController::declareMenus()
 	declareAction("paintfield.view.splitHorizontally",
 	              tr("Split Horizontally"));
 	declareAction("paintfield.view.closeCurrentSplit",
-	              tr("Close current split"));
+	              tr("Close Current Split"));
 	
 	declareMenu("paintfield.window",
 	            tr("Window"));

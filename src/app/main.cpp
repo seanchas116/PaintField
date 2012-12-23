@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
 	
 	QTextCodec::setCodecForCStrings(QTextCodec::codecForLocale());
 	
-	AppController appCon;
+	AppController appCon(&a);
 	
 	appCon.loadMenuBarOrderFromJson(":/menubar.json");
 	appCon.loadWorkspaceItemOrderFromJson(":/panels.json");

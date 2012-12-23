@@ -19,14 +19,14 @@ namespace PaintField
 class ToolManager;
 
 /**
- * The FSTool object delegates editing of a layer in each CanvasView.
+ * The Tool object delegates editing of a layer in each CanvasView.
  * It is owned by a CanvasView and recreated whenever the user change the current tool or a new canvas is created.
  */
 class Tool : public QObject
 {
-	friend class ToolManager;
-	
 	Q_OBJECT
+	Q_PROPERTY(QCursor cursor READ cursor)
+	
 public:
 	
 	explicit Tool(CanvasView *parent = 0) : QObject(parent) {}
@@ -57,6 +57,12 @@ public:
 	void clearCustomDrawLayer() { _customDrawLayers.clear(); }
 	LayerConstList customDrawLayers() { return _customDrawLayers; }
 	
+	virtual void drawCustomCursor(QPainter *painter, const Malachite::Vec2D &pos) { Q_UNUSED(painter) Q_UNUSED(pos) }
+	virtual QRect customCursorRect(const Malachite::Vec2D &pos) { Q_UNUSED(pos) return QRect(); }
+	
+	bool isCustomCursorEnabled() const { return _customCursorEnabled; }
+	QCursor cursor() const { return _cursor; }
+	
 	virtual void mouseMoveEvent(CanvasMouseEvent *event) { event->ignore(); return; }
 	virtual void mousePressEvent(CanvasMouseEvent *event) { event->ignore(); return; }
 	virtual void mouseReleaseEvent(CanvasMouseEvent *event) { event->ignore(); return; }
@@ -78,7 +84,12 @@ signals:
 	void requestUpdate(const QPointSet &tiles);
 	void requestUpdate(const QHash<QPoint, QRect> &rects);
 	
+	void cursorChanged(const QCursor &cursor);
+	
 protected:
+	
+	void setCustomCursorEnabled(bool enabled) { _customCursorEnabled = enabled; }
+	void setCursor(const QCursor &cursor) { emit cursorChanged(cursor); _cursor = cursor; }
 	
 	CanvasView *canvasView() { return static_cast<CanvasView *>(parent()); }
 	Document *document() { return canvasView()->document(); }
@@ -88,6 +99,8 @@ protected:
 private:
 	
 	LayerConstList _customDrawLayers;
+	QCursor _cursor;
+	bool _customCursorEnabled;
 };
 
 }

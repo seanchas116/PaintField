@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QDir>
 
+#include "application.h"
 #include "util.h"
 #include "palettemanager.h"
 #include "workspacemanager.h"
@@ -21,7 +22,7 @@ class AppController : public QObject
 	Q_OBJECT
 public:
 	
-	explicit AppController(QObject *parent = 0);
+	explicit AppController(Application *app, QObject *parent = 0);
 	
 	void begin();
 	
@@ -79,6 +80,8 @@ public:
 	QString builtinContentsDir() const;
 	QString userContentsDir() const;
 	
+	Application *app() { return _app; }
+	
 signals:
 	
 public slots:
@@ -94,6 +97,8 @@ private:
 	
 	void declareMenus();
 	void createActions();
+	
+	Application *_app = 0;
 	
 	WorkspaceManager *_workspaceManager = 0;
 	
