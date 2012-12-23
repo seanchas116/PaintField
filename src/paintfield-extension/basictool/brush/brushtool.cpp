@@ -35,9 +35,16 @@ void BrushTool::drawLayer(SurfacePainter *painter, const Layer *layer)
 void BrushTool::drawCustomCursor(QPainter *painter, const Vec2D &pos)
 {
 	double radius = _brushSize * 0.5 * canvasView()->scale();
-	painter->setPen(Qt::black);
+	
+	QColor color(255, 255, 255, 128);
+	
+	painter->setCompositionMode(QPainter::CompositionMode_Difference);
+	painter->setPen(color);
 	painter->setBrush(Qt::NoBrush);
 	painter->drawEllipse(pos, radius, radius);
+	painter->setPen(Qt::NoPen);
+	painter->setBrush(color);
+	painter->drawEllipse(pos, 1, 1);
 }
 
 QRect BrushTool::customCursorRect(const Vec2D &pos)

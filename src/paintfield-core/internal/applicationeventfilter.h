@@ -1,7 +1,9 @@
 #ifndef APPLICATIONEVENTFILTER_H
 #define APPLICATIONEVENTFILTER_H
 
+#include <QWidget>
 #include <QObject>
+#include <QPointer>
 #include <QTabletEvent>
 
 #ifdef Q_OS_MAC
@@ -37,8 +39,8 @@ private:
 #ifdef PAINTFIELD_ENABLE_TABLET_EVENT_FILTER
 	
 	bool sendTabletEvent(QWidget *window, QTabletEvent *event);
-	QWidget *_trackedWindow = 0;
-	bool _tabletEventAcceptedInTargetWindow = false;
+	QWidget *_trackedWidget = 0;
+	QPointer<QWidget> _prevWidget = 0;
 	
 #endif
 };

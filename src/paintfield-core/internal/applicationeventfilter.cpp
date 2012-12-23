@@ -26,7 +26,7 @@ bool ApplicationEventFilter::eventFilter(QObject *watched, QEvent *event)
 		{
 			auto tabletEvent = static_cast<QTabletEvent *>(event);
 			
-			QWidget *window = _trackedWindow ? _trackedWindow : qobject_cast<QWidget *>(watched);
+			QWidget *window = qobject_cast<QWidget *>(watched);
 			
 			if (!window)
 				return true;
@@ -62,20 +62,6 @@ bool ApplicationEventFilter::sendTabletEvent(QWidget *window, QTabletEvent *even
 	Q_CHECK_PTR(window);
 	Q_CHECK_PTR(event);
 	
-	// start tracking widget
-	if (window->hasMouseTracking() && event->type() == QEvent::TabletPress)
-	{
-		_trackedWindow = window;
-		_tabletEventAcceptedInTargetWindow = true;
-	}
-	
-	if (event->type() == QEvent::TabletRelease)
-		_trackedWindow = 0;
-	
-	// does not handle tablet event if once the tracked widget ignored it
-	if (_trackedWindow && !_tabletEventAcceptedInTargetWindow)
-		return false;
-	
 	TabletInputData data(event->hiResGlobalPos(),
 						 event->pressure(),
 						 event->rotation(),
@@ -99,24 +85,57 @@ bool ApplicationEventFilter::sendTabletEvent(QWidget *window, QTabletEvent *even
 	WidgetTabletEvent newEvent(toNewEventType(event->type()), event->globalPos(), event->pos(), data, event->modifiers());
 	newEvent.setAccepted(false);
 	
+	auto sendWidgetTabletEvent = [](WidgetTabletEvent *ev, QWidget *w)
+	{
+		ev->posInt = w->mapFromGlobal(ev->globalPosInt);
+		QApplication::sendEvent(w, ev);
+	};
+	
+	if (_trackedWidget)
+	{
+		sendWidgetTabletEvent(&newEvent, _trackedWidget);
+		
+		if (event->type() == QEvent::TabletRelease)
+			_trackedWidget = 0;
+		
+		return newEvent.isAccepted();
+	}
+	
 	QWidget *widget = window->childAt(newEvent.posInt);
+	
+	if (_prevWidget != widget)
+	{
+		if (_prevWidget)
+		{
+			QEvent leave(QEvent::Leave);
+			QApplication::sendEvent(_prevWidget, &leave);
+		}
+		
+		if (widget)
+		{
+			QEvent enter(QEvent::Enter);
+			QApplication::sendEvent(widget, &enter);
+		}
+		
+		_prevWidget = widget;
+	}
 	
 	forever
 	{
 		if (!widget)
 			return false;
 		
-		newEvent.posInt = widget->mapFromGlobal(newEvent.globalPosInt);
-		QCoreApplication::sendEvent(widget, &newEvent);
+		sendWidgetTabletEvent(&newEvent, widget);
 		
 		if (newEvent.isAccepted())
+		{
+			if (widget->hasMouseTracking() && event->type() == QEvent::TabletPress)
+				_trackedWidget = widget;
+			
 			break;
-		
+		}
 		widget = widget->parentWidget();
 	}
-	
-	if (_trackedWindow && event->type() == QEvent::TabletPress)
-		_tabletEventAcceptedInTargetWindow = newEvent.isAccepted();
 	
 	return newEvent.isAccepted();
 }
