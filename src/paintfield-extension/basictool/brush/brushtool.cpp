@@ -68,7 +68,7 @@ void BrushTool::tabletPressEvent(CanvasTabletEvent *event)
 
 void BrushTool::tabletMoveEvent(CanvasTabletEvent *event)
 {
-	if (event->data.pressure)
+	if (event->data.pressure && isStroking())
 	{
 		drawStroke(event->data);
 		event->accept();
