@@ -31,7 +31,7 @@ bool ApplicationEventFilter::eventFilter(QObject *watched, QEvent *event)
 			if (!window)
 				return true;
 			
-			bool accepted = sendTabletEvent(window, tabletEvent);
+			bool accepted = sendTabletEventToWindow(window, tabletEvent);
 			
 			event->setAccepted(accepted);
 			return accepted;
@@ -57,7 +57,7 @@ bool ApplicationEventFilter::eventFilter(QObject *watched, QEvent *event)
 }
 
 #ifdef PAINTFIELD_ENABLE_TABLET_EVENT_FILTER
-bool ApplicationEventFilter::sendTabletEvent(QWidget *window, QTabletEvent *event)
+bool ApplicationEventFilter::sendTabletEventToWindow(QWidget *window, QTabletEvent *event)
 {
 	Q_CHECK_PTR(window);
 	Q_CHECK_PTR(event);
@@ -85,24 +85,60 @@ bool ApplicationEventFilter::sendTabletEvent(QWidget *window, QTabletEvent *even
 	WidgetTabletEvent newEvent(toNewEventType(event->type()), event->globalPos(), event->pos(), data, event->modifiers());
 	newEvent.setAccepted(false);
 	
-	auto sendWidgetTabletEvent = [](WidgetTabletEvent *ev, QWidget *w)
+	if (_targetWidget)
 	{
-		ev->posInt = w->mapFromGlobal(ev->globalPosInt);
-		QApplication::sendEvent(w, ev);
-	};
-	
-	if (_trackedWidget)
-	{
-		sendWidgetTabletEvent(&newEvent, _trackedWidget);
+		sendWidgetTabletEvent(&newEvent, _targetWidget);
 		
 		if (event->type() == QEvent::TabletRelease)
-			_trackedWidget = 0;
+			_targetWidget = 0;
 		
 		return newEvent.isAccepted();
 	}
 	
 	QWidget *widget = window->childAt(newEvent.posInt);
+	setPrevWidget(widget);
 	
+	if (!widget)
+		widget = window;
+	
+	if (event->type() == QEvent::TabletPress)
+		_lastPressedWidget = widget;
+	
+	if (event->type() == QEvent::TabletRelease)
+		_lastPressedWidget = 0;
+	
+	if (_lastPressedWidget && _lastPressedWidget != widget)
+		newEvent.globalData.pressure = 0;
+	
+	forever
+	{
+		if (!widget)
+			break;
+		
+		sendWidgetTabletEvent(&newEvent, widget);
+		
+		if (newEvent.isAccepted())
+		{
+			if (event->type() == QEvent::TabletPress)
+			{
+				_targetWidget = widget;
+			}
+			break;
+		}
+		widget = widget->parentWidget();
+	}
+	
+	return newEvent.isAccepted();
+}
+
+void ApplicationEventFilter::sendWidgetTabletEvent(WidgetTabletEvent *event, QWidget *widget)
+{
+	event->posInt = widget->mapFromGlobal(event->globalPosInt);
+	QApplication::sendEvent(widget, event);
+}
+
+void ApplicationEventFilter::setPrevWidget(QWidget *widget)
+{
 	if (_prevWidget != widget)
 	{
 		if (_prevWidget)
@@ -119,26 +155,8 @@ bool ApplicationEventFilter::sendTabletEvent(QWidget *window, QTabletEvent *even
 		
 		_prevWidget = widget;
 	}
-	
-	forever
-	{
-		if (!widget)
-			return false;
-		
-		sendWidgetTabletEvent(&newEvent, widget);
-		
-		if (newEvent.isAccepted())
-		{
-			if (widget->hasMouseTracking() && event->type() == QEvent::TabletPress)
-				_trackedWidget = widget;
-			
-			break;
-		}
-		widget = widget->parentWidget();
-	}
-	
-	return newEvent.isAccepted();
 }
+
 #endif
 
 }

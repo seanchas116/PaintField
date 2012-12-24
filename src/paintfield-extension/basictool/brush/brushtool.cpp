@@ -55,53 +55,38 @@ QRect BrushTool::customCursorRect(const Vec2D &pos)
 
 void BrushTool::tabletPressEvent(CanvasTabletEvent *event)
 {
-	event->accept();
+	if (event->data.pressure)
+	{
+		beginStroke(event->data);
+		event->accept();
+	}
+	else
+	{
+		event->ignore();
+	}
 }
 
 void BrushTool::tabletMoveEvent(CanvasTabletEvent *event)
 {
-	//PAINTFIELD_DEBUG << "tablet event x:" << event->data.pos.x << "y:" << event->data.pos.y << "pressure:" << event->data.pressure;
-	
-	if (_stroker)
+	if (event->data.pressure)
 	{
-		if (_trailingEnabled)
-		{
-			if (_trailing)
-			{
-				_trailing = false;
-				endStroke(event->data);
-			}
-			else
-			{
-				drawStroke(event->data);
-				if (event->data.pressure == 0)
-					_trailing = true;
-			}
-		}
-		else
-		{
-			if (event->data.pressure)
-				drawStroke(event->data);
-			else
-				endStroke(event->data);
-		}
+		drawStroke(event->data);
+		event->accept();
 	}
-	else if (event->data.pressure)
+	else
 	{
-		if (!_dataPrevSet)
-			setPrevData(event->data);
+		if (isStroking())
+			endStroke(event->data);
 		
-		beginStroke(event->data);
+		event->ignore();
 	}
 	
 	setPrevData(event->data);
-	
-	event->accept();
 }
 
 void BrushTool::tabletReleaseEvent(CanvasTabletEvent *event)
 {
-	event->accept();
+	event->ignore();
 }
 
 void BrushTool::beginStroke(const TabletInputData &data)
@@ -129,16 +114,14 @@ void BrushTool::beginStroke(const TabletInputData &data)
 	TabletInputData newData = data;
 	newData.pressure = 0;
 	
-	if (_trailingEnabled)
+	if (_dataPrevSet)
 	{
-		_stroker->moveTo(_dataBeforePrev);
-		_stroker->lineTo(_dataPrev);
+		_stroker->moveTo(_dataPrev);
 		_stroker->lineTo(newData);
 	}
 	else
 	{
-		_stroker->moveTo(_dataPrev);
-		_stroker->lineTo(newData);
+		_stroker->moveTo(newData);
 	}
 }
 
@@ -176,17 +159,8 @@ void BrushTool::updateTiles()
 
 void BrushTool::setPrevData(const TabletInputData &data)
 {
-	if (_dataPrevSet)
-	{
-		_dataBeforePrev = _dataPrev;
-		_dataPrev = data;
-	}
-	else
-	{
-		_dataBeforePrev = data;
-		_dataPrev = data;
-		_dataPrevSet = true;
-	}
+	_dataPrev = data;
+	_dataPrevSet = true;
 }
 
 void BrushTool::setBrushSize(int size)

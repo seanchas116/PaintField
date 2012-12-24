@@ -60,23 +60,32 @@ CanvasView::CanvasView(CanvasController *canvas, QWidget *parent) :
 }
 
 CanvasView::~CanvasView()
-{}
+{
+	qApp->restoreOverrideCursor();
+}
 
 void CanvasView::setTool(Tool *tool)
 {
 	_tool.reset(tool);
+	
 	if (tool)
 	{
 		connect(tool, SIGNAL(requestUpdate(QPointSet)), this, SLOT(updateTiles(QPointSet)));
 		connect(tool, SIGNAL(requestUpdate(QHash<QPoint,QRect>)), this, SLOT(updateTiles(QHash<QPoint,QRect>)));
 		
 		if (tool->isCustomCursorEnabled())
+			_toolCursor = QCursor(Qt::BlankCursor);
+		else
+			_toolCursor = tool->cursor();
+		
+		/*
+		if (tool->isCustomCursorEnabled())
 			setCursor(QCursor(Qt::BlankCursor));
 		else
 		{
 			connect(tool, SIGNAL(cursorChanged(QCursor)), this, SLOT(onToolCursorChanged(QCursor)));
 			setCursor(tool->cursor());
-		}
+		}*/
 	}
 }
 
@@ -156,12 +165,16 @@ void CanvasView::enterEvent(QEvent *e)
 {
 	PAINTFIELD_DEBUG;
 	super::enterEvent(e);
+	qApp->setOverrideCursor(_toolCursor);
 }
 
 void CanvasView::leaveEvent(QEvent *e)
 {
 	PAINTFIELD_DEBUG;
 	super::leaveEvent(e);
+	
+	while (qApp->overrideCursor())
+		qApp->restoreOverrideCursor();
 }
 
 void CanvasView::mouseDoubleClickEvent(QMouseEvent *event)
@@ -360,7 +373,7 @@ void CanvasView::repaintDesignatedRect()
 {
 	if (_repaintRect.isValid())
 	{
-		PAINTFIELD_DEBUG << "repainting" << _repaintRect;
+		//PAINTFIELD_DEBUG << "repainting" << _repaintRect;
 		repaint(_repaintRect);
 		_repaintRect = QRect();
 	}

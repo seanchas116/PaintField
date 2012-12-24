@@ -81,6 +81,8 @@ private:
 	QRect _prevCustomCursorRect;
 	Malachite::Vec2D _customCursorPos;
 	bool _tabletActive = false;
+	
+	QCursor _toolCursor;
 };
 
 }

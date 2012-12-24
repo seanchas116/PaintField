@@ -15,7 +15,7 @@ class QTabletEvent;
 namespace PaintField
 {
 
-class CanvasTabletEvent;
+class WidgetTabletEvent;
 
 class ApplicationEventFilter : public QObject
 {
@@ -38,9 +38,14 @@ private:
 	
 #ifdef PAINTFIELD_ENABLE_TABLET_EVENT_FILTER
 	
-	bool sendTabletEvent(QWidget *window, QTabletEvent *event);
-	QWidget *_trackedWidget = 0;
-	QPointer<QWidget> _prevWidget = 0;
+	bool sendTabletEventToWindow(QWidget *window, QTabletEvent *event);
+	void sendWidgetTabletEvent(WidgetTabletEvent *event, QWidget *widget);
+	void setPrevWidget(QWidget *widget);
+	
+	QPointer<QWidget> _targetWidget;
+	QPointer<QWidget> _lastPressedWidget;
+	QPointer<QWidget> _prevWidget;
+	bool _tabletStrokeAccepted = false;
 	
 #endif
 };

@@ -39,6 +39,8 @@ VanishingScrollBar::VanishingScrollBar(Qt::Orientation orientation, QWidget *par
 
 void VanishingScrollBar::wakeUp()
 {
+	show();
+	
 	_pauseAnimation->stop();
 	_vanishingAnimation->stop();
 	
@@ -58,6 +60,7 @@ void VanishingScrollBar::setBarOpacity(double level)
 
 void VanishingScrollBar::vanish()
 {
+	hide();
 	_isAwake = false;
 	emit vanished();
 }

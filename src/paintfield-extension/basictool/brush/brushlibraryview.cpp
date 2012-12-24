@@ -14,6 +14,7 @@ BrushLibraryView::BrushLibraryView(BrushLibraryModel *model, QItemSelectionModel
 	
 	{
 		auto modelView = new QTreeView;
+		modelView->setHeaderHidden(true);
 		modelView->setModel(model);
 		modelView->setSelectionModel(selectionModel);
 		

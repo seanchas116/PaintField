@@ -49,6 +49,7 @@ protected:
 	
 private:
 	
+	bool isStroking() const { return _stroker; }
 	void setPrevData(const TabletInputData &data);
 	
 	Malachite::Vec4F _argb;
@@ -56,9 +57,8 @@ private:
 	QScopedPointer<BrushStroker> _stroker;
 	QVariantMap _settings;
 	int _brushSize;
-	TabletInputData _dataPrev, _dataBeforePrev;
-	bool _dataPrevSet = false, _trailing = false;
-	bool _trailingEnabled = false;
+	TabletInputData _dataPrev;
+	bool _dataPrevSet = false;
 	const Layer *_layer = 0;
 	Malachite::Surface _surface;
 };
