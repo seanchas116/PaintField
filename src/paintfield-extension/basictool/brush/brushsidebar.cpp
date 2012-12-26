@@ -12,8 +12,9 @@ BrushSideBar::BrushSideBar(QWidget *parent) :
 	
 	{
 		auto label = new QLabel;
-		connect(this, SIGNAL(presetTitleChanged(QString)), label, SLOT(setText(QString)));
 		mainLayout->addWidget(label);
+		
+		_presetLabel = label;
 	}
 	
 	{
@@ -53,7 +54,18 @@ BrushSideBar::BrushSideBar(QWidget *parent) :
 
 void BrushSideBar::setPresetMetadata(const BrushPresetMetadata &metadata)
 {
-	emit presetTitleChanged(metadata.title());
+	QString presetText;
+	
+	if (metadata.title().isEmpty())
+	{
+		presetText = "Preset : <b>[not selected]</b>";
+	}
+	else
+	{
+		presetText = "Preset : <b>" + metadata.title() + "</b>";
+	}
+	
+	_presetLabel->setText("<font size=\"+1\">" + presetText + "</font>");
 }
 
 void BrushSideBar::setBrushSize(int size)

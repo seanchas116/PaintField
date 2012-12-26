@@ -10,7 +10,7 @@ include(../src.pri)
 QMAKE_CXXFLAGS += -std=c++11
 
 mac {
-  QMAKE_LFLAGS_SONAME = -Wl,-install_name,@executable_path/
+  #QMAKE_LFLAGS_SONAME = -Wl,-install_name,@executable_path/
 }
 
 INCLUDEPATH += $$PWD $$PWD/../libs $$PWD/../libs/Malachite/include

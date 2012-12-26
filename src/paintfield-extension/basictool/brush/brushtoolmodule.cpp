@@ -36,6 +36,8 @@ BrushToolModule::BrushToolModule(WorkspaceController *workspace, QObject *parent
 		connect(brushSideBar, SIGNAL(brushSizeChanged(int)), _preferencesManager, SLOT(setBrushSize(int)));
 		connect(_preferencesManager, SIGNAL(brushSizeChanged(int)), brushSideBar, SLOT(setBrushSize(int)));
 		connect(_presetManager, SIGNAL(metadataChanged(BrushPresetMetadata)), brushSideBar, SLOT(setPresetMetadata(BrushPresetMetadata)));
+		brushSideBar->setBrushSize(_preferencesManager->brushSize());
+		brushSideBar->setPresetMetadata(_presetManager->metadata());
 		
 		addSideBar(_brushSideBarName, brushSideBar);
 	}

@@ -185,6 +185,9 @@ void CanvasView::mouseDoubleClickEvent(QMouseEvent *event)
 
 void CanvasView::mousePressEvent(QMouseEvent *event)
 {
+	if (event->button() == Qt::RightButton)
+		PAINTFIELD_DEBUG << "right clicked";
+	
 	onClicked();
 	
 	if (_tool)

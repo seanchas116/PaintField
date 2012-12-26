@@ -5,6 +5,8 @@
 TEMPLATE = app
 TARGET = PaintField
 
+QT += core gui xml svg
+
 include(../src.pri)
 
 QMAKE_CXXFLAGS += -std=c++11
@@ -21,12 +23,14 @@ LIBS += -L$$OUT_PWD/../paintfield-extension
 LIBS += -lpaintfield-extension
 
 mac {
-	sharedlibs.path = "Contents/MacOS"
-	sharedlibs.files += $$OUT_PWD/../paintfield-core/libpaintfield-core.1.dylib
-	sharedlibs.files += $$OUT_PWD/../paintfield-extension/libpaintfield-extension.1.dylib
-	sharedlibs.files += $$OUT_PWD/../libs/Malachite/src/libmalachite.1.dylib
-	sharedlibs.files += $$OUT_PWD/../libs/Minizip/libminizip.1.dylib
-	QMAKE_BUNDLE_DATA += sharedlibs
+	#sharedlibs.path = "Contents/MacOS"
+	#sharedlibs.files += $$OUT_PWD/../paintfield-core/libpaintfield-core.1.dylib
+	#sharedlibs.files += $$OUT_PWD/../paintfield-extension/libpaintfield-extension.1.dylib
+	#sharedlibs.files += $$OUT_PWD/../libs/Malachite/src/libmalachite.1.dylib
+	#sharedlibs.files += $$OUT_PWD/../libs/Minizip/libminizip.1.dylib
+	#QMAKE_BUNDLE_DATA += sharedlibs
+	
+	QMAKE_INFO_PLIST = Info.plist
 }
 
 # Input

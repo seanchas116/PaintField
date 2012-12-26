@@ -4,6 +4,8 @@
 #include <QWidget>
 #include "brushpresetmanager.h"
 
+class QLabel;
+
 namespace PaintField {
 
 class BrushSideBar : public QWidget
@@ -20,8 +22,6 @@ signals:
 	void brushSizeChanged(int size);
 	void pressureSmoothingEnabledChanged(bool enabled);
 	
-	void presetTitleChanged(const QString &title);
-	
 public slots:
 	
 	void setPresetMetadata(const BrushPresetMetadata &metadata);
@@ -32,6 +32,8 @@ private:
 	BrushPresetMetadata _metadata;
 	int _brushSize = 10;
 	bool _isPressureSmoothingEnabled = true;
+	
+	QLabel *_presetLabel = 0;
 };
 
 } // namespace PaintField

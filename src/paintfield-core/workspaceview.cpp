@@ -214,6 +214,8 @@ WorkspaceView::WorkspaceView(QWidget *parent) :
 	QMainWindow::setCentralWidget(_motherWidget);
 	
 	onCurrentCanvasPropertyChanged();
+	
+	//showMaximized();
 }
 
 void WorkspaceView::setCentralWidget(QWidget *widget)
