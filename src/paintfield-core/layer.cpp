@@ -334,7 +334,7 @@ Layer *Layer::createFromImageFile(const QString &path, QSize *imageSize)
 	
 	QFileInfo fileInfo(path);
 	
-	auto layer = new RasterLayer(fileInfo.fileName());
+	auto layer = new RasterLayer(fileInfo.baseName());
 	layer->setSurface(surface);
 	
 	if (imageSize)

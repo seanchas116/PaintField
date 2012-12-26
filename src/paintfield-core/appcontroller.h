@@ -73,6 +73,7 @@ public:
 	void addActions(const QList<QAction *> &actions) { _actions += actions; }
 	QList<QAction *> actions() { return _actions; }
 	
+	QString unduplicatedNewFileTempName();
 	QString unduplicatedTempName(const QString &name);
 	
 	QString builtinContentsDir() const;

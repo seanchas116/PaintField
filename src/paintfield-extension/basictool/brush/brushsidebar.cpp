@@ -57,15 +57,12 @@ void BrushSideBar::setPresetMetadata(const BrushPresetMetadata &metadata)
 	QString presetText;
 	
 	if (metadata.title().isEmpty())
-	{
 		presetText = "Preset : <b>[Not Selected]</b>";
-	}
 	else
-	{
 		presetText = "Preset : <b>" + metadata.title() + "</b>";
-	}
 	
-	_presetLabel->setText("<font size=\"+1\">" + presetText + "</font>");
+	//_presetLabel->setText("<font size=\"+1\">" + presetText + "</font>");
+	_presetLabel->setText(presetText);
 }
 
 void BrushSideBar::setBrushSize(int size)

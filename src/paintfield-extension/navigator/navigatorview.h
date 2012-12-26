@@ -63,6 +63,7 @@ public slots:
 	
 private slots:
 	
+	void resetTranslation() { setTranslation(QPoint()); }
 	void resetScale() { setScale(1); }
 	void resetRotation() { setRotation(0); }
 	void zoomOut() { setZoomLevel(zoomLevel() - 1); }

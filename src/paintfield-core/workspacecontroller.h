@@ -77,6 +77,8 @@ public slots:
 	 */
 	void openCanvas();
 	
+	void addCanvasFromFile(const QString &filepath);
+	
 	/**
 	 * Try to close all canvases.
 	 * @return If succeeded

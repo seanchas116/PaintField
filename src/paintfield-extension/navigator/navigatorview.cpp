@@ -250,6 +250,12 @@ QLayout *NavigatorView::createMiscUILayout()
 		layout->addWidget(spinBox);
 	}
 	
+	{
+		// reset translation
+		auto button = new SimpleButton(":/icons/16x16/revert.svg", QSize(16,16), this, SLOT(resetTranslation()));
+		layout->addWidget(button);
+	}
+	
 	layout->addStretch(1);
 	
 	return layout;

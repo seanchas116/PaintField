@@ -79,7 +79,7 @@ CanvasController *CanvasController::fromNew(WorkspaceController *parent)
 	
 	RasterLayer *layer = new RasterLayer(tr("Untitled Layer"));
 	
-	Document *document = new Document(appController()->unduplicatedTempName(tr("Untitled")), dialog.documentSize(), {layer});
+	Document *document = new Document(appController()->unduplicatedNewFileTempName(), dialog.documentSize(), {layer});
 	return new CanvasController(document, parent);
 }
 
@@ -146,7 +146,7 @@ CanvasController *CanvasController::fromImageFile(const QString &path, Workspace
 	if (!layer)
 		return 0;
 	
-	auto document = new Document(layer->name(), size, {layer});
+	auto document = new Document(appController()->unduplicatedNewFileTempName(), size, {layer});
 	return new CanvasController(document, parent);
 }
 

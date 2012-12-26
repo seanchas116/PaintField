@@ -14,10 +14,6 @@ namespace PaintField
 {
 
 
-
-
-
-
 WorkspaceController::WorkspaceController(QObject *parent) :
     QObject(parent),
 	_toolManager(new ToolManager(this)),
@@ -85,6 +81,11 @@ void WorkspaceController::newCanvasFromImageFile()
 void WorkspaceController::openCanvas()
 {
 	addAndSetCurrentCanvas(CanvasController::fromOpen(this));
+}
+
+void WorkspaceController::addCanvasFromFile(const QString &filepath)
+{
+	addAndSetCurrentCanvas(CanvasController::fromFile(filepath, this));
 }
 
 bool WorkspaceController::tryClose()

@@ -169,28 +169,29 @@ void DockTabBar::dragDropTab(int index, const QPoint &globalPos, const QPoint &d
 		if (droppable)
 		{
 			droppableWidget = widget;
-			break;
+			
+			if (droppable->tabIsInsertable(_tabWidget, index))
+			{
+				bool dropResult = droppable->dropDockTab(_tabWidget, index, droppableWidget->mapFromGlobal(globalPos));
+				if (dropResult)
+				{
+					_tabWidget->deleteIfEmpty();
+					return;
+				}
+			}
 		}
 		widget = widget->parentWidget();
 	}
 	
-	bool dropResult = false;
+	int dstIndex = 0;
+	auto dstTabWidget = _tabWidget->createNewTabWidget();
+	QRect dstGeom = dstTabWidget->geometry();
+	dstGeom.moveTopLeft(globalPos - dragStartOffset);
+	dstTabWidget->setGeometry(dstGeom);
 	
-	if (droppable && droppable->tabIsInsertable(_tabWidget, index))	// drop on the existing widget that accepts dock tab drops
-		dropResult = qobject_cast<DockTabDroppableInterface *>(droppableWidget)->dropDockTab(_tabWidget, index, droppableWidget->mapFromGlobal(globalPos));
+	_tabWidget->moveTab(index, dstTabWidget, dstIndex);
 	
-	if (!dropResult)	// create new tab widget
-	{
-		int dstIndex = 0;
-		auto dstTabWidget = _tabWidget->createNewTabWidget();
-		QRect dstGeom = dstTabWidget->geometry();
-		dstGeom.moveTopLeft(globalPos - dragStartOffset);
-		dstTabWidget->setGeometry(dstGeom);
-		
-		_tabWidget->moveTab(index, dstTabWidget, dstIndex);
-		
-		dstTabWidget->show();
-	}
+	dstTabWidget->show();
 	
 	_tabWidget->deleteIfEmpty();
 }

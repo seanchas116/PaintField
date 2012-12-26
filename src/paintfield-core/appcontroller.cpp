@@ -161,6 +161,11 @@ void AppController::addModules(const AppModuleList &modules)
 	_modules += modules;
 }
 
+QString AppController::unduplicatedNewFileTempName()
+{
+	return unduplicatedTempName(tr("Untitled"));
+}
+
 QString AppController::unduplicatedTempName(const QString &name)
 {
 	QStringList existingTempNames;
@@ -196,9 +201,7 @@ void AppController::openFile(const QString &path)
 	auto workspace = workspaceManager()->currentWorkspace();
 	
 	if (workspace)
-	{
-		workspace->addAndSetCurrentCanvas(CanvasController::fromFile(path, workspace));
-	}
+		workspace->addCanvasFromFile(path);
 }
 
 AppController *AppController::_instance = 0;
