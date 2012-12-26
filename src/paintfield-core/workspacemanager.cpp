@@ -69,8 +69,8 @@ void WorkspaceManager::addWorkspace(WorkspaceController *workspace)
 	emit workspaceAdded(workspace);
 	
 	workspace->updateView();
-	//workspace->view()->showMaximized();
 	workspace->view()->show();
+	
 	setCurrentWorkspace(workspace);
 }
 

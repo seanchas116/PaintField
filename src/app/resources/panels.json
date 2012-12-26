@@ -1,14 +1,20 @@
 {
     "sidebars":
     {
-        "right":
+        "left":
         [
             [
                 ["paintfield.sidebar.navigator"],
+                ["paintfield.sidebar.layerTree"]
+            ]
+        ],
+        "right":
+        [
+            [
+                
                 ["paintfield.sidebar.color"],
                 ["paintfield.sidebar.brush"],
-                ["paintfield.sidebar.brushLibrary"],
-                ["paintfield.sidebar.layerTree"]
+                ["paintfield.sidebar.brushLibrary"]
             ]
         ]
     },
