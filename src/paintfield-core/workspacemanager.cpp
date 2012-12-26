@@ -1,3 +1,4 @@
+#include <QDesktopWidget>
 #include "application.h"
 #include "appcontroller.h"
 #include "modulemanager.h"
@@ -67,6 +68,8 @@ void WorkspaceManager::addWorkspace(WorkspaceController *workspace)
 	workspace->addNullCanvasModules(appController()->moduleManager()->createCanvasModules(0, workspace));
 	
 	emit workspaceAdded(workspace);
+	
+	maximizeWindowSize(workspace->view());
 	
 	workspace->updateView();
 	workspace->view()->show();

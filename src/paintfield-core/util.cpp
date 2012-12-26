@@ -108,4 +108,15 @@ QTransform makeTransform(double scale, double rotation, const QPointF &translati
 	return transform;
 }
 
+void maximizeWindowSize(QWidget *widget)
+{
+	auto availableGeom = qApp->desktop()->availableGeometry();
+	
+	QPoint offset = widget->geometry().topLeft() - widget->pos();
+	
+	QSize size(availableGeom.width() - offset.x(), availableGeom.height() - offset.y());
+	widget->move(availableGeom.topLeft());
+	widget->resize(size);
+}
+
 }

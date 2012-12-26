@@ -98,6 +98,8 @@ inline void connectMutual(QObject *object1, const char *signal, QObject *object2
 	QObject::connect(object2, signal, object1, slot);
 }
 
+void maximizeWindowSize(QWidget *widget);
+
 }
 
 #endif // UTIL_H
