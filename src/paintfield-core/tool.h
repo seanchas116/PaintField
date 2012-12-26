@@ -100,7 +100,7 @@ private:
 	
 	LayerConstList _customDrawLayers;
 	QCursor _cursor;
-	bool _customCursorEnabled;
+	bool _customCursorEnabled = false;
 };
 
 }
