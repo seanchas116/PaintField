@@ -1,5 +1,6 @@
 #include <QtGui>
 
+#include "debug.h"
 #include "util.h"
 #include "workspacemanager.h"
 #include "modulemanager.h"
@@ -24,6 +25,8 @@ AppController::AppController(Application *app, QObject *parent) :
 	
 	QDir documentDir(QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation));
 	documentDir.mkpath("PaintField/Contents/Brush Presets");
+	
+	connect(app, SIGNAL(fileOpenRequested(QString)), this, SLOT(openFile(QString)));
 }
 
 void AppController::declareMenus()
@@ -184,6 +187,18 @@ QString AppController::builtinContentsDir() const
 QString AppController::userContentsDir() const
 {
 	return QDir(QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation)).filePath("PaintField/Contents");
+}
+
+void AppController::openFile(const QString &path)
+{
+	PAINTFIELD_DEBUG << "file open requested:" << path;
+	
+	auto workspace = workspaceManager()->currentWorkspace();
+	
+	if (workspace)
+	{
+		workspace->addAndSetCurrentCanvas(CanvasController::fromFile(path, workspace));
+	}
 }
 
 AppController *AppController::_instance = 0;

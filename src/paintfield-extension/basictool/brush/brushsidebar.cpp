@@ -58,7 +58,7 @@ void BrushSideBar::setPresetMetadata(const BrushPresetMetadata &metadata)
 	
 	if (metadata.title().isEmpty())
 	{
-		presetText = "Preset : <b>[not selected]</b>";
+		presetText = "Preset : <b>[Not Selected]</b>";
 	}
 	else
 	{

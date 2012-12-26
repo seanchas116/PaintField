@@ -108,6 +108,16 @@ CanvasController *CanvasController::fromNewFromImageFile(WorkspaceController *pa
 	return fromImageFile(filePath, parent);
 }
 
+CanvasController *CanvasController::fromFile(const QString &path, WorkspaceController *parent)
+{
+	QFileInfo fileInfo(path);
+	
+	if (fileInfo.suffix() == "pfield")
+		return fromSavedFile(path, parent);
+	else
+		return fromImageFile(path, parent);
+}
+
 CanvasController *CanvasController::fromSavedFile(const QString &path, WorkspaceController *parent)
 {
 	DocumentIO documentIO(path);

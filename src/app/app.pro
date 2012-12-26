@@ -38,3 +38,6 @@ SOURCES += main.cpp
 
 RESOURCES += \
     resources/resources.qrc
+
+OTHER_FILES += \
+    Info.plist

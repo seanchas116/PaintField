@@ -75,14 +75,12 @@ public:
 	
 	QString unduplicatedTempName(const QString &name);
 	
-	static AppController *instance() { return _instance; }
-	
 	QString builtinContentsDir() const;
 	QString userContentsDir() const;
 	
 	Application *app() { return _app; }
 	
-signals:
+	static AppController *instance() { return _instance; }
 	
 public slots:
 	
@@ -91,7 +89,9 @@ public slots:
 	void minimizeCurrentWindow();
 	void zoomCurrentWindow();
 	
-protected:
+	void openFile(const QString &path);
+	
+signals:
 	
 private:
 	

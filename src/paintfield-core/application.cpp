@@ -13,6 +13,8 @@ Application::Application(int &argc, char **argv) :
 	connect(filter, SIGNAL(tabletEntered(QTabletEvent*)), this, SLOT(onTabletEntered(QTabletEvent*)));
 	connect(filter, SIGNAL(tabletLeft(QTabletEvent*)), this, SLOT(onTabletLeft(QTabletEvent*)));
 	
+	connect(filter, SIGNAL(fileOpenRequested(QString)), this, SIGNAL(fileOpenRequested(QString)));
+	
 	installEventFilter(filter);
 }
 

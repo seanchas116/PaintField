@@ -44,6 +44,8 @@ signals:
 	void tabletPointerTypeChanged(QTabletEvent::PointerType type);
 	void tabletIdChanged(quint64 id);
 	
+	void fileOpenRequested(const QString &filepath);
+	
 public slots:
 	
 private slots:
