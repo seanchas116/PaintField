@@ -94,6 +94,7 @@ void LayerTreeSidebar::createForms()
 	opacityLayout->addWidget(new QLabel("%"));
 	
 	_blendModeComboBox = new QComboBox();
+	_blendModeComboBox->addItem("Unimplemented");
 	
 	QFormLayout *formLayout = new QFormLayout();
 	formLayout->addRow(tr("Opacity"), opacityLayout);
