@@ -234,24 +234,16 @@ void CanvasView::mouseDoubleClickEvent(QMouseEvent *event)
 
 void CanvasView::mousePressEvent(QMouseEvent *event)
 {
-	if (event->button() == Qt::RightButton)
-		PAINTFIELD_DEBUG << "right clicked";
+	onClicked();
 	
 	if (event->button() == Qt::LeftButton)
 	{
-		PAINTFIELD_DEBUG << "left clicked";
-		
-		for (int key : d->keyTracker.pressedKeys())
-			qDebug() << key;
-		
 		if (tryBeginDragNavigation(event->pos()))
 		{
 			event->accept();
 			return;
 		}
 	}
-	
-	onClicked();
 	
 	if (d->tool)
 		event->setAccepted(sendCanvasTabletEvent(event) || sendCanvasMouseEvent(event));
@@ -302,8 +294,35 @@ void CanvasView::tabletEvent(QTabletEvent *event)
 		}
 	};
 	
-	if (event->type() == QEvent::TabletPress)
-		onClicked();
+	switch (event->type())
+	{
+		case QEvent::TabletPress:
+			
+			onClicked();
+			if (tryBeginDragNavigation(event->pos()))
+			{
+				event->accept();
+				return;
+			}
+			break;
+			
+		case QEvent::TabletMove:
+			
+			if (continueDragNavigation(event->pos()))
+			{
+				event->accept();
+				return;
+			}
+			break;
+			
+		case QEvent::TabletRelease:
+			
+			endDragNavigation();
+			break;
+			
+		default:
+			break;
+	}
 	
 	TabletInputData data(event->hiResGlobalPos(), event->pressure(), event->rotation(), event->tangentialPressure(), Vec2D(event->xTilt(), event->yTilt()));
 	WidgetTabletEvent widgetTabletEvent(toNewEventType(event->type()), event->globalPos(), event->pos(), data, event->modifiers());
@@ -314,8 +333,36 @@ void CanvasView::tabletEvent(QTabletEvent *event)
 
 void CanvasView::customTabletEvent(WidgetTabletEvent *event)
 {
-	if (int(event->type()) == EventWidgetTabletPress)
-		onClicked();
+	
+	switch (int(event->type()))
+	{
+		case EventWidgetTabletPress:
+			
+			onClicked();
+			if (tryBeginDragNavigation(event->posInt))
+			{
+				event->accept();
+				return;
+			}
+			break;
+			
+		case EventWidgetTabletMove:
+			
+			if (continueDragNavigation(event->posInt))
+			{
+				event->accept();
+				return;
+			}
+			break;
+			
+		case EventWidgetTabletRelease:
+			
+			endDragNavigation();
+			break;
+			
+		default:
+			break;
+	}
 	
 	if (d->tool)
 	{
