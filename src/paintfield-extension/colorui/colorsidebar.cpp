@@ -7,6 +7,8 @@
 #include "paintfield-core/widgets/simplebutton.h"
 #include "paintfield-core/widgets/loosespinbox.h"
 #include "paintfield-core/widgets/widgetgroup.h"
+#include "paintfield-core/widgets/doubleslider.h"
+#include "paintfield-core/signalconverter.h"
 
 #include "colorsidebar.h"
 
@@ -345,6 +347,43 @@ ColorSidebar::ColorSidebar(QWidget *parent) :
 	webColorPanel->setVisible(webButton->isChecked());
 	
 	setCurrentIndex(0);
+	
+	{
+		// opacity
+		
+		auto layout = new QHBoxLayout;
+		
+		layout->addWidget(new QLabel("Alpha:"));
+		
+		{
+			auto slider = new DoubleSlider(Qt::Horizontal);
+			slider->setMinimum(0);
+			slider->setMaximum(1000);
+			slider->setDoubleMinimum(0);
+			slider->setDoubleMaximum(100);
+			
+			auto spinBox = new LooseSpinBox;
+			spinBox->setDecimals(1);
+			spinBox->setMinimum(0);
+			spinBox->setMaximum(100);
+			spinBox->setSingleStep(1);
+			
+			connect(slider, SIGNAL(doubleValueChanged(double)), spinBox, SLOT(setValue(double)));
+			connect(spinBox, SIGNAL(valueChanged(double)), slider, SLOT(setDoubleValue(double)));
+			
+			auto toPercent = [](double x) { return x * 100; };
+			auto fromPercent = [](double x) { return x / 100; };
+			
+			auto converter = SignalConverter::fromDoubleFunc(toPercent, fromPercent,this);
+			converter->connectChannelADouble(this, SIGNAL(currentOpacityChanged(double)), SLOT(setCurrentOpacity(double)));
+			converter->connectChannelBDouble(slider, SIGNAL(doubleValueChanged(double)), SLOT(setDoubleValue(double)));
+			
+			layout->addWidget(slider);
+			layout->addWidget(spinBox);
+		}
+		
+		mainLayout->addLayout(layout);
+	}
 }
 
 void ColorSidebar::setColor(int index, const Color &color)
@@ -354,7 +393,10 @@ void ColorSidebar::setColor(int index, const Color &color)
 		_colorButtons.at(index)->setColor(color);
 		emit colorChanged(index, color);
 		if (index == _currentIndex)
+		{
 			emit currentColorChanged(color);
+			emit currentOpacityChanged(color.alpha());
+		}
 	}
 }
 
@@ -378,6 +420,15 @@ void ColorSidebar::onColorButtonPressed()
 	
 	if (index >= 0)
 		setCurrentIndex(index);
+}
+
+void ColorSidebar::setCurrentOpacity(double opacity)
+{
+	qDebug() << opacity;
+	
+	Color currentColor = _colorButtons.at(_currentIndex)->color();
+	currentColor.setAlpha(opacity);
+	setCurrentColor(currentColor);
 }
 
 }

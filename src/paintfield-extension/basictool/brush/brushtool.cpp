@@ -55,38 +55,32 @@ QRect BrushTool::customCursorRect(const Vec2D &pos)
 
 void BrushTool::tabletPressEvent(CanvasTabletEvent *event)
 {
-	if (event->data.pressure)
-	{
-		beginStroke(event->data);
-		event->accept();
-	}
-	else
-	{
-		event->ignore();
-	}
+	event->accept();
 }
 
 void BrushTool::tabletMoveEvent(CanvasTabletEvent *event)
 {
-	if (event->data.pressure && isStroking())
+	if (event->data.pressure)
 	{
-		drawStroke(event->data);
-		event->accept();
+		if (isStroking())
+			drawStroke(event->data);
+		else
+			beginStroke(event->data);
 	}
 	else
 	{
 		if (isStroking())
 			endStroke(event->data);
-		
-		event->ignore();
 	}
 	
 	setPrevData(event->data);
+	
+	event->accept();
 }
 
 void BrushTool::tabletReleaseEvent(CanvasTabletEvent *event)
 {
-	event->ignore();
+	event->accept();
 }
 
 void BrushTool::beginStroke(const TabletInputData &data)
