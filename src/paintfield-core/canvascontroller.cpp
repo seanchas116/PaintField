@@ -66,6 +66,11 @@ void CanvasController::addModules(const CanvasModuleList &modules)
 	_modules += modules;
 }
 
+void CanvasController::onSetCurrent()
+{
+	_view->setFocus();
+}
+
 void CanvasController::onToolChanged(const QString &name)
 {
 	_view->setTool(createTool(appController()->modules(), workspace()->modules(), modules(), name, _view.data()));

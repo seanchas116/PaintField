@@ -77,6 +77,8 @@ public:
 	
 	CanvasView *view() { return _view.data(); }
 	
+	virtual void onSetCurrent();
+	
 signals:
 	
 	/**

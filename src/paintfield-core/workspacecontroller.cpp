@@ -109,6 +109,8 @@ void WorkspaceController::setCurrentCanvas(CanvasController *canvas)
 	if (_currentCanvas != canvas)
 	{
 		_currentCanvas = canvas;
+		if (canvas)
+			canvas->onSetCurrent();
 		emit currentCanvasChanged(canvas);
 		
 		updateWorkspaceItemsForCanvas(canvas);
