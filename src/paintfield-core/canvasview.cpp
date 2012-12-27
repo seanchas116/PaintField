@@ -213,6 +213,7 @@ void CanvasView::enterEvent(QEvent *e)
 {
 	PAINTFIELD_DEBUG;
 	super::enterEvent(e);
+	setFocus();
 	qApp->setOverrideCursor(d->toolCursor);
 }
 
