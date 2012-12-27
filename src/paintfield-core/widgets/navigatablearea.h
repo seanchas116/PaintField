@@ -41,6 +41,8 @@ public:
 	
 	QTransform navigatorTransform() const { return _navigatorTransform; }
 	
+	QPoint viewCenter() const { return _viewCenter; }
+	
 public slots:
 	
 	/**
@@ -113,6 +115,8 @@ private:
 	QPoint _backupTranslation;
 	
 	QPoint _maxAbsTranslation;
+	
+	QPoint _viewCenter;
 	
 	QSize _sceneSize;
 };

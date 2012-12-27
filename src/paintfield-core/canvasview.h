@@ -5,12 +5,15 @@
 #include "smartpointer.h"
 #include "tabletevent.h"
 #include "document.h"
+#include "keytracker.h"
 
 namespace PaintField
 {
 
 class Tool;
 class CanvasController;
+
+class CanvasViewData;
 
 class CanvasView : public NavigatableArea
 {
@@ -23,9 +26,9 @@ public:
 	CanvasView(CanvasController *canvas, QWidget *parent = 0);
 	~CanvasView();
 	
-	CanvasController *controller() { return _canvas; }
-	Document *document() { return _document; }
-	LayerModel *layerModel() { return _document->layerModel(); }
+	CanvasController *controller();
+	Document *document();
+	LayerModel *layerModel();
 	
 	void setTool(Tool *tool);
 	
@@ -57,7 +60,7 @@ private slots:
 	
 	void onClicked();
 	void onToolCursorChanged(const QCursor &cursor);
-	void onTabletActiveChanged(bool active) { _tabletActive = active; }
+	void onTabletActiveChanged(bool active);
 	
 private:
 	
@@ -71,18 +74,23 @@ private:
 	void addRepaintRect(const QRect &rect);
 	void repaintDesignatedRect();
 	
-	CanvasController *_canvas = 0;
-	Document *_document = 0;
-	QPixmap _pixmap;
-	ScopedQObjectPointer<Tool> _tool;
+	bool tryBeginDragNavigation(const QPoint &pos);
+	bool continueDragNavigation(const QPoint &pos);
+	void endDragNavigation();
 	
-	double _mousePressure = 0;
-	QRect _repaintRect;
-	QRect _prevCustomCursorRect;
-	Malachite::Vec2D _customCursorPos;
-	bool _tabletActive = false;
+	void beginDragTranslation(const QPoint &pos);
+	void continueDragTranslation(const QPoint &pos);
+	void endDragTranslation();
 	
-	QCursor _toolCursor;
+	void beginDragScaling(const QPoint &pos);
+	void continueDragScaling(const QPoint &pos);
+	void endDragScaling();
+	
+	void beginDragRotation(const QPoint &pos);
+	void continueDragRotation(const QPoint &pos);
+	void endDragRotation();
+	
+	CanvasViewData *d;
 };
 
 }

@@ -65,7 +65,9 @@ public:
 	QStringList toolbarNames() const { return _toolbarInfoHash.keys(); }
 	QStringList menuNames() const { return _menuDeclarationHash.keys(); }
 	
-	void overrideActionShortcut(const QString &name, const QKeySequence &shortcut);
+	QHash<QString, QKeySequence> keyBindingHash() const { return _keyBindingHash; }
+	void addKeyBindingHash(const QHash<QString, QKeySequence> &hash);
+	void addKeyBinding(const QString &name, const QKeySequence &shortcut);
 	
 	void addModules(const QList<AppModule *> &modules);
 	QList<AppModule *> modules() { return _modules; }
@@ -110,6 +112,8 @@ private:
 	SideBarDeclarationHash _sideBarDeclarationHash;
 	ToolBarDeclarationHash _toolbarInfoHash;
 	MenuDeclarationHash _menuDeclarationHash;
+	
+	QHash<QString, QKeySequence> _keyBindingHash;
 	
 	ModuleManager *_moduleManager = 0;
 	

@@ -141,13 +141,23 @@ void AppController::loadKeyMapFromJson(const QString &path)
 		QKeySequence key(iter.value().toString());
 		if (!id.isEmpty() && !key.isEmpty())
 		{
-			overrideActionShortcut(id, key);
+			addKeyBinding(id, key);
 		}
 	}
 }
 
-void AppController::overrideActionShortcut(const QString &name, const QKeySequence &shortcut)
+void AppController::addKeyBindingHash(const QHash<QString, QKeySequence> &hash)
 {
+	for (auto iter = hash.begin(); iter != hash.end(); ++iter)
+	{
+		addKeyBinding(iter.key(), iter.value());
+	}
+}
+
+void AppController::addKeyBinding(const QString &name, const QKeySequence &shortcut)
+{
+	_keyBindingHash[name] = shortcut;
+	
 	for (auto iter = _actionDeclarationHash.begin(); iter != _actionDeclarationHash.end(); ++iter)
 		if (iter.key() == name)
 			iter->shortcut = shortcut;

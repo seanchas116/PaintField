@@ -134,7 +134,8 @@ bool ApplicationEventFilter::sendTabletEventToWindow(QWidget *window, QTabletEve
 void ApplicationEventFilter::sendWidgetTabletEvent(WidgetTabletEvent *event, QWidget *widget)
 {
 	event->posInt = widget->mapFromGlobal(event->globalPosInt);
-	QApplication::sendEvent(widget, event);
+	//QApplication::sendEvent(widget, event);
+	static_cast<QObject *>(widget)->event(event);
 }
 
 void ApplicationEventFilter::setPrevWidget(QWidget *widget)

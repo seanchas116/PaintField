@@ -112,8 +112,10 @@ void NavigatableArea::updateTransforms()
 	if (_rotation)
 		transform.rotate(_rotation);
 	
+	_viewCenter = QPoint(geometry().width() / 2, geometry().height() / 2);
+	
 	_navigatorTransform = transform;
-	_transformFromScene = QTransform::fromTranslate(- _sceneSize.width() / 2, - _sceneSize.height() / 2) * _navigatorTransform * QTransform::fromTranslate(geometry().width() / 2, geometry().height() / 2);
+	_transformFromScene = QTransform::fromTranslate(- _sceneSize.width() / 2, - _sceneSize.height() / 2) * _navigatorTransform * QTransform::fromTranslate(_viewCenter.x(), _viewCenter.y());
 	_transformToScene = _transformFromScene.inverted();
 	
 	updateScrollBarRange();
