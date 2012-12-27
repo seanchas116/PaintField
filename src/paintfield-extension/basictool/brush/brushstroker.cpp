@@ -31,7 +31,7 @@ void BrushStroker::lineTo(const TabletInputData &data)
 	
 	if (_count > 3)
 	{
-		Polygon polygon = CurveSubdivision(Curve4::fromCatmullRom(_dataPrev.pos, _dataStart.pos, _dataEnd.pos, data.pos)).polygon();
+		Polygon polygon = CurveSubdivision(Curve4::fromBSpline(_dataPrev.pos, _dataStart.pos, _dataEnd.pos, data.pos)).polygon();
 		
 		TabletInputData start = _dataStart;
 		TabletInputData end = _dataEnd;

@@ -1,0 +1,13 @@
+{
+	"metadata":
+	{
+		"title": "Pen",
+		"description": "A simple pen.",
+		"tags": []
+	},
+	"stroker": "paintfield.brush.pen",
+	"settings":
+	{
+		"blendMode": "source-over"
+	}
+}

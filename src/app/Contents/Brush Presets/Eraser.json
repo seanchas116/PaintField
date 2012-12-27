@@ -1,0 +1,13 @@
+{
+	"metadata":
+	{
+		"title": "Eraser",
+		"description": "A simple eraser.",
+		"tags": []
+	},
+	"stroker": "paintfield.brush.pen",
+	"settings":
+	{
+		"blendMode": "destination-out"
+	}
+}
