@@ -31,6 +31,8 @@ public:
 	double rotation() const { return _rotation; }
 	QPoint translation() const { return _translation; }
 	
+	bool isMirroringEnabled() const { return _mirroringEnabled; }
+	
 	QPoint maxAbsTranslation() const { return _maxAbsTranslation; }
 	
 	QSize sceneSize() const { return _sceneSize; }
@@ -78,12 +80,15 @@ public slots:
 	void setTranslation(const QPoint &value);
 	void setTranslation(int x, int y) { setTranslation(QPoint(x, y)); }
 	
+	void setMirroringEnabled(bool enabled);
+	
 signals:
 	
 	void scaleChanged(double value);
 	void rotationChanged(double value);
 	void translationChanged(const QPoint &value);
 	void maxAbsTranslationChanged(const QPoint &value);
+	void mirroringEnabledChanged(bool enabled);
 	
 protected:
 	
@@ -109,6 +114,8 @@ private:
 	double _scale = 1.0;
 	double _rotation = 0.0;
 	QPoint _translation;
+	
+	bool _mirroringEnabled = false;
 	
 	double _backupScale = 1.0;
 	double _backupRotation = 0.0;

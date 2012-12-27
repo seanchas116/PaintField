@@ -41,6 +41,8 @@ public:
 	 */
 	void setRotationStep(int step) { _rotationDStep = step; }
 	
+	bool isMirroringEnabled() const { return _mirrorOn; }
+	
 signals:
 	
 	void scaleChanged(double scale);
@@ -48,6 +50,7 @@ signals:
 	void translationChanged(const QPoint &translation);
 	void translationXChanged(int x);
 	void translationYChanged(int y);
+	void mirroringEnabledChanged(bool enabled);
 	
 	void scaleSliderValueChanged(int value);
 	void scalePercentageChanged(double value);
@@ -60,6 +63,7 @@ public slots:
 	void setTranslation(const QPoint &translation);
 	void setTranslationX(int x) { setTranslation(QPoint(x, _translation.y())); }
 	void setTranslationY(int y) { setTranslation(QPoint(_translation.x(), y)); }
+	void setMirroringEnabled(bool enabled);
 	
 private slots:
 	
@@ -97,6 +101,8 @@ private:
 	//int _rotationStep = 15 * 16;
 	
 	double _rotationD = 0, _rotationDStep = 15.0;
+	
+	bool _mirrorOn = false;
 	
 	constexpr static int _spinBoxWidth = 50;
 	constexpr static int _scaleSliderResolution = 32;

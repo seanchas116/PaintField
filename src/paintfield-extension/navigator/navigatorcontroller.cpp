@@ -21,6 +21,9 @@ NavigatorController::NavigatorController(CanvasController *canvas, QObject *pare
 		
 		connect(navigatorView, SIGNAL(translationChanged(QPoint)), canvas->view(), SLOT(setTranslation(QPoint)));
 		connect(canvas->view(), SIGNAL(translationChanged(QPoint)), navigatorView, SLOT(setTranslation(QPoint)));
+		
+		connect(navigatorView, SIGNAL(mirroringEnabledChanged(bool)), canvas->view(), SLOT(setMirroringEnabled(bool)));
+		connect(canvas->view(), SIGNAL(mirroringEnabledChanged(bool)), navigatorView, SLOT(setMirroringEnabled(bool)));
 	}
 	else
 	{

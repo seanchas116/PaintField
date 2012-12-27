@@ -53,11 +53,35 @@ void NavigatorView::setTranslation(const QPoint &value)
 	}
 }
 
+void NavigatorView::setMirroringEnabled(bool enabled)
+{
+	if (_mirrorOn != enabled)
+	{
+		_mirrorOn = enabled;
+		emit mirroringEnabledChanged(enabled);
+	}
+}
+
 void NavigatorView::createWidgets()
 {
 	auto mainLayout = new QVBoxLayout;
 	mainLayout->addLayout(createScaleRotationUILayout());
 	mainLayout->addLayout(createMiscUILayout());
+	
+	{
+		auto checkBoxLayout = new QVBoxLayout;
+		
+		{
+			auto checkBox = new QCheckBox("Mirror");
+			connect(checkBox, SIGNAL(toggled(bool)), this, SLOT(setMirroringEnabled(bool)));
+			connect(this, SIGNAL(mirroringEnabledChanged(bool)), checkBox, SLOT(setChecked(bool)));
+			
+			checkBoxLayout->addWidget(checkBox);
+		}
+		
+		mainLayout->addLayout(checkBoxLayout);
+	}
+	
 	mainLayout->addStretch(1);
 	
 	setLayout(mainLayout);

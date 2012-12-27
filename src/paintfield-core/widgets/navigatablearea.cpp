@@ -99,9 +99,20 @@ void NavigatableArea::setTranslation(const QPoint &value)
 	}
 }
 
+void NavigatableArea::setMirroringEnabled(bool enabled)
+{
+	if (_mirroringEnabled != enabled)
+	{
+		_mirroringEnabled = enabled;
+		updateTransforms();
+		emit mirroringEnabledChanged(enabled);
+	}
+}
+
 void NavigatableArea::updateTransforms()
 {
 	QTransform transform;
+	
 	
 	if (_translation != QPoint())
 		transform.translate(_translation.x(), _translation.y());
@@ -114,8 +125,19 @@ void NavigatableArea::updateTransforms()
 	
 	_viewCenter = QPoint(geometry().width() / 2, geometry().height() / 2);
 	
+	QTransform transformFromScene;
+	
+	transformFromScene *= QTransform::fromTranslate(- _sceneSize.width() / 2, - _sceneSize.height() / 2);
+	
+	if (_mirroringEnabled)
+		transformFromScene *= QTransform(-1, 0, 0, 1, 0, 0);
+	
+	transformFromScene *= transform;
+	
+	transformFromScene *= QTransform::fromTranslate(_viewCenter.x(), _viewCenter.y());
+	
 	_navigatorTransform = transform;
-	_transformFromScene = QTransform::fromTranslate(- _sceneSize.width() / 2, - _sceneSize.height() / 2) * _navigatorTransform * QTransform::fromTranslate(_viewCenter.x(), _viewCenter.y());
+	_transformFromScene = transformFromScene;
 	_transformToScene = _transformFromScene.inverted();
 	
 	updateScrollBarRange();
