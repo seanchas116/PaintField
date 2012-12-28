@@ -6,18 +6,15 @@ The project name and the license might be changed in the future.
 
 ## - To Build -
 
-PaintField depends on the following libraries: libzip, libmalachite (Malachite[http://github.com/iofg2100/Malachite], my project in GitHub).
-Also, libmalachite depends on libfreeimage.
+PaintField depends on the following libraries: Qt, libfreeimage, libqjson.
+Before building, make sure that these libraries are installed.
 
-To build PaintField, follow these steps:
+To built PaintField, follow these steps:
 
-	1. Install libzip and libfreeimage.
-	2. Build Malachite.
-	3. Make PaintField refer to Malachite's binary and headers. (e.g., use QMake's LIBS and INCLUDEPATH)
-	4. Build PaintField.
+	1. Copy or link Malachite[github.com/iofg2100/Malachite] source directory as src/libs/Malachite. Malachite readme file will be placed in src/libs/Malachite.
+	2. Build PaintField.
 
 Now you can start using PaintField!!
-(sorry PaintField is still UNDER DEVELOPMENT and very useless ><)
 
 
 ## - Planned Features -
@@ -28,15 +25,16 @@ v	Hierarchical layer structure
 	Cusomizable key config
 	Plugin system
 v	Infinite undo/redo
+v	Movable tabs
 
 ### GUI:
 v	Tool selection panel
 v	Color picker panel
-	Navigator
+v	Navigator
 	Grid
 	Gradient editor
 	Tool editor
-	Content library
+v	Content library
 
 ### Tools:
 v	Layer move
@@ -56,7 +54,7 @@ v	Simple brush
 	Non-destructive filters
 	Color to opacity
 	Opacity to selection
-	Stroke stabilzation
+	Stroke stabilization
 	Post to Twitter
 
 ### Input & Output:

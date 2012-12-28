@@ -21,8 +21,10 @@ BrushLibraryController::BrushLibraryController(BrushPresetManager *presetManager
 	_selectionModel = new QItemSelectionModel(_model, this);
 	
 	auto view = new BrushLibraryView(_model, _selectionModel);
+	
 	connect(_selectionModel, SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(onCurrentChanged(QModelIndex)));
 	onCurrentChanged(_selectionModel->currentIndex());
+	
 	//connect(view, SIGNAL(saveRequested()), this, SLOT(onSaveRequested()));
 	connect(view, SIGNAL(reloadRequested()), this, SLOT(onReloadRequested()));
 	
