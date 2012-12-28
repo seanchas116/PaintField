@@ -30,7 +30,7 @@ public slots:
 	
 private slots:
 	
-	void onDoubleClicked(const QModelIndex &index);
+	void onCurrentChanged(const QModelIndex &index);
 	void onSaveRequested();
 	void onReloadRequested();
 	

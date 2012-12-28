@@ -18,11 +18,13 @@ public:
 	
 signals:
 	
-	void itemDoubleClicked(const QModelIndex &index);
 	void saveRequested();
 	void reloadRequested();
 	
 public slots:
+	
+private:
+	
 	
 };
 

@@ -21,17 +21,16 @@ BrushLibraryController::BrushLibraryController(BrushPresetManager *presetManager
 	_selectionModel = new QItemSelectionModel(_model, this);
 	
 	auto view = new BrushLibraryView(_model, _selectionModel);
-	connect(view, SIGNAL(itemDoubleClicked(QModelIndex)), this, SLOT(onDoubleClicked(QModelIndex)));
+	connect(_selectionModel, SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(onCurrentChanged(QModelIndex)));
+	onCurrentChanged(_selectionModel->currentIndex());
 	//connect(view, SIGNAL(saveRequested()), this, SLOT(onSaveRequested()));
 	connect(view, SIGNAL(reloadRequested()), this, SLOT(onReloadRequested()));
 	
 	_view.reset(new BrushLibraryView(_model, _selectionModel));
 }
 
-void BrushLibraryController::onDoubleClicked(const QModelIndex &index)
+void BrushLibraryController::onCurrentChanged(const QModelIndex &index)
 {
-	PAINTFIELD_DEBUG << "double clicked";
-	
 	auto data = _model->loadPreset(index);
 	if (!data.isEmpty())
 		_presetManager->setPreset(data);

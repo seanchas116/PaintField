@@ -17,8 +17,16 @@ BrushLibraryView::BrushLibraryView(BrushLibraryModel *model, QItemSelectionModel
 		modelView->setHeaderHidden(true);
 		modelView->setModel(model);
 		modelView->setSelectionModel(selectionModel);
+		modelView->setSelectionMode(QAbstractItemView::SingleSelection);
 		
-		connect(selectionModel, SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SIGNAL(itemDoubleClicked(QModelIndex)));
+		auto builtinContentsIndex = model->findIndex(QModelIndex(), "Built-in");
+		
+		if (builtinContentsIndex.isValid())
+		{
+			modelView->expand(builtinContentsIndex);
+			auto defaultPresetIndex = model->findIndex(builtinContentsIndex, "Pen");
+			selectionModel->setCurrentIndex(defaultPresetIndex, QItemSelectionModel::SelectCurrent);
+		}
 		
 		layout->addWidget(modelView);
 	}

@@ -90,6 +90,8 @@ public:
 	static QStandardItem *createTreeRecursive(const QDir &dir);
 	static QList<QStandardItem *> createChildItems(const QDir &dir);
 	
+	QModelIndex findIndex(const QModelIndex &parent, const QString &text) const;
+	
 signals:
 	
 public slots:
