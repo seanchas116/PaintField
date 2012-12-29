@@ -12,7 +12,7 @@ class WidgetTabletEvent : public QInputEvent
 {
 public:
 	
-	WidgetTabletEvent(int type, const QPoint &globalPosInt, const QPoint &posInt, const TabletInputData &globalData, Qt::KeyboardModifiers keyState) :
+	WidgetTabletEvent(int type, const QPoint &globalPosInt, const QPoint &posInt, const TabletInput &globalData, Qt::KeyboardModifiers keyState) :
 		QInputEvent(static_cast<QEvent::Type>(type), keyState),
 		posInt(posInt),
 		globalPosInt(globalPosInt),
@@ -20,14 +20,14 @@ public:
 	{}
 	
 	QPoint posInt, globalPosInt;
-	TabletInputData globalData;
+	TabletInput globalData;
 };
 
 class CanvasTabletEvent : public QInputEvent
 {
 public:
 	
-	CanvasTabletEvent(int type, const Malachite::Vec2D &globalPos, const QPoint &globalPosInt, const TabletInputData &data, Qt::KeyboardModifiers keyState) :
+	CanvasTabletEvent(int type, const Malachite::Vec2D &globalPos, const QPoint &globalPosInt, const TabletInput &data, Qt::KeyboardModifiers keyState) :
 		QInputEvent(static_cast<QEvent::Type>(type), keyState),
 		globalPos(globalPos),
 		globalPosInt(globalPosInt),
@@ -36,7 +36,7 @@ public:
 	
 	Malachite::Vec2D globalPos;
 	QPoint globalPosInt;
-	TabletInputData data;
+	TabletInput data;
 };
 
 class CanvasMouseEvent : public QInputEvent

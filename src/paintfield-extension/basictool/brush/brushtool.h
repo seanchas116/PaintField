@@ -6,10 +6,11 @@
 
 namespace PaintField {
 
-class TabletInputData;
+class TabletInput;
 class BrushStroker;
 class BrushStrokerFactory;
 class BrushToolModule;
+class BrushStrokingThread;
 
 class BrushTool : public Tool
 {
@@ -41,26 +42,26 @@ protected:
 	
 	bool canvasEventFilter(QEvent *event);
 	
-	void beginStroke(const TabletInputData &data);
-	void drawStroke(const TabletInputData &data);
-	void endStroke(const TabletInputData &data);
+	void beginStroke(const TabletInput &data);
+	void drawStroke(const TabletInput &data);
+	void endStroke(const TabletInput &data);
 	
 	void updateTiles();
 	
 private:
 	
-	bool isStroking() const { return _stroker; }
-	void setPrevData(const TabletInputData &data);
+	bool isStroking() const;
+	void setPrevData(const TabletInput &data);
 	
 	Malachite::Vec4F _argb;
 	BrushStrokerFactory *_strokerFactory = 0;
-	QScopedPointer<BrushStroker> _stroker;
 	QVariantMap _settings;
 	int _brushSize;
-	TabletInputData _dataPrev;
+	TabletInput _dataPrev;
 	bool _dataPrevSet = false;
 	const Layer *_layer = 0;
-	Malachite::Surface _surface;
+	
+	BrushStrokingThread *_thread;
 };
 
 }

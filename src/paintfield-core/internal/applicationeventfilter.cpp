@@ -62,7 +62,7 @@ bool ApplicationEventFilter::sendTabletEventToWindow(QWidget *window, QTabletEve
 	Q_CHECK_PTR(window);
 	Q_CHECK_PTR(event);
 	
-	TabletInputData data(event->hiResGlobalPos(),
+	TabletInput data(event->hiResGlobalPos(),
 						 event->pressure(),
 						 event->rotation(),
 						 event->tangentialPressure(),
@@ -108,7 +108,7 @@ bool ApplicationEventFilter::sendTabletEventToWindow(QWidget *window, QTabletEve
 		_lastPressedWidget = 0;
 	
 	if (_lastPressedWidget && _lastPressedWidget != widget)
-		newEvent.globalData.pressure = 0;
+		newEvent.globalData.setPressure(0);
 	
 	forever
 	{

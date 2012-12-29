@@ -64,7 +64,7 @@ void LayerMoveTool::tabletMoveEvent(CanvasTabletEvent *event)
 {
 	if (!_layerIsDragged) return;
 	
-	_offset = event->data.pos.toQPoint() - _dragStartPoint;
+	_offset = event->data.pos().toQPoint() - _dragStartPoint;
 	
 	QPointSet keys;
 	
@@ -85,7 +85,7 @@ void LayerMoveTool::tabletPressEvent(CanvasTabletEvent *event)
 	{
 		_layerIsDragged = true;
 		addCustomDrawLayer(_layer);
-		_dragStartPoint = event->data.pos.toQPoint();
+		_dragStartPoint = event->data.pos().toQPoint();
 		_lastKeys = _layer->surface().keys();
 	}
 }
@@ -95,7 +95,7 @@ void LayerMoveTool::tabletReleaseEvent(CanvasTabletEvent *event)
 	PAINTFIELD_DEBUG << "released";
 	if (_layerIsDragged)
 	{
-		_offset = event->data.pos.toQPoint() - _dragStartPoint;
+		_offset = event->data.pos().toQPoint() - _dragStartPoint;
 		_layerIsDragged = false;
 		clearCustomDrawLayer();
 		layerModel()->editLayer(currentLayerIndex(), new FSLayerMoveEdit(_offset), tr("Layer Move"));

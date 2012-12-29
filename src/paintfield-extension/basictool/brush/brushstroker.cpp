@@ -9,12 +9,11 @@ using namespace Malachite;
 
 namespace PaintField {
 
-BrushStroker::BrushStroker(Surface *surface) :
-	_surface(surface),
-	_originalSurface(*surface)
+BrushStroker::BrushStroker() :
+    _mutex(QMutex::Recursive)
 {}
 
-void BrushStroker::moveTo(const TabletInputData &data)
+void BrushStroker::moveTo(const TabletInput &data)
 {
 	clearLastEditedKeys();
 	
@@ -22,7 +21,7 @@ void BrushStroker::moveTo(const TabletInputData &data)
 	_dataEnd = data;
 }
 
-void BrushStroker::lineTo(const TabletInputData &data)
+void BrushStroker::lineTo(const TabletInput &data)
 {
 	_count++;
 	
@@ -31,14 +30,14 @@ void BrushStroker::lineTo(const TabletInputData &data)
 	
 	if (_count > 3)
 	{
-		Polygon polygon = CurveSubdivision(Curve4::fromBSpline(_dataPrev.pos, _dataStart.pos, _dataEnd.pos, data.pos)).polygon();
+		Polygon polygon = CurveSubdivision(Curve4::fromBSpline(_dataPrev.pos(), _dataStart.pos(), _dataEnd.pos(), data.pos())).polygon();
 		
-		TabletInputData start = _dataStart;
-		TabletInputData end = _dataEnd;
+		TabletInput start = _dataStart;
+		TabletInput end = _dataEnd;
 		
 		// calculating moving average
-		start.pressure = (_dataPrev.pressure + _dataStart.pressure + _dataEnd.pressure) / 3;
-		end.pressure = (_dataStart.pressure + _dataEnd.pressure + data.pressure) / 3;
+		start.setPressure((_dataPrev.pressure() + _dataStart.pressure() + _dataEnd.pressure()) / 3);
+		end.setPressure((_dataStart.pressure() + _dataEnd.pressure() + data.pressure()) / 3);
 		
 		drawInterval(polygon, start, end);
 		//drawInterval(polygon, _dataStart, _dataEnd);
@@ -55,8 +54,19 @@ void BrushStroker::end()
 {
 }
 
-void BrushStroker::addEditedKeys(const QPointHashToQRect &keysWithRects)
+QHash<QPoint, QRect> BrushStroker::getAndClearEditedKeysWithRects()
 {
+	QMutexLocker locker(&_mutex);
+	
+	auto result = _lastEditedKeysWithRects;
+	_lastEditedKeysWithRects = QHash<QPoint, QRect>();
+	return result;
+}
+
+void BrushStroker::addEditedKeys(const QHash<QPoint, QRect> &keysWithRects)
+{
+	QMutexLocker locker(&_mutex);
+	
 	for (auto iter = keysWithRects.begin(); iter != keysWithRects.end(); ++iter)
 	{
 		QRect rect = iter.value() | _lastEditedKeysWithRects.value(iter.key(), QRect());
