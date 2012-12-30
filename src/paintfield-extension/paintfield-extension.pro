@@ -80,4 +80,4 @@ SOURCES += \
     basictool/brush/brushstrokingthread.cpp
 
 RESOURCES += \
-    resources/resource-paintfield-extension.qrc
+    resources/resources.qrc

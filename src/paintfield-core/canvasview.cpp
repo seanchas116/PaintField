@@ -198,8 +198,6 @@ void CanvasView::keyPressEvent(QKeyEvent *event)
 	
 	PAINTFIELD_DEBUG << "pressed:" << event->key() << "modifiers" << event->modifiers();
 	d->keyTracker.keyPressed(event->key());
-	
-	event->accept();
 }
 
 void CanvasView::keyReleaseEvent(QKeyEvent *event)
@@ -209,8 +207,6 @@ void CanvasView::keyReleaseEvent(QKeyEvent *event)
 	
 	PAINTFIELD_DEBUG << "released:" << event->key() << "modifiers" << event->modifiers();
 	d->keyTracker.keyReleased(event->key());
-	
-	event->accept();
 }
 
 void CanvasView::enterEvent(QEvent *e)
