@@ -1,4 +1,3 @@
-/*
 #include "brushstrokercustombrush.h"
 
 using namespace Malachite;
@@ -187,4 +186,3 @@ BrushStroker *BrushSourceBrushFactory::createStroker(Surface *surface)
 }
 
 }
-*/

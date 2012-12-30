@@ -15,14 +15,14 @@ public:
 		int blendMode = Malachite::BlendModeSourceOver;
 	};
 	
-	BrushStrokerPen();
+	BrushStrokerPen(Malachite::Surface *surface);
 	
 	void loadSettings(const QVariantMap &settings) override;
 	
 protected:
 	
-	void drawFirst(const TabletInput &data);
-	void drawInterval(const Malachite::Polygon &polygon, const TabletInput &dataStart, const TabletInput &dataEnd);
+	void drawFirst(const TabletInputData &data);
+	void drawInterval(const Malachite::Polygon &polygon, const TabletInputData &dataStart, const TabletInputData &dataEnd);
 	
 private:
 	
@@ -46,7 +46,7 @@ public:
 	
 	QString name() const override { return "paintfield.brush.pen"; }
 	QVariantMap defaultSettings() const override;
-	BrushStroker *createStroker() override;
+	BrushStroker *createStroker(Malachite::Surface *surface) override;
 };
 
 }

@@ -3,7 +3,6 @@
 
 #include <Malachite/SurfacePainter>
 #include "paintfield-core/tabletinputdata.h"
-#include <QMutexLocker>
 
 namespace PaintField {
 
@@ -11,30 +10,8 @@ class BrushStroker
 {
 public:
 	
-	class SurfaceContext
-	{
-	public:
-		SurfaceContext(BrushStroker *stroker) :
-		    _mutexLocker(&stroker->_mutex),
-		    _surfacePtr(&stroker->_surface)
-		{}
-		
-		Malachite::Surface *pointer() { return _surfacePtr; }
-		
-	private:
-		
-		QMutexLocker _mutexLocker;
-		Malachite::Surface *_surfacePtr;
-	};
-	
-	BrushStroker();
+	BrushStroker(Malachite::Surface *surface);
 	virtual ~BrushStroker() {}
-	
-	void setSurface(Malachite::Surface surface)
-	{
-		_surface = surface;
-		_originalSurface = surface;
-	}
 	
 	void setRadiusBase(double radius) { _radiusBase = radius; }
 	double radiusBase() const { return _radiusBase; }
@@ -44,48 +21,41 @@ public:
 	
 	virtual void loadSettings(const QVariantMap &settings) = 0;
 	
-	void moveTo(const TabletInput &data);
-	void lineTo(const TabletInput &data);
+	void moveTo(const TabletInputData &data);
+	void lineTo(const TabletInputData &data);
 	void end();
 	
-	// thread-safe functions
+	QPointHashToQRect lastEditedKeysWithRects() const { return _lastEditedKeysWithRects; }
+	QPointSet totalEditedKeys() const { return _totalEditedKeys; }
 	
-	QHash<QPoint, QRect> lastEditedKeysWithRects() const { QMutexLocker locker(&_mutex); return _lastEditedKeysWithRects; }
-	QPointSet totalEditedKeys() const { QMutexLocker locker(&_mutex); return _totalEditedKeys; }
+	void clearLastEditedKeys() { _lastEditedKeysWithRects.clear(); }
 	
-	QHash<QPoint, QRect> getAndClearEditedKeysWithRects();
-	void clearLastEditedKeys() { QMutexLocker locker(&_mutex); _lastEditedKeysWithRects.clear(); }
-	
-	Malachite::Surface surface() const { QMutexLocker locker(&_mutex); return _surface; }
-	Malachite::Surface originalSurface() const { return _originalSurface; }
-	
-	// static functions
+	Malachite::Surface *surface() { return _surface; }
+	Malachite::Surface originalSurface() { return _originalSurface; }
 	
 	static QVector<double> calcLength(const Malachite::Polygon &polygon, double *totalLength);
 	
 protected:
 	
-	virtual void drawFirst(const TabletInput &data) = 0;
-	virtual void drawInterval(const Malachite::Polygon &polygon, const TabletInput &dataStart, const TabletInput &dataEnd) = 0;
+	virtual void drawFirst(const TabletInputData &data) = 0;
+	virtual void drawInterval(const Malachite::Polygon &polygon, const TabletInputData &dataStart, const TabletInputData &dataEnd) = 0;
 	
-	void addEditedKeys(const QHash<QPoint, QRect> &keysWithRects);
+	void addEditedKeys(const QPointHashToQRect &keysWithRects);
 	
 private:
 	
-	Malachite::Surface _surface;
+	Malachite::Surface *_surface = 0;
 	Malachite::Surface _originalSurface;
 	
 	QPointSet _totalEditedKeys;
-	QHash<QPoint, QRect> _lastEditedKeysWithRects;
+	QPointHashToQRect _lastEditedKeysWithRects;
 	
 	int _count;
-	TabletInput  _dataPrev, _dataStart, _dataEnd, _currentData;
+	TabletInputData  _dataPrev, _dataStart, _dataEnd, _currentData;
 	//MLVec2D _v1, v2;
 	
 	Malachite::Vec4F _argb;
 	double _radiusBase = 10;
-	
-	mutable QMutex _mutex;
 };
 
 class BrushStrokerFactory : public QObject
@@ -97,7 +67,7 @@ public:
 	virtual QString name() const = 0;
 	
 	virtual QVariantMap defaultSettings() const = 0;
-	virtual BrushStroker *createStroker() = 0;
+	virtual BrushStroker *createStroker(Malachite::Surface *surface) = 0;
 	
 signals:
 	

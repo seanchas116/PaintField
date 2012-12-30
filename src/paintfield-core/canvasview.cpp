@@ -324,7 +324,7 @@ void CanvasView::tabletEvent(QTabletEvent *event)
 			break;
 	}
 	
-	TabletInput data(event->hiResGlobalPos(), event->pressure(), event->rotation(), event->tangentialPressure(), Vec2D(event->xTilt(), event->yTilt()));
+	TabletInputData data(event->hiResGlobalPos(), event->pressure(), event->rotation(), event->tangentialPressure(), Vec2D(event->xTilt(), event->yTilt()));
 	WidgetTabletEvent widgetTabletEvent(toNewEventType(event->type()), event->globalPos(), event->pos(), data, event->modifiers());
 	
 	customTabletEvent(&widgetTabletEvent);
@@ -368,7 +368,7 @@ void CanvasView::customTabletEvent(WidgetTabletEvent *event)
 	{
 		if (int(event->type()) == EventWidgetTabletMove)
 		{
-			d->customCursorPos = event->globalData.pos() + Vec2D(event->posInt - event->globalPosInt);
+			d->customCursorPos = event->globalData.pos + Vec2D(event->posInt - event->globalPosInt);
 			addCustomCursorRectToRepaintRect();
 		}
 		
@@ -418,12 +418,10 @@ bool CanvasView::sendCanvasMouseEvent(QMouseEvent *event)
 
 bool CanvasView::sendCanvasTabletEvent(WidgetTabletEvent *event)
 {
-	TabletInput data = event->globalData;
-	Vec2D globalPos = data.pos();
-	
-	Vec2D pos = data.pos() + Vec2D(event->posInt - event->globalPosInt);
-	pos *= transformToScene();
-	data.setPos(pos);
+	TabletInputData data = event->globalData;
+	Vec2D globalPos = data.pos;
+	data.pos += Vec2D(event->posInt - event->globalPosInt);
+	data.pos *= transformToScene();
 	
 	auto toCanvasEventType = [](int type)
 	{
@@ -468,7 +466,7 @@ bool CanvasView::sendCanvasTabletEvent(QMouseEvent *mouseEvent)
 	if (type == EventCanvasTabletRelease)
 		d->mousePressure = 0.0;
 	
-	TabletInput data(mouseEvent->posF() * transformToScene(), d->mousePressure, 0, 0, Vec2D(0));
+	TabletInputData data(mouseEvent->posF() * transformToScene(), d->mousePressure, 0, 0, Vec2D(0));
 	CanvasTabletEvent tabletEvent(type, mouseEvent->globalPos(), mouseEvent->globalPos(), data, mouseEvent->modifiers());
 	d->tool->toolEvent(&tabletEvent);
 	return tabletEvent.isAccepted();

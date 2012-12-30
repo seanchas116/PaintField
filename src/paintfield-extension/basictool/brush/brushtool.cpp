@@ -9,7 +9,6 @@
 #include "paintfield-core/debug.h"
 #include "paintfield-core/widgets/simplebutton.h"
 
-#include "brushstrokingthread.h"
 #include "brushstroker.h"
 
 #include "brushtool.h"
@@ -20,8 +19,7 @@ using namespace Malachite;
 namespace PaintField {
 
 BrushTool::BrushTool(CanvasView *parent) :
-	Tool(parent),
-    _thread(new BrushStrokingThread(this))
+	Tool(parent)
 {
 	setCustomCursorEnabled(true);
 }
@@ -31,11 +29,7 @@ BrushTool::~BrushTool() {}
 void BrushTool::drawLayer(SurfacePainter *painter, const Layer *layer)
 {
 	Q_UNUSED(layer)
-	if (isStroking())
-	{
-		BrushStroker::SurfaceContext context(_thread->stroker());
-		painter->drawTransformedSurface(QPoint(), *context.pointer());
-	}
+	painter->drawTransformedSurface(QPoint(), _surface);
 }
 
 void BrushTool::drawCustomCursor(QPainter *painter, const Vec2D &pos)
@@ -66,7 +60,7 @@ void BrushTool::tabletPressEvent(CanvasTabletEvent *event)
 
 void BrushTool::tabletMoveEvent(CanvasTabletEvent *event)
 {
-	if (event->data.pressure())
+	if (event->data.pressure)
 	{
 		if (isStroking())
 			drawStroke(event->data);
@@ -89,7 +83,7 @@ void BrushTool::tabletReleaseEvent(CanvasTabletEvent *event)
 	event->accept();
 }
 
-void BrushTool::beginStroke(const TabletInput &data)
+void BrushTool::beginStroke(const TabletInputData &data)
 {
 	if (!_strokerFactory)
 		return;
@@ -101,63 +95,63 @@ void BrushTool::beginStroke(const TabletInput &data)
 	
 	PAINTFIELD_CALC_SCOPE_ELAPSED_TIME;
 	
-	_thread->reset(_strokerFactory->createStroker());
+	_surface = _layer->surface();
 	
-	_thread->stroker()->setSurface(_layer->surface());
-	_thread->stroker()->setArgb(_argb);
-	_thread->stroker()->setRadiusBase(_brushSize * 0.5);
-	
-	_thread->start();
+	_stroker.reset(_strokerFactory->createStroker(&_surface));
+	_stroker->loadSettings(_settings);
+	_stroker->setArgb(_argb);
+	_stroker->setRadiusBase(double(_brushSize) * 0.5);
 	
 	addCustomDrawLayer(_layer);
 	
 	// discard pressure for the 1st time to reduce overshoot
-	TabletInput newData = data;
-	newData.setPressure(0);
+	TabletInputData newData = data;
+	newData.pressure = 0;
 	
 	if (_dataPrevSet)
 	{
-		_thread->moveTo(_dataPrev);
-		_thread->lineTo(newData);
+		_stroker->moveTo(_dataPrev);
+		_stroker->lineTo(newData);
 	}
 	else
 	{
-		_thread->moveTo(newData);
+		_stroker->moveTo(newData);
 	}
 }
 
-void BrushTool::drawStroke(const TabletInput &data)
+void BrushTool::drawStroke(const TabletInputData &data)
 {
 	PAINTFIELD_CALC_SCOPE_ELAPSED_TIME;
 	
-	_thread->lineTo(data);
+	_stroker->lineTo(data);
 	updateTiles();
 }
 
-void BrushTool::endStroke(const TabletInput &data)
+void BrushTool::endStroke(const TabletInputData &data)
 {
 	PAINTFIELD_CALC_SCOPE_ELAPSED_TIME;
 	
-	_thread->lineTo(data);
-	_thread->waitForFinish();
+	_stroker->lineTo(data);
+	_stroker->end();
 	updateTiles();
 	
 	if (_layer && _layer == currentLayer())
 	{
 		document()->layerModel()->makeSkipNextUpdate();
-		document()->layerModel()->editLayer(document()->layerModel()->indexForLayer(_layer), new LayerSurfaceEdit(_thread->stroker()->surface(), _thread->stroker()->totalEditedKeys()), tr("Brush"));
+		document()->layerModel()->editLayer(document()->layerModel()->indexForLayer(_layer), new LayerSurfaceEdit(_surface, _stroker->totalEditedKeys()), tr("Brush"));
 	}
 	
-	_thread->reset();
+	_stroker.reset();
 	clearCustomDrawLayer();
 }
 
 void BrushTool::updateTiles()
 {
-	emit requestUpdate(_thread->stroker()->getAndClearEditedKeysWithRects());
+	emit requestUpdate(_stroker->lastEditedKeysWithRects());
+	_stroker->clearLastEditedKeys();
 }
 
-void BrushTool::setPrevData(const TabletInput &data)
+void BrushTool::setPrevData(const TabletInputData &data)
 {
 	_dataPrev = data;
 	_dataPrevSet = true;
@@ -171,11 +165,6 @@ void BrushTool::setBrushSize(int size)
 void BrushTool::setBrushSettings(const QVariantMap &settings)
 {
 	_settings = settings;
-}
-
-bool BrushTool::isStroking() const
-{
-	return _thread->isStroking();
 }
 
 }

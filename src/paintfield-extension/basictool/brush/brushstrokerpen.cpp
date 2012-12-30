@@ -40,23 +40,24 @@ Polygon BrushStrokerPen::calcTangentQuadrangle(double r1, const Vec2D &k1, doubl
 	return poly;
 }
 
-BrushStrokerPen::BrushStrokerPen() :
-	BrushStroker()
-{}
+BrushStrokerPen::BrushStrokerPen(Surface *surface) :
+	BrushStroker(surface)
+{
+}
 
-void BrushStrokerPen::drawFirst(const TabletInput &data)
+void BrushStrokerPen::drawFirst(const TabletInputData &data)
 {
 	_drawnShapes.clear();
 	
-	double radius = data.pressure() * radiusBase();
+	double radius = data.pressure * radiusBase();
 	
 	QPainterPath ellipsePath;
-	ellipsePath.addEllipse(data.pos(), radius, radius);
+	ellipsePath.addEllipse(data.pos, radius, radius);
 	
 	drawShape(FixedMultiPolygon::fromQPainterPath(ellipsePath));
 }
 
-void BrushStrokerPen::drawInterval(const Polygon &polygon, const TabletInput &dataStart, const TabletInput &dataEnd)
+void BrushStrokerPen::drawInterval(const Polygon &polygon, const TabletInputData &dataStart, const TabletInputData &dataEnd)
 {
 	//PAINTFIELD_CALC_SCOPE_ELAPSED_TIME;
 	
@@ -66,8 +67,8 @@ void BrushStrokerPen::drawInterval(const Polygon &polygon, const TabletInput &da
 	if (totalLength == 0)
 		return;
 	
-	double pressureNormalized = (dataEnd.pressure() - dataStart.pressure()) / totalLength;
-	double pressure = dataStart.pressure();
+	double pressureNormalized = (dataEnd.pressure - dataStart.pressure) / totalLength;
+	double pressure = dataStart.pressure;
 	
 	FixedMultiPolygon shape;
 	
@@ -101,7 +102,7 @@ void BrushStrokerPen::drawShape(const FixedMultiPolygon &shape)
 	
 	QPointSet keys = Surface::keysForRect(shape.boundingRect().toAlignedRect());
 	
-	QHash<QPoint, QRect> keysWithRects;
+	QPointHashToQRect keysWithRects;
 	
 	for (const QPoint &key : keys)
 	{
@@ -125,9 +126,7 @@ void BrushStrokerPen::drawShape(const FixedMultiPolygon &shape)
 		}
 	}
 	
-	SurfaceContext context(this);
-	
-	SurfaceEditor editor(context.pointer());
+	SurfaceEditor editor(surface());
 	editor.replace(drawSurface, keysWithRects.keys().toSet());
 	addEditedKeys(keysWithRects);
 }
@@ -144,9 +143,9 @@ QVariantMap BrushSourcePenFactory::defaultSettings() const
 	return settings;
 }
 
-BrushStroker *BrushSourcePenFactory::createStroker()
+BrushStroker *BrushSourcePenFactory::createStroker(Surface *surface)
 {
-	return new BrushStrokerPen();
+	return new BrushStrokerPen(surface);
 }
 
 }

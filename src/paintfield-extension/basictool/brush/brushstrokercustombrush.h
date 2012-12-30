@@ -1,7 +1,6 @@
 #ifndef BRUSHSTROKER_H
 #define BRUSHSTROKER_H
 
-/*
 #include "brushstroker.h"
 
 namespace PaintField {
@@ -57,5 +56,4 @@ public:
 };
 
 }
-*/
 #endif // BRUSHSTROKER_H
