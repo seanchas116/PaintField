@@ -119,18 +119,22 @@ void CanvasView::setTool(Tool *tool)
 		connect(tool, SIGNAL(requestUpdate(QHash<QPoint,QRect>)), this, SLOT(updateTiles(QHash<QPoint,QRect>)));
 		
 		if (tool->isCustomCursorEnabled())
+		{
 			d->toolCursor = QCursor(Qt::BlankCursor);
+			setCursor(QCursor(Qt::BlankCursor));
+		}
 		else
 		{
 			connect(tool, SIGNAL(cursorChanged(QCursor)), this, SLOT(onToolCursorChanged(QCursor)));
 			d->toolCursor = tool->cursor();
+			setCursor(tool->cursor());
 		}
 	}
 }
 
 void CanvasView::updateTiles(const QPointSet &keys, const QHash<QPoint, QRect> &rects)
 {
-	PAINTFIELD_CALC_SCOPE_ELAPSED_TIME;
+	//PAINTFIELD_CALC_SCOPE_ELAPSED_TIME;
 	
 	CanvasRenderer renderer;
 	renderer.setTool(d->tool.data());
