@@ -54,8 +54,8 @@ typedef QList<LayerPath> LayerPathList;
 class ModelRootLayer : public Layer
 {
 public:
-	ModelRootLayer(LayerModel *model) : Layer("root"), _model(model) { setBlendMode(Malachite::BlendModePassThrough); }
-	ModelRootLayer(const ModelRootLayer &other) : Layer(other), _model(other._model) { setBlendMode(Malachite::BlendModePassThrough); }
+	ModelRootLayer(LayerModel *model) : Layer("root"), _model(model) { setBlendMode(Malachite::BlendMode::PassThrough); }
+	ModelRootLayer(const ModelRootLayer &other) : Layer(other), _model(other._model) { setBlendMode(Malachite::BlendMode::PassThrough); }
 	
 	Layer *clone() const { return new ModelRootLayer(*this); }
 	Type type() const { return Layer::TypeGroup; }

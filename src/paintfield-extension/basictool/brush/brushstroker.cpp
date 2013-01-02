@@ -55,13 +55,26 @@ void BrushStroker::end()
 {
 }
 
-void BrushStroker::addEditedKeys(const QPointHashToQRect &keysWithRects)
+void BrushStroker::addEditedKeys(const QHash<QPoint, QRect> &keysWithRects)
 {
 	for (auto iter = keysWithRects.begin(); iter != keysWithRects.end(); ++iter)
+		addEditedKey(iter.key(), iter.value());
+}
+
+void BrushStroker::addEditedKey(const QPoint &key, const QRect &rect)
+{
+	_lastEditedKeysWithRects[key] |= rect;
+	_totalEditedKeys << key;
+}
+
+void BrushStroker::addEditedRect(const QRect &rect)
+{
+	auto keys = Surface::keysForRect(rect);
+	
+	for (auto key : keys)
 	{
-		QRect rect = iter.value() | _lastEditedKeysWithRects.value(iter.key(), QRect());
-		_lastEditedKeysWithRects[iter.key()] = rect;
-		_totalEditedKeys << iter.key();
+		auto keyRect = rect.translated(-key * Surface::TileSize) & Surface::keyToRect(0, 0);
+		addEditedKey(key, keyRect);
 	}
 }
 

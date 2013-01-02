@@ -12,7 +12,7 @@ public:
 	
 	struct Settings
 	{
-		int blendMode = Malachite::BlendModeSourceOver;
+		Malachite::BlendMode blendMode;
 	};
 	
 	BrushStrokerPen(Malachite::Surface *surface);
@@ -36,13 +36,13 @@ private:
 	Settings _settings;
 };
 
-class BrushSourcePenFactory : public BrushStrokerFactory
+class BrushStrokerPenFactory : public BrushStrokerFactory
 {
 	Q_OBJECT
 	
 public:
 	
-	explicit BrushSourcePenFactory(QObject *parent = 0) : BrushStrokerFactory(parent) {}
+	explicit BrushStrokerPenFactory(QObject *parent = 0) : BrushStrokerFactory(parent) {}
 	
 	QString name() const override { return "paintfield.brush.pen"; }
 	QVariantMap defaultSettings() const override;

@@ -154,12 +154,12 @@ void BrushStrokerCustomBrush::drawDab(const TabletInputData &data)
 	
 	if (_setting.erasing)
 	{
-		painter.setBlendMode(BlendModeDestinationOut);
+		painter.setBlendMode(BlendMode::DestinationOut);
 		painter.setOpacity(_setting.erasing);
 		painter.drawImage(dabRect.topLeft(), dabImage);
 	}
 	
-	painter.setBlendMode(BlendModeSourceOver);
+	painter.setBlendMode(BlendMode::SourceOver);
 	painter.drawImage(dabRect.topLeft(), dabImage);
 	//painter.drawEllipse(dabRect);
 	

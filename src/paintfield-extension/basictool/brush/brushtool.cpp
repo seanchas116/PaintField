@@ -121,6 +121,9 @@ void BrushTool::beginStroke(const TabletInputData &data)
 
 void BrushTool::drawStroke(const TabletInputData &data)
 {
+	if (!isStroking())
+		return;
+	
 	PAINTFIELD_CALC_SCOPE_ELAPSED_TIME;
 	
 	_stroker->lineTo(data);
@@ -129,6 +132,9 @@ void BrushTool::drawStroke(const TabletInputData &data)
 
 void BrushTool::endStroke(const TabletInputData &data)
 {
+	if (!isStroking())
+		return;
+	
 	PAINTFIELD_CALC_SCOPE_ELAPSED_TIME;
 	
 	_stroker->lineTo(data);
@@ -137,6 +143,7 @@ void BrushTool::endStroke(const TabletInputData &data)
 	
 	if (_layer && _layer == currentLayer())
 	{
+		_surface.squeeze(_stroker->totalEditedKeys());
 		document()->layerModel()->makeSkipNextUpdate();
 		document()->layerModel()->editLayer(document()->layerModel()->indexForLayer(_layer), new LayerSurfaceEdit(_surface, _stroker->totalEditedKeys()), tr("Brush"));
 	}

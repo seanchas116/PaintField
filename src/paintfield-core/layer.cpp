@@ -15,7 +15,7 @@ using namespace Malachite;
 
 Layer::Layer(const QString &name)
     : _name(name),
-      _blendMode(BlendModeNormal)
+      _blendMode(BlendMode::Normal)
 {}
 
 Layer::Layer(const Layer &other)
@@ -245,7 +245,7 @@ QVariant Layer::property(int role) const
 		case PaintField::RoleOpacity:
 			return _opacity;
 		case PaintField::RoleBlendMode:
-			return _blendMode;
+			return _blendMode.toInt();
 		case PaintField::RoleSurface:
 			return QVariant::fromValue(surface());
 		default:

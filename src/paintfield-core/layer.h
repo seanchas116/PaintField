@@ -203,16 +203,21 @@ public:
 	
 	void setName(const QString &name) { _name = name; }
 	QString name() const { return _name; }
+	
 	void setVisible(bool visible) { _isVisible = visible; }
 	bool isVisible() const { return _isVisible; }
+	
 	void setLocked(bool locked) { _isLocked = locked; }
 	bool isLocked() const { return property(PaintField::RoleLocked).toBool(); }
+	
 	void setThumbnail(const QPixmap &thumbnail) { _thumbnail = thumbnail; }
 	QPixmap thumbnail() const { return _thumbnail; }
+	
 	void setOpacity(double opacity) { _opacity = opacity; }
 	double opacity() const { return _opacity; }
-	void setBlendMode(int mode) { _blendMode = mode; }
-	int blendMode() const { return _blendMode; }
+	
+	void setBlendMode(Malachite::BlendMode mode) { _blendMode = mode; }
+	Malachite::BlendMode blendMode() const { return _blendMode; }
 	
 	void setThumbnailDirty(bool x) { _isThumbnailDirty = x; }
 	bool isThumbnailDirty() const { return _isThumbnailDirty; }
@@ -255,7 +260,7 @@ private:
 	QString _name;
 	bool _isLocked = false, _isVisible = true;
 	double _opacity = 1.0;
-	int _blendMode = Malachite::BlendModeNormal;
+	Malachite::BlendMode _blendMode;
 	QPixmap _thumbnail;
 	
 	bool _isThumbnailDirty = false;

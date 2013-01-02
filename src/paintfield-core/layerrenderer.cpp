@@ -29,7 +29,7 @@ void LayerRenderer::renderLayer(SurfacePainter *painter, const Layer *layer)
 	double opacity = painter->opacity();
 	painter->setOpacity(layer->opacity() * opacity);
 	
-	if (layer->blendMode() == BlendModePassThrough)
+	if (layer->blendMode() == BlendMode::PassThrough)
 	{
 		renderLayers(painter, layer->children());
 	}

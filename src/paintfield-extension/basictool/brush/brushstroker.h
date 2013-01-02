@@ -25,7 +25,7 @@ public:
 	void lineTo(const TabletInputData &data);
 	void end();
 	
-	QPointHashToQRect lastEditedKeysWithRects() const { return _lastEditedKeysWithRects; }
+	QHash<QPoint, QRect> lastEditedKeysWithRects() const { return _lastEditedKeysWithRects; }
 	QPointSet totalEditedKeys() const { return _totalEditedKeys; }
 	
 	void clearLastEditedKeys() { _lastEditedKeysWithRects.clear(); }
@@ -40,7 +40,9 @@ protected:
 	virtual void drawFirst(const TabletInputData &data) = 0;
 	virtual void drawInterval(const Malachite::Polygon &polygon, const TabletInputData &dataStart, const TabletInputData &dataEnd) = 0;
 	
-	void addEditedKeys(const QPointHashToQRect &keysWithRects);
+	void addEditedKeys(const QHash<QPoint, QRect> &keysWithRects);
+	void addEditedKey(const QPoint &key, const QRect &rect);
+	void addEditedRect(const QRect &rect);
 	
 private:
 	
@@ -48,7 +50,7 @@ private:
 	Malachite::Surface _originalSurface;
 	
 	QPointSet _totalEditedKeys;
-	QPointHashToQRect _lastEditedKeysWithRects;
+	QHash<QPoint, QRect> _lastEditedKeysWithRects;
 	
 	int _count;
 	TabletInputData  _dataPrev, _dataStart, _dataEnd, _currentData;

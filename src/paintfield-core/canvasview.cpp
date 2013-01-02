@@ -88,7 +88,9 @@ CanvasView::CanvasView(CanvasController *canvas, QWidget *parent) :
 
 CanvasView::~CanvasView()
 {
-	qApp->restoreOverrideCursor();
+	while (qApp->overrideCursor())
+		qApp->restoreOverrideCursor();
+	
 	delete d;
 }
 
@@ -146,9 +148,15 @@ void CanvasView::updateTiles(const QPointSet &keys, const QHash<QPoint, QRect> &
 		QRect rect;
 		
 		if (!rects.isEmpty())
+		{
 			rect = rects.value(key);
+			if (rect.isEmpty())
+				continue;
+		}
 		else
+		{
 			rect = QRect(0, 0, Surface::TileSize, Surface::TileSize);
+		}
 		
 		Image image(rect.size());
 		image.fill(Color::fromRgbValue(1,1,1).toArgb());

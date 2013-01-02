@@ -9,6 +9,7 @@
 #include "brushlibrarycontroller.h"
 #include "brushtool.h"
 #include "brushstrokerpen.h"
+#include "brushstrokersimplebrush.h"
 
 #include "brushtoolmodule.h"
 
@@ -24,7 +25,9 @@ BrushToolModule::BrushToolModule(WorkspaceController *workspace, QObject *parent
     _strokerFactoryManager(new BrushStrokerFactoryManager(this)),
     _preferencesManager(new BrushPreferencesManager(this))
 {
-	_strokerFactoryManager->addFactory(new BrushSourcePenFactory);
+	_strokerFactoryManager->addFactory(new BrushStrokerPenFactory);
+	_strokerFactoryManager->addFactory(new BrushStrokerSimpleBrushFactory);
+	
 	connect(_presetManager, SIGNAL(strokerChanged(QString)), this, SLOT(onStrokerChanged(QString)));
 	
 	auto libraryController = new BrushLibraryController(_presetManager, this);

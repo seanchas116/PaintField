@@ -232,7 +232,7 @@ bool DocumentIO::saveLayerRecursive(const Layer *parent, DocumentDatabase *datab
 		layerData["visible"] = layer->isVisible();
 		layerData["locked"] = layer->isLocked();
 		layerData["opacity"] = layer->opacity();
-		layerData["blendMode"] = Malachite::BlendModeUtil(layer->blendMode()).name();
+		layerData["blendMode"] = Malachite::BlendMode(layer->blendMode()).toString();
 		
 		if (layer->type() == Layer::TypeGroup)
 		{
@@ -273,7 +273,7 @@ bool DocumentIO::loadLayerRecursive(Layer *parent, DocumentDatabase *database, c
 			group->setVisible(layerData["visible"].toBool());
 			group->setLocked(layerData["locked"].toBool());
 			group->setOpacity(layerData["opacity"].toDouble());
-			group->setBlendMode(Malachite::BlendModeUtil(layerData["blendMode"].toString()).index());
+			group->setBlendMode(Malachite::BlendMode(layerData["blendMode"].toString()).toInt());
 			
 			parent->appendChild(group);
 			
@@ -288,7 +288,7 @@ bool DocumentIO::loadLayerRecursive(Layer *parent, DocumentDatabase *database, c
 			raster->setVisible(layerData["visible"].toBool());
 			raster->setLocked(layerData["locked"].toBool());
 			raster->setOpacity(layerData["opacity"].toDouble());
-			raster->setBlendMode(Malachite::BlendModeUtil(layerData["blendMode"].toString()).index());
+			raster->setBlendMode(Malachite::BlendMode(layerData["blendMode"].toString()).toInt());
 			
 			QString source = layerData["source"].toString();
 			
@@ -358,7 +358,7 @@ Malachite::Surface DocumentDatabase::loadSurface(const QString &path)
 	else
 	{
 		Painter painter(&surface);
-		painter.setBlendMode(Malachite::BlendModeSource);
+		painter.setBlendMode(BlendMode::PassThrough);
 		
 		for (const QVariant &tileData : tileList)
 		{

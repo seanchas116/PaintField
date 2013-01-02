@@ -102,7 +102,7 @@ void BrushStrokerPen::drawShape(const FixedMultiPolygon &shape)
 	
 	QPointSet keys = Surface::keysForRect(shape.boundingRect().toAlignedRect());
 	
-	QPointHashToQRect keysWithRects;
+	QHash<QPoint, QRect> keysWithRects;
 	
 	for (const QPoint &key : keys)
 	{
@@ -133,17 +133,17 @@ void BrushStrokerPen::drawShape(const FixedMultiPolygon &shape)
 
 void BrushStrokerPen::loadSettings(const QVariantMap &settings)
 {
-	_settings.blendMode = Malachite::BlendModeUtil(settings["blendMode"].toString()).index();
+	_settings.blendMode.setString(settings["blendMode"].toString());
 }
 
-QVariantMap BrushSourcePenFactory::defaultSettings() const
+QVariantMap BrushStrokerPenFactory::defaultSettings() const
 {
 	QVariantMap settings;
-	settings["blendMode"] = Malachite::BlendModeUtil(Malachite::BlendModeSourceOver).name();
+	settings["blendMode"] = BlendMode(BlendMode::SourceOver).toString();
 	return settings;
 }
 
-BrushStroker *BrushSourcePenFactory::createStroker(Surface *surface)
+BrushStroker *BrushStrokerPenFactory::createStroker(Surface *surface)
 {
 	return new BrushStrokerPen(surface);
 }
