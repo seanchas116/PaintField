@@ -93,7 +93,7 @@ void BrushTool::beginStroke(const TabletInputData &data)
 	if (_layer->type() != Layer::TypeRaster)
 		return;
 	
-	PAINTFIELD_CALC_SCOPE_ELAPSED_TIME;
+	//PAINTFIELD_CALC_SCOPE_ELAPSED_TIME;
 	
 	_surface = _layer->surface();
 	
@@ -124,7 +124,7 @@ void BrushTool::drawStroke(const TabletInputData &data)
 	if (!isStroking())
 		return;
 	
-	PAINTFIELD_CALC_SCOPE_ELAPSED_TIME;
+	//PAINTFIELD_CALC_SCOPE_ELAPSED_TIME;
 	
 	_stroker->lineTo(data);
 	updateTiles();
@@ -135,7 +135,7 @@ void BrushTool::endStroke(const TabletInputData &data)
 	if (!isStroking())
 		return;
 	
-	PAINTFIELD_CALC_SCOPE_ELAPSED_TIME;
+	//PAINTFIELD_CALC_SCOPE_ELAPSED_TIME;
 	
 	_stroker->lineTo(data);
 	_stroker->end();

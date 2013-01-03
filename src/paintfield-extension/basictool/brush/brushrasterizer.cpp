@@ -108,25 +108,27 @@ BrushRasterizerFast::BrushRasterizerFast(const Vec2D &center, float radius, floa
 
 BrushScanline BrushRasterizerFast::nextScanline()
 {
+	int x = _rect.left();
+	
 	BrushScanline scanline;
-	scanline.pos = QPoint(_rect.left(), _y);
+	scanline.pos = QPoint(x, _y);
 	scanline.count = _rect.width();
 	scanline.covers = _covers.data();
 	
 	float *p = _covers.data();
 	
-	for (int i = 0; i < scanline.count; i += 4)
+	Vec4F xs, ys;
+	xs = Vec4I32(x, x+1, x+2, x+3);
+	ys = Vec4I32(_y);
+	
+	xs -= _offsetCenterXs;
+	ys -= _offsetCenterYs;
+	
+	Vec4F yys = ys * ys;
+	
+	for (int i = 0; i < scanline.count; i += 4, xs += Vec4F(4.f))
 	{
-		int x = _rect.left() + i;
-		
-		Vec4F xs, ys;
-		xs = Vec4I32(x, x+1, x+2, x+3);
-		ys = Vec4I32(_y);
-		
-		xs -= _offsetCenterXs;
-		ys -= _offsetCenterYs;
-		
-		Vec4F rrs = xs * xs + ys * ys;
+		Vec4F rrs = xs * xs + yys;
 		Vec4F rs = vecRsqrt(rrs) * rrs;
 		
 		for (int iv = 0; iv < 4; ++iv)
