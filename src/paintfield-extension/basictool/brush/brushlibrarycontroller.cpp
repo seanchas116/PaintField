@@ -28,7 +28,7 @@ BrushLibraryController::BrushLibraryController(BrushPresetManager *presetManager
 	//connect(view, SIGNAL(saveRequested()), this, SLOT(onSaveRequested()));
 	connect(view, SIGNAL(reloadRequested()), this, SLOT(onReloadRequested()));
 	
-	_view.reset(new BrushLibraryView(_model, _selectionModel));
+	_view.reset(view);
 }
 
 void BrushLibraryController::onCurrentChanged(const QModelIndex &index)

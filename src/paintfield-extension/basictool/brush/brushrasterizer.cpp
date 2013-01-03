@@ -99,7 +99,8 @@ BrushRasterizerFast::BrushRasterizerFast(const Vec2D &center, float radius, floa
 	
 	_cutoffSlope = _max / (_cutoff - _radius);
 	
-	_covers.reset(new float[_rect.width()]);
+	int coverCount = (_rect.width() / 4 + 1) * 4;
+	_covers.reset(new float[coverCount]);
 	
 	_offsetCenterXs = Vec4F(center.x - 0.5f);
 	_offsetCenterYs = Vec4F(center.y - 0.5f);
