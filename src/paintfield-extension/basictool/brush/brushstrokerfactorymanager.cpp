@@ -1,4 +1,3 @@
-#include <boost/lambda/lambda.hpp>
 #include "paintfield-core/workspacecontroller.h"
 #include "paintfield-core/palettemanager.h"
 

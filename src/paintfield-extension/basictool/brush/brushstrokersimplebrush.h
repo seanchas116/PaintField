@@ -26,7 +26,11 @@ private:
 	
 	void drawScanline(const BrushScanline &scanline, Malachite::SurfaceEditor *surfaceEditor);
 	
+	Malachite::Image *getTile(const QPoint &key, Malachite::SurfaceEditor *editor);
+	
 	double _carryOver;
+	Malachite::Image *_lastTile = 0;
+	QPoint _lastKey;
 };
 
 class BrushStrokerSimpleBrushFactory : public BrushStrokerFactory

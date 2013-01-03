@@ -31,6 +31,8 @@ BrushRasterizer::BrushRasterizer(const Vec2D &center, double radius, double aaWi
 		_cutoff = radius - aaWidth;
 		_radius = radius;
 	}
+	
+	_covers.reset(new float[_rect.width()]);
 }
 
 BrushScanline BrushRasterizer::nextScanline()
@@ -39,7 +41,7 @@ BrushScanline BrushRasterizer::nextScanline()
 	
 	scanline.pos = QPoint(_rect.left(), _y);
 	scanline.count = _rect.width();
-	scanline.covers.resize(scanline.count);
+	scanline.covers = _covers.data();
 	
 	for (int i = 0; i < scanline.count; ++i)
 	{
@@ -64,17 +66,91 @@ BrushScanline BrushRasterizer::nextScanline()
 				cover = 0;
 		}
 		
-		scanline.covers[i] = cover;
+		_covers[i] = cover;
 	}
 	
 	++_y;
 	return scanline;
 }
 
-bool BrushRasterizer::hasNextScanline()
+BrushRasterizerFast::BrushRasterizerFast(const Vec2D &center, float radius, float aaWidth)
 {
-	return _y <= _rect.bottom();
+	_rect = QRectF(center.x - radius, center.y - radius, radius * 2.f, radius * 2.f).toAlignedRect();
+	_y = _rect.top();
+	
+	if (radius <= 1.f)
+	{
+		_max = radius;
+		_cutoff = 0.f;
+		_radius = 1.f;
+	}
+	else if (radius <= 1.f + aaWidth)
+	{
+		_max = 1.f;
+		_cutoff = 0.f;
+		_radius = radius;
+	}
+	else
+	{
+		_max = 1.f;
+		_cutoff = radius - aaWidth;
+		_radius = radius;
+	}
+	
+	_cutoffSlope = _max / (_cutoff - _radius);
+	
+	_covers.reset(new float[_rect.width()]);
+	
+	_offsetCenterXs = Vec4F(center.x - 0.5f);
+	_offsetCenterYs = Vec4F(center.y - 0.5f);
 }
+
+BrushScanline BrushRasterizerFast::nextScanline()
+{
+	BrushScanline scanline;
+	scanline.pos = QPoint(_rect.left(), _y);
+	scanline.count = _rect.width();
+	scanline.covers = _covers.data();
+	
+	float *p = _covers.data();
+	
+	for (int i = 0; i < scanline.count; i += 4)
+	{
+		int x = _rect.left() + i;
+		
+		Vec4F xs, ys;
+		xs = Vec4I32(x, x+1, x+2, x+3);
+		ys = Vec4I32(_y);
+		
+		xs -= _offsetCenterXs;
+		ys -= _offsetCenterYs;
+		
+		Vec4F rrs = xs * xs + ys * ys;
+		Vec4F rs = vecRsqrt(rrs) * rrs;
+		
+		for (int iv = 0; iv < 4; ++iv)
+		{
+			float r = rs[iv];
+			float cover;
+			
+			if (r <= _cutoff)
+				cover = _max;
+			else if (r < _radius)
+				cover = (r - _radius) * _cutoffSlope;
+			else if (isnan(r))
+				cover = _max;
+			else
+				cover = 0;
+			
+			*p = cover;
+			++p;
+		}
+	}
+	
+	++_y;
+	return scanline;
+}
+
 
 
 } // namespace PaintField

@@ -11,7 +11,7 @@ struct BrushScanline
 {
 	QPoint pos;
 	int count;	//negative: solid
-	QVector<float> covers;
+	const float *covers;
 };
 
 class BrushRasterizer
@@ -21,7 +21,7 @@ public:
 	BrushRasterizer(const Malachite::Vec2D &center, double radius, double aaWidth);
 	
 	BrushScanline nextScanline();
-	bool hasNextScanline();
+	bool hasNextScanline() const { return _y <= _rect.bottom(); }
 	
 	QRect boundingRect() const { return _rect; }
 	
@@ -31,18 +31,27 @@ private:
 	int _y;
 	Malachite::Vec2D _offsetCenter;
 	double _radius, _cutoff, _max;
+	QScopedArrayPointer<float> _covers;
 };
 
-class BrushRasterizerThin
+class BrushRasterizerFast
 {
 public:
 	
-	BrushRasterizerThin(const Malachite::Vec2D &center, double radius);
+	BrushRasterizerFast(const Malachite::Vec2D &center, float radius, float aaWidth);
+	
+	BrushScanline nextScanline();
+	bool hasNextScanline() { return _y <= _rect.bottom(); }
+	
+	QRect boundingRect() const { return _rect; }
 	
 private:
 	
 	QRect _rect;
 	int _y;
+	Malachite::Vec4F _offsetCenterXs, _offsetCenterYs;
+	float _radius, _cutoff, _max, _cutoffSlope;
+	QScopedArrayPointer<float> _covers;
 };
 
 } // namespace PaintField

@@ -88,7 +88,7 @@ QRect BrushStrokerSimpleBrush::drawDab(const Vec2D &pos, double pressure)
 	if (pressure <= 0)
 		return QRect();
 	
-	BrushRasterizer ras(pos, radiusBase() * pressure, 2);
+	BrushRasterizerFast ras(pos, radiusBase() * pressure, 2);
 	
 	SurfaceEditor editor(surface());
 	
@@ -104,28 +104,27 @@ static void drawScanlineInTile(Image *tileImage, const QPoint &offset, const Bru
 {
 	QPoint pos = scanline.pos - offset;
 	
-	if (0 <= pos.y() && pos.y() < Surface::TileSize)
+	Q_ASSERT(0 <= pos.y() && pos.y() < Surface::TileSize);
+	
+	int count = scanline.count;
+	bool isSolid = count < 0;
+	if (isSolid)
+		count = -count;
+	
+	Interval interval = Interval(0, Surface::TileSize) & Interval(pos.x(), count);
+	
+	if (interval.isValid())
 	{
-		int count = scanline.count;
-		bool isSolid = count < 0;
+		auto p = tileImage->pixelPointer(interval.start(), pos.y());
+		
 		if (isSolid)
-			count = -count;
-		
-		Interval interval = Interval(0, Surface::TileSize) & Interval(pos.x(), count);
-		
-		if (interval.isValid())
 		{
-			auto p = tileImage->pixelPointer(interval.start(), pos.y());
-			
-			if (isSolid)
-			{
-				blendOp->blend(count, p, argb);
-			}
-			else
-			{
-				auto pcover = scanline.covers.data() + (interval.start() - pos.x());
-				blendOp->blend(interval.length(), p, argb, wrapPointer(scanline.covers.data(), scanline.covers.size() * sizeof(pcover), pcover));
-			}
+			blendOp->blend(count, p, argb);
+		}
+		else
+		{
+			auto pcover = scanline.covers + (interval.start() - pos.x());
+			blendOp->blend(interval.length(), p, argb, wrapPointer(scanline.covers, count * sizeof(pcover), pcover));
 		}
 	}
 }
@@ -136,12 +135,28 @@ void BrushStrokerSimpleBrush::drawScanline(const BrushScanline &scanline, Surfac
 	int tileStart = scanline.pos.x() / Surface::TileSize;
 	int tileEnd = (scanline.pos.x() + scanline.count - 1) / Surface::TileSize;
 	
+	auto blendOp = BlendMode(BlendMode::SourceOver).op();
+	
 	for (int tileX = tileStart; tileX <= tileEnd; ++tileX)
 	{
 		QPoint key(tileX, tileY);
 		
-		auto tile = surfaceEditor->tileRefForKey(key);
-		drawScanlineInTile(tile, key * Surface::TileSize, scanline, argb(), BlendMode(BlendMode::SourceOver).op());
+		auto tile = getTile(key, surfaceEditor);
+		drawScanlineInTile(tile, key * Surface::TileSize, scanline, argb(), blendOp);
+	}
+}
+
+Image *BrushStrokerSimpleBrush::getTile(const QPoint &key, SurfaceEditor *editor)
+{
+	if (_lastTile && _lastKey == key)
+	{
+		return _lastTile;
+	}
+	else
+	{
+		_lastKey = key;
+		_lastTile = editor->tileRefForKey(key);
+		return _lastTile;
 	}
 }
 
