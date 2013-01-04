@@ -7,6 +7,7 @@
 #include "workspacecontroller.h"
 #include "module.h"
 
+#include "dialogs/filedialog.h"
 #include "dialogs/messagebox.h"
 #include "dialogs/exportdialog.h"
 #include "dialogs/newdocumentdialog.h"
@@ -90,10 +91,8 @@ CanvasController *CanvasController::fromNew(WorkspaceController *parent)
 
 CanvasController *CanvasController::fromOpen(WorkspaceController *parent)
 {
-	QString filePath = QFileDialog::getOpenFileName(0,
-	                                                tr("Open"),
-	                                                QDir::homePath(),
-	                                                tr("PaintField Project") + " (*.pfield)");
+	QString filePath = FileDialog::getOpenFilePath(0, tr("Open"), tr("PaintField Document"), {"pfield"});
+	
 	if (filePath.isEmpty())	// cancelled
 		return 0;
 	
@@ -102,10 +101,7 @@ CanvasController *CanvasController::fromOpen(WorkspaceController *parent)
 
 CanvasController *CanvasController::fromNewFromImageFile(WorkspaceController *parent)
 {
-	QString filePath = QFileDialog::getOpenFileName(0,
-	                                                tr("Open"),
-	                                                QDir::homePath(),
-	                                                tr("Image File") + " " + fileDialogFilterFromExtensions(ImageImporter::importableExtensions()));
+	QString filePath = FileDialog::getOpenFilePath(0, tr("Open"), tr("Image File"), ImageImporter::importableExtensions());
 	
 	if (filePath.isEmpty())
 		return 0;
@@ -128,7 +124,7 @@ CanvasController *CanvasController::fromSavedFile(const QString &path, Workspace
 	DocumentIO documentIO(path);
 	if (!documentIO.openUnzip())
 	{
-		QMessageBox::warning(0, tr("Failed to open file."), QString());
+		showMessageBox(QMessageBox::Warning, tr("Failed to open file."), QString());
 		return 0;
 	}
 	
@@ -136,7 +132,7 @@ CanvasController *CanvasController::fromSavedFile(const QString &path, Workspace
 	
 	if (document == 0)
 	{	// failed to open
-		QMessageBox::warning(0, tr("Failed to open file."), QString());
+		showMessageBox(QMessageBox::Warning, tr("Failed to open file."), QString());
 		return 0;
 	}
 	
@@ -159,10 +155,8 @@ bool CanvasController::saveAsCanvas()
 {
 	Document *document = this->document();
 	
-	QString filePath = QFileDialog::getSaveFileName(0,
-	                                                tr("Save As"),
-	                                                QDir::homePath(),
-													tr("PaintField Project") + " (*.pfield)");
+	QString filePath = FileDialog::getSaveFilePath(0, tr("Save As"), tr("PaintField Document"), "pfield");
+	
 	if (filePath.isEmpty())
 		return false;
 	
@@ -178,7 +172,7 @@ bool CanvasController::saveAsCanvas()
 	
 	if (!documentIO.saveAs(document, filePath))
 	{
-		QMessageBox::warning(workspace()->view(), tr("Failed to save the file."), QString());
+		showMessageBox(QMessageBox::Warning, tr("Failed to save file."), QString());
 		return false;
 	}
 	return true;
@@ -197,7 +191,7 @@ bool CanvasController::saveCanvas()
 	DocumentIO documentIO(document->filePath());
 	if (!documentIO.save(document))
 	{
-		QMessageBox::warning(workspace()->view(), tr("Cannot save file."), QString());
+		showMessageBox(QMessageBox::Warning, tr("Failed to save file."), QString());
 		return false;
 	}
 	return true;

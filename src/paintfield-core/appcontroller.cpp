@@ -10,12 +10,39 @@
 namespace PaintField
 {
 
+struct AppControllerData
+{
+	Application *app = 0;
+	
+	WorkspaceManager *workspaceManager = 0;
+	
+	QVariant menuBarOrder, workspaceItemOrder;
+	
+	ToolDeclarationHash toolDeclarationHash;
+	ActionDeclarationHash actionDeclarationHash;
+	SideBarDeclarationHash sideBarDeclarationHash;
+	ToolBarDeclarationHash toolbarInfoHash;
+	MenuDeclarationHash menuDeclarationHash;
+	
+	QHash<QString, QKeySequence> keyBindingHash;
+	
+	ModuleManager *moduleManager = 0;
+	
+	QList<AppModule *> modules;
+	
+	QList<QAction *> actions;
+	
+	QString lastFileDialogPath;
+};
+
 AppController::AppController(Application *app, QObject *parent) :
 	QObject(parent),
-    _app(app),
-    _workspaceManager(new WorkspaceManager(this)),
-    _moduleManager(new ModuleManager(this))
+    d(new AppControllerData)
 {
+	d->app = app;
+	d->workspaceManager = new WorkspaceManager(this);
+	d->moduleManager = new ModuleManager(this);
+	
 	_instance = this;
 	
 	declareMenus();
@@ -27,6 +54,66 @@ AppController::AppController(Application *app, QObject *parent) :
 	documentDir.mkpath("PaintField/Contents/Brush Presets");
 	
 	connect(app, SIGNAL(fileOpenRequested(QString)), this, SLOT(openFile(QString)));
+}
+
+AppController::~AppController()
+{
+	delete d;
+}
+
+WorkspaceManager *AppController::workspaceManager() { return d->workspaceManager; }
+
+void AppController::loadMenuBarOrderFromJson(const QString &path) { d->menuBarOrder = loadJsonFromFile(path); }
+void AppController::loadWorkspaceItemOrderFromJson(const QString &path) { d->workspaceItemOrder = loadJsonFromFile(path); }
+
+void AppController::setMenuBarOrder(const QVariant &order) { d->menuBarOrder = order; }
+QVariant AppController::menuBarOrder() const { return d->menuBarOrder; }
+
+void AppController::setWorkspaceItemOrder(const QVariant &order) { d->workspaceItemOrder = order; }
+
+void AppController::declareTool(const QString &name, const ToolDeclaration &info) { d->toolDeclarationHash[name] = info; }
+void AppController::declareAction(const QString &name, const ActionDeclaration &info) { d->actionDeclarationHash[name] = info; }
+void AppController::declareSideBar(const QString &name, const SidebarDeclaration &info) { d->sideBarDeclarationHash[name] = info; }
+void AppController::declareToolbar(const QString &name, const ToolbarDeclaration &info) { d->toolbarInfoHash[name] = info; }
+void AppController::declareMenu(const QString &id, const MenuDeclaration &info) { d->menuDeclarationHash[id] = info; }
+
+void AppController::declareTool(const QString &name, const QString &text, const QIcon &icon, const QStringList &supportedLayerTypes)
+{ declareTool(name, ToolDeclaration(text, icon, supportedLayerTypes)); }
+void AppController::declareAction(const QString &name, const QString &text, const QKeySequence &defaultShortcut)
+{ declareAction(name, ActionDeclaration(text, defaultShortcut)); }
+
+ToolDeclarationHash AppController::toolDeclarationHash() const { return d->toolDeclarationHash; }
+ActionDeclarationHash AppController::actionDeclarationHash() const { return d->actionDeclarationHash; }
+SideBarDeclarationHash AppController::sideBarDeclarationHash() const { return d->sideBarDeclarationHash; }
+ToolBarDeclarationHash AppController::toolBarDeclarationHash() const { return d->toolbarInfoHash; }
+MenuDeclarationHash AppController::menuDeclarationHash() const { return d->menuDeclarationHash; }
+
+QStringList AppController::toolNames() const { return d->toolDeclarationHash.keys(); }
+QStringList AppController::actionNames() const { return d->actionDeclarationHash.keys(); }
+QStringList AppController::sidebarNames() const { return d->sideBarDeclarationHash.keys(); }
+QStringList AppController::toolbarNames() const { return d->toolbarInfoHash.keys(); }
+QStringList AppController::menuNames() const { return d->menuDeclarationHash.keys(); }
+
+QHash<QString, QKeySequence> AppController::keyBindingHash() const { return d->keyBindingHash; }
+
+QList<AppModule *> AppController::modules() { return d->modules; }
+
+void AppController::addActions(const QList<QAction *> &actions) { d->actions += actions; }
+QList<QAction *> AppController::actions() { return d->actions; }
+
+QString AppController::lastFileDialogPath() const { return d->lastFileDialogPath; }
+void AppController::setLastFileDialogPath(const QString &path) { d->lastFileDialogPath = path; }
+
+Application *AppController::app() { return d->app; }
+
+ModuleManager *AppController::moduleManager()
+{
+	return d->moduleManager;
+}
+
+QVariant AppController::workspaceItemOrder() const
+{
+	return d->workspaceItemOrder;
 }
 
 void AppController::declareMenus()
@@ -95,9 +182,9 @@ void AppController::declareMenus()
 
 void AppController::createActions()
 {
-	_actions << createAction("paintfield.file.quit", _workspaceManager, SLOT(tryCloseAll()));
-	_actions << createAction("paintfield.window.minimize", this, SLOT(minimizeCurrentWindow()));
-	_actions << createAction("paintfield.window.zoom", this, SLOT(zoomCurrentWindow()));
+	d->actions << createAction("paintfield.file.quit", d->workspaceManager, SLOT(tryCloseAll()));
+	d->actions << createAction("paintfield.window.minimize", this, SLOT(minimizeCurrentWindow()));
+	d->actions << createAction("paintfield.window.zoom", this, SLOT(zoomCurrentWindow()));
 }
 
 void AppController::begin()
@@ -157,7 +244,7 @@ void AppController::loadUserSettings()
 
 void AppController::addModuleFactory(ModuleFactory *factory)
 {
-	_moduleManager->addModuleFactory(factory);
+	d->moduleManager->addModuleFactory(factory);
 }
 
 void AppController::handleMessage(const QString &message)
@@ -201,14 +288,14 @@ void AppController::addKeyBindingHash(const QHash<QString, QKeySequence> &hash)
 
 void AppController::addKeyBinding(const QString &name, const QKeySequence &shortcut)
 {
-	_keyBindingHash[name] = shortcut;
+	d->keyBindingHash[name] = shortcut;
 }
 
 void AppController::applyKeyBindingsToActionDeclarations()
 {
-	for (auto keyIter = _keyBindingHash.begin(); keyIter != _keyBindingHash.end(); ++keyIter)
+	for (auto keyIter = d->keyBindingHash.begin(); keyIter != d->keyBindingHash.end(); ++keyIter)
 	{
-		for (auto actionIter = _actionDeclarationHash.begin(); actionIter != _actionDeclarationHash.end(); ++actionIter)
+		for (auto actionIter = d->actionDeclarationHash.begin(); actionIter != d->actionDeclarationHash.end(); ++actionIter)
 		{
 			if (actionIter.key() == keyIter.key())
 				actionIter->shortcut = keyIter.value();
@@ -221,7 +308,7 @@ void AppController::addModules(const AppModuleList &modules)
 	for (AppModule *module : modules)
 		addActions(module->actions());
 	
-	_modules += modules;
+	d->modules += modules;
 }
 
 QString AppController::unduplicatedNewFileTempName()

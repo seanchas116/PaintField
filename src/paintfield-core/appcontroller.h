@@ -17,66 +17,69 @@ class ModuleManager;
 class AppModule;
 class ModuleFactory;
 
+struct AppControllerData;
+
 class AppController : public QObject
 {
 	Q_OBJECT
 public:
 	
 	explicit AppController(Application *app, QObject *parent = 0);
+	~AppController();
 	
 	void begin();
 	
 	/**
 	 * @return The workspace manager
 	 */
-	WorkspaceManager *workspaceManager() { return _workspaceManager; }
+	WorkspaceManager *workspaceManager();
 	
 	void loadBuiltinSettings();
 	void loadUserSettings();
 	
-	void loadMenuBarOrderFromJson(const QString &path) { _menuBarOrder = loadJsonFromFile(path); }
-	void loadWorkspaceItemOrderFromJson(const QString &path) { _workspaceItemOrder = loadJsonFromFile(path); }
+	void loadMenuBarOrderFromJson(const QString &path);
+	void loadWorkspaceItemOrderFromJson(const QString &path);
 	void loadAndAddKeyBindingsFromJson(const QString &path);
 	
-	void setMenuBarOrder(const QVariant &order) { _menuBarOrder = order; }
-	QVariant menuBarOrder() const { return _menuBarOrder; }
+	void setMenuBarOrder(const QVariant &order);
+	QVariant menuBarOrder() const;
 	
-	void setWorkspaceItemOrder(const QVariant &order) { _workspaceItemOrder = order; }
-	QVariant workspaceItemOrder() const { return _workspaceItemOrder; }
+	void setWorkspaceItemOrder(const QVariant &order);
+	QVariant workspaceItemOrder() const;
 	
-	ModuleManager *moduleManager() { return _moduleManager; }
+	ModuleManager *moduleManager();
 	void addModuleFactory(ModuleFactory *factory);
 	
-	void declareTool(const QString &name, const ToolDeclaration &info) { _toolDeclarationHash[name] = info; }
-	void declareAction(const QString &name, const ActionDeclaration &info) { _actionDeclarationHash[name] = info; }
-	void declareSideBar(const QString &name, const SidebarDeclaration &info) { _sideBarDeclarationHash[name] = info; }
-	void declareToolbar(const QString &name, const ToolbarDeclaration &info) { _toolbarInfoHash[name] = info; }
-	void declareMenu(const QString &id, const MenuDeclaration &info) { _menuDeclarationHash[id] = info; }
+	void declareTool(const QString &name, const ToolDeclaration &info);
+	void declareAction(const QString &name, const ActionDeclaration &info);
+	void declareSideBar(const QString &name, const SidebarDeclaration &info);
+	void declareToolbar(const QString &name, const ToolbarDeclaration &info);
+	void declareMenu(const QString &id, const MenuDeclaration &info);
 	
-	void declareTool(const QString &name, const QString &text, const QIcon &icon, const QStringList &supportedLayerTypes) { declareTool(name, ToolDeclaration(text, icon, supportedLayerTypes)); }
-	void declareAction(const QString &name, const QString &text, const QKeySequence &defaultShortcut = QKeySequence()) { declareAction(name, ActionDeclaration(text, defaultShortcut)); }
+	void declareTool(const QString &name, const QString &text, const QIcon &icon, const QStringList &supportedLayerTypes);
+	void declareAction(const QString &name, const QString &text, const QKeySequence &defaultShortcut = QKeySequence());
 	
-	ToolDeclarationHash toolDeclarationHash() const { return _toolDeclarationHash; }
-	ActionDeclarationHash actionDeclarationHash() const { return _actionDeclarationHash; }
-	SideBarDeclarationHash sideBarDeclarationHash() const { return _sideBarDeclarationHash; }
-	ToolBarDeclarationHash toolBarDeclarationHash() const { return _toolbarInfoHash; }
-	MenuDeclarationHash menuDeclarationHash() const { return _menuDeclarationHash; }
+	ToolDeclarationHash toolDeclarationHash() const;
+	ActionDeclarationHash actionDeclarationHash() const;
+	SideBarDeclarationHash sideBarDeclarationHash() const;
+	ToolBarDeclarationHash toolBarDeclarationHash() const;
+	MenuDeclarationHash menuDeclarationHash() const;
 	
-	QStringList toolNames() const { return _toolDeclarationHash.keys(); }
-	QStringList actionNames() const { return _actionDeclarationHash.keys(); }
-	QStringList sidebarNames() const { return _sideBarDeclarationHash.keys(); }
-	QStringList toolbarNames() const { return _toolbarInfoHash.keys(); }
-	QStringList menuNames() const { return _menuDeclarationHash.keys(); }
+	QStringList toolNames() const;
+	QStringList actionNames() const;
+	QStringList sidebarNames() const;
+	QStringList toolbarNames() const;
+	QStringList menuNames() const;
 	
-	QHash<QString, QKeySequence> keyBindingHash() const { return _keyBindingHash; }
+	QHash<QString, QKeySequence> keyBindingHash() const;
 	void addKeyBindingHash(const QHash<QString, QKeySequence> &hash);
 	void addKeyBinding(const QString &name, const QKeySequence &shortcut);
 	
 	void addModules(const QList<AppModule *> &modules);
-	QList<AppModule *> modules() { return _modules; }
+	QList<AppModule *> modules();
 	
-	void addActions(const QList<QAction *> &actions) { _actions += actions; }
-	QList<QAction *> actions() { return _actions; }
+	void addActions(const QList<QAction *> &actions);
+	QList<QAction *> actions();
 	
 	QString unduplicatedNewFileTempName();
 	QString unduplicatedTempName(const QString &name);
@@ -84,7 +87,10 @@ public:
 	QString builtinDataDir() const;
 	QString userDataDir() const;
 	
-	Application *app() { return _app; }
+	QString lastFileDialogPath() const;
+	void setLastFileDialogPath(const QString &path);
+	
+	Application *app();
 	
 	static AppController *instance() { return _instance; }
 	
@@ -105,25 +111,7 @@ private:
 	void createActions();
 	void applyKeyBindingsToActionDeclarations();
 	
-	Application *_app = 0;
-	
-	WorkspaceManager *_workspaceManager = 0;
-	
-	QVariant _menuBarOrder, _workspaceItemOrder;
-	
-	ToolDeclarationHash _toolDeclarationHash;
-	ActionDeclarationHash _actionDeclarationHash;
-	SideBarDeclarationHash _sideBarDeclarationHash;
-	ToolBarDeclarationHash _toolbarInfoHash;
-	MenuDeclarationHash _menuDeclarationHash;
-	
-	QHash<QString, QKeySequence> _keyBindingHash;
-	
-	ModuleManager *_moduleManager = 0;
-	
-	QList<AppModule *> _modules;
-	
-	QList<QAction *> _actions;
+	AppControllerData *d;
 	
 	static AppController *_instance;
 };

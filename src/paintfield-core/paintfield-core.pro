@@ -77,7 +77,8 @@ HEADERS += \
     librarymodel.h \
     list.h \
     widgets/navigatablearea.h \
-    keytracker.h
+    keytracker.h \
+    dialogs/filedialog.h
 FORMS += dialogs/exportdialog.ui dialogs/newdocumentdialog.ui
 SOURCES += \
            canvascontroller.cpp \
@@ -129,4 +130,5 @@ SOURCES += \
     callbackanimation.cpp \
     librarymodel.cpp \
     widgets/navigatablearea.cpp \
-    keytracker.cpp
+    keytracker.cpp \
+    dialogs/filedialog.cpp
