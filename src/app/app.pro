@@ -23,14 +23,15 @@ LIBS += -L$$OUT_PWD/../paintfield-extension
 LIBS += -lpaintfield-extension
 
 macx {
-	#sharedlibs.path = "Contents/MacOS"
-	#sharedlibs.files += $$OUT_PWD/../paintfield-core/libpaintfield-core.1.dylib
-	#sharedlibs.files += $$OUT_PWD/../paintfield-extension/libpaintfield-extension.1.dylib
-	#sharedlibs.files += $$OUT_PWD/../libs/Malachite/src/libmalachite.1.dylib
-	#sharedlibs.files += $$OUT_PWD/../libs/Minizip/libminizip.1.dylib
-	#QMAKE_BUNDLE_DATA += sharedlibs
-	
-	QMAKE_POST_LINK = "sh $$PWD/mac_post_link.sh $$PWD $$OUT_PWD"
+
+QMAKE_POST_LINK = "sh $$PWD/mac_post_link.sh $$PWD $$OUT_PWD"
+
+}
+
+unix:!macx {
+
+QMAKE_POST_LINK = "sh $$PWD/unix_post_link.sh $$PWD $$OUT_PWD"
+
 }
 
 SOURCES += main.cpp
