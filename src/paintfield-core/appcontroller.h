@@ -31,9 +31,12 @@ public:
 	 */
 	WorkspaceManager *workspaceManager() { return _workspaceManager; }
 	
+	void loadBuiltinSettings();
+	void loadUserSettings();
+	
 	void loadMenuBarOrderFromJson(const QString &path) { _menuBarOrder = loadJsonFromFile(path); }
 	void loadWorkspaceItemOrderFromJson(const QString &path) { _workspaceItemOrder = loadJsonFromFile(path); }
-	void loadKeyMapFromJson(const QString &path);
+	void loadAndAddKeyBindingsFromJson(const QString &path);
 	
 	void setMenuBarOrder(const QVariant &order) { _menuBarOrder = order; }
 	QVariant menuBarOrder() const { return _menuBarOrder; }
@@ -78,8 +81,8 @@ public:
 	QString unduplicatedNewFileTempName();
 	QString unduplicatedTempName(const QString &name);
 	
-	QString builtinContentsDir() const;
-	QString userContentsDir() const;
+	QString builtinDataDir() const;
+	QString userDataDir() const;
 	
 	Application *app() { return _app; }
 	
@@ -100,6 +103,7 @@ private:
 	
 	void declareMenus();
 	void createActions();
+	void applyKeyBindingsToActionDeclarations();
 	
 	Application *_app = 0;
 	

@@ -35,8 +35,7 @@ macx {
 
 SOURCES += main.cpp
 
-RESOURCES += \
-    resources/resource-app.qrc
+RESOURCES +=
 
 OTHER_FILES += \
     Info.plist

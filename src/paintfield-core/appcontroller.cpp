@@ -102,9 +102,57 @@ void AppController::createActions()
 
 void AppController::begin()
 {
+	loadBuiltinSettings();
+	loadUserSettings();
+	
 	moduleManager()->initialize(this);
 	addModules(moduleManager()->createAppModules(this, this));
+	applyKeyBindingsToActionDeclarations();
 	workspaceManager()->newWorkspace();
+}
+
+static const QString menuBarOrderFileName("menubar.json");
+static const QString WorkspaceItemOrderFileName("workspace-items.json");
+static const QString keyBindingFileName("key-bindings.json");
+
+
+void AppController::loadBuiltinSettings()
+{
+	QDir dir(builtinDataDir());
+	
+	if (!dir.exists())
+		return;
+	
+	if (!dir.cd("Settings"))
+		return;
+	
+	loadMenuBarOrderFromJson(dir.filePath(menuBarOrderFileName));
+	loadWorkspaceItemOrderFromJson(dir.filePath(WorkspaceItemOrderFileName));
+	loadAndAddKeyBindingsFromJson(dir.filePath(keyBindingFileName));
+}
+
+void AppController::loadUserSettings()
+{
+	QDir dir(userDataDir());
+	
+	if (!dir.exists())
+		return;
+	
+	if (!dir.cd("Settings"))
+		return;
+	
+	QString menubarPath = dir.filePath(menuBarOrderFileName);
+	QString workspaceItemPath = dir.filePath(WorkspaceItemOrderFileName);
+	QString keymapPath = dir.filePath(keyBindingFileName);
+	
+	if (QFile::exists(menubarPath))
+		loadMenuBarOrderFromJson(menubarPath);
+	
+	if (QFile::exists(workspaceItemPath))
+		loadWorkspaceItemOrderFromJson(workspaceItemPath);
+	
+	if (QFile::exists(keymapPath))
+		loadAndAddKeyBindingsFromJson(keymapPath);
 }
 
 void AppController::addModuleFactory(ModuleFactory *factory)
@@ -131,7 +179,7 @@ void AppController::zoomCurrentWindow()
 		widget->showMaximized();
 }
 
-void AppController::loadKeyMapFromJson(const QString &path)
+void AppController::loadAndAddKeyBindingsFromJson(const QString &path)
 {
 	QVariantMap map = loadJsonFromFile(path).toMap();
 	
@@ -139,28 +187,33 @@ void AppController::loadKeyMapFromJson(const QString &path)
 	{
 		QString id = iter.key();
 		QKeySequence key(iter.value().toString());
+		
 		if (!id.isEmpty() && !key.isEmpty())
-		{
 			addKeyBinding(id, key);
-		}
 	}
 }
 
 void AppController::addKeyBindingHash(const QHash<QString, QKeySequence> &hash)
 {
 	for (auto iter = hash.begin(); iter != hash.end(); ++iter)
-	{
 		addKeyBinding(iter.key(), iter.value());
-	}
 }
 
 void AppController::addKeyBinding(const QString &name, const QKeySequence &shortcut)
 {
 	_keyBindingHash[name] = shortcut;
-	
-	for (auto iter = _actionDeclarationHash.begin(); iter != _actionDeclarationHash.end(); ++iter)
-		if (iter.key() == name)
-			iter->shortcut = shortcut;
+}
+
+void AppController::applyKeyBindingsToActionDeclarations()
+{
+	for (auto keyIter = _keyBindingHash.begin(); keyIter != _keyBindingHash.end(); ++keyIter)
+	{
+		for (auto actionIter = _actionDeclarationHash.begin(); actionIter != _actionDeclarationHash.end(); ++actionIter)
+		{
+			if (actionIter.key() == keyIter.key())
+				actionIter->shortcut = keyIter.value();
+		}
+	}
 }
 
 void AppController::addModules(const AppModuleList &modules)
@@ -194,14 +247,14 @@ QString AppController::unduplicatedTempName(const QString &name)
 	return unduplicatedName(existingTempNames, name);
 }
 
-QString AppController::builtinContentsDir() const
+QString AppController::builtinDataDir() const
 {
-	return QDir(qApp->applicationDirPath()).filePath("Contents");
+	return QDir(qApp->applicationDirPath()).absolutePath();
 }
 
-QString AppController::userContentsDir() const
+QString AppController::userDataDir() const
 {
-	return QDir(QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation)).filePath("PaintField/Contents");
+	return QDir(QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation)).filePath("PaintField");
 }
 
 void AppController::openFile(const QString &path)

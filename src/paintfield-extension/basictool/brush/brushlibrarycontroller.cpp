@@ -15,8 +15,8 @@ BrushLibraryController::BrushLibraryController(BrushPresetManager *presetManager
 {
 	_model = new BrushLibraryModel(this);
 	
-	_model->addRootPath(QDir(appController()->builtinContentsDir()).filePath("Brush Presets"), "Built-in");
-	_model->addRootPath(QDir(appController()->userContentsDir()).filePath("Brush Presets"), "User");
+	_model->addRootPath(QDir(appController()->builtinDataDir()).filePath("Contents/Brush Presets"), "Built-in");
+	_model->addRootPath(QDir(appController()->userDataDir()).filePath("Contents/Brush Presets"), "User");
 	
 	_selectionModel = new QItemSelectionModel(_model, this);
 	

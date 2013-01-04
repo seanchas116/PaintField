@@ -24,13 +24,8 @@ int main(int argc, char *argv[])
 	
 	AppController appCon(&a);
 	
-	appCon.loadMenuBarOrderFromJson(":/menubar.json");
-	appCon.loadWorkspaceItemOrderFromJson(":/panels.json");
-	appCon.loadKeyMapFromJson(":/keymap.json");
-	
-	appCon.addModuleFactory(new ExtensionModuleFactory);
-	
 	QObject::connect(&a, SIGNAL(messageReceived(QString)), &appCon, SLOT(handleMessage(QString)));
+	appCon.addModuleFactory(new ExtensionModuleFactory);
 	
 	appCon.begin();
 	
