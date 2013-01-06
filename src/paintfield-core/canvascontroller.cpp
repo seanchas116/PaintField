@@ -6,6 +6,7 @@
 #include "documentio.h"
 #include "workspacecontroller.h"
 #include "module.h"
+#include "layerrenderer.h"
 
 #include "dialogs/filedialog.h"
 #include "dialogs/messagebox.h"
@@ -43,6 +44,7 @@ void CanvasController::commonInit()
 	_actions << createAction("paintfield.file.save", this, SLOT(saveCanvas()));
 	_actions << createAction("paintfield.file.saveAs", this, SLOT(saveAsCanvas()));
 	_actions << createAction("paintfield.file.close", this, SLOT(closeCanvas()));
+	_actions << createAction("paintfield.file.export", this, SLOT(exportCanvas()));
 	
 	auto undoAction  = _document->undoStack()->createUndoAction(this);
 	undoAction->setObjectName("paintfield.edit.undo");
@@ -229,6 +231,37 @@ bool CanvasController::closeCanvas()
 	emit shouldBeDeleted(this);
 	return true;
 }
+
+bool CanvasController::exportCanvas()
+{
+	ExportDialog dialog;
+	
+	if (!dialog.exec())
+		return false;
+	
+	Surface surface;
+	
+	{
+		LayerRenderer renderer;
+		surface = renderer.renderToSurface(layerModel()->rootLayer()->children(), document()->tileKeys());
+	}
+	
+	QString path = FileDialog::getSaveFilePath(0, tr("Export"), dialog.currentText(), dialog.currentFormat());
+	
+	if (path.isEmpty())
+		return false;
+	
+	ImageExporter exporter(surface, document()->size(), dialog.currentFormat());
+	if (!exporter.save(path, dialog.currentQuality()))
+	{
+		showMessageBox(QMessageBox::Warning, tr("Failed to export file."), QString());
+		return false;
+	}
+	
+	return true;
+}
+
+
 
 
 }

@@ -35,7 +35,7 @@ private:
 	
 	WidgetGroup *_group;
 	
-	QHash<QString, QString> _hash;
+	QHash<QString, QString> _comboBoxHash;
 	QString _format;
 	int _quality;
 };

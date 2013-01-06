@@ -22,11 +22,11 @@ ExportDialog::ExportDialog(QWidget *parent) :
 	
 	connect(ui->spinBox, SIGNAL(valueChanged(int)), this, SLOT(onQualityValueChanged(int)));
 	
-	_hash.insert("png", tr("PNG (*.png)"));
-	_hash.insert("jpg", tr("JPEG (*.jpg)"));
-	_hash.insert("bmp", tr("Windows Bitmap (*.bmp)"));
+	_comboBoxHash.insert("png", tr("PNG"));
+	_comboBoxHash.insert("jpg", tr("JPEG"));
+	_comboBoxHash.insert("bmp", tr("Windows Bitmap"));
 	
-	ui->comboBox->addItems(_hash.values());
+	ui->comboBox->addItems(_comboBoxHash.values());
 	
 	connect(ui->comboBox, SIGNAL(activated(int)), this, SLOT(onComboBoxActivated(int)));
 	
@@ -47,7 +47,7 @@ QString ExportDialog::currentText() const
 
 void ExportDialog::onComboBoxActivated(int index)
 {
-	_format = _hash.keys().at(index);
+	_format = _comboBoxHash.keys().at(index);
 	
 	_group->setVisible(_format == "jpg");
 }

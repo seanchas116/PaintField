@@ -106,6 +106,8 @@ public slots:
 	 */
 	bool closeCanvas();
 	
+	bool exportCanvas();
+	
 private slots:
 	
 	void onToolChanged(const QString &name);

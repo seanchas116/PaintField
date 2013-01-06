@@ -22,13 +22,16 @@ QString FileDialog::getFilePath(QWidget *parent, const QString &title, Mode mode
 	{
 		QString filter = iter.key();
 		
-		filter += " (";
-		for (auto suffix : iter.value())
+		if (iter.value().size())
 		{
-			filter = filter + "*." + suffix + " ";
+			filter += " (";
+			for (auto suffix : iter.value())
+			{
+				filter = filter + "*." + suffix + " ";
+			}
+			filter.chop(1);
+			filter += ")";
 		}
-		filter.chop(1);
-		filter += ")";
 		
 		filters << filter;
 	}
