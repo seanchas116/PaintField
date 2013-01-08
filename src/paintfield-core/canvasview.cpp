@@ -134,21 +134,15 @@ void CanvasView::setTool(Tool *tool)
 
 void CanvasView::updateTiles(const QPointSet &keys, const QHash<QPoint, QRect> &rects)
 {
-	//PAINTFIELD_CALC_SCOPE_ELAPSED_TIME;
-	
 	CanvasRenderer renderer;
 	renderer.setTool(d->tool.data());
 	
 	Surface surface = renderer.renderToSurface(layerModel()->rootLayer()->children(), keys, rects);
 	
 	QPointSet renderKeys = rects.isEmpty() ? keys : rects.keys().toSet();
-	
-	//PAINTFIELD_DEBUG << rects;
-	
+
 	for (const QPoint &key : renderKeys)
 	{
-		//Image tile = Surface::WhiteTile;
-		
 		QRect rect;
 		
 		if (!rects.isEmpty())

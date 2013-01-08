@@ -3,8 +3,10 @@
 
 #include <QObject>
 #include <QTransform>
+#include <QModelIndex>
 
 class QAction;
+class QTreeView;
 typedef QList<QAction *> QActionList;
 
 namespace PaintField
@@ -99,6 +101,8 @@ inline void connectMutual(QObject *object1, const char *signal, QObject *object2
 }
 
 void maximizeWindowSize(QWidget *widget);
+
+void setExpandTreeViewRecursive(QTreeView *view, const QModelIndex &index, bool expanded);
 
 }
 

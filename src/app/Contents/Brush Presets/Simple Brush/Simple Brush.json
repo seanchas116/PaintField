@@ -1,0 +1,12 @@
+{
+	"metadata":
+	{
+		"title": "Simple Brush",
+		"description": "A simple brush.",
+		"tags": []
+	},
+	"stroker": "paintfield.brush.simpleBrush",
+	"settings":
+	{
+	}
+}

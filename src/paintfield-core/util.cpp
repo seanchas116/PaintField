@@ -119,4 +119,14 @@ void maximizeWindowSize(QWidget *widget)
 	widget->resize(size);
 }
 
+void setExpandTreeViewRecursive(QTreeView *view, const QModelIndex &index, bool expanded)
+{
+	view->setExpanded(index, expanded);
+	
+	int rowCount = view->model()->rowCount(index);
+	
+	for (int i = 0; i < rowCount; ++i)
+		setExpandTreeViewRecursive(view, view->model()->index(i, 0, index), expanded);
+}
+
 }

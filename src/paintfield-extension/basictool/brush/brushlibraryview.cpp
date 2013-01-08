@@ -1,4 +1,5 @@
 #include <QtGui>
+#include "paintfield-core/util.h"
 #include "paintfield-core/widgets/simplebutton.h"
 
 #include "brushlibrarymodel.h"
@@ -13,22 +14,24 @@ BrushLibraryView::BrushLibraryView(BrushLibraryModel *model, QItemSelectionModel
 	auto layout = new QVBoxLayout;
 	
 	{
-		auto modelView = new QTreeView;
-		modelView->setHeaderHidden(true);
-		modelView->setModel(model);
-		modelView->setSelectionModel(selectionModel);
-		modelView->setSelectionMode(QAbstractItemView::SingleSelection);
+		auto treeView = new QTreeView;
+		treeView->setHeaderHidden(true);
+		treeView->setModel(model);
+		treeView->setSelectionModel(selectionModel);
+		treeView->setSelectionMode(QAbstractItemView::SingleSelection);
 		
 		auto builtinContentsIndex = model->findIndex(QModelIndex(), "Built-in");
 		
+		setExpandTreeViewRecursive(treeView, QModelIndex(), true);
+		
 		if (builtinContentsIndex.isValid())
 		{
-			modelView->expand(builtinContentsIndex);
+			treeView->expand(builtinContentsIndex);
 			auto defaultPresetIndex = model->findIndex(builtinContentsIndex, "Pen");
 			selectionModel->setCurrentIndex(defaultPresetIndex, QItemSelectionModel::SelectCurrent);
 		}
 		
-		layout->addWidget(modelView);
+		layout->addWidget(treeView);
 	}
 	
 	{
