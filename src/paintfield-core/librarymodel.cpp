@@ -122,7 +122,7 @@ QList<QStandardItem *> LibraryModel::createChildItems(const QDir &dir)
 	return items;
 }
 
-QModelIndex LibraryModel::findIndex(const QModelIndex &parent, const QString &text) const
+QModelIndex LibraryModel::findIndex(const QString &text, const QModelIndex &parent) const
 {
 	int count = rowCount(parent);
 	
@@ -135,6 +135,24 @@ QModelIndex LibraryModel::findIndex(const QModelIndex &parent, const QString &te
 	}
 	
 	return QModelIndex();
+}
+
+QModelIndex LibraryModel::findIndex(const QStringList &texts, const QModelIndex &parent) const
+{
+	if (texts.size() == 0)
+		return QModelIndex();
+	
+	QModelIndex child = findIndex(texts.first(), parent);
+	
+	if (child.isValid())
+	{
+		if (texts.size() == 1)
+			return child;
+		else
+			return findIndex(texts.mid(1), child);
+	}
+	else
+		return QModelIndex();
 }
 
 } // namespace PaintField

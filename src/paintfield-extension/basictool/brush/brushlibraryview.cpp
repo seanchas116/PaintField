@@ -20,16 +20,10 @@ BrushLibraryView::BrushLibraryView(BrushLibraryModel *model, QItemSelectionModel
 		treeView->setSelectionModel(selectionModel);
 		treeView->setSelectionMode(QAbstractItemView::SingleSelection);
 		
-		auto builtinContentsIndex = model->findIndex(QModelIndex(), "Built-in");
-		
 		setExpandTreeViewRecursive(treeView, QModelIndex(), true);
 		
-		if (builtinContentsIndex.isValid())
-		{
-			treeView->expand(builtinContentsIndex);
-			auto defaultPresetIndex = model->findIndex(builtinContentsIndex, "Pen");
-			selectionModel->setCurrentIndex(defaultPresetIndex, QItemSelectionModel::SelectCurrent);
-		}
+		auto defaultPresetIndex = model->findIndex({"Built-in", "Simple Brush", "Simple Brush"});
+		selectionModel->setCurrentIndex(defaultPresetIndex, QItemSelectionModel::SelectCurrent);
 		
 		layout->addWidget(treeView);
 	}

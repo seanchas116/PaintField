@@ -19,6 +19,7 @@ QVariant  BrushLibraryModel::data(const QModelIndex &index, int role) const
 		case Qt::EditRole:
 		{
 			if (itemFromIndex(index)->type() == LibraryItemType::File)
+				// hide extension
 				return value.toString().section('.', 0, -2);
 			else
 				break;
