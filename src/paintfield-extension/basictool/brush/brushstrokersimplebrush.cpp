@@ -131,9 +131,9 @@ static void drawScanlineInTile(Image *tileImage, const QPoint &offset, const Bru
 
 void BrushStrokerSimpleBrush::drawScanline(const BrushScanline &scanline, SurfaceEditor *surfaceEditor)
 {
-	int tileY = scanline.pos.y() / Surface::TileSize;
-	int tileStart = scanline.pos.x() / Surface::TileSize;
-	int tileEnd = (scanline.pos.x() + scanline.count - 1) / Surface::TileSize;
+	int tileY = IntDivision(scanline.pos.y(), Surface::TileSize).quot();
+	int tileStart = IntDivision(scanline.pos.x(), Surface::TileSize).quot();
+	int tileEnd = IntDivision(scanline.pos.x() + scanline.count - 1, Surface::TileSize).quot();
 	
 	auto blendOp = BlendMode(BlendMode::SourceOver).op();
 	
