@@ -21,7 +21,7 @@ namespace PaintField {
 BrushTool::BrushTool(CanvasView *parent) :
 	Tool(parent)
 {
-	setCustomCursorEnabled(true);
+	//setCustomCursorEnabled(true);
 }
 
 BrushTool::~BrushTool() {}

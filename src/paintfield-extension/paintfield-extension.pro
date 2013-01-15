@@ -50,7 +50,9 @@ HEADERS += \
     basictool/brush/brushpreferencesmanager.h \
     basictool/brush/brushsidebar.h \
     basictool/brush/brushrasterizer.h \
-    basictool/brush/brushstrokersimplebrush.h
+    basictool/brush/brushstrokersimplebrush.h \
+    aboutdialog/aboutdialogmodule.h \
+    aboutdialog/aboutdialog.h
 SOURCES += \
            colorui/colorsidebar.cpp \
            colorui/coloruimodule.cpp \
@@ -79,7 +81,12 @@ SOURCES += \
     basictool/brush/brushpreferencesmanager.cpp \
     basictool/brush/brushsidebar.cpp \
     basictool/brush/brushrasterizer.cpp \
-    basictool/brush/brushstrokersimplebrush.cpp
+    basictool/brush/brushstrokersimplebrush.cpp \
+    aboutdialog/aboutdialogmodule.cpp \
+    aboutdialog/aboutdialog.cpp
 
 RESOURCES += \
     resources/resource-paintfield-extension.qrc
+
+FORMS += \
+    aboutdialog/aboutdialog.ui

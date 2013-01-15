@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleVersion</key>
-	<string>20121224</string>
+	<string>PAINTFIELD_VERSION</string>
 	<key>CFBundleIdentifier</key>
 	<string>org.paintfield.PaintField</string>
 	<key>CFBundleIconFile</key>

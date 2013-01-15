@@ -63,6 +63,8 @@
 		"menu": "paintfield.help",
 		"children":
 		[
+			"paintfield.help.about",
+			"paintfield.help.aboutQt"
 		]
 	}
 ]

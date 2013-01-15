@@ -4,6 +4,7 @@
 #include "layerui/layeruimodule.h"
 #include "toolui/tooluimodule.h"
 #include "navigator/navigatormodule.h"
+#include "aboutdialog/aboutdialogmodule.h"
 
 #include "extensionmodulefactory.h"
 
@@ -19,6 +20,7 @@ ExtensionModuleFactory::ExtensionModuleFactory(QObject *parent) :
 	addSubModuleFactory(new LayerUIModuleFactory(this));
 	addSubModuleFactory(new ToolUIModuleFactory(this));
 	addSubModuleFactory(new NavigatorModuleFactory(this));
+	addSubModuleFactory(new AboutDialogModuleFactory(this));
 }
 
 }

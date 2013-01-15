@@ -5,6 +5,8 @@
 TEMPLATE = app
 TARGET = PaintField
 
+VERSION = 20130115
+
 QT += core gui xml svg
 
 include(../src.pri)
@@ -22,9 +24,11 @@ LIBS += -lpaintfield-core
 LIBS += -L$$OUT_PWD/../paintfield-extension
 LIBS += -lpaintfield-extension
 
+DEFINES += "PAINTFIELD_VERSION=$$VERSION"
+
 macx {
 
-QMAKE_POST_LINK = "sh $$PWD/mac_post_link.sh $$PWD $$OUT_PWD"
+QMAKE_POST_LINK = "ruby $$PWD/mac_post_link.rb $$PWD $$OUT_PWD $$VERSION"
 
 }
 
