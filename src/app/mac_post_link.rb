@@ -23,9 +23,9 @@ def main()
   out_pwd = ARGV[1]
   version = ARGV[2]
 
-  FileUtils.rm_r("#{out_pwd}/PaintField.app/Contents/MacOS/Contents")
-  FileUtils.rm_r("#{out_pwd}/PaintField.app/Contents/MacOS/Settings")
-  FileUtils.rm("#{out_pwd}/PaintField.app/Contents/Info.plist")
+  FileUtils.rm_rf("#{out_pwd}/PaintField.app/Contents/MacOS/Contents")
+  FileUtils.rm_rf("#{out_pwd}/PaintField.app/Contents/MacOS/Settings")
+  FileUtils.rm_f("#{out_pwd}/PaintField.app/Contents/Info.plist")
 
   FileUtils.cp_r("#{in_pwd}/Contents", "#{out_pwd}/PaintField.app/Contents/MacOS/")
   FileUtils.cp_r("#{in_pwd}/Settings", "#{out_pwd}/PaintField.app/Contents/MacOS/")
