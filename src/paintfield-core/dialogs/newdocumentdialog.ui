@@ -90,7 +90,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>FSNewDocumentDialog</receiver>
+   <receiver>PaintField_NewDocumentDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -106,7 +106,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>FSNewDocumentDialog</receiver>
+   <receiver>PaintField_NewDocumentDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
