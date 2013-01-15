@@ -370,8 +370,9 @@ void WorkspaceView::setCurrentCanvas(CanvasController *canvas)
 	{
 		connect(canvas->document(), SIGNAL(modifiedChanged(bool)), this, SLOT(onCurrentCanvasPropertyChanged()));
 		connect(canvas->document(), SIGNAL(filePathChanged(QString)), this, SLOT(onCurrentCanvasPropertyChanged()));
-		onCurrentCanvasPropertyChanged();
 	}
+	
+	onCurrentCanvasPropertyChanged();
 }
 
 void WorkspaceView::onCurrentCanvasPropertyChanged()
