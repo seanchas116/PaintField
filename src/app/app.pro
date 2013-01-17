@@ -5,7 +5,7 @@
 TEMPLATE = app
 TARGET = PaintField
 
-VERSION = 20130115
+VERSION = 20130117
 
 QT += core gui xml svg
 
