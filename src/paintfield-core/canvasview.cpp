@@ -217,7 +217,6 @@ void CanvasView::keyReleaseEvent(QKeyEvent *event)
 
 void CanvasView::enterEvent(QEvent *e)
 {
-	PAINTFIELD_DEBUG;
 	super::enterEvent(e);
 	setFocus();
 	qApp->setOverrideCursor(d->toolCursor);
@@ -225,7 +224,6 @@ void CanvasView::enterEvent(QEvent *e)
 
 void CanvasView::leaveEvent(QEvent *e)
 {
-	PAINTFIELD_DEBUG;
 	super::leaveEvent(e);
 	
 	while (qApp->overrideCursor())

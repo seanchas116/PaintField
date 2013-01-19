@@ -6,7 +6,8 @@
 #include "palettemanager.h"
 #include "module.h"
 #include "modulemanager.h"
-#include "workspacecanvasareacontroller.h"
+#include "canvassplitareacontroller.h"
+#include "debug.h"
 
 #include "workspacecontroller.h"
 
@@ -18,17 +19,20 @@ WorkspaceController::WorkspaceController(QObject *parent) :
     QObject(parent),
 	_toolManager(new ToolManager(this)),
 	_paletteManager(new PaletteManager(this)),
-	_view(new WorkspaceView),
-	_canvasAreaController(new WorkspaceCanvasAreaController(_view.data(), this))
+    _view(new WorkspaceView(this, 0))
 {
-	connect(this, SIGNAL(canvasAdded(CanvasController*)), _canvasAreaController, SLOT(addCanvas(CanvasController*)));
-	connect(this, SIGNAL(canvasAboutToBeRemoved(CanvasController*)), _canvasAreaController, SLOT(removeCanvas(CanvasController*)));
-	connect(this, SIGNAL(currentCanvasChanged(CanvasController*)), _canvasAreaController, SLOT(setCurrentCanvas(CanvasController*)));
-	connect(_canvasAreaController, SIGNAL(currentCanvasChanged(CanvasController*)), this, SLOT(setCurrentCanvas(CanvasController*)));
-	
-	_actions << createAction("paintfield.view.splitVertically", _canvasAreaController, SLOT(splitVertically()));
-	_actions << createAction("paintfield.view.splitHorizontally", _canvasAreaController, SLOT(splitHorizontally()));
-	_actions << createAction("paintfield.view.closeCurrentSplit", _canvasAreaController, SLOT(closeCurrentSplit()));
+	// canvas split area
+	{
+		auto controller = new CanvasSplitAreaController(_view.data(), this);
+		
+		connect(this, SIGNAL(canvasAdded(CanvasController*)), controller, SLOT(addCanvas(CanvasController*)));
+		
+		_actions << createAction("paintfield.view.splitVertically", controller, SLOT(splitCurrentVertically()));
+		_actions << createAction("paintfield.view.splitHorizontally", controller, SLOT(splitCurrentHorizontally()));
+		_actions << createAction("paintfield.view.closeCurrentSplit", controller, SLOT(closeCurrent()));
+		
+		_view->setCentralWidget(controller->view());
+	}
 	
 	_actions << createAction("paintfield.file.new", this, SLOT(newCanvas()));
 	_actions << createAction("paintfield.file.open", this, SLOT(openCanvas()));
@@ -36,7 +40,6 @@ WorkspaceController::WorkspaceController(QObject *parent) :
 	
 	connect(this, SIGNAL(currentCanvasChanged(CanvasController*)), _view.data(), SLOT(setCurrentCanvas(CanvasController*)));
 	connect(_view.data(), SIGNAL(closeRequested()), this, SLOT(tryClose()));
-	_view->setCentralWidget(_canvasAreaController->view());
 	
 	QVariantMap workspaceItemOrderMap = appController()->workspaceItemOrder().toMap();
 	
@@ -111,6 +114,8 @@ void WorkspaceController::setCurrentCanvas(CanvasController *canvas)
 		_currentCanvas = canvas;
 		if (canvas)
 			canvas->onSetCurrent();
+		
+		PAINTFIELD_DEBUG << "current canvas changed:" << canvas;
 		emit currentCanvasChanged(canvas);
 		
 		updateWorkspaceItemsForCanvas(canvas);

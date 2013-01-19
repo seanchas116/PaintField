@@ -78,7 +78,10 @@ HEADERS += \
     list.h \
     widgets/navigatablearea.h \
     keytracker.h \
-    dialogs/filedialog.h
+    dialogs/filedialog.h \
+    canvastabwidget.h \
+    canvassplitwidget.h \
+    canvassplitareacontroller.h
 FORMS += dialogs/exportdialog.ui dialogs/newdocumentdialog.ui
 SOURCES += \
            canvascontroller.cpp \
@@ -131,4 +134,7 @@ SOURCES += \
     librarymodel.cpp \
     widgets/navigatablearea.cpp \
     keytracker.cpp \
-    dialogs/filedialog.cpp
+    dialogs/filedialog.cpp \
+    canvastabwidget.cpp \
+    canvassplitwidget.cpp \
+    canvassplitareacontroller.cpp

@@ -74,7 +74,6 @@ private:
 };
 
 class DockTabMotherWidget;
-class WorkspaceTabWidget;
 
 class SideBarFrame : public QWidget
 {
@@ -92,11 +91,13 @@ private:
 	QWidget *_sideBar = 0;
 };
 
+class WorkspaceController;
+
 class WorkspaceView : public QMainWindow
 {
 	Q_OBJECT
 public:
-	explicit WorkspaceView(QWidget *parent = 0);
+	explicit WorkspaceView(WorkspaceController *controller, QWidget *parent = 0);
 	
 	void createSideBarFrames(const SideBarDeclarationHash &sidebarDeclarations, const QVariant &order);
 	void createToolBars(const ToolBarDeclarationHash &toolBarDeclarations, const QVariant &order);
@@ -108,7 +109,7 @@ public:
 	QToolBar *toolBar(const QString &id);
 	void associateMenuBarWithActions(const QActionList &actions);
 	
-	void registerTabWidget(WorkspaceTabWidget *tabWidget) { _tabWidgets << tabWidget; }
+	WorkspaceController *controller() { return _controller; }
 	
 signals:
 	
@@ -136,9 +137,10 @@ private:
 	void createSideBarFramesInSplitter(DockTabMotherWidget::Direction splitterDir, int splitterIndex, const SideBarDeclarationHash &sidebarDeclarations, const QVariant &splitterOrder);
 	void createToolBarsInArea(Qt::ToolBarArea area, const ToolBarDeclarationHash &toolBarDeclarations, const QVariant &areaOrder);
 	
+	WorkspaceController *_controller = 0;
+	
 	DockTabMotherWidget *_motherWidget = 0;
 	
-	QList<WorkspaceTabWidget *> _tabWidgets;
 	QList<SideBarFrame *> _sideBarFrames;
 	QList<QToolBar *> _toolBars;
 	

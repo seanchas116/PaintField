@@ -205,8 +205,9 @@ void WorkspaceMenuAction::onBackendActionChanged()
 	setEnabled(_backendAction->isEnabled());
 }
 
-WorkspaceView::WorkspaceView(QWidget *parent) :
-    QMainWindow(parent)
+WorkspaceView::WorkspaceView(WorkspaceController *controller, QWidget *parent) :
+    QMainWindow(parent),
+    _controller(controller)
 {
 	setAnimated(false);
 		
