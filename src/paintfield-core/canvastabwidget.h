@@ -38,6 +38,7 @@ private slots:
 	
 	void onActivated();
 	void onCurrentIndexChanged(int index);
+	void onTabCloseRequested(int index);
 	
 private:
 	

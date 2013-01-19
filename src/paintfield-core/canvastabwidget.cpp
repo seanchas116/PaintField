@@ -37,6 +37,7 @@ void CanvasTabWidget::commonInit()
 	connect(this, SIGNAL(currentChanged(int)), this, SLOT(onCurrentIndexChanged(int)));
 	connect(this, SIGNAL(tabClicked()), this, SIGNAL(activated()));
 	connect(this, SIGNAL(tabMovedIn()), this, SIGNAL(activated()));
+	connect(this, SIGNAL(tabCloseRequested(int)), this, SLOT(onTabCloseRequested(int)));
 	
 	connect(d->workspace, SIGNAL(currentCanvasChanged(CanvasController*)), this, SLOT(setCurrentCanvas(CanvasController*)));
 	connect(this, SIGNAL(currentCanvasChanged(CanvasController*)), d->workspace, SLOT(setCurrentCanvas(CanvasController*)));
@@ -114,6 +115,13 @@ void CanvasTabWidget::onCurrentIndexChanged(int index)
 		}
 		emit activated();
 	}
+}
+
+void CanvasTabWidget::onTabCloseRequested(int index)
+{
+	auto canvasView = canvasViewAt(index);
+	if (canvasView)
+		canvasView->controller()->closeCanvas();
 }
 
 CanvasView *CanvasTabWidget::canvasViewAt(int index)
