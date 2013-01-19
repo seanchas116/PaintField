@@ -55,11 +55,7 @@ HEADERS += \
            widgets/widgetgroup.h \
     dialogs/messagebox.h \
     widgets/docktabwidget.h \
-    widgets/tabwidget.h \
-    widgets/splitareacontroller.h \
-    workspacecanvasareacontroller.h \
     widgets/floatingdocktabwidget.h \
-    widgets/splittabareacontroller.h \
     canvasview.h \
     smartpointer.h \
     interface.h \
@@ -116,11 +112,7 @@ SOURCES += \
     dialogs/messagebox.cpp \
     widgets/docktabwidget.cpp \
     widgets/docktabmotherwidget.cpp \
-    widgets/tabwidget.cpp \
-    widgets/splitareacontroller.cpp \
-    workspacecanvasareacontroller.cpp \
     widgets/floatingdocktabwidget.cpp \
-    widgets/splittabareacontroller.cpp \
     canvasview.cpp \
     tool.cpp \
     qtsingleapplication/qtsingleapplication.cpp \
