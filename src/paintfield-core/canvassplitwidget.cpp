@@ -9,6 +9,7 @@ CanvasSplitDefaultWidget::CanvasSplitDefaultWidget(CanvasTabWidget *tabWidget, Q
     _tabWidget(tabWidget)
 {
 	setAcceptDrops(true);
+	connect(this, SIGNAL(activated()), tabWidget, SLOT(activate()));
 }
 
 bool CanvasSplitDefaultWidget::dropDockTab(DockTabWidget *srcTabWidget, int srcIndex, const QPoint &pos)

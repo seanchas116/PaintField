@@ -3,13 +3,13 @@
 
 #include <QObject>
 
-class QSplitter;
-
 namespace PaintField {
 
 class CanvasController;
 class CanvasSplitWidget;
 class WorkspaceView;
+
+class MemorizableSplitter;
 
 class CanvasSplitAreaController : public QObject
 {
@@ -39,15 +39,15 @@ private:
 	
 	CanvasSplitWidget *createSplitWidget();
 	
-	void addSplit(QWidget *existingSplit, QWidget *newSplit, Qt::Orientation orientation);
+	void addSplit(CanvasSplitWidget *existingSplit, CanvasSplitWidget *newSplit, Qt::Orientation orientation);
 	void removeSplit(CanvasSplitWidget *split);
 	
 	void setCurrentSplit(QWidget *splitOrSplitter);
 	
-	QSplitter *splitterForWidget(QWidget *widget);
+	MemorizableSplitter *splitterForWidget(QWidget *widget);
 	
 	WorkspaceView *_workspaceView;
-	QSplitter *_rootSplitter;
+	MemorizableSplitter *_rootSplitter;
 	CanvasSplitWidget *_currentSplit;
 };
 

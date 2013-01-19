@@ -34,11 +34,11 @@ public:
 	
 	QWidgetList tabs();
 	
-	void moveTab(int index, DockTabWidget *dst, int dstIndex) { moveTab(this, index, dst, dstIndex); }
-	static void moveTab(DockTabWidget *source, int sourceIndex, DockTabWidget *dest, int destIndex);
+	bool moveTab(int index, DockTabWidget *dst, int dstIndex) { return moveTab(this, index, dst, dstIndex); }
+	static bool moveTab(DockTabWidget *source, int sourceIndex, DockTabWidget *dest, int destIndex);
 	static bool eventIsTabDrag(QDragEnterEvent *event);
 	
-	virtual bool tabIsInsertable(DockTabWidget *other, int index) { Q_UNUSED(other) Q_UNUSED(index) return true; }
+	virtual bool tabIsInsertable(DockTabWidget *src, int srcIndex) { Q_UNUSED(src) Q_UNUSED(srcIndex) return true; }
 	virtual void insertTab(int index, QWidget *widget, const QString &title) { QTabWidget::insertTab(index, widget, title); }
 	
 	QObject *createNew() override;
@@ -48,7 +48,9 @@ public:
 	
 signals:
 	
-	void tabMovedIn();
+	void tabAboutToMoveOut(QWidget *tab);
+	void tabMovedIn(QWidget *tab);
+	
 	void tabClicked();
 	void willBeAutomaticallyDeleted(DockTabWidget *widget);
 	void closeAllTabsRequested();

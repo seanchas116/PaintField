@@ -18,6 +18,20 @@ NavigatableArea::NavigatableArea(QWidget *parent) :
 	connect(_scrollBarY, SIGNAL(valueChanged(int)), this, SLOT(onScrollBarYChanged(int)));
 }
 
+void NavigatableArea::memorizeTransform()
+{
+	_memorizedScale = _scale;
+	_memorizedRotation = _rotation;
+	_memorizedTranslation = _translation;
+}
+
+void NavigatableArea::restoreTransform()
+{
+	setScale(_memorizedScale);
+	setRotation(_memorizedRotation);
+	setTranslation(_memorizedTranslation);
+}
+
 void NavigatableArea::setScale(double value)
 {
 	if (_scale != value)

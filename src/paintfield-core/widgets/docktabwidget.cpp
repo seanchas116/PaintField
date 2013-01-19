@@ -40,19 +40,25 @@ void DockTabWidget::requestCloseAllTabs()
 		emit closeAllTabsRequested();
 }
 
-void DockTabWidget::moveTab(DockTabWidget *source, int sourceIndex, DockTabWidget *dest, int destIndex)
+bool DockTabWidget::moveTab(DockTabWidget *source, int sourceIndex, DockTabWidget *dest, int destIndex)
 {
+	if (!dest->tabIsInsertable(source, sourceIndex))
+		return false;
+	
 	if (source == dest && sourceIndex < destIndex)
 		destIndex--;
 	
 	QWidget *widget = source->widget(sourceIndex);
 	QString text = source->tabText(sourceIndex);
 	
+	emit source->tabAboutToMoveOut(widget);
 	source->removeTab(sourceIndex);
 	
 	dest->insertTab(destIndex, widget, text);
 	dest->setCurrentIndex(destIndex);
-	emit dest->tabMovedIn();
+	emit dest->tabMovedIn(widget);
+	
+	return true;
 }
 
 bool DockTabWidget::eventIsTabDrag(QDragEnterEvent *event)
@@ -189,11 +195,16 @@ void DockTabBar::dragDropTab(int index, const QPoint &globalPos, const QPoint &d
 	dstGeom.moveTopLeft(globalPos - dragStartOffset);
 	dstTabWidget->setGeometry(dstGeom);
 	
-	_tabWidget->moveTab(index, dstTabWidget, dstIndex);
-	
 	dstTabWidget->show();
 	
-	_tabWidget->deleteIfEmpty();
+	if (!_tabWidget->moveTab(index, dstTabWidget, dstIndex))
+	{
+		dstTabWidget->deleteLater();
+	}
+	else
+	{
+		_tabWidget->deleteIfEmpty();
+	}
 }
 
 bool DockTabBar::dropDockTab(DockTabWidget *srcTabWidget, int srcIndex, const QPoint &pos)

@@ -16,12 +16,21 @@ class CanvasTabWidget : public FloatingDockTabWidget
 {
 	Q_OBJECT
 public:
+	
+	typedef FloatingDockTabWidget super;
+	
 	CanvasTabWidget(WorkspaceView *workspaceView, QWidget *parent);
 	CanvasTabWidget(CanvasTabWidget *other, QWidget *parent);
 	~CanvasTabWidget();
 	
 	bool tabIsInsertable(DockTabWidget *other, int index) override;
+	
 	QObject *createNew() override;
+	
+	void memorizeTransforms();
+	void restoreTransforms();
+	
+	QList<CanvasView *> canvasViews();
 	
 signals:
 	
@@ -31,13 +40,11 @@ signals:
 public slots:
 	
 	void setCurrentCanvas(CanvasController *canvas);
-	
 	bool tryClose();
+	void activate();
 	
 private slots:
 	
-	void onActivated();
-	void onCurrentIndexChanged(int index);
 	void onTabCloseRequested(int index);
 	
 private:

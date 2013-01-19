@@ -34,9 +34,11 @@ CanvasTabWidget::~CanvasTabWidget()
 void CanvasTabWidget::commonInit()
 {
 	setTabsClosable(true);
-	connect(this, SIGNAL(currentChanged(int)), this, SLOT(onCurrentIndexChanged(int)));
+	
+	connect(this, SIGNAL(currentChanged(int)), this, SLOT(activate()));
 	connect(this, SIGNAL(tabClicked()), this, SIGNAL(activated()));
-	connect(this, SIGNAL(tabMovedIn()), this, SIGNAL(activated()));
+	connect(this, SIGNAL(tabMovedIn(QWidget*)), this, SIGNAL(activated()));
+	
 	connect(this, SIGNAL(tabCloseRequested(int)), this, SLOT(onTabCloseRequested(int)));
 	
 	connect(d->workspace, SIGNAL(currentCanvasChanged(CanvasController*)), this, SLOT(setCurrentCanvas(CanvasController*)));
@@ -56,6 +58,32 @@ QObject *CanvasTabWidget::createNew()
 	return new CanvasTabWidget(this, 0);
 }
 
+void CanvasTabWidget::memorizeTransforms()
+{
+	for (auto view : canvasViews())
+		view->memorizeTransform();
+}
+
+void CanvasTabWidget::restoreTransforms()
+{
+	for (auto view : canvasViews())
+		view->restoreTransform();
+}
+
+QList<CanvasView *> CanvasTabWidget::canvasViews()
+{
+	QList<CanvasView *> list;
+	
+	for (int i = 0; i < count(); ++i)
+	{
+		auto view = canvasViewAt(i);
+		if (view)
+			list << view;
+	}
+	
+	return list;
+}
+
 void CanvasTabWidget::setCurrentCanvas(CanvasController *canvas)
 {
 	if (!canvas)
@@ -73,48 +101,25 @@ void CanvasTabWidget::setCurrentCanvas(CanvasController *canvas)
 	}
 	
 	if (set)
-		emit activated();
+		activate();
 }
 
 bool CanvasTabWidget::tryClose()
 {
-	QList<CanvasController *> canvasList;
-	
-	for (int i = 0; i < count(); ++i)
+	for (auto canvasView : canvasViews())
 	{
-		auto canvasView = canvasViewAt(0);
-		if (canvasView)
-			canvasList << canvasView->controller();
-	}
-	
-	for (auto canvas : canvasList)
-	{
-		if (!canvas->closeCanvas())
+		if (!canvasView->controller()->closeCanvas())
 			return false;
 	}
 	
 	return true;
 }
 
-void CanvasTabWidget::onActivated()
+void CanvasTabWidget::activate()
 {
 	auto canvasView = canvasViewAt(currentIndex());
-	if (canvasView)
-		emit currentCanvasChanged(canvasView->controller());
-}
-
-void CanvasTabWidget::onCurrentIndexChanged(int index)
-{
-	PAINTFIELD_DEBUG;
-	if (index >= 0)
-	{
-		auto canvasView = canvasViewAt(index);
-		if (canvasView)
-		{
-			emit currentCanvasChanged(canvasView->controller());
-		}
-		emit activated();
-	}
+	emit currentCanvasChanged(canvasView ? canvasView->controller() : 0);
+	emit activated();
 }
 
 void CanvasTabWidget::onTabCloseRequested(int index)
@@ -123,7 +128,6 @@ void CanvasTabWidget::onTabCloseRequested(int index)
 	if (canvasView)
 		canvasView->controller()->closeCanvas();
 }
-
 CanvasView *CanvasTabWidget::canvasViewAt(int index)
 {
 	return qobject_cast<CanvasView *>(widget(index));

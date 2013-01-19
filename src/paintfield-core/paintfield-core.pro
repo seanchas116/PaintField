@@ -77,7 +77,8 @@ HEADERS += \
     dialogs/filedialog.h \
     canvastabwidget.h \
     canvassplitwidget.h \
-    canvassplitareacontroller.h
+    canvassplitareacontroller.h \
+    widgets/memorizablesplitter.h
 FORMS += dialogs/exportdialog.ui dialogs/newdocumentdialog.ui
 SOURCES += \
            canvascontroller.cpp \
@@ -129,4 +130,5 @@ SOURCES += \
     dialogs/filedialog.cpp \
     canvastabwidget.cpp \
     canvassplitwidget.cpp \
-    canvassplitareacontroller.cpp
+    canvassplitareacontroller.cpp \
+    widgets/memorizablesplitter.cpp

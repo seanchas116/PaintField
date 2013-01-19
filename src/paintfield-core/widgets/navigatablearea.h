@@ -45,6 +45,9 @@ public:
 	
 	QPoint viewCenter() const { return _viewCenter; }
 	
+	void memorizeTransform();
+	void restoreTransform();
+	
 public slots:
 	
 	/**
@@ -126,6 +129,10 @@ private:
 	QPoint _viewCenter;
 	
 	QSize _sceneSize;
+	
+	double _memorizedScale = 1.0;
+	double _memorizedRotation = 1.0;
+	QPoint _memorizedTranslation;
 };
 
 } // namespace PaintField
