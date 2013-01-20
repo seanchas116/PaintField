@@ -2,6 +2,7 @@
 #include "canvastabwidget.h"
 #include "canvassplitwidget.h"
 #include "widgets/memorizablesplitter.h"
+#include "debug.h"
 
 #include "canvassplitareacontroller.h"
 
@@ -135,6 +136,8 @@ void CanvasSplitAreaController::addSplit(CanvasSplitWidget *existingSplit, Canva
 	replaceSplitterWidget(splitter, existingSplit, newSplitter);
 	newSplitter->addWidget(existingSplit);
 	newSplitter->addWidget(newSplit);
+	
+	newSplitter->setSizes({1000, 1000});
 	
 	existingSplit->tabWidget()->restoreTransforms();
 	splitter->restoreSizes();
