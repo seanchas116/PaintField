@@ -25,9 +25,9 @@ public:
 	 * @param document
 	 * @param parent
 	 */
-	CanvasController(Document *document, WorkspaceController *parent);
+	CanvasController(Document *document, WorkspaceController *parent = 0);
 	
-	CanvasController(CanvasController *other, WorkspaceController *parent);
+	CanvasController(CanvasController *other, WorkspaceController *parent = 0);
 	
 	~CanvasController();
 	
@@ -51,10 +51,12 @@ public:
 	static CanvasController *fromSavedFile(const QString &path, WorkspaceController *parent);
 	static CanvasController *fromImageFile(const QString &path, WorkspaceController *parent);
 	
+	void setWorkspace(WorkspaceController *workspace);
+	
 	/**
 	 * @return The workspace controller which have the canvas controller
 	 */
-	WorkspaceController *workspace() { return reinterpret_cast<WorkspaceController *>(parent()); }
+	WorkspaceController *workspace() { return _workspace; }
 	
 	/**
 	 * @return The document the canvas handles
@@ -115,6 +117,8 @@ private slots:
 private:
 	
 	void commonInit();
+	
+	WorkspaceController *_workspace = 0;
 	
 	CountableSharedQObjectPointer<Document> _document;
 	QItemSelectionModel *_selectionModel = 0;

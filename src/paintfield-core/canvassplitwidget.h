@@ -27,6 +27,8 @@ signals:
 protected:
 	
 	void mousePressEvent(QMouseEvent *);
+	void dragEnterEvent(QDragEnterEvent *event);
+	void dropEvent(QDropEvent *event);
 	
 private:
 	

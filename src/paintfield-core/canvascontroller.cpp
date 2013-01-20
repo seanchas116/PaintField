@@ -7,6 +7,7 @@
 #include "workspacecontroller.h"
 #include "module.h"
 #include "layerrenderer.h"
+#include "modulemanager.h"
 
 #include "dialogs/filedialog.h"
 #include "dialogs/messagebox.h"
@@ -23,23 +24,29 @@ namespace PaintField
 
 CanvasController::CanvasController(Document *document, WorkspaceController *parent) :
     QObject(parent),
-	_document(document)
+    _workspace(parent),
+    _document(document)
 {
 	_document->setParent(0);
 	commonInit();
 }
 
 CanvasController::CanvasController(CanvasController *other, WorkspaceController *parent) :
-	QObject(parent),
-	_document(other->_document)
+    QObject(parent),
+    _workspace(parent),
+    _document(other->_document)
 {
 	commonInit();
 }
 
 void CanvasController::commonInit()
 {
+	// create selection model
+	
 	_selectionModel = new QItemSelectionModel(_document->layerModel(), this);
 	_selectionModel->setCurrentIndex(_document->layerModel()->index(0, QModelIndex()), QItemSelectionModel::Current);
+	
+	// create actions
 	
 	_actions << createAction("paintfield.file.save", this, SLOT(saveCanvas()));
 	_actions << createAction("paintfield.file.saveAs", this, SLOT(saveAsCanvas()));
@@ -58,9 +65,25 @@ void CanvasController::commonInit()
 	
 	connect(workspace()->toolManager(), SIGNAL(currentToolChanged(QString)), this, SLOT(onToolChanged(QString)));
 	onToolChanged(workspace()->toolManager()->currentTool());
+	
+	addModules(appController()->moduleManager()->createCanvasModules(this, this));
+	
+	if (_workspace)
+		_workspace->registerCanvas(this);
 }
 
 CanvasController::~CanvasController(){}
+
+void CanvasController::setWorkspace(WorkspaceController *workspace)
+{
+	if (_workspace)
+		_workspace->unregisterCanvas(this);
+	
+	_workspace = workspace;
+	
+	if (workspace)
+		workspace->registerCanvas(this);
+}
 
 void CanvasController::addModules(const CanvasModuleList &modules)
 {

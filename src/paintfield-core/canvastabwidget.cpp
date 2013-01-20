@@ -1,3 +1,4 @@
+#include <QUrl>
 #include "workspacecontroller.h"
 #include "debug.h"
 
@@ -33,6 +34,8 @@ CanvasTabWidget::~CanvasTabWidget()
 
 void CanvasTabWidget::commonInit()
 {
+	new CanvasTabBar(this);
+	
 	setTabsClosable(true);
 	
 	connect(this, SIGNAL(currentChanged(int)), this, SLOT(activate()));
@@ -70,6 +73,11 @@ void CanvasTabWidget::restoreTransforms()
 		view->restoreTransform();
 }
 
+void CanvasTabWidget::insertCanvas(int index, CanvasController *canvas)
+{
+	insertTab(index, canvas->view(), canvas->document()->fileName());
+}
+
 QList<CanvasView *> CanvasTabWidget::canvasViews()
 {
 	QList<CanvasView *> list;
@@ -82,6 +90,11 @@ QList<CanvasView *> CanvasTabWidget::canvasViews()
 	}
 	
 	return list;
+}
+
+WorkspaceController *CanvasTabWidget::workspace()
+{
+	return d->workspace;
 }
 
 void CanvasTabWidget::setCurrentCanvas(CanvasController *canvas)
@@ -131,6 +144,35 @@ void CanvasTabWidget::onTabCloseRequested(int index)
 CanvasView *CanvasTabWidget::canvasViewAt(int index)
 {
 	return qobject_cast<CanvasView *>(widget(index));
+}
+
+CanvasTabBar::CanvasTabBar(CanvasTabWidget *tabWidget, QWidget *parent) :
+    DockTabBar(tabWidget, parent),
+    _tabWidget(tabWidget)
+{
+	setAcceptDrops(true);
+}
+
+void CanvasTabBar::dragEnterEvent(QDragEnterEvent *event)
+{
+	if (event->mimeData()->hasUrls())
+		event->acceptProposedAction();
+}
+
+void CanvasTabBar::dropEvent(QDropEvent *event)
+{
+	auto mimeData = event->mimeData();
+	
+	if (mimeData->hasUrls())
+	{
+		for (const QUrl &url : mimeData->urls())
+		{
+			auto canvas = CanvasController::fromFile(url.toLocalFile(), _tabWidget->workspace());
+			if (canvas)
+				_tabWidget->insertCanvas(insertionIndexAt(event->pos()), canvas);
+		}
+		event->acceptProposedAction();
+	}
 }
 
 

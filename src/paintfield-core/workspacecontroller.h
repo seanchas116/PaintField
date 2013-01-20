@@ -42,6 +42,9 @@ public:
 	void addAndSetCurrentCanvas(CanvasController *canvas);
 	void addCanvas(CanvasController *canvas);
 	
+	void registerCanvas(CanvasController *canvas);
+	void unregisterCanvas(CanvasController *canvas);
+	
 	QList<CanvasController *> canvases() { return _canvasControllers; }
 	
 signals:

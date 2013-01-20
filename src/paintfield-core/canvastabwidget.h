@@ -8,6 +8,7 @@ namespace PaintField {
 
 class CanvasController;
 class WorkspaceView;
+class WorkspaceController;
 class CanvasView;
 
 class CanvasTabWidgetData;
@@ -30,7 +31,12 @@ public:
 	void memorizeTransforms();
 	void restoreTransforms();
 	
+	void insertCanvas(int index, CanvasController *canvas);
+	void addCanvas(CanvasController *canvas) { insertCanvas(count(), canvas); }
+	
 	QList<CanvasView *> canvasViews();
+	
+	WorkspaceController *workspace();
 	
 signals:
 	
@@ -53,6 +59,24 @@ private:
 	void commonInit();
 	
 	CanvasTabWidgetData *d;
+};
+
+class CanvasTabBar : public DockTabBar
+{
+	Q_OBJECT
+	
+public:
+	
+	CanvasTabBar(CanvasTabWidget *tabWidget, QWidget *parent = 0);
+	
+protected:
+	
+	void dragEnterEvent(QDragEnterEvent *event);
+	void dropEvent(QDropEvent *event);
+	
+private:
+	
+	CanvasTabWidget *_tabWidget;
 };
 
 } // namespace PaintField

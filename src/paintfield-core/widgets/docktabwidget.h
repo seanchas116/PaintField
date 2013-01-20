@@ -52,12 +52,11 @@ signals:
 	void tabMovedIn(QWidget *tab);
 	
 	void tabClicked();
-	void willBeAutomaticallyDeleted(DockTabWidget *widget);
 	void closeAllTabsRequested();
 	
-public slots:
+	void willBeAutomaticallyDeleted(DockTabWidget*);
 	
-	void deleteIfEmpty();
+public slots:
 	
 protected:
 	
@@ -65,6 +64,8 @@ protected:
 	void closeEvent(QCloseEvent *event) override;
 	
 private slots:
+	
+	void onCurrentChanged(int index);
 	
 private:
 	
@@ -89,6 +90,8 @@ public:
 
 	bool dropDockTab(DockTabWidget *srcTabWidget, int srcIndex, const QPoint &pos) override;
 	
+	int insertionIndexAt(const QPoint &pos);
+	
 signals:
 	
 	void clicked();
@@ -102,7 +105,6 @@ protected:
 private:
 	
 	void dragDropTab(int index, const QPoint &globalPos, const QPoint &dragStartOffset);
-	int insertionIndexAt(const QPoint &pos);
 	
 	DockTabWidget *_tabWidget = 0;
 	bool _isStartingDrag = false;

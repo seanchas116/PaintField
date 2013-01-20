@@ -1,4 +1,6 @@
+#include <QtGui>
 #include "canvastabwidget.h"
+#include "canvascontroller.h"
 
 #include "canvassplitwidget.h"
 
@@ -29,6 +31,28 @@ bool CanvasSplitDefaultWidget::tabIsInsertable(DockTabWidget *src, int srcIndex)
 void CanvasSplitDefaultWidget::mousePressEvent(QMouseEvent *)
 {
 	emit activated();
+}
+
+void CanvasSplitDefaultWidget::dragEnterEvent(QDragEnterEvent *event)
+{
+	if (event->mimeData()->hasUrls())
+		event->acceptProposedAction();
+}
+
+void CanvasSplitDefaultWidget::dropEvent(QDropEvent *event)
+{
+	auto mimeData = event->mimeData();
+	
+	if (mimeData->hasUrls())
+	{
+		for (const QUrl &url : mimeData->urls())
+		{
+			auto canvas = CanvasController::fromFile(url.toLocalFile(), _tabWidget->workspace());
+			if (canvas)
+				_tabWidget->addCanvas(canvas);
+		}
+		event->acceptProposedAction();
+	}
 }
 
 CanvasSplitWidget::CanvasSplitWidget(CanvasTabWidget *tabWidget, QWidget *parent) :

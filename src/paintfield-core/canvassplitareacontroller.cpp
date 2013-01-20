@@ -32,7 +32,7 @@ void CanvasSplitAreaController::closeCurrent()
 
 void CanvasSplitAreaController::addCanvas(CanvasController *canvas)
 {
-	_currentSplit->tabWidget()->addTab(canvas->view(), canvas->document()->fileName());
+	_currentSplit->tabWidget()->addCanvas(canvas);
 }
 
 QWidget *CanvasSplitAreaController::view()

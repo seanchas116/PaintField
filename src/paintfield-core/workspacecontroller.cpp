@@ -137,24 +137,40 @@ bool WorkspaceController::eventFilter(QObject *watched, QEvent *event)
 	return false;
 }
 
-void WorkspaceController::addCanvas(CanvasController *canvas)
-{
-	if (!canvas)
-		return;
-	
-	_canvasControllers << canvas;
-	connect(canvas, SIGNAL(shouldBeDeleted(CanvasController*)), this, SLOT(removeCanvas(CanvasController*)));
-	canvas->addModules(appController()->moduleManager()->createCanvasModules(canvas, canvas));
-	
-	emit canvasAdded(canvas);
-}
-
 void WorkspaceController::addAndSetCurrentCanvas(CanvasController *canvas)
 {
 	if (canvas)
 	{
 		addCanvas(canvas);
 		setCurrentCanvas(canvas);
+	}
+}
+
+void WorkspaceController::addCanvas(CanvasController *canvas)
+{
+	if (canvas)
+	{
+		canvas->setWorkspace(this);
+		emit canvasAdded(canvas);
+	}
+}
+
+void WorkspaceController::registerCanvas(CanvasController *canvas)
+{
+	if (canvas && !_canvasControllers.contains(canvas))
+	{
+		canvas->setParent(this);
+		_canvasControllers << canvas;
+		connect(canvas, SIGNAL(shouldBeDeleted(CanvasController*)), this, SLOT(removeCanvas(CanvasController*)));
+	}
+}
+
+void WorkspaceController::unregisterCanvas(CanvasController *canvas)
+{
+	if (_canvasControllers.contains(canvas))
+	{
+		_canvasControllers.removeAll(canvas);
+		disconnect(canvas, 0, this, 0);
 	}
 }
 

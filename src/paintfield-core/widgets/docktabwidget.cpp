@@ -11,11 +11,8 @@ namespace PaintField
 DockTabWidget::DockTabWidget(QWidget *parent) :
 	QTabWidget(parent)
 {
-	auto tabBar = new DockTabBar(this);
-	setTabBar(tabBar);
-	connect(tabBar, SIGNAL(clicked()), this, SIGNAL(tabClicked()));
-	setAcceptDrops(true);
-	setDocumentMode(true);
+	new DockTabBar(this);
+	connect(this, SIGNAL(currentChanged(int)), this, SLOT(onCurrentChanged(int)));
 }
 
 DockTabWidget::DockTabWidget(DockTabWidget *other, QWidget *parent) :
@@ -66,15 +63,6 @@ bool DockTabWidget::eventIsTabDrag(QDragEnterEvent *event)
 	return event->mimeData()->hasFormat(MIMETYPE_TABINDEX) && qobject_cast<DockTabBar *>(event->source());
 }
 
-void DockTabWidget::deleteIfEmpty()
-{
-	if (count() == 0 && _autoDeletionEnabled)
-	{
-		emit willBeAutomaticallyDeleted(this);
-		deleteLater();
-	}
-}
-
 QObject *DockTabWidget::createNew()
 {
 	return new DockTabWidget(this, 0);
@@ -96,12 +84,26 @@ void DockTabWidget::closeEvent(QCloseEvent *event)
 		event->accept();
 }
 
+void DockTabWidget::onCurrentChanged(int index)
+{
+	if (index < 0 && _autoDeletionEnabled)
+	{
+		emit willBeAutomaticallyDeleted(this);
+		deleteLater();
+	}
+}
+
 DockTabBar::DockTabBar(DockTabWidget *tabWidget, QWidget *parent) :
 	QTabBar(parent),
 	_tabWidget(tabWidget)
 {
 	Q_ASSERT(tabWidget);
-	setAcceptDrops(true);
+	
+	tabWidget->setTabBar(this);
+	connect(this, SIGNAL(clicked()), tabWidget, SIGNAL(tabClicked()));
+	
+	setDocumentMode(true);
+	setExpanding(false);
 }
 
 int DockTabBar::insertionIndexAt(const QPoint &pos)
@@ -180,10 +182,7 @@ void DockTabBar::dragDropTab(int index, const QPoint &globalPos, const QPoint &d
 			{
 				bool dropResult = droppable->dropDockTab(_tabWidget, index, droppableWidget->mapFromGlobal(globalPos));
 				if (dropResult)
-				{
-					_tabWidget->deleteIfEmpty();
 					return;
-				}
 			}
 		}
 		widget = widget->parentWidget();
@@ -198,13 +197,7 @@ void DockTabBar::dragDropTab(int index, const QPoint &globalPos, const QPoint &d
 	dstTabWidget->show();
 	
 	if (!_tabWidget->moveTab(index, dstTabWidget, dstIndex))
-	{
 		dstTabWidget->deleteLater();
-	}
-	else
-	{
-		_tabWidget->deleteIfEmpty();
-	}
 }
 
 bool DockTabBar::dropDockTab(DockTabWidget *srcTabWidget, int srcIndex, const QPoint &pos)
