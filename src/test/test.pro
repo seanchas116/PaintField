@@ -38,7 +38,6 @@ SOURCES += main.cpp \
     test_document.cpp \
     testutil.cpp \
     testobject.cpp \
-    splittabareatestwidget.cpp \
     test_librarymodel.cpp
 
 HEADERS += \
@@ -47,5 +46,4 @@ HEADERS += \
     test_document.h \
     testutil.h \
     testobject.h \
-    splittabareatestwidget.h \
     test_librarymodel.h

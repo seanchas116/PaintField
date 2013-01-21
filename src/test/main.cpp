@@ -4,7 +4,6 @@
 #include "testutil.h"
 #include "testobject.h"
 
-#include "splittabareatestwidget.h"
 
 #include "paintfield-core/debug.h"
 #include "paintfield-core/canvascontroller.h"
@@ -12,8 +11,6 @@
 #include "paintfield-core/drawutil.h"
 #include "paintfield-core/documentio.h"
 #include "paintfield-core/widgets/docktabmotherwidget.h"
-#include "paintfield-core/widgets/splittabareacontroller.h"
-#include "paintfield-core/widgets/tabwidget.h"
 #include "paintfield-core/widgets/vanishingscrollbar.h"
 #include "paintfield-core/librarymodel.h"
 
@@ -80,53 +77,13 @@ void test_DockTabWidget()
 	motherWidget->show();
 	motherWidget->setFocus();
 	
-	auto tabWidget = new FloatingDockTabWidget(motherWidget, 0);
+	auto tabWidget = new DockTabWidget(0);
 	tabWidget->addTab(new QLabel("Tab 1"), "Tab 1");
 	tabWidget->addTab(new QLabel("Tab 2"), "Tab 2");
 	tabWidget->addTab(new QLabel("Tab 3"), "Tab 3");
 	
 	tabWidget->show();
 	tabWidget->setFocus();
-}
-
-/*
-void test_TabDocumentAreaNode()
-{
-	auto node = new TabDocumentAreaNode(new DockTabWidget);
-	node->insert(TabDocumentAreaNode::First, Qt::Horizontal);
-	
-	node->splitter()->show();
-	node->children().at(1)->insert(TabDocumentAreaNode::Second, Qt::Vertical);
-	//node->close(TabDocumentAreaNode::First);
-}*/
-
-void test_TabWidget()
-{
-	auto tabWidget = new TabWidget();
-	tabWidget->addTab(new QLabel("Tab 1"), "Tab 1");
-	tabWidget->addTab(new QLabel("Tab 2"), "Tab 2");
-	tabWidget->addTab(new QLabel("Tab 3"), "Tab 3");
-	
-	tabWidget->takeTab(0);
-	tabWidget->takeTab(0);
-	tabWidget->takeTab(0);
-	
-	tabWidget->resize(500, 500);
-	tabWidget->show();
-	
-	auto tabBar = new QTabBar;
-	tabBar->resize(500, 500);
-	tabBar->show();
-}
-
-void test_SplitTabAreaController()
-{
-	auto testWidget = new SplitTabAreaTestWidget;
-	testWidget->show();
-	
-	auto widget = new QWidget;
-	widget->setFocusPolicy(Qt::ClickFocus);
-	widget->show();
 }
 
 void test_scrollarea()
