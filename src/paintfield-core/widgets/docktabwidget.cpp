@@ -188,7 +188,7 @@ void DockTabBar::dragDropTab(int index, const QPoint &globalPos, const QPoint &d
 	
 	int dstIndex = 0;
 	auto dstTabWidget = _tabWidget->createNewTabWidget();
-	QRect dstGeom = dstTabWidget->geometry();
+	QRect dstGeom = _tabWidget->geometry();
 	dstGeom.moveTopLeft(globalPos - dragStartOffset);
 	dstTabWidget->setGeometry(dstGeom);
 	
