@@ -49,6 +49,7 @@ private slots:
 	
 	void onWorkspaceFocusIn();
 	void onWorkspaceShouldBeDeleted(WorkspaceController *workspace);
+	void onFocusWidgetChanged(QWidget *old, QWidget *now);
 	
 private:
 	

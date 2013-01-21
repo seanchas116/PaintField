@@ -39,7 +39,7 @@ WorkspaceController::WorkspaceController(QObject *parent) :
 	d->toolManager = new ToolManager(this);
 	d->paletteManager = new PaletteManager(this);
 	
-	QVariantMap workspaceItemOrderMap = appController()->workspaceItemOrder().toMap();
+	QVariantMap workspaceItemOrderMap = appController()->settingsManager()->workspaceItemOrder().toMap();
 	
 	{
 		auto view = new WorkspaceView(this, 0);
@@ -47,7 +47,8 @@ WorkspaceController::WorkspaceController(QObject *parent) :
 		{
 			auto controller = new CanvasSplitAreaController(view, this);
 			
-			connect(this, SIGNAL(canvasShowRequested(CanvasController*)), controller, SLOT(addCanvas(CanvasController*)));
+			connect(this, SIGNAL(canvasShowRequested(CanvasController*)),
+			        controller, SLOT(addCanvas(CanvasController*)));
 			
 			d->actions << createAction("paintfield.view.splitVertically", controller, SLOT(splitCurrentVertically()));
 			d->actions << createAction("paintfield.view.splitHorizontally", controller, SLOT(splitCurrentHorizontally()));
@@ -56,12 +57,17 @@ WorkspaceController::WorkspaceController(QObject *parent) :
 			view->setCentralWidget(controller->view());
 		}
 		
-		connect(this, SIGNAL(currentCanvasChanged(CanvasController*)), view, SLOT(setCurrentCanvas(CanvasController*)));
+		connect(this, SIGNAL(currentCanvasChanged(CanvasController*)),
+		        view, SLOT(setCurrentCanvas(CanvasController*)));
 		connect(view, SIGNAL(closeRequested()), this, SLOT(tryClose()));
 		
-		view->createSideBarFrames(appController()->sideBarDeclarationHash(), workspaceItemOrderMap["sidebars"]);
-		view->createToolBars(appController()->toolBarDeclarationHash(), workspaceItemOrderMap["toolbars"]);
-		view->createMenuBar(appController()->actionDeclarationHash(), appController()->menuDeclarationHash(), appController()->menuBarOrder());
+		view->createSideBarFrames(appController()->settingsManager()->sideBarDeclarationHash(),
+		                          workspaceItemOrderMap["sidebars"]);
+		view->createToolBars(appController()->settingsManager()->toolBarDeclarationHash(),
+		                     workspaceItemOrderMap["toolbars"]);
+		view->createMenuBar(appController()->settingsManager()->actionDeclarationHash(),
+		                    appController()->settingsManager()->menuDeclarationHash(),
+		                    appController()->settingsManager()->menuBarOrder());
 		
 		d->view.reset(view);
 	}
@@ -248,7 +254,8 @@ void WorkspaceController::addCanvas(CanvasController *canvas)
 	{
 		canvas->setWorkspace(this);
 		d->canvasControllers << canvas;
-		connect(canvas, SIGNAL(shouldBeDeleted(CanvasController*)), this, SLOT(deleteCanvas(CanvasController*)));
+		connect(canvas, SIGNAL(shouldBeDeleted(CanvasController*)),
+		        this, SLOT(deleteCanvas(CanvasController*)));
 	}
 }
 
@@ -291,14 +298,14 @@ CanvasModuleList WorkspaceController::currentCanvasModules()
 
 void WorkspaceController::updateWorkspaceItems()
 {
-	for (const QString &name : appController()->sidebarNames())
+	for (const QString &name : appController()->settingsManager()->sidebarNames())
 	{
 		QWidget *sidebar = sideBarForWorkspace(appController()->modules(), modules(), name);
 		if (sidebar)
 			view()->setSidebar(name, sidebar);
 	}
 	
-	for (const QString &name : appController()->toolbarNames())
+	for (const QString &name : appController()->settingsManager()->toolbarNames())
 	{
 		QToolBar *toolBar = view()->toolBar(name);
 		if (toolBar)
@@ -310,14 +317,14 @@ void WorkspaceController::updateWorkspaceItemsForCanvas(CanvasController *canvas
 {
 	Q_UNUSED(canvas)
 	
-	for (const QString &name : appController()->sidebarNames())
+	for (const QString &name : appController()->settingsManager()->sidebarNames())
 	{
 		QWidget *sidebar = sideBarForCanvas(currentCanvasModules(), name);
 		if (sidebar)
 			view()->setSidebar(name, sidebar);
 	}
 	
-	for (const QString &name : appController()->toolbarNames())
+	for (const QString &name : appController()->settingsManager()->toolbarNames())
 	{
 		QToolBar *toolBar = view()->toolBar(name);
 		if (toolBar)

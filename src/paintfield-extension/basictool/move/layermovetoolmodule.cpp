@@ -21,7 +21,7 @@ void LayerMoveToolModuleFactory::initialize(AppController *app)
 {
 	QString text = QObject::tr("Layer Move");
 	QIcon icon = SimpleButton::createSimpleIconSet(":/icons/24x24/move.svg", QSize(24,24));
-	app->declareTool(_layerMoveToolName, ToolDeclaration(text, icon, {"raster"}));
+	app->settingsManager()->declareTool(_layerMoveToolName, ToolDeclaration(text, icon, {"raster"}));
 }
 
 

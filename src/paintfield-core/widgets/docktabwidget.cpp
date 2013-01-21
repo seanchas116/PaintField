@@ -49,7 +49,7 @@ bool DockTabWidget::moveTab(DockTabWidget *source, int sourceIndex, DockTabWidge
 	QString text = source->tabText(sourceIndex);
 	
 	emit source->tabAboutToMoveOut(widget);
-	source->removeTab(sourceIndex);
+	//source->removeTab(sourceIndex);
 	
 	dest->insertTab(destIndex, widget, text);
 	dest->setCurrentIndex(destIndex);

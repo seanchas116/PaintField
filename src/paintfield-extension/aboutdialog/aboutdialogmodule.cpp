@@ -37,8 +37,8 @@ void AboutDialogModule::showAboutDialog()
 
 void AboutDialogModuleFactory::initialize(AppController *appController)
 {
-	appController->declareAction(_aboutActionName, tr("About PaintField"));
-	appController->declareAction(_aboutQtActionName, tr("About Qt"));
+	appController->settingsManager()->declareAction(_aboutActionName, tr("About PaintField"));
+	appController->settingsManager()->declareAction(_aboutQtActionName, tr("About Qt"));
 }
 
 } // namespace PaintField

@@ -13,7 +13,7 @@ ToolManager::ToolManager(QObject *parent) :
     QObject(parent),
 	_actionGroup(new QActionGroup(this))
 {
-	createActions(appController()->toolDeclarationHash());
+	createActions(appController()->settingsManager()->toolDeclarationHash());
 	connect(_actionGroup, SIGNAL(triggered(QAction*)), this, SLOT(onActionTriggered(QAction*)));
 }
 

@@ -32,7 +32,7 @@ ColorUIModule::ColorUIModule(WorkspaceController *workspace, QObject *parent) :
 
 void ColorUIModuleFactory::initialize(AppController *app)
 {
-	app->declareSideBar(_colorSidebarName, SidebarDeclaration(QObject::tr("Color")));
+	app->settingsManager()->declareSideBar(_colorSidebarName, SidebarDeclaration(QObject::tr("Color")));
 }
 
 }

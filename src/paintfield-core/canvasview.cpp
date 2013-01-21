@@ -75,15 +75,19 @@ CanvasView::CanvasView(CanvasController *canvas, QWidget *parent) :
 	setMouseTracking(true);
 	setSceneSize(document()->size());
 	
-	connect(layerModel(), SIGNAL(tilesUpdated(QPointSet)), this, SLOT(updateTiles(QPointSet)));
+	connect(layerModel(), SIGNAL(tilesUpdated(QPointSet)),
+	        this, SLOT(updateTiles(QPointSet)));
 	updateTiles(layerModel()->document()->tileKeys());
 	
-	connect(appController()->app(), SIGNAL(tabletActiveChanged(bool)), this, SLOT(onTabletActiveChanged(bool)));
+	connect(appController()->app(), SIGNAL(tabletActiveChanged(bool)),
+	        this, SLOT(onTabletActiveChanged(bool)));
 	onTabletActiveChanged(appController()->app()->isTabletActive());
 	
-	d->translationKeys = appController()->keyBindingHash()["paintfield.canvas.dragTranslation"];
-	d->scaleKeys = appController()->keyBindingHash()["paintfield.canvas.dragScale"];
-	d->rotationKeys = appController()->keyBindingHash()["paintfield.canvas.dragRotation"];
+	auto keyBindingHash = appController()->settingsManager()->keyBindingHash();
+	
+	d->translationKeys = keyBindingHash["paintfield.canvas.dragTranslation"];
+	d->scaleKeys = keyBindingHash["paintfield.canvas.dragScale"];
+	d->rotationKeys = keyBindingHash["paintfield.canvas.dragRotation"];
 }
 
 CanvasView::~CanvasView()

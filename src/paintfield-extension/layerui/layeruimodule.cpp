@@ -35,14 +35,14 @@ LayerUIModule::LayerUIModule(CanvasController *canvas, QObject *parent) :
 
 void LayerUIModuleFactory::initialize(AppController *app)
 {
-	app->declareMenu("paintfield.layer", tr("Layer"));
+	app->settingsManager()->declareMenu("paintfield.layer", tr("Layer"));
 	
-	app->declareAction("paintfield.layer.newRaster", tr("New Layer"));
-	app->declareAction("paintfield.layer.newGroup", tr("New Group"));
-	app->declareAction("paintfield.layer.import", tr("Import..."));
-	app->declareAction("paintfield.layer.merge", tr("Merge"));
+	app->settingsManager()->declareAction("paintfield.layer.newRaster", tr("New Layer"));
+	app->settingsManager()->declareAction("paintfield.layer.newGroup", tr("New Group"));
+	app->settingsManager()->declareAction("paintfield.layer.import", tr("Import..."));
+	app->settingsManager()->declareAction("paintfield.layer.merge", tr("Merge"));
 	
-	app->declareSideBar(_layerTreeSidebarName, SidebarDeclaration(tr("Layers")));
+	app->settingsManager()->declareSideBar(_layerTreeSidebarName, SidebarDeclaration(tr("Layers")));
 }
 
 }

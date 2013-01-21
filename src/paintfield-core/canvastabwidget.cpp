@@ -1,29 +1,32 @@
 #include <QUrl>
 #include "workspacecontroller.h"
+#include "appcontroller.h"
+#include "workspacemanager.h"
 #include "debug.h"
 
 #include "canvastabwidget.h"
 
 namespace PaintField {
 
-struct CanvasTabWidgetData
+struct CanvasTabWidget::Data
 {
-	WorkspaceController *workspace;
+	WorkspaceController *workspace = 0;
+	bool floating = false;
 };
 
 CanvasTabWidget::CanvasTabWidget(WorkspaceView *workspaceView, QWidget *parent) :
-    FloatingDockTabWidget(workspaceView, parent),
-    d(new CanvasTabWidgetData)
+    DockTabWidget(parent),
+    d(new Data)
 {
 	d->workspace = workspaceView->controller();
 	commonInit();
 }
 
 CanvasTabWidget::CanvasTabWidget(CanvasTabWidget *other, QWidget *parent) :
-    FloatingDockTabWidget(other, parent),
-    d(new CanvasTabWidgetData)
+    DockTabWidget(other, parent),
+    d(new Data)
 {
-	*d = *other->d;
+	d->workspace = other->workspace();
 	commonInit();
 }
 
@@ -37,6 +40,7 @@ void CanvasTabWidget::commonInit()
 	new CanvasTabBar(this);
 	
 	setTabsClosable(true);
+	setAutoDeletionEnabled(true);
 	
 	connect(this, SIGNAL(currentChanged(int)), this, SLOT(activate()));
 	connect(this, SIGNAL(tabClicked()), this, SIGNAL(activated()));
@@ -44,8 +48,14 @@ void CanvasTabWidget::commonInit()
 	
 	connect(this, SIGNAL(tabCloseRequested(int)), this, SLOT(onTabCloseRequested(int)));
 	
-	connect(d->workspace, SIGNAL(currentCanvasChanged(CanvasController*)), this, SLOT(setCurrentCanvas(CanvasController*)));
+	connect(d->workspace, SIGNAL(currentCanvasChanged(CanvasController*)), this, SLOT(onCurrentCanvasChanged(CanvasController*)));
 	connect(this, SIGNAL(currentCanvasChanged(CanvasController*)), d->workspace, SLOT(setCurrentCanvas(CanvasController*)));
+	
+	connect(appController()->workspaceManager(), SIGNAL(currentWorkspaceChanged(WorkspaceController*)), this, SLOT(onCurrentWorkspaceChanged(WorkspaceController*)));
+	//onCurrentWorkspaceChanged(appController()->workspaceManager()->currentWorkspace());
+	
+	if (parent() == 0)
+		setFloating(true);
 }
 
 bool CanvasTabWidget::tabIsInsertable(DockTabWidget *other, int index)
@@ -54,6 +64,22 @@ bool CanvasTabWidget::tabIsInsertable(DockTabWidget *other, int index)
 	
 	CanvasTabWidget *tabWidget = qobject_cast<CanvasTabWidget *>(other);
 	return tabWidget && tabWidget->d->workspace == d->workspace;
+}
+
+bool CanvasTabWidget::isFloating() const
+{
+	return d->floating;
+}
+
+void CanvasTabWidget::setFloating(bool x)
+{
+	d->floating = x;
+	
+	if (x)
+	{
+		setParent(d->workspace->view());
+		setWindowFlags(Qt::Tool);
+	}
 }
 
 QObject *CanvasTabWidget::createNew()
@@ -98,7 +124,7 @@ WorkspaceController *CanvasTabWidget::workspace()
 	return d->workspace;
 }
 
-void CanvasTabWidget::setCurrentCanvas(CanvasController *canvas)
+void CanvasTabWidget::onCurrentCanvasChanged(CanvasController *canvas)
 {
 	if (!canvas)
 		return;
@@ -116,6 +142,12 @@ void CanvasTabWidget::setCurrentCanvas(CanvasController *canvas)
 	
 	if (set)
 		activate();
+}
+
+void CanvasTabWidget::onCurrentWorkspaceChanged(WorkspaceController *workspace)
+{
+	if (d->floating)
+		setVisible(workspace == d->workspace);
 }
 
 bool CanvasTabWidget::tryClose()

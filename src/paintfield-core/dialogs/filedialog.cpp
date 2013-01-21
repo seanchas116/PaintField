@@ -9,7 +9,7 @@ namespace PaintField {
 
 QString FileDialog::getFilePath(QWidget *parent, const QString &title, Mode mode, const QHash<QString, QStringList> &filterTextToSuffixes)
 {
-	QString lastDialogPath = appController()->lastFileDialogPath();
+	QString lastDialogPath = appController()->settingsManager()->lastFileDialogPath();
 	
 	if (lastDialogPath.isEmpty())
 	{
@@ -69,7 +69,7 @@ QString FileDialog::getFilePath(QWidget *parent, const QString &title, Mode mode
 	if (!result.isEmpty())
 		lastDialogPath = fileDialog.directory().path();
 	
-	appController()->setLastFileDialogPath(lastDialogPath);
+	appController()->settingsManager()->setLastFileDialogPath(lastDialogPath);
 	return result;
 }
 

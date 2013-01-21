@@ -23,7 +23,7 @@ void ToolUIModule::updateToolBar(QToolBar *toolBar, const QString &name)
 
 void ToolUIModuleFactory::initialize(AppController *app)
 {
-	app->declareToolbar(_toolToolbarName, ToolbarDeclaration(QObject::tr("Tools")));
+	app->settingsManager()->declareToolbar(_toolToolbarName, ToolbarDeclaration(QObject::tr("Tools")));
 	//app->declareSidebar(_toolSettingSidebarName, SidebarInfo(tr("Tool Settings")));
 }
 

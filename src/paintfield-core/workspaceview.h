@@ -10,6 +10,8 @@
 
 #include "global.h"
 #include "canvasview.h"
+#include "settingsmanager.h"
+
 #include "widgets/floatingdocktabwidget.h"
 #include "widgets/docktabmotherwidget.h"
 

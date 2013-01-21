@@ -46,6 +46,8 @@
 		"menu": "paintfield.view",
 		"children":
 		[
+			"paintfield.view.newWorkspace",
+			"",
 			"paintfield.view.splitVertically",
 			"paintfield.view.splitHorizontally",
 			"paintfield.view.closeCurrentSplit"

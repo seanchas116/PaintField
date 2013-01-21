@@ -11,9 +11,7 @@ class WorkspaceView;
 class WorkspaceController;
 class CanvasView;
 
-class CanvasTabWidgetData;
-
-class CanvasTabWidget : public FloatingDockTabWidget
+class CanvasTabWidget : public DockTabWidget
 {
 	Q_OBJECT
 public:
@@ -25,6 +23,9 @@ public:
 	~CanvasTabWidget();
 	
 	bool tabIsInsertable(DockTabWidget *other, int index) override;
+	
+	bool isFloating() const;
+	void setFloating(bool x);
 	
 	QObject *createNew() override;
 	
@@ -45,20 +46,22 @@ signals:
 	
 public slots:
 	
-	void setCurrentCanvas(CanvasController *canvas);
 	bool tryClose();
 	void activate();
 	
 private slots:
 	
 	void onTabCloseRequested(int index);
+	void onCurrentCanvasChanged(CanvasController *canvas);
+	void onCurrentWorkspaceChanged(WorkspaceController *workspace);
 	
 private:
 	
 	CanvasView *canvasViewAt(int index);
 	void commonInit();
 	
-	CanvasTabWidgetData *d;
+	class Data;
+	Data *d;
 };
 
 class CanvasTabBar : public DockTabBar

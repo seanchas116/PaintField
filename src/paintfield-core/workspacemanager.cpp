@@ -11,6 +11,7 @@ namespace PaintField
 WorkspaceManager::WorkspaceManager(QObject *parent) :
 	QObject(parent)
 {
+	connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)), this, SLOT(onFocusWidgetChanged(QWidget*,QWidget*)));
 }
 
 bool WorkspaceManager::tryCloseAll()
@@ -87,6 +88,22 @@ void WorkspaceManager::onWorkspaceFocusIn()
 void WorkspaceManager::onWorkspaceShouldBeDeleted(WorkspaceController *workspace)
 {
 	removeWorkspace(workspace);
+}
+
+void WorkspaceManager::onFocusWidgetChanged(QWidget *old, QWidget *now)
+{
+	Q_UNUSED(old)
+	
+	if (!now)
+		return;
+	
+	QWidget *window = now->topLevelWidget();
+	
+	for (WorkspaceController *workspace : _workspaces)
+	{
+		if (workspace->view() == window)
+			setCurrentWorkspace(workspace);
+	}
 }
 
 }
