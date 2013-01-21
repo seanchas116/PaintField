@@ -77,10 +77,11 @@ class LayerModel : public QAbstractItemModel
 public:
 	
 	explicit LayerModel(const LayerList &layers, Document *parent);
+	~LayerModel();
 	
-	Document *document() { return _document; }
+	Document *document();
 	
-	void makeSkipNextUpdate() { _skipNextUpdate = true; }
+	void makeSkipNextUpdate();
 	
 	void editLayer(const QModelIndex &index, LayerEdit *edit, const QString &description);
 	void addLayer(Layer *layer, const QModelIndex &parent, int row, const QString &description) { addLayers({layer}, parent, row, description); }
@@ -114,7 +115,7 @@ public:
 	bool checkIndexes(const QModelIndexList &indexes) const;
 	
 	bool checkIndex(const QModelIndex &index) const { return layerForIndex(index); }
-	bool checkLayer(const Layer *layer) const { return _rootLayer->isAncestorOfSafe(layer); }
+	bool checkLayer(const Layer *layer) const { return rootLayer()->isAncestorOfSafe(layer); }
 	
 	const Layer *layerForIndex(const QModelIndex &index) const;
 	QModelIndex indexForLayer(const Layer *layer) const;
@@ -134,7 +135,7 @@ public:
 	
 	Malachite::Surface render();
 	
-	const Layer *rootLayer() const { return _rootLayer.data(); }
+	const Layer *rootLayer() const;
 	
 signals:
 	
@@ -153,7 +154,7 @@ protected:
 	void pushCommand(QUndoCommand *command);
 	
 	void emitDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight) { emit dataChanged(topLeft, bottomRight); }
-	void enqueueTileUpdate(const QPointSet &tileKeys) { _updatedTiles |= tileKeys; }
+	void enqueueTileUpdate(const QPointSet &tileKeys);
 	
 private:
 	
@@ -161,12 +162,8 @@ private:
 	
 	Layer *nonConstLayer(const Layer *layer) { return const_cast<Layer *>(layer); }
 	
-	Document *_document = 0;
-	
-	QScopedPointer<ModelRootLayer> _rootLayer;
-	
-	bool _skipNextUpdate;
-	QPointSet _updatedTiles;
+	class Data;
+	Data *d;
 };
 
 }

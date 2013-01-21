@@ -13,8 +13,6 @@ namespace PaintField
 class Tool;
 class CanvasController;
 
-class CanvasViewData;
-
 class CanvasView : public NavigatableArea
 {
 	Q_OBJECT
@@ -90,7 +88,8 @@ private:
 	void continueDragRotation(const QPoint &pos);
 	void endDragRotation();
 	
-	CanvasViewData *d;
+	class Data;
+	Data *d;
 };
 
 }

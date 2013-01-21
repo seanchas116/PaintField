@@ -29,17 +29,43 @@ private:
 	QStringList _existingNames;
 };
 
+struct LayerModel::Data
+{
+	Document *document = 0;
+	
+	QScopedPointer<ModelRootLayer> rootLayer;
+	
+	bool skipNextUpdate = false;
+	QPointSet updatedTiles;
+};
+
 LayerModel::LayerModel(const LayerList &layers, Document *parent) :
     QAbstractItemModel(parent),
-    _document(parent),
-    _rootLayer(new ModelRootLayer(this) ),
-    _skipNextUpdate(false)
+    d(new Data)
 {
-	connect(this, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SIGNAL(layerMetadataChanged(QModelIndex)));
-	connect(_document, SIGNAL(modified()), this, SLOT(update()));
+	d->document = parent;
+	d->rootLayer.reset(new ModelRootLayer(this));
 	
-	_rootLayer->insertChildren(0, layers);
-	_rootLayer->updateThumbnailRecursive(_document->size());
+	connect(this, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SIGNAL(layerMetadataChanged(QModelIndex)));
+	connect(d->document, SIGNAL(modified()), this, SLOT(update()));
+	
+	d->rootLayer->insertChildren(0, layers);
+	d->rootLayer->updateThumbnailRecursive(d->document->size());
+}
+
+LayerModel::~LayerModel()
+{
+	delete d;
+}
+
+Document *LayerModel::document()
+{
+	return d->document;
+}
+
+void LayerModel::makeSkipNextUpdate()
+{
+	d->skipNextUpdate = true;
 }
 
 void LayerModel::editLayer(const QModelIndex &index, LayerEdit *edit, const QString &description)
@@ -475,9 +501,14 @@ Malachite::Surface LayerModel::render()
 	return renderer.renderToSurface(rootLayer()->children(), document()->tileKeys());
 }
 
+const Layer *LayerModel::rootLayer() const
+{
+	return d->rootLayer.data();
+}
+
 void LayerModel::updateDirtyThumbnails()
 {
-	_rootLayer->updateDirtyThumbnailRecursive(_document->size());
+	d->rootLayer->updateDirtyThumbnailRecursive(d->document->size());
 }
 
 int LayerModel::normalizeItemRole(int role) const
@@ -497,17 +528,22 @@ int LayerModel::normalizeItemRole(int role) const
 
 void LayerModel::pushCommand(QUndoCommand *command)
 {
-	_document->undoStack()->push(command);
+	d->document->undoStack()->push(command);
+}
+
+void LayerModel::enqueueTileUpdate(const QPointSet &tileKeys)
+{
+	d->updatedTiles |= tileKeys;
 }
 
 void LayerModel::update()
 {
-	if (_skipNextUpdate)
-		_skipNextUpdate = false;
+	if (d->skipNextUpdate)
+		d->skipNextUpdate = false;
 	else
-		emit tilesUpdated(_updatedTiles);
+		emit tilesUpdated(d->updatedTiles);
 	
-	_updatedTiles.clear();
+	d->updatedTiles.clear();
 }
 
 }

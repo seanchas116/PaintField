@@ -36,48 +36,48 @@ public:
 	 * @param parent The new controller's parent
 	 * @return The created controller
 	 */
-	static CanvasController *fromNew(WorkspaceController *parent);
+	static CanvasController *fromNew();
 	
 	/**
 	 * Shows a dialog, opens a file and creates a controller from it.
 	 * @param parent The new controller's parent
 	 * @return The created controller
 	 */
-	static CanvasController *fromOpen(WorkspaceController *parent);
+	static CanvasController *fromOpen();
 	
-	static CanvasController *fromNewFromImageFile(WorkspaceController *parent);
+	static CanvasController *fromNewFromImageFile();
 	
-	static CanvasController *fromFile(const QString &path, WorkspaceController *parent);
-	static CanvasController *fromSavedFile(const QString &path, WorkspaceController *parent);
-	static CanvasController *fromImageFile(const QString &path, WorkspaceController *parent);
+	static CanvasController *fromFile(const QString &path);
+	static CanvasController *fromSavedFile(const QString &path);
+	static CanvasController *fromImageFile(const QString &path);
 	
 	void setWorkspace(WorkspaceController *workspace);
 	
 	/**
 	 * @return The workspace controller which have the canvas controller
 	 */
-	WorkspaceController *workspace() { return _workspace; }
+	WorkspaceController *workspace();
 	
 	/**
 	 * @return The document the canvas handles
 	 */
-	Document *document() { return _document.obj(); }
+	Document *document();
 	
-	LayerModel *layerModel() { return _document->layerModel(); }
+	LayerModel *layerModel() { return document()->layerModel(); }
 	
-	QItemSelectionModel *selectionModel() { return _selectionModel; }
+	QItemSelectionModel *selectionModel();
 	
-	void addActions(const QActionList &actions) { _actions += actions; }
+	void addActions(const QActionList &actions);
 	
 	/**
 	 * @return The actions which belongs to the controller.
 	 */
-	QActionList actions() { return _actions; }
+	QActionList actions();
 	
 	void addModules(const CanvasModuleList &modules);
-	CanvasModuleList modules() { return _modules; }
+	CanvasModuleList modules();
 	
-	CanvasView *view() { return _view.data(); }
+	CanvasView *view();
 	
 	virtual void onSetCurrent();
 	
@@ -118,14 +118,8 @@ private:
 	
 	void commonInit();
 	
-	WorkspaceController *_workspace = 0;
-	
-	CountableSharedQObjectPointer<Document> _document;
-	QItemSelectionModel *_selectionModel = 0;
-	
-	ScopedQObjectPointer<CanvasView> _view;
-	QActionList _actions;
-	CanvasModuleList _modules;
+	class Data;
+	Data *d;
 };
 
 }

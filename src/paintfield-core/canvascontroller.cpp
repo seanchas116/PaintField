@@ -22,87 +22,155 @@ using namespace Malachite;
 namespace PaintField
 {
 
+struct CanvasController::Data
+{
+	WorkspaceController *workspace = 0;
+	Document *document = 0;
+	int *documentRefCount = 0;
+	
+	QItemSelectionModel *selectionModel = 0;
+	
+	ScopedQObjectPointer<CanvasView> view;
+	QActionList actions;
+	CanvasModuleList modules;
+};
+
 CanvasController::CanvasController(Document *document, WorkspaceController *parent) :
     QObject(parent),
-    _workspace(parent),
-    _document(document)
+    d(new Data)
 {
-	_document->setParent(0);
+	d->workspace = parent;
+	d->document = document;
+	d->documentRefCount = new int(0);
+	
+	document->setParent(0);
+	
 	commonInit();
 }
 
 CanvasController::CanvasController(CanvasController *other, WorkspaceController *parent) :
     QObject(parent),
-    _workspace(parent),
-    _document(other->_document)
+    d(new Data)
 {
+	d->workspace = parent;
+	d->document = other->document();
+	d->documentRefCount = other->d->documentRefCount;
+	
 	commonInit();
 }
 
 void CanvasController::commonInit()
 {
+	(*d->documentRefCount)++;
+	
 	// create selection model
 	
-	_selectionModel = new QItemSelectionModel(_document->layerModel(), this);
-	_selectionModel->setCurrentIndex(_document->layerModel()->index(0, QModelIndex()), QItemSelectionModel::Current);
+	d->selectionModel = new QItemSelectionModel(d->document->layerModel(), this);
+	d->selectionModel->setCurrentIndex(d->document->layerModel()->index(0, QModelIndex()), QItemSelectionModel::Current);
 	
 	// create actions
 	
-	_actions << createAction("paintfield.file.save", this, SLOT(saveCanvas()));
-	_actions << createAction("paintfield.file.saveAs", this, SLOT(saveAsCanvas()));
-	_actions << createAction("paintfield.file.close", this, SLOT(closeCanvas()));
-	_actions << createAction("paintfield.file.export", this, SLOT(exportCanvas()));
+	d->actions << createAction("paintfield.file.save", this, SLOT(saveCanvas()));
+	d->actions << createAction("paintfield.file.saveAs", this, SLOT(saveAsCanvas()));
+	d->actions << createAction("paintfield.file.close", this, SLOT(closeCanvas()));
+	d->actions << createAction("paintfield.file.export", this, SLOT(exportCanvas()));
 	
-	auto undoAction  = _document->undoStack()->createUndoAction(this);
+	auto undoAction  = d->document->undoStack()->createUndoAction(this);
 	undoAction->setObjectName("paintfield.edit.undo");
-	_actions << undoAction;
+	d->actions << undoAction;
 	
-	auto redoAction = _document->undoStack()->createRedoAction(this);
+	auto redoAction = d->document->undoStack()->createRedoAction(this);
 	redoAction->setObjectName("paintfield.edit.redo");
-	_actions << redoAction;
+	d->actions << redoAction;
 	
-	_view.reset(new CanvasView(this, 0));
-	
-	connect(workspace()->toolManager(), SIGNAL(currentToolChanged(QString)), this, SLOT(onToolChanged(QString)));
-	onToolChanged(workspace()->toolManager()->currentTool());
+	d->view.reset(new CanvasView(this, 0));
 	
 	addModules(appController()->moduleManager()->createCanvasModules(this, this));
 	
-	if (_workspace)
-		_workspace->registerCanvas(this);
+	setWorkspace(d->workspace);
 }
 
-CanvasController::~CanvasController(){}
+CanvasController::~CanvasController()
+{
+	(*d->documentRefCount)--;
+	
+	if (*d->documentRefCount == 0)
+	{
+		delete d->documentRefCount;
+		d->document->deleteLater();
+	}
+	
+	delete d;
+}
 
 void CanvasController::setWorkspace(WorkspaceController *workspace)
 {
-	if (_workspace)
-		_workspace->unregisterCanvas(this);
+	if (d->workspace)
+		disconnect(d->workspace->toolManager(), 0, this, 0);
 	
-	_workspace = workspace;
+	setParent(workspace);
+	d->workspace = workspace;
 	
 	if (workspace)
-		workspace->registerCanvas(this);
+	{
+		connect(workspace->toolManager(), SIGNAL(currentToolChanged(QString)), this, SLOT(onToolChanged(QString)));
+		onToolChanged(workspace->toolManager()->currentTool());
+	}
+}
+
+WorkspaceController *CanvasController::workspace()
+{
+	return d->workspace;
+}
+
+Document *CanvasController::document()
+{
+	return d->document;
+}
+
+QItemSelectionModel *CanvasController::selectionModel()
+{
+	return d->selectionModel;
+}
+
+void CanvasController::addActions(const QActionList &actions)
+{
+	d->actions += actions;
+}
+
+QActionList CanvasController::actions()
+{
+	return d->actions;
+}
+
+CanvasModuleList CanvasController::modules()
+{
+	return d->modules;
+}
+
+CanvasView *CanvasController::view()
+{
+	return d->view.data();
 }
 
 void CanvasController::addModules(const CanvasModuleList &modules)
 {
 	for (CanvasModule *module : modules)
 		addActions(module->actions());
-	_modules += modules;
+	d->modules += modules;
 }
 
 void CanvasController::onSetCurrent()
 {
-	_view->setFocus();
+	d->view->setFocus();
 }
 
 void CanvasController::onToolChanged(const QString &name)
 {
-	_view->setTool(createTool(appController()->modules(), workspace()->modules(), modules(), name, _view.data()));
+	d->view->setTool(createTool(appController()->modules(), workspace()->modules(), modules(), name, d->view.data()));
 }
 
-CanvasController *CanvasController::fromNew(WorkspaceController *parent)
+CanvasController *CanvasController::fromNew()
 {
 	NewDocumentDialog dialog;
 	if (dialog.exec() != QDialog::Accepted)
@@ -111,40 +179,40 @@ CanvasController *CanvasController::fromNew(WorkspaceController *parent)
 	RasterLayer *layer = new RasterLayer(tr("Untitled Layer"));
 	
 	Document *document = new Document(appController()->unduplicatedNewFileTempName(), dialog.documentSize(), {layer});
-	return new CanvasController(document, parent);
+	return new CanvasController(document);
 }
 
-CanvasController *CanvasController::fromOpen(WorkspaceController *parent)
+CanvasController *CanvasController::fromOpen()
 {
 	QString filePath = FileDialog::getOpenFilePath(0, tr("Open"), tr("PaintField Document"), {"pfield"});
 	
 	if (filePath.isEmpty())	// cancelled
 		return 0;
 	
-	return fromSavedFile(filePath, parent);
+	return fromSavedFile(filePath);
 }
 
-CanvasController *CanvasController::fromNewFromImageFile(WorkspaceController *parent)
+CanvasController *CanvasController::fromNewFromImageFile()
 {
 	QString filePath = FileDialog::getOpenFilePath(0, tr("Open"), tr("Image File"), ImageImporter::importableExtensions());
 	
 	if (filePath.isEmpty())
 		return 0;
 	
-	return fromImageFile(filePath, parent);
+	return fromImageFile(filePath);
 }
 
-CanvasController *CanvasController::fromFile(const QString &path, WorkspaceController *parent)
+CanvasController *CanvasController::fromFile(const QString &path)
 {
 	QFileInfo fileInfo(path);
 	
 	if (fileInfo.suffix() == "pfield")
-		return fromSavedFile(path, parent);
+		return fromSavedFile(path);
 	else
-		return fromImageFile(path, parent);
+		return fromImageFile(path);
 }
 
-CanvasController *CanvasController::fromSavedFile(const QString &path, WorkspaceController *parent)
+CanvasController *CanvasController::fromSavedFile(const QString &path)
 {
 	DocumentIO documentIO(path);
 	if (!documentIO.openUnzip())
@@ -161,10 +229,10 @@ CanvasController *CanvasController::fromSavedFile(const QString &path, Workspace
 		return 0;
 	}
 	
-	return new CanvasController(document, parent);
+	return new CanvasController(document);
 }
 
-CanvasController *CanvasController::fromImageFile(const QString &path, WorkspaceController *parent)
+CanvasController *CanvasController::fromImageFile(const QString &path)
 {
 	QSize size;
 	
@@ -173,12 +241,12 @@ CanvasController *CanvasController::fromImageFile(const QString &path, Workspace
 		return 0;
 	
 	auto document = new Document(appController()->unduplicatedNewFileTempName(), size, {layer});
-	return new CanvasController(document, parent);
+	return new CanvasController(document);
 }
 
 bool CanvasController::saveAsCanvas()
 {
-	Document *document = this->document();
+	Document *document = d->document;
 	
 	QString filePath = FileDialog::getSaveFilePath(0, tr("Save As"), tr("PaintField Document"), "pfield");
 	
@@ -205,7 +273,7 @@ bool CanvasController::saveAsCanvas()
 
 bool CanvasController::saveCanvas()
 {
-	Document *document = this->document();
+	Document *document = d->document;
 	
 	if (document->filePath().isEmpty())	// first save
 		return saveAsCanvas();
@@ -224,9 +292,9 @@ bool CanvasController::saveCanvas()
 
 bool CanvasController::closeCanvas()
 {
-	if (_document.count() == 1)
+	if (*d->documentRefCount == 1)
 	{
-		Document *document = this->document();
+		Document *document = d->document;
 		
 		if (document->isModified())
 		{
@@ -283,8 +351,5 @@ bool CanvasController::exportCanvas()
 	
 	return true;
 }
-
-
-
 
 }

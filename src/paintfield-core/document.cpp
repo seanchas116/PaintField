@@ -8,34 +8,94 @@ namespace PaintField
 
 using namespace Malachite;
 
+struct Document::Data
+{
+	QSize size;
+	QPointSet tileKeys;
+	QString filePath;
+	QString tempName;	// like "untitled"
+	bool modified = false;
+	QUndoStack *undoStack = 0;
+	
+	LayerModel *layerModel = 0;
+};
+
 Document::Document(const QString &tempName, const QSize &size, const LayerList &layers,  QObject *parent) :
     QObject(parent),
-    _size(size),
-    _tempName(tempName),
-    _modified(false),
-    _undoStack(new QUndoStack(this)),
-    _layerModel(new LayerModel(layers, this))
+    d(new Data)
 {
-	_tileKeys = Surface::keysForRect(QRect(QPoint(), size));
+	d->size = size;
+	d->tempName = tempName;
+	d->undoStack = new QUndoStack(this);
+	d->layerModel = new LayerModel(layers, this);
+	d->tileKeys = Surface::keysForRect(QRect(QPoint(), size));
 	
-	connect(_undoStack, SIGNAL(redoTextChanged(QString)), this, SIGNAL(redoTextChangdd(QString)));
-	connect(_undoStack, SIGNAL(undoTextChanged(QString)), this, SIGNAL(undoTextChanged(QString)));
-	connect(_undoStack, SIGNAL(indexChanged(int)), this, SLOT(onUndoneOrRedone()));
+	connect(d->undoStack, SIGNAL(indexChanged(int)), this, SLOT(onUndoneOrRedone()));
+}
+
+Document::~Document()
+{
+	delete d;
+}
+
+QSize Document::size() const
+{
+	return d->size;
+}
+
+bool Document::isModified() const
+{
+	return d->modified;
+}
+
+bool Document::isNew() const
+{
+	return d->filePath.isEmpty();
+}
+
+QString Document::filePath() const
+{
+	return d->filePath;
+}
+
+QString Document::fileName() const
+{
+	return d->filePath.isEmpty() ? d->tempName : d->filePath.section('/', -1);
+}
+
+QString Document::tempName() const
+{
+	return d->tempName;
+}
+
+QPointSet Document::tileKeys() const
+{
+	return d->tileKeys;
+}
+
+QUndoStack *Document::undoStack()
+{
+	return d->undoStack;
+}
+
+LayerModel *Document::layerModel()
+{
+	return d->layerModel;
 }
 
 void Document::setModified(bool modified)
 {
-	if (_modified == modified)
+	if (d->modified == modified)
 		return;
-	_modified = modified;
+	d->modified = modified;
 	emit modifiedChanged(modified);
 }
 
 void Document::setFilePath(const QString &filePath)
 {
-	if (_filePath == filePath)
+	if (d->filePath == filePath)
 		return;
-	_filePath = filePath;
+	d->filePath = filePath;
 	emit filePathChanged(filePath);
 	emit fileNameChanged(fileName());
 }

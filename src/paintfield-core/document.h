@@ -25,35 +25,34 @@ public:
 	 * @param parent The QObject parent
 	 */
 	Document(const QString &tempName, const QSize &size, const LayerList &layers, QObject *parent = 0);
+	~Document();
 	
-	QSize size() const { return _size; }
-	int width() const { return _size.width(); }
-	int height() const { return _size.height(); }
+	QSize size() const;
+	int width() const { return size().width(); }
+	int height() const { return size().height(); }
 	
 	/**
 	 * @return Wheter the document is modified (unsaved)
 	 */
-	bool isModified() const { return _modified; }
+	bool isModified() const;
 	
 	/**
 	 * @return Whether he document is new and has never saved
 	 */
-	bool isNew() const { return _filePath.isEmpty(); }
+	bool isNew() const;
 	
 	/**
 	 * @return The full path
 	 */
-	QString filePath() const { return _filePath; }
-	QString fileName() const { return _filePath.isEmpty() ? _tempName : _filePath.section('/', -1); }
-	QString tempName() const { return _tempName; }
-	int tileXCount() const { return _size.width() / Malachite::Surface::TileSize + 1; }
-	int tileYCount() const { return _size.height() / Malachite::Surface::TileSize + 1; }
-	QPointSet tileKeys() const { return _tileKeys; }
-	bool canRedo() const { return _undoStack->canRedo(); }
-	bool canUndo() const { return _undoStack->canUndo(); }
+	QString filePath() const;
+	QString fileName() const;
+	QString tempName() const;
+	int tileXCount() const { return width() / Malachite::Surface::TileSize + 1; }
+	int tileYCount() const { return height() / Malachite::Surface::TileSize + 1; }
+	QPointSet tileKeys() const;
 	
-	QUndoStack *undoStack() { return _undoStack; }
-	LayerModel *layerModel() { return _layerModel; }
+	QUndoStack *undoStack();
+	LayerModel *layerModel();
 	
 	void setModified(bool modified);
 	void setFilePath(const QString &filePath);
@@ -65,13 +64,7 @@ signals:
 	void filePathChanged(const QString &filePath);
 	void fileNameChanged(const QString &fileName);
 	
-	void undoTextChanged(const QString &name);
-	void redoTextChangdd(const QString &name);
-	
 public slots:
-	
-	void undo() { _undoStack->undo(); }
-	void redo() { _undoStack->redo(); }
 	
 protected:
 	
@@ -81,14 +74,8 @@ private slots:
 	
 private:
 	
-	QSize _size;
-	QPointSet _tileKeys;
-	QString _filePath;
-	QString _tempName;	// like "untitled"
-	bool _modified;
-	QUndoStack *_undoStack = 0;
-	
-	LayerModel *_layerModel = 0;
+	class Data;
+	Data *d;
 };
 
 }

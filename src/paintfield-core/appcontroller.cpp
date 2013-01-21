@@ -351,7 +351,7 @@ void AppController::openFile(const QString &path)
 	auto workspace = workspaceManager()->currentWorkspace();
 	
 	if (workspace)
-		workspace->addCanvasFromFile(path);
+		workspace->openCanvasFromFilepath(path);
 }
 
 AppController *AppController::_instance = 0;

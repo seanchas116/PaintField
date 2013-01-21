@@ -205,14 +205,29 @@ void WorkspaceMenuAction::onBackendActionChanged()
 	setEnabled(_backendAction->isEnabled());
 }
 
+
+struct WorkspaceView::Data
+{
+	WorkspaceController *controller = 0;
+	
+	DockTabMotherWidget *motherWidget = 0;
+	
+	QList<SideBarFrame *> sideBarFrames;
+	QList<QToolBar *> toolBars;
+	
+	CanvasController *currentCanvas = 0;
+};
+
 WorkspaceView::WorkspaceView(WorkspaceController *controller, QWidget *parent) :
     QMainWindow(parent),
-    _controller(controller)
+    d(new Data)
 {
+	d->controller = controller;
+	
 	setAnimated(false);
 		
-	_motherWidget = new WorkspaceMotherWidget(this, 0);
-	QMainWindow::setCentralWidget(_motherWidget);
+	d->motherWidget = new WorkspaceMotherWidget(this, 0);
+	QMainWindow::setCentralWidget(d->motherWidget);
 	
 	onCurrentCanvasPropertyChanged();
 	
@@ -221,7 +236,7 @@ WorkspaceView::WorkspaceView(WorkspaceController *controller, QWidget *parent) :
 
 void WorkspaceView::setCentralWidget(QWidget *widget)
 {
-	_motherWidget->setCentralWidget(widget);
+	d->motherWidget->setCentralWidget(widget);
 }
 
 void WorkspaceView::createSideBarFrames(const SideBarDeclarationHash &sidebarDeclarations, const QVariant &order)
@@ -269,13 +284,13 @@ void WorkspaceView::createSideBarFramesInSplitter(DockTabMotherWidget::Direction
 			{
 				auto sideBarFrame = new SideBarFrame;
 				sideBarFrame->setObjectName(sideBarName);
-				_sideBarFrames << sideBarFrame;
+				d->sideBarFrames << sideBarFrame;
 				
 				tabWidget->addTab(sideBarFrame, sidebarDeclarations[sideBarName].text);
 			}
 		}
 		
-		_motherWidget->addTabWidget(tabWidget, splitterDir, splitterIndex);
+		d->motherWidget->addTabWidget(tabWidget, splitterDir, splitterIndex);
 	}
 }
 
@@ -318,7 +333,7 @@ void WorkspaceView::createToolBarsInArea(Qt::ToolBarArea area, const ToolBarDecl
 				auto toolBar = new QToolBar(iter->text);
 				toolBar->setObjectName(iter.key());
 				addToolBar(area, toolBar);
-				_toolBars << toolBar;
+				d->toolBars << toolBar;
 				break;
 			}
 		}
@@ -333,7 +348,7 @@ void WorkspaceView::createMenuBar(const ActionDeclarationHash &actionDeclaration
 void WorkspaceView::setSidebar(const QString &id, QWidget *sidebar)
 {
 	applyMacSmallSize(sidebar);
-	for (SideBarFrame *frame : _sideBarFrames)
+	for (SideBarFrame *frame : d->sideBarFrames)
 	{
 		if (frame->objectName() == id)
 		{
@@ -345,7 +360,7 @@ void WorkspaceView::setSidebar(const QString &id, QWidget *sidebar)
 
 QToolBar *WorkspaceView::toolBar(const QString &id)
 {
-	for (auto toolBar : _toolBars)
+	for (auto toolBar : d->toolBars)
 	{
 		if (toolBar->objectName() == id)
 			return toolBar;
@@ -358,16 +373,21 @@ void WorkspaceView::associateMenuBarWithActions(const QActionList &actions)
 	MenuArranger::associateMenuBarWithActions(menuBar(), actions);
 }
 
+WorkspaceController *WorkspaceView::controller()
+{
+	return d->controller;
+}
+
 void WorkspaceView::setCurrentCanvas(CanvasController *canvas)
 {
-	if (_currentCanvas)
+	if (d->currentCanvas)
 	{
-		disconnect(_currentCanvas->document(), 0, this, 0);
+		disconnect(d->currentCanvas->document(), 0, this, 0);
 	}
 	
-	_currentCanvas = canvas;
+	d->currentCanvas = canvas;
 	
-	if (_currentCanvas)
+	if (d->currentCanvas)
 	{
 		connect(canvas->document(), SIGNAL(modifiedChanged(bool)), this, SLOT(onCurrentCanvasPropertyChanged()));
 		connect(canvas->document(), SIGNAL(filePathChanged(QString)), this, SLOT(onCurrentCanvasPropertyChanged()));
@@ -378,11 +398,11 @@ void WorkspaceView::setCurrentCanvas(CanvasController *canvas)
 
 void WorkspaceView::onCurrentCanvasPropertyChanged()
 {
-	if (_currentCanvas)
+	if (d->currentCanvas)
 	{
-		setWindowModified(_currentCanvas->document()->isModified());
-		setWindowFilePath(_currentCanvas->document()->filePath());
-		setWindowTitle(_currentCanvas->document()->fileName() + "[*] - PaintField");
+		setWindowModified(d->currentCanvas->document()->isModified());
+		setWindowFilePath(d->currentCanvas->document()->filePath());
+		setWindowTitle(d->currentCanvas->document()->fileName() + "[*] - PaintField");
 	}
 	else
 	{

@@ -3,6 +3,7 @@
 
 #include "qtsingleapplication/qtsingleapplication.h"
 #include <QTabletEvent>
+#include "tabletpointerdata.h"
 
 #ifdef Q_OS_MAC
 #define PAINTFIELD_ENABLE_TABLET_EVENT_FILTER
@@ -19,30 +20,27 @@ class Application : public QtSingleApplication
 	Q_PROPERTY(bool tabletActive
 	           READ isTabletActive
 	           NOTIFY tabletActiveChanged)
-	Q_PROPERTY(QTabletEvent::PointerType tabletPointerType
-	           READ tabletPointerType
-	           NOTIFY tabletPointerTypeChanged)
-	Q_PROPERTY(quint64 tabletId
-	           READ tabletId 
-	           NOTIFY tabletIdChanged)
+	Q_PROPERTY(TabletPointerData tabletPointerData
+	           READ tabletPointerData
+	           NOTIFY tabletPointerChanged)
 	
 public:
 	
 	typedef QtSingleApplication super;
 	
 	Application(int &argc, char **argv);
+	~Application();
 	
-	bool isTabletActive() const { return _isTabletActive; }
-	QTabletEvent::PointerType tabletPointerType() const { return _tabletPointerType; }
-	quint64 tabletId() const { return _tabletId; }
+	bool isTabletActive() const;
+	TabletPointerData tabletPointerData() const;
 	
 signals:
 	
 	void tabletActivated();
 	void tabletDeactivated();
 	void tabletActiveChanged(bool active);
-	void tabletPointerTypeChanged(QTabletEvent::PointerType type);
-	void tabletIdChanged(quint64 id);
+	
+	void tabletPointerChanged(const TabletPointerData &pointerData);
 	
 	void fileOpenRequested(const QString &filepath);
 	
@@ -55,9 +53,8 @@ private slots:
 	
 private:
 	
-	bool _isTabletActive = false;
-	QTabletEvent::PointerType _tabletPointerType = QTabletEvent::UnknownPointer;
-	qint64 _tabletId = 0;
+	class Data;
+	Data *d;
 };
 
 }

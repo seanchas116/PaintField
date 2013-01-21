@@ -38,7 +38,7 @@ private:
 };
 
 
-class CanvasViewData
+class CanvasView::Data
 {
 public:
 	
@@ -67,7 +67,7 @@ public:
 
 CanvasView::CanvasView(CanvasController *canvas, QWidget *parent) :
     NavigatableArea(parent),
-    d(new CanvasViewData)
+    d(new Data)
 {
 	d->canvas = canvas;
 	d->pixmap = QPixmap(canvas->document()->size());

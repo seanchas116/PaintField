@@ -75,6 +75,7 @@ void CanvasTabWidget::restoreTransforms()
 
 void CanvasTabWidget::insertCanvas(int index, CanvasController *canvas)
 {
+	workspace()->addCanvas(canvas);
 	insertTab(index, canvas->view(), canvas->document()->fileName());
 }
 
@@ -167,7 +168,7 @@ void CanvasTabBar::dropEvent(QDropEvent *event)
 	{
 		for (const QUrl &url : mimeData->urls())
 		{
-			auto canvas = CanvasController::fromFile(url.toLocalFile(), _tabWidget->workspace());
+			auto canvas = CanvasController::fromFile(url.toLocalFile());
 			if (canvas)
 				_tabWidget->insertCanvas(insertionIndexAt(event->pos()), canvas);
 		}

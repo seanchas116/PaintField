@@ -20,38 +20,48 @@ class WorkspaceController : public QObject
 	Q_OBJECT
 public:
 	explicit WorkspaceController(QObject *parent = 0);
+	~WorkspaceController();
 	
-	ToolManager *toolManager() { return _toolManager; }
-	PaletteManager *paletteManager() { return _paletteManager; }
+	ToolManager *toolManager();
+	PaletteManager *paletteManager();
 	
-	WorkspaceView *view() { return _view.data(); }
+	WorkspaceView *view();
 	void updateView();
 	
 	void addModules(const WorkspaceModuleList &modules);
-	WorkspaceModuleList modules() { return _modules; }
+	WorkspaceModuleList modules();
 	
-	void addActions(const QActionList &actions) { _actions += actions; }
-	QActionList actions() { return _actions; }
+	void addActions(const QActionList &actions);
+	QActionList actions();
 	
 	void addNullCanvasModules(const CanvasModuleList &modules);
-	CanvasModuleList nullCanvasModules() { return _nullCanvasModules; }
+	CanvasModuleList nullCanvasModules();
 	
-	void addNullCanvasActions(const QActionList &actions) { _nullCanvasActions += actions; }
-	QActionList nullCanvasActions() { return _nullCanvasActions; }
+	void addNullCanvasActions(const QActionList &actions);
+	QActionList nullCanvasActions();
 	
-	void addAndSetCurrentCanvas(CanvasController *canvas);
+	void addAndShowCanvas(CanvasController *canvas);
+	
+	/**
+	 * Adds a canvas.
+	 * @param canvas
+	 */
 	void addCanvas(CanvasController *canvas);
 	
-	void registerCanvas(CanvasController *canvas);
-	void unregisterCanvas(CanvasController *canvas);
+	/**
+	 * Removes a canvas.
+	 * The canvas is not deleted.
+	 * @param canvas
+	 */
+	void removeCanvas(CanvasController *canvas);
 	
-	QList<CanvasController *> canvases() { return _canvasControllers; }
+	QList<CanvasController *> canvases();
 	
 signals:
 	
 	void currentCanvasChanged(CanvasController *canvas);
 	
-	void canvasAdded(CanvasController *canvas);
+	void canvasShowRequested(CanvasController *canvas);
 	
 	void canvasAboutToBeRemoved(CanvasController *canvas);
 	void focused();
@@ -80,7 +90,7 @@ public slots:
 	 */
 	void openCanvas();
 	
-	void addCanvasFromFile(const QString &filepath);
+	void openCanvasFromFilepath(const QString &filepath);
 	
 	/**
 	 * Try to close all canvases.
@@ -94,30 +104,19 @@ protected:
 	
 private slots:
 	
-	void removeCanvas(CanvasController *canvas);
+	void deleteCanvas(CanvasController *canvas);
 	
 private:
 	
-	QActionList currentCanvasActions() { return _currentCanvas ? _currentCanvas->actions() : _nullCanvasActions; }
-	CanvasModuleList currentCanvasModules() { return _currentCanvas ? _currentCanvas->modules() : _nullCanvasModules; }
+	QActionList currentCanvasActions();
+	CanvasModuleList currentCanvasModules();
 	
 	void updateWorkspaceItems();
 	void updateWorkspaceItemsForCanvas(CanvasController *canvas);
 	void updateMenuBar();
 	
-	QList<CanvasController *> _canvasControllers;
-	QPointer<CanvasController> _currentCanvas;
-	
-	ToolManager *_toolManager = 0;
-	PaletteManager *_paletteManager = 0;
-	
-	QActionList _actions;
-	WorkspaceModuleList _modules;
-	
-	QActionList _nullCanvasActions;
-	CanvasModuleList _nullCanvasModules;
-	
-	ScopedQObjectPointer<WorkspaceView> _view;
+	class Data;
+	Data *d;
 };
 
 }

@@ -109,7 +109,7 @@ public:
 	QToolBar *toolBar(const QString &id);
 	void associateMenuBarWithActions(const QActionList &actions);
 	
-	WorkspaceController *controller() { return _controller; }
+	WorkspaceController *controller();
 	
 signals:
 	
@@ -137,14 +137,8 @@ private:
 	void createSideBarFramesInSplitter(DockTabMotherWidget::Direction splitterDir, int splitterIndex, const SideBarDeclarationHash &sidebarDeclarations, const QVariant &splitterOrder);
 	void createToolBarsInArea(Qt::ToolBarArea area, const ToolBarDeclarationHash &toolBarDeclarations, const QVariant &areaOrder);
 	
-	WorkspaceController *_controller = 0;
-	
-	DockTabMotherWidget *_motherWidget = 0;
-	
-	QList<SideBarFrame *> _sideBarFrames;
-	QList<QToolBar *> _toolBars;
-	
-	CanvasController *_currentCanvas = 0;
+	class Data;
+	Data *d;
 };
 
 }

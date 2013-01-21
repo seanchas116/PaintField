@@ -5,8 +5,15 @@
 namespace PaintField
 {
 
+struct Application::Data
+{
+	bool isTabletActive = false;
+	TabletPointerData tabletPointerData;
+};
+
 Application::Application(int &argc, char **argv) :
-	QtSingleApplication(argc, argv)
+	QtSingleApplication(argc, argv),
+    d(new Data)
 {
 	auto filter = new ApplicationEventFilter(this);
 	
@@ -18,29 +25,39 @@ Application::Application(int &argc, char **argv) :
 	installEventFilter(filter);
 }
 
+Application::~Application()
+{
+	delete d;
+}
+
+bool Application::isTabletActive() const
+{
+	return d->isTabletActive;
+}
+
+TabletPointerData Application::tabletPointerData() const
+{
+	return d->tabletPointerData;
+}
+
 void Application::onTabletEntered(QTabletEvent *ev)
 {
-	_isTabletActive = true;
+	d->isTabletActive = true;
 	emit tabletActiveChanged(true);
 	emit tabletActivated();
 	
-	if (_tabletPointerType != ev->pointerType())
+	TabletPointerData pointerData(ev->uniqueId(), ev->pointerType());
+	if (d->tabletPointerData != pointerData)
 	{
-		_tabletPointerType = ev->pointerType();
-		emit tabletPointerTypeChanged(_tabletPointerType);
-	}
-	
-	if (_tabletId != ev->uniqueId())
-	{
-		_tabletId = ev->uniqueId();
-		emit tabletIdChanged(_tabletId);
+		d->tabletPointerData = pointerData;
+		emit tabletPointerChanged(pointerData);
 	}
 }
 
 void Application::onTabletLeft(QTabletEvent *ev)
 {
 	Q_UNUSED(ev)
-	_isTabletActive = false;
+	d->isTabletActive = false;
 	emit tabletActiveChanged(false);
 	emit tabletDeactivated();
 }
