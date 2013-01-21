@@ -23,6 +23,7 @@ public:
 	~CanvasTabWidget();
 	
 	bool tabIsInsertable(DockTabWidget *other, int index) override;
+	void insertTab(int index, QWidget *widget, const QString &title);
 	
 	bool isFloating() const;
 	void setFloating(bool x);

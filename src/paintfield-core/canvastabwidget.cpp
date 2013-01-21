@@ -63,7 +63,18 @@ bool CanvasTabWidget::tabIsInsertable(DockTabWidget *other, int index)
 	Q_UNUSED(index)
 	
 	CanvasTabWidget *tabWidget = qobject_cast<CanvasTabWidget *>(other);
-	return tabWidget && tabWidget->d->workspace == d->workspace;
+	return tabWidget;
+}
+
+void CanvasTabWidget::insertTab(int index, QWidget *widget, const QString &title)
+{
+	Q_UNUSED(title)
+	
+	CanvasView *canvasView = qobject_cast<CanvasView *>(widget);
+	if (!canvasView)
+		return;
+	
+	insertCanvas(index, canvasView->controller());
 }
 
 bool CanvasTabWidget::isFloating() const
@@ -102,7 +113,7 @@ void CanvasTabWidget::restoreTransforms()
 void CanvasTabWidget::insertCanvas(int index, CanvasController *canvas)
 {
 	workspace()->addCanvas(canvas);
-	insertTab(index, canvas->view(), canvas->document()->fileName());
+	DockTabWidget::insertTab(index, canvas->view(), canvas->document()->fileName());
 }
 
 QList<CanvasView *> CanvasTabWidget::canvasViews()
