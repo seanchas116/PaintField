@@ -10,32 +10,11 @@ namespace PaintField {
 
 struct CanvasTabWidget::Data
 {
-	WorkspaceController *workspace = 0;
-	bool floating = false;
 };
 
-CanvasTabWidget::CanvasTabWidget(WorkspaceView *workspaceView, QWidget *parent) :
-    DockTabWidget(parent),
+CanvasTabWidget::CanvasTabWidget(WorkspaceController *workspace, QWidget *parent) :
+    WorkspaceTabWidget(workspace, parent),
     d(new Data)
-{
-	d->workspace = workspaceView->controller();
-	commonInit();
-}
-
-CanvasTabWidget::CanvasTabWidget(CanvasTabWidget *other, QWidget *parent) :
-    DockTabWidget(other, parent),
-    d(new Data)
-{
-	d->workspace = other->workspace();
-	commonInit();
-}
-
-CanvasTabWidget::~CanvasTabWidget()
-{
-	delete d;
-}
-
-void CanvasTabWidget::commonInit()
 {
 	new CanvasTabBar(this);
 	
@@ -48,14 +27,13 @@ void CanvasTabWidget::commonInit()
 	
 	connect(this, SIGNAL(tabCloseRequested(int)), this, SLOT(onTabCloseRequested(int)));
 	
-	connect(d->workspace, SIGNAL(currentCanvasChanged(CanvasController*)), this, SLOT(onCurrentCanvasChanged(CanvasController*)));
-	connect(this, SIGNAL(currentCanvasChanged(CanvasController*)), d->workspace, SLOT(setCurrentCanvas(CanvasController*)));
-	
-	connect(appController()->workspaceManager(), SIGNAL(currentWorkspaceChanged(WorkspaceController*)), this, SLOT(onCurrentWorkspaceChanged(WorkspaceController*)));
-	//onCurrentWorkspaceChanged(appController()->workspaceManager()->currentWorkspace());
-	
-	if (parent() == 0)
-		setFloating(true);
+	connect(workspace, SIGNAL(currentCanvasChanged(CanvasController*)), this, SLOT(onCurrentCanvasChanged(CanvasController*)));
+	connect(this, SIGNAL(currentCanvasChanged(CanvasController*)), workspace, SLOT(setCurrentCanvas(CanvasController*)));
+}
+
+CanvasTabWidget::~CanvasTabWidget()
+{
+	delete d;
 }
 
 bool CanvasTabWidget::tabIsInsertable(DockTabWidget *other, int index)
@@ -77,25 +55,9 @@ void CanvasTabWidget::insertTab(int index, QWidget *widget, const QString &title
 	insertCanvas(index, canvasView->controller());
 }
 
-bool CanvasTabWidget::isFloating() const
-{
-	return d->floating;
-}
-
-void CanvasTabWidget::setFloating(bool x)
-{
-	d->floating = x;
-	
-	if (x)
-	{
-		setParent(d->workspace->view());
-		setWindowFlags(Qt::Tool);
-	}
-}
-
 QObject *CanvasTabWidget::createNew()
 {
-	return new CanvasTabWidget(this, 0);
+	return new CanvasTabWidget(workspace(), 0);
 }
 
 void CanvasTabWidget::memorizeTransforms()
@@ -130,11 +92,6 @@ QList<CanvasView *> CanvasTabWidget::canvasViews()
 	return list;
 }
 
-WorkspaceController *CanvasTabWidget::workspace()
-{
-	return d->workspace;
-}
-
 void CanvasTabWidget::onCurrentCanvasChanged(CanvasController *canvas)
 {
 	if (!canvas)
@@ -153,12 +110,6 @@ void CanvasTabWidget::onCurrentCanvasChanged(CanvasController *canvas)
 	
 	if (set)
 		activate();
-}
-
-void CanvasTabWidget::onCurrentWorkspaceChanged(WorkspaceController *workspace)
-{
-	if (d->floating)
-		setVisible(workspace == d->workspace);
 }
 
 bool CanvasTabWidget::tryClose()

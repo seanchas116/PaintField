@@ -7,24 +7,22 @@
 namespace PaintField
 {
 
-SidebarTabWidget::SidebarTabWidget(WorkspaceView *workspaceView, QWidget *parent) :
-	FloatingDockTabWidget(workspaceView, parent)
-{}
-
-SidebarTabWidget::SidebarTabWidget(SidebarTabWidget *other, QWidget *parent) :
-	FloatingDockTabWidget(other, parent)
-{}
+SidebarTabWidget::SidebarTabWidget(WorkspaceController *workspace, QWidget *parent) :
+    WorkspaceTabWidget(workspace, parent)
+{
+	setAutoDeletionEnabled(true);
+}
 
 bool SidebarTabWidget::tabIsInsertable(DockTabWidget *other, int index)
 {
 	Q_UNUSED(index)
 	SidebarTabWidget *tabWidget = qobject_cast<SidebarTabWidget *>(other);
-	return tabWidget && tabWidget->baseWindow() == baseWindow();
+	return tabWidget && tabWidget->workspace() == workspace();
 }
 
 QObject *SidebarTabWidget::createNew()
 {
-	return new SidebarTabWidget(this, 0);
+	return new SidebarTabWidget(workspace(), 0);
 }
 
 
@@ -34,7 +32,7 @@ bool WorkspaceMotherWidget::tabIsInsertable(DockTabWidget *src, int srcIndex)
 	Q_UNUSED(srcIndex)
 	
 	SidebarTabWidget *tabWidget = qobject_cast<SidebarTabWidget *>(src);
-	return tabWidget && tabWidget->baseWindow() == _workspaceView;
+	return tabWidget && tabWidget->workspace() == _workspace;
 }
 
 
@@ -226,7 +224,7 @@ WorkspaceView::WorkspaceView(WorkspaceController *controller, QWidget *parent) :
 	
 	setAnimated(false);
 		
-	d->motherWidget = new WorkspaceMotherWidget(this, 0);
+	d->motherWidget = new WorkspaceMotherWidget(controller, 0);
 	QMainWindow::setCentralWidget(d->motherWidget);
 	
 	onCurrentCanvasPropertyChanged();
@@ -276,7 +274,7 @@ void WorkspaceView::createSideBarFramesInSplitter(DockTabMotherWidget::Direction
 {
 	for (const QVariant &tabWidgetOrder : splitterOrder.toList())
 	{
-		auto tabWidget = new SidebarTabWidget(this, 0);
+		auto tabWidget = new SidebarTabWidget(controller(), 0);
 		
 		for (const QString &sideBarName : tabWidgetOrder.toStringList())
 		{

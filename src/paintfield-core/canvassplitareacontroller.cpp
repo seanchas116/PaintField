@@ -8,9 +8,9 @@
 
 namespace PaintField {
 
-CanvasSplitAreaController::CanvasSplitAreaController(WorkspaceView *workspaceView, QObject *parent) :
+CanvasSplitAreaController::CanvasSplitAreaController(WorkspaceController *workspace, QObject *parent) :
     QObject(parent),
-    _workspaceView(workspaceView)
+    _workspace(workspace)
 {
 	auto split = createSplitWidget();
 	
@@ -49,7 +49,7 @@ void CanvasSplitAreaController::onSplitActivated()
 
 CanvasSplitWidget *CanvasSplitAreaController::createSplitWidget()
 {
-	auto tabWidget = new CanvasTabWidget(_workspaceView, 0);
+	auto tabWidget = new CanvasTabWidget(_workspace, 0);
 	auto splitWidget = new CanvasSplitWidget(tabWidget, 0);
 	connect(splitWidget, SIGNAL(activated()), this, SLOT(onSplitActivated()));
 	return splitWidget;

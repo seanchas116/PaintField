@@ -45,7 +45,7 @@ WorkspaceController::WorkspaceController(QObject *parent) :
 		auto view = new WorkspaceView(this, 0);
 		
 		{
-			auto controller = new CanvasSplitAreaController(view, this);
+			auto controller = new CanvasSplitAreaController(this, this);
 			
 			connect(this, SIGNAL(canvasShowRequested(CanvasController*)),
 			        controller, SLOT(addCanvas(CanvasController*)));

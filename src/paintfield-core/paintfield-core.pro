@@ -55,7 +55,6 @@ HEADERS += \
            widgets/widgetgroup.h \
     dialogs/messagebox.h \
     widgets/docktabwidget.h \
-    widgets/floatingdocktabwidget.h \
     canvasview.h \
     smartpointer.h \
     interface.h \
@@ -80,7 +79,8 @@ HEADERS += \
     canvassplitareacontroller.h \
     widgets/memorizablesplitter.h \
     tabletpointerdata.h \
-    settingsmanager.h
+    settingsmanager.h \
+    workspacetabwidget.h
 FORMS += dialogs/exportdialog.ui dialogs/newdocumentdialog.ui
 SOURCES += \
            canvascontroller.cpp \
@@ -115,7 +115,6 @@ SOURCES += \
     dialogs/messagebox.cpp \
     widgets/docktabwidget.cpp \
     widgets/docktabmotherwidget.cpp \
-    widgets/floatingdocktabwidget.cpp \
     canvasview.cpp \
     tool.cpp \
     qtsingleapplication/qtsingleapplication.cpp \
@@ -134,4 +133,5 @@ SOURCES += \
     canvassplitwidget.cpp \
     canvassplitareacontroller.cpp \
     widgets/memorizablesplitter.cpp \
-    settingsmanager.cpp
+    settingsmanager.cpp \
+    workspacetabwidget.cpp

@@ -7,7 +7,7 @@ namespace PaintField {
 
 class CanvasController;
 class CanvasSplitWidget;
-class WorkspaceView;
+class WorkspaceController;
 
 class MemorizableSplitter;
 
@@ -15,7 +15,7 @@ class CanvasSplitAreaController : public QObject
 {
 	Q_OBJECT
 public:
-	explicit CanvasSplitAreaController(WorkspaceView *workspaceView, QObject *parent = 0);
+	explicit CanvasSplitAreaController(WorkspaceController *workspace, QObject *parent = 0);
 	
 	QWidget *view();
 	
@@ -46,7 +46,7 @@ private:
 	
 	MemorizableSplitter *splitterForWidget(QWidget *widget);
 	
-	WorkspaceView *_workspaceView;
+	WorkspaceController *_workspace;
 	MemorizableSplitter *_rootSplitter;
 	CanvasSplitWidget *_currentSplit;
 };

@@ -11,24 +11,22 @@
 #include "global.h"
 #include "canvasview.h"
 #include "settingsmanager.h"
+#include "workspacetabwidget.h"
 
-#include "widgets/floatingdocktabwidget.h"
+#include "widgets/docktabwidget.h"
 #include "widgets/docktabmotherwidget.h"
 
 namespace PaintField
 {
 
-class WorkspaceView;
-
-class SidebarTabWidget : public FloatingDockTabWidget
+class SidebarTabWidget : public WorkspaceTabWidget
 {
 	Q_OBJECT
 	Q_INTERFACES(PaintField::ReproductiveInterface)
 	
 public:
 	
-	SidebarTabWidget(WorkspaceView *workspaceView, QWidget *parent);
-	SidebarTabWidget(SidebarTabWidget *other, QWidget *parent);
+	SidebarTabWidget(WorkspaceController *workspace, QWidget *parent);
 	
 	bool tabIsInsertable(DockTabWidget *other, int index) override;
 	QObject *createNew() override;
@@ -36,8 +34,6 @@ public:
 private:
 	
 	void commonInit();
-	
-	WorkspaceView *_workspaceView;
 };
 
 class WorkspaceMotherWidget : public DockTabMotherWidget
@@ -47,13 +43,13 @@ class WorkspaceMotherWidget : public DockTabMotherWidget
 	
 public:
 	
-	explicit WorkspaceMotherWidget(WorkspaceView *workspaceView, QWidget *parent = 0) : DockTabMotherWidget(parent), _workspaceView(workspaceView) {}
+	explicit WorkspaceMotherWidget(WorkspaceController *workspace, QWidget *parent = 0) : DockTabMotherWidget(parent), _workspace(workspace) {}
 	
 	bool tabIsInsertable(DockTabWidget *src, int srcIndex) override;
 	
 private:
 	
-	WorkspaceView *_workspaceView;
+	WorkspaceController *_workspace;
 };
 
 class WorkspaceMenuAction : public QAction

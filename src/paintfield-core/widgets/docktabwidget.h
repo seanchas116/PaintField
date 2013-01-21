@@ -16,16 +16,10 @@ class DockTabWidget : public QTabWidget, public ReproductiveInterface
 	Q_INTERFACES(PaintField::ReproductiveInterface)
 	
 	friend class DockTabBar;
+	
 public:
 	
-	explicit DockTabWidget(QWidget *parent);
-	
-	/**
-	 * Creates a DockTabWidget copying other's DockTabWidget specific settings.
-	 * @param other
-	 * @param parent
-	 */
-	DockTabWidget(DockTabWidget *other, QWidget *parent);
+	explicit DockTabWidget(QWidget *parent = 0);
 	
 	void setAutoDeletionEnabled(bool x) { _autoDeletionEnabled = x; }
 	bool isAutoDeletionEnabled() const { return _autoDeletionEnabled; }

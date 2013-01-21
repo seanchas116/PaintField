@@ -2,7 +2,7 @@
 #define PAINTFIELD_CANVASTABWIDGET_H
 
 #include <QWidget>
-#include "widgets/floatingdocktabwidget.h"
+#include "workspacetabwidget.h"
 
 namespace PaintField {
 
@@ -11,22 +11,17 @@ class WorkspaceView;
 class WorkspaceController;
 class CanvasView;
 
-class CanvasTabWidget : public DockTabWidget
+class CanvasTabWidget : public WorkspaceTabWidget
 {
 	Q_OBJECT
+	
 public:
 	
-	typedef FloatingDockTabWidget super;
-	
-	CanvasTabWidget(WorkspaceView *workspaceView, QWidget *parent);
-	CanvasTabWidget(CanvasTabWidget *other, QWidget *parent);
+	CanvasTabWidget(WorkspaceController *workspace, QWidget *parent);
 	~CanvasTabWidget();
 	
 	bool tabIsInsertable(DockTabWidget *other, int index) override;
 	void insertTab(int index, QWidget *widget, const QString &title);
-	
-	bool isFloating() const;
-	void setFloating(bool x);
 	
 	QObject *createNew() override;
 	
@@ -37,8 +32,6 @@ public:
 	void addCanvas(CanvasController *canvas) { insertCanvas(count(), canvas); }
 	
 	QList<CanvasView *> canvasViews();
-	
-	WorkspaceController *workspace();
 	
 signals:
 	
@@ -54,7 +47,6 @@ private slots:
 	
 	void onTabCloseRequested(int index);
 	void onCurrentCanvasChanged(CanvasController *canvas);
-	void onCurrentWorkspaceChanged(WorkspaceController *workspace);
 	
 private:
 	

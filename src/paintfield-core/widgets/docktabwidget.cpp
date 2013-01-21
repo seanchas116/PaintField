@@ -15,11 +15,6 @@ DockTabWidget::DockTabWidget(QWidget *parent) :
 	connect(this, SIGNAL(currentChanged(int)), this, SLOT(onCurrentChanged(int)));
 }
 
-DockTabWidget::DockTabWidget(DockTabWidget *other, QWidget *parent) :
-	DockTabWidget(parent)
-{
-	resize(other->size());
-}
 
 QWidgetList DockTabWidget::tabs()
 {
@@ -42,6 +37,9 @@ bool DockTabWidget::moveTab(DockTabWidget *source, int sourceIndex, DockTabWidge
 	if (!dest->tabIsInsertable(source, sourceIndex))
 		return false;
 	
+	if (source == dest && source->count() == 1)
+		return true;
+	
 	if (source == dest && sourceIndex < destIndex)
 		destIndex--;
 	
@@ -49,7 +47,7 @@ bool DockTabWidget::moveTab(DockTabWidget *source, int sourceIndex, DockTabWidge
 	QString text = source->tabText(sourceIndex);
 	
 	emit source->tabAboutToMoveOut(widget);
-	//source->removeTab(sourceIndex);
+	source->removeTab(sourceIndex);
 	
 	dest->insertTab(destIndex, widget, text);
 	dest->setCurrentIndex(destIndex);
@@ -65,7 +63,7 @@ bool DockTabWidget::eventIsTabDrag(QDragEnterEvent *event)
 
 QObject *DockTabWidget::createNew()
 {
-	return new DockTabWidget(this, 0);
+	return new DockTabWidget();
 }
 
 void DockTabWidget::mousePressEvent(QMouseEvent *event)
@@ -202,8 +200,7 @@ void DockTabBar::dragDropTab(int index, const QPoint &globalPos, const QPoint &d
 
 bool DockTabBar::dropDockTab(DockTabWidget *srcTabWidget, int srcIndex, const QPoint &pos)
 {
-	srcTabWidget->moveTab(srcIndex, _tabWidget, insertionIndexAt(pos));
-	return true;
+	return srcTabWidget->moveTab(srcIndex, _tabWidget, insertionIndexAt(pos));
 }
 
 }
