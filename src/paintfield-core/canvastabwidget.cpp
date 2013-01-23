@@ -22,8 +22,8 @@ CanvasTabWidget::CanvasTabWidget(WorkspaceController *workspace, QWidget *parent
 	setAutoDeletionEnabled(true);
 	
 	connect(this, SIGNAL(currentChanged(int)), this, SLOT(activate()));
-	connect(this, SIGNAL(tabClicked()), this, SIGNAL(activated()));
-	connect(this, SIGNAL(tabMovedIn(QWidget*)), this, SIGNAL(activated()));
+	connect(this, SIGNAL(tabClicked()), this, SLOT(activate()));
+	connect(this, SIGNAL(tabMovedIn(QWidget*)), this, SLOT(activate()));
 	
 	connect(this, SIGNAL(tabCloseRequested(int)), this, SLOT(onTabCloseRequested(int)));
 	
