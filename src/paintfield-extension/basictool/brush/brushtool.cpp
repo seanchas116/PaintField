@@ -144,7 +144,7 @@ void BrushTool::endStroke(const TabletInputData &data)
 	if (_layer && _layer == currentLayer())
 	{
 		_surface.squeeze(_stroker->totalEditedKeys());
-		document()->layerModel()->makeSkipNextUpdate();
+		//document()->layerModel()->makeSkipNextUpdate();
 		document()->layerModel()->editLayer(document()->layerModel()->indexForLayer(_layer), new LayerSurfaceEdit(_surface, _stroker->totalEditedKeys()), tr("Brush"));
 	}
 	

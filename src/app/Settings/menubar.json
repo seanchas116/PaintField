@@ -7,6 +7,8 @@
 			"paintfield.file.newFromImageFile",
 			"paintfield.file.open",
 			"",
+			"paintfield.file.newCanvasIntoDocument",
+			"",
 			"paintfield.file.close",
 			"paintfield.file.save",
 			"paintfield.file.saveAs",
