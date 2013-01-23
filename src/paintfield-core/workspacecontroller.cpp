@@ -214,11 +214,11 @@ void WorkspaceController::setCurrentCanvas(CanvasController *canvas)
 		if (canvas)
 			canvas->onSetCurrent();
 		
-		PAINTFIELD_DEBUG << "current canvas changed:" << canvas;
-		emit currentCanvasChanged(canvas);
-		
 		updateWorkspaceItemsForCanvas(canvas);
 		updateMenuBar();
+		
+		PAINTFIELD_DEBUG << "current canvas changed:" << canvas;
+		emit currentCanvasChanged(canvas);
 	}
 }
 

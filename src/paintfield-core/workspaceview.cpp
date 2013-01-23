@@ -119,10 +119,7 @@ void associateMenuWithActions(QMenu *menu, const QActionList &actions)
 		if (menuAction)
 		{
 			QAction *foundAction = findQObjectReverse(actions, menuAction->objectName());
-			if (foundAction)
-				menuAction->setBackendAction(foundAction);
-			else
-				menuAction->setEnabled(false);
+			menuAction->setBackendAction(foundAction);
 		}
 		else
 		{
@@ -178,6 +175,7 @@ void WorkspaceMenuAction::setBackendAction(QAction *action)
 	}
 	
 	_backendAction = action;
+	setEnabled(action);
 	
 	if (action)
 	{
