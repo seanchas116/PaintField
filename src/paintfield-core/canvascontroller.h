@@ -108,6 +108,8 @@ public slots:
 	 */
 	bool closeCanvas();
 	
+	void newCanvasIntoDocument();
+	
 	bool exportCanvas();
 	
 private slots:

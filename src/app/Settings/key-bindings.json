@@ -1,5 +1,6 @@
 {
     "paintfield.file.new": "Ctrl+Shift+N",
+    "paintfield.file.open": "Ctrl+O",
     "paintfield.file.save": "Ctrl+S",
     "paintfield.file.saveAs": "Ctrl+Shift+S",
     "paintfield.file.close": "Ctrl+W",

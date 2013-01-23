@@ -73,6 +73,7 @@ void CanvasController::commonInit()
 	d->actions << createAction("paintfield.file.save", this, SLOT(saveCanvas()));
 	d->actions << createAction("paintfield.file.saveAs", this, SLOT(saveAsCanvas()));
 	d->actions << createAction("paintfield.file.close", this, SLOT(closeCanvas()));
+	d->actions << createAction("paintfield.file.newCanvasIntoDocument", this, SLOT(newCanvasIntoDocument()));
 	d->actions << createAction("paintfield.file.export", this, SLOT(exportCanvas()));
 	
 	auto undoAction  = d->document->undoStack()->createUndoAction(this);
@@ -321,6 +322,14 @@ bool CanvasController::closeCanvas()
 	
 	emit shouldBeDeleted(this);
 	return true;
+}
+
+void CanvasController::newCanvasIntoDocument()
+{
+	auto newCanvas = new CanvasController(this);
+	
+	workspace()->addAndShowCanvas(newCanvas);
+	workspace()->setCurrentCanvas(newCanvas);
 }
 
 bool CanvasController::exportCanvas()

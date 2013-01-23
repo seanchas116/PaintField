@@ -175,6 +175,8 @@ void AppController::declareMenus()
 	                                 tr("Save"));
 	settingsManager()->declareAction("paintfield.file.saveAs",
 	                                 tr("Save As..."));
+	settingsManager()->declareAction("paintfield.file.newCanvasIntoDocument",
+	                                 tr("New Canvas Into Current Document"));
 	settingsManager()->declareAction("paintfield.file.export",
 	                                 tr("Export..."));
 	settingsManager()->declareAction("paintfield.file.quit",
