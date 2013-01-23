@@ -27,6 +27,9 @@ CanvasTabWidget::CanvasTabWidget(WorkspaceController *workspace, QWidget *parent
 	
 	connect(this, SIGNAL(tabCloseRequested(int)), this, SLOT(onTabCloseRequested(int)));
 	
+	connect(this, SIGNAL(tabMovedIn(QWidget*)), this, SLOT(onTabMovedIn(QWidget*)));
+	connect(this, SIGNAL(tabAboutToBeMovedOut(QWidget*)), this, SLOT(onTabAboutToBeMovedOut(QWidget*)));
+	
 	connect(workspace, SIGNAL(currentCanvasChanged(CanvasController*)), this, SLOT(onCurrentCanvasChanged(CanvasController*)));
 	connect(this, SIGNAL(currentCanvasChanged(CanvasController*)), workspace, SLOT(setCurrentCanvas(CanvasController*)));
 }
@@ -110,6 +113,20 @@ void CanvasTabWidget::onCurrentCanvasChanged(CanvasController *canvas)
 	
 	if (set)
 		activate();
+}
+
+void CanvasTabWidget::onTabMovedIn(QWidget *widget)
+{
+	CanvasView *canvasView = qobject_cast<CanvasView *>(widget);
+	if (canvasView)
+		canvasView->restoreTransform();
+}
+
+void CanvasTabWidget::onTabAboutToBeMovedOut(QWidget *widget)
+{
+	CanvasView *canvasView = qobject_cast<CanvasView *>(widget);
+	if (canvasView)
+		canvasView->memorizeTransform();
 }
 
 bool CanvasTabWidget::tryClose()

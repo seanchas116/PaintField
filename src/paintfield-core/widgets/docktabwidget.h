@@ -42,7 +42,7 @@ public:
 	
 signals:
 	
-	void tabAboutToMoveOut(QWidget *tab);
+	void tabAboutToBeMovedOut(QWidget *tab);
 	void tabMovedIn(QWidget *tab);
 	
 	void tabClicked();

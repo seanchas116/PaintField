@@ -48,6 +48,9 @@ private slots:
 	void onTabCloseRequested(int index);
 	void onCurrentCanvasChanged(CanvasController *canvas);
 	
+	void onTabMovedIn(QWidget *widget);
+	void onTabAboutToBeMovedOut(QWidget *widget);
+	
 private:
 	
 	CanvasView *canvasViewAt(int index);
