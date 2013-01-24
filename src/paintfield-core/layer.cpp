@@ -326,11 +326,11 @@ void GroupLayer::updateThumbnail(const QSize &size)
 
 Layer *Layer::createFromImageFile(const QString &path, QSize *imageSize)
 {
-	Malachite::ImageImporter importer(path);
+	Malachite::ImageImporter importer;
+	if (!importer.load(path))
+		return 0;
 	
 	Malachite::Surface surface = importer.toSurface();
-	if (surface.isNull())
-		return 0;
 	
 	QFileInfo fileInfo(path);
 	
