@@ -222,20 +222,6 @@ void WorkspaceController::setCurrentCanvas(CanvasController *canvas)
 	}
 }
 
-bool WorkspaceController::eventFilter(QObject *watched, QEvent *event)
-{
-	if (watched == d->view.data())
-	{
-		if (event->type() == QEvent::FocusIn)
-		{
-			emit focused();
-			return true;
-		}
-	}
-	
-	return false;
-}
-
 void WorkspaceController::addAndShowCanvas(CanvasController *canvas)
 {
 	addCanvas(canvas);

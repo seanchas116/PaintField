@@ -97,10 +97,6 @@ public slots:
 	 */
 	bool tryClose();
 	
-protected:
-	
-	bool eventFilter(QObject *watched, QEvent *event);
-	
 private slots:
 	
 	void deleteCanvas(CanvasController *canvas);
