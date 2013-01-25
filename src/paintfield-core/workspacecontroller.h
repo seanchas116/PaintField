@@ -26,7 +26,6 @@ public:
 	PaletteManager *paletteManager();
 	
 	WorkspaceView *view();
-	void updateView();
 	
 	void addModules(const WorkspaceModuleList &modules);
 	WorkspaceModuleList modules();

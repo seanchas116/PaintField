@@ -163,6 +163,12 @@ void SideBarFrame::setSideBar(QWidget *sideBar)
 	_sideBar->show();
 }
 
+WorkspaceMenuAction::WorkspaceMenuAction(QObject *parent) :
+    QAction(parent)
+{
+	setEnabled(false);
+}
+
 void WorkspaceMenuAction::setBackendAction(QAction *action)
 {
 	if (action == _backendAction)

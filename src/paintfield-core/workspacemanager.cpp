@@ -65,14 +65,10 @@ void WorkspaceManager::addWorkspace(WorkspaceController *workspace)
 	connect(workspace, SIGNAL(focused()), this, SLOT(onWorkspaceFocusIn()));
 	connect(workspace, SIGNAL(shouldBeDeleted(WorkspaceController*)), this, SLOT(removeWorkspace(WorkspaceController*)));
 	
-	workspace->addModules(appController()->moduleManager()->createWorkspaceModules(workspace, workspace));
-	workspace->addNullCanvasModules(appController()->moduleManager()->createCanvasModules(0, workspace));
-	
 	emit workspaceAdded(workspace);
 	
 	maximizeWindowSize(workspace->view());
 	
-	workspace->updateView();
 	workspace->view()->show();
 	
 	setCurrentWorkspace(workspace);

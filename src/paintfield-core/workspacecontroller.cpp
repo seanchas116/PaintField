@@ -75,6 +75,13 @@ WorkspaceController::WorkspaceController(QObject *parent) :
 	d->actions << createAction("paintfield.file.new", this, SLOT(newCanvas()));
 	d->actions << createAction("paintfield.file.open", this, SLOT(openCanvas()));
 	d->actions << createAction("paintfield.file.newFromImageFile", this, SLOT(newCanvasFromImageFile()));
+	
+	addModules(appController()->moduleManager()->createWorkspaceModules(this, this));
+	addNullCanvasModules(appController()->moduleManager()->createCanvasModules(0, this));
+	
+	updateWorkspaceItems();
+	updateWorkspaceItemsForCanvas(d->currentCanvas);
+	updateMenuBar();
 }
 
 WorkspaceController::~WorkspaceController()
@@ -95,13 +102,6 @@ PaletteManager *WorkspaceController::paletteManager()
 WorkspaceView *WorkspaceController::view()
 {
 	return d->view.data();
-}
-
-void WorkspaceController::updateView()
-{
-	updateWorkspaceItems();
-	updateWorkspaceItemsForCanvas(d->currentCanvas);
-	updateMenuBar();
 }
 
 void WorkspaceController::addModules(const QList<WorkspaceModule *> &modules)

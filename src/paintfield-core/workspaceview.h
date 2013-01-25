@@ -57,7 +57,7 @@ class WorkspaceMenuAction : public QAction
 	Q_OBJECT
 public:
 	
-	WorkspaceMenuAction(QObject *parent) : QAction(parent) {}
+	WorkspaceMenuAction(QObject *parent);
 	
 	void setBackendAction(QAction *action);
 	QAction *backendAction() { return _backendAction; }
