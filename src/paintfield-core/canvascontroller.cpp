@@ -353,8 +353,9 @@ bool CanvasController::exportCanvas()
 	
 	ImageExporter exporter(dialog.currentFormat());
 	exporter.setSurface(surface, document()->size());
+	exporter.setQuality(dialog.currentQuality());
 	
-	if (!exporter.save(path, dialog.currentQuality()))
+	if (!exporter.save(path))
 	{
 		showMessageBox(QMessageBox::Warning, tr("Failed to export file."), QString());
 		return false;
