@@ -80,7 +80,9 @@ HEADERS += \
     widgets/memorizablesplitter.h \
     tabletpointerdata.h \
     settingsmanager.h \
-    workspacetabwidget.h
+    workspacetabwidget.h \
+    abstractcanvasviewportcontroller.h \
+    canvasviewportcontrollersoftware.h
 FORMS += dialogs/exportdialog.ui dialogs/newdocumentdialog.ui
 SOURCES += \
            canvascontroller.cpp \
@@ -134,4 +136,6 @@ SOURCES += \
     canvassplitareacontroller.cpp \
     widgets/memorizablesplitter.cpp \
     settingsmanager.cpp \
-    workspacetabwidget.cpp
+    workspacetabwidget.cpp \
+    abstractcanvasviewportcontroller.cpp \
+    canvasviewportcontrollersoftware.cpp

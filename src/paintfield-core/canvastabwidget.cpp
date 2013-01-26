@@ -66,13 +66,13 @@ QObject *CanvasTabWidget::createNew()
 void CanvasTabWidget::memorizeTransforms()
 {
 	for (auto view : canvasViews())
-		view->memorizeTransform();
+		view->memorizeNavigation();
 }
 
 void CanvasTabWidget::restoreTransforms()
 {
 	for (auto view : canvasViews())
-		view->restoreTransform();
+		view->restoreNavigation();
 }
 
 void CanvasTabWidget::insertCanvas(int index, CanvasController *canvas)
@@ -119,14 +119,14 @@ void CanvasTabWidget::onTabMovedIn(QWidget *widget)
 {
 	CanvasView *canvasView = qobject_cast<CanvasView *>(widget);
 	if (canvasView)
-		canvasView->restoreTransform();
+		canvasView->restoreNavigation();
 }
 
 void CanvasTabWidget::onTabAboutToBeMovedOut(QWidget *widget)
 {
 	CanvasView *canvasView = qobject_cast<CanvasView *>(widget);
 	if (canvasView)
-		canvasView->memorizeTransform();
+		canvasView->memorizeNavigation();
 }
 
 bool CanvasTabWidget::tryClose()

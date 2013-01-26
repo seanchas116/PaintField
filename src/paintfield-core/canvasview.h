@@ -13,11 +13,11 @@ namespace PaintField
 class Tool;
 class CanvasController;
 
-class CanvasView : public NavigatableArea
+class CanvasView : public QWidget
 {
 	Q_OBJECT
 	
-	typedef NavigatableArea super;
+	typedef QWidget super;
 	
 public:
 	
@@ -30,9 +30,29 @@ public:
 	
 	void setTool(Tool *tool);
 	
+	double scale() const;
+	double rotation() const;
+	QPoint translation() const;
+	
+	void memorizeNavigation();
+	void restoreNavigation();
+	
+	QPoint viewCenter() const;
+	
+	QTransform transformToScene() const;
+	QTransform transformFromScene() const;
+	
 public slots:
 	
+	void setScale(double value);
+	void setRotation(double value);
+	void setTranslation(const QPoint &value);
+	
 signals:
+	
+	void scaleChanged(double value);
+	void rotationChanged(double value);
+	void translationChanged(const QPoint &value);
 	
 protected:
 	
@@ -46,8 +66,7 @@ protected:
 	void customTabletEvent(WidgetTabletEvent *event);
 	void enterEvent(QEvent *);
 	void leaveEvent(QEvent *);
-	
-	void paintEvent(QPaintEvent *event);
+	void resizeEvent(QResizeEvent *);
 	
 	bool event(QEvent *event);
 	
@@ -61,6 +80,8 @@ private slots:
 	void onTabletActiveChanged(bool active);
 	
 private:
+	
+	void updateTransforms();
 	
 	void updateTiles(const QPointSet &keys, const QHash<QPoint, QRect> &rects);
 	

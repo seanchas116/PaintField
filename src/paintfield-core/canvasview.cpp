@@ -6,6 +6,8 @@
 #include "debug.h"
 #include "canvascontroller.h"
 #include "appcontroller.h"
+#include "abstractcanvasviewportcontroller.h"
+#include "canvasviewportcontrollersoftware.h"
 
 #include "canvasview.h"
 
@@ -37,13 +39,17 @@ private:
 	Tool *_tool = 0;
 };
 
+struct Navigation
+{
+	double scale = 1, rotation = 0;
+	QPoint translation;
+};
 
 class CanvasView::Data
 {
 public:
 	
 	CanvasController *canvas = 0;
-	QPixmap pixmap;
 	ScopedQObjectPointer<Tool> tool;
 	
 	double mousePressure = 0;
@@ -61,19 +67,38 @@ public:
 	bool isScalingByDrag = false, isRotatingByDrag = false, isTranslatingByDrag = false;
 	QPoint navigationOrigin;
 	
-	QPoint backupTranslation;
-	double backupScale, backupRotation;
+	Navigation nav, backupNav, memorizedNav;
+	bool mirror = false;
+	
+	QSize sceneSize;
+	QPoint viewCenter;
+	
+	QTransform transformToScene, transformFromScene;
+	
+	AbstractCanvasViewportController *viewportController = 0;
 };
 
 CanvasView::CanvasView(CanvasController *canvas, QWidget *parent) :
-    NavigatableArea(parent),
+    QWidget(parent),
     d(new Data)
 {
 	d->canvas = canvas;
-	d->pixmap = QPixmap(canvas->document()->size());
+	d->sceneSize = canvas->document()->size();
 	
-	setMouseTracking(true);
-	setSceneSize(document()->size());
+	// setup viewport
+	{
+		d->viewportController = new CanvasViewportControllerSoftware(this);
+		d->viewportController->setDocumentSize(d->sceneSize);
+		updateTransforms();
+		
+		auto layout = new QVBoxLayout;
+		layout->addWidget(d->viewportController->view());
+		d->viewportController->view()->setMouseTracking(true);
+		layout->setContentsMargins(0, 0, 0 ,0);
+		setLayout(layout);
+		
+		d->viewCenter = QPoint(width() / 2, height() / 2);
+	}
 	
 	connect(layerModel(), SIGNAL(tilesUpdated(QPointSet)),
 	        this, SLOT(updateTiles(QPointSet)));
@@ -83,11 +108,19 @@ CanvasView::CanvasView(CanvasController *canvas, QWidget *parent) :
 	        this, SLOT(onTabletActiveChanged(bool)));
 	onTabletActiveChanged(appController()->app()->isTabletActive());
 	
-	auto keyBindingHash = appController()->settingsManager()->keyBindingHash();
+	// setup key bindings
+	{
+		auto keyBindingHash = appController()->settingsManager()->keyBindingHash();
+		
+		d->translationKeys = keyBindingHash["paintfield.canvas.dragTranslation"];
+		d->scaleKeys = keyBindingHash["paintfield.canvas.dragScale"];
+		d->rotationKeys = keyBindingHash["paintfield.canvas.dragRotation"];
+	}
 	
-	d->translationKeys = keyBindingHash["paintfield.canvas.dragTranslation"];
-	d->scaleKeys = keyBindingHash["paintfield.canvas.dragScale"];
-	d->rotationKeys = keyBindingHash["paintfield.canvas.dragRotation"];
+	// set widget properties
+	{
+		setMouseTracking(true);
+	}
 }
 
 CanvasView::~CanvasView()
@@ -96,6 +129,95 @@ CanvasView::~CanvasView()
 		qApp->restoreOverrideCursor();
 	
 	delete d;
+}
+
+double CanvasView::scale() const
+{
+	return d->nav.scale;
+}
+
+double CanvasView::rotation() const
+{
+	return d->nav.rotation;
+}
+
+QPoint CanvasView::translation() const
+{
+	return d->nav.translation;
+}
+
+QPoint CanvasView::viewCenter() const
+{
+	return d->viewCenter;
+}
+
+void CanvasView::setScale(double value)
+{
+	if (d->nav.scale != value)
+	{
+		d->nav.scale = value;
+		emit scaleChanged(value);
+	}
+}
+
+void CanvasView::setRotation(double value)
+{
+	if (d->nav.rotation != value)
+	{
+		d->nav.rotation = value;
+		emit rotationChanged(value);
+	}
+}
+
+void CanvasView::setTranslation(const QPoint &value)
+{
+	if (d->nav.translation != value)
+	{
+		d->nav.translation = value;
+		emit translationChanged(value);
+	}
+}
+
+void CanvasView::memorizeNavigation()
+{
+	d->memorizedNav = d->nav;
+}
+
+void CanvasView::restoreNavigation()
+{
+	d->nav = d->memorizedNav;
+}
+
+QTransform CanvasView::transformToScene() const
+{
+	return d->transformToScene;
+}
+
+QTransform CanvasView::transformFromScene() const
+{
+	return d->transformFromScene;
+}
+
+void CanvasView::updateTransforms()
+{
+	QTransform transform;
+	
+	PAINTFIELD_DEBUG << d->sceneSize;
+	PAINTFIELD_DEBUG << viewCenter();
+	
+	QPoint sceneOffset = QPoint(d->sceneSize.width(), d->sceneSize.height()) / 2;
+	QPoint viewOffset = viewCenter() + translation();
+	
+	transform.translate(-sceneOffset.x(), -sceneOffset.y());
+	transform.scale(scale(), scale());
+	transform.rotate(rotation());
+	transform.translate(viewOffset.x(), viewOffset.y());
+	
+	d->transformFromScene = transform;
+	d->transformToScene = transform.inverted();
+	d->viewportController->setTransform(transform);
+	
+	update();
 }
 
 CanvasController *CanvasView::controller()
@@ -169,19 +291,7 @@ void CanvasView::updateTiles(const QPointSet &keys, const QHash<QPoint, QRect> &
 			painter.drawTransformedImage(-rect.topLeft(), surface.tileForKey(key));
 		}
 		
-		QPoint tilePos = key * Surface::TileSize;
-		
-		QPainter painter(&d->pixmap);
-		painter.setCompositionMode(QPainter::CompositionMode_Source);
-		
-		drawMLImageFast(&painter, tilePos + rect.topLeft(), image);
-		
-		painter.end();
-		
-		QRect mappedRect = transformFromScene().mapRect(QRectF(rect.translated(tilePos))).toAlignedRect();
-		
-		addRepaintRect(mappedRect);
-		repaintDesignatedRect();
+		d->viewportController->updateTile(key, image, rect.topLeft());
 	}
 }
 
@@ -266,16 +376,7 @@ void CanvasView::mouseMoveEvent(QMouseEvent *event)
 	}
 	
 	if (d->tool)
-	{
-		if (!d->tabletActive)
-			d->customCursorPos = event->posF();
-		
-		addCustomCursorRectToRepaintRect();
-		
 		event->setAccepted(sendCanvasTabletEvent(event) || sendCanvasMouseEvent(event));
-		
-		repaintDesignatedRect();
-	}
 }
 
 void CanvasView::mouseReleaseEvent(QMouseEvent *event)
@@ -374,16 +475,14 @@ void CanvasView::customTabletEvent(WidgetTabletEvent *event)
 	
 	if (d->tool)
 	{
-		if (int(event->type()) == EventWidgetTabletMove)
-		{
-			d->customCursorPos = event->globalData.pos + Vec2D(event->posInt - event->globalPosInt);
-			addCustomCursorRectToRepaintRect();
-		}
-		
 		event->setAccepted(sendCanvasTabletEvent(event));
-		
-		repaintDesignatedRect();
 	}
+}
+
+void CanvasView::resizeEvent(QResizeEvent *)
+{
+	d->viewCenter = QPoint(width() / 2, height() / 2);
+	updateTransforms();
 }
 
 bool CanvasView::event(QEvent *event)
@@ -508,23 +607,6 @@ void CanvasView::repaintDesignatedRect()
 	}
 }
 
-void CanvasView::paintEvent(QPaintEvent *)
-{
-	QPainter painter(this);
-	
-	painter.setRenderHint(QPainter::Antialiasing);
-	painter.setRenderHint(QPainter::SmoothPixmapTransform);
-	
-	painter.setTransform(transformFromScene());
-	painter.drawPixmap(0, 0, d->pixmap);
-	painter.setTransform(QTransform());
-	
-	if (d->tool && d->tool->isCustomCursorEnabled())
-	{
-		d->tool->drawCustomCursor(&painter, d->customCursorPos);
-	}
-}
-
 bool CanvasView::tryBeginDragNavigation(const QPoint &pos)
 {
 	if (d->keyTracker.match(d->scaleKeys))
@@ -580,12 +662,12 @@ void CanvasView::beginDragTranslation(const QPoint &pos)
 	
 	d->isTranslatingByDrag = true;
 	d->navigationOrigin = pos;
-	d->backupTranslation = translation();
+	d->backupNav = d->nav;
 }
 
 void CanvasView::continueDragTranslation(const QPoint &pos)
 {
-	setTranslation(d->backupTranslation + (pos - d->navigationOrigin));
+	setTranslation(d->backupNav.translation + (pos - d->navigationOrigin));
 }
 
 void CanvasView::endDragTranslation()
@@ -600,8 +682,7 @@ void CanvasView::beginDragScaling(const QPoint &pos)
 	
 	d->isScalingByDrag = true;
 	d->navigationOrigin = pos;
-	d->backupScale = scale();
-	d->backupTranslation = translation();
+	d->backupNav = d->nav;
 }
 
 void CanvasView::continueDragScaling(const QPoint &pos)
@@ -611,11 +692,11 @@ void CanvasView::continueDragScaling(const QPoint &pos)
 	constexpr double divisor = 100;
 	
 	double scaleRatio = exp2(-delta.y() / divisor);
-	double scale = d->backupScale * scaleRatio;
+	double scale = d->backupNav.scale * scaleRatio;
 	
 	auto navigationOffset = d->navigationOrigin - viewCenter();
 	
-	auto translation = (d->backupTranslation - navigationOffset) * scaleRatio + navigationOffset;
+	auto translation = (d->backupNav.translation - navigationOffset) * scaleRatio + navigationOffset;
 	
 	setScale(scale);
 	setTranslation(translation);
@@ -633,18 +714,29 @@ void CanvasView::beginDragRotation(const QPoint &pos)
 	
 	d->isRotatingByDrag = true;
 	d->navigationOrigin = pos;
-	d->backupRotation = rotation();
+	d->backupNav = d->nav;
 }
 
 void CanvasView::continueDragRotation(const QPoint &pos)
 {
-	QPoint originalDelta = d->navigationOrigin - viewCenter();
-	QPoint delta = pos - viewCenter();
+	auto originalDelta = d->navigationOrigin - viewCenter();
+	auto delta = pos - viewCenter();
 	if (delta != QPoint())
 	{
-		double originalRotation = -atan2(originalDelta.x(), originalDelta.y()) / M_PI * 180.0;
-		double deltaRotation = -atan2(delta.x(), delta.y()) / M_PI * 180.0;
-		setViewRotation(d->backupRotation + deltaRotation - originalRotation);
+		auto originalRotation = -atan2(originalDelta.x(), originalDelta.y()) / M_PI * 180.0;
+		auto deltaRotation = -atan2(delta.x(), delta.y()) / M_PI * 180.0;
+		
+		auto navigationOffset = d->navigationOrigin - viewCenter();
+		
+		auto rotation = d->backupNav.rotation + deltaRotation - originalRotation;
+		
+		QTransform transform;
+		transform.rotate(rotation);
+		
+		auto translation = (d->backupNav.translation - navigationOffset) * transform + navigationOffset;
+		
+		setRotation(rotation);
+		setTranslation(translation);
 	}
 }
 
