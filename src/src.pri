@@ -1,5 +1,5 @@
 
-QT += core gui network
+QT += core gui network opengl
 
 CONFIG(debug, debug|release) {
 	DEFINES += QT_DEBUG

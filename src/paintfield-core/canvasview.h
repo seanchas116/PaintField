@@ -79,6 +79,8 @@ private slots:
 	void onToolCursorChanged(const QCursor &cursor);
 	void onTabletActiveChanged(bool active);
 	
+	void onViewportReady();
+	
 private:
 	
 	void updateTransforms();

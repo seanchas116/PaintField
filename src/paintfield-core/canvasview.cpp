@@ -8,6 +8,7 @@
 #include "appcontroller.h"
 #include "abstractcanvasviewportcontroller.h"
 #include "canvasviewportcontrollersoftware.h"
+#include "canvasviewportcontrollergl.h"
 
 #include "canvasview.h"
 
@@ -87,9 +88,8 @@ CanvasView::CanvasView(CanvasController *canvas, QWidget *parent) :
 	
 	// setup viewport
 	{
-		d->viewportController = new CanvasViewportControllerSoftware(this);
-		d->viewportController->setDocumentSize(d->sceneSize);
-		updateTransforms();
+		d->viewportController = new CanvasViewportControllerGL(this);
+		connect(d->viewportController, SIGNAL(ready()), this, SLOT(onViewportReady()));
 		
 		auto layout = new QVBoxLayout;
 		layout->addWidget(d->viewportController->view());
@@ -102,7 +102,6 @@ CanvasView::CanvasView(CanvasController *canvas, QWidget *parent) :
 	
 	connect(layerModel(), SIGNAL(tilesUpdated(QPointSet)),
 	        this, SLOT(updateTiles(QPointSet)));
-	updateTiles(layerModel()->document()->tileKeys());
 	
 	connect(appController()->app(), SIGNAL(tabletActiveChanged(bool)),
 	        this, SLOT(onTabletActiveChanged(bool)));
@@ -293,6 +292,8 @@ void CanvasView::updateTiles(const QPointSet &keys, const QHash<QPoint, QRect> &
 		
 		d->viewportController->updateTile(key, image, rect.topLeft());
 	}
+	
+	d->viewportController->update();
 }
 
 void CanvasView::onClicked()
@@ -309,6 +310,13 @@ void CanvasView::onToolCursorChanged(const QCursor &cursor)
 void CanvasView::onTabletActiveChanged(bool active)
 {
 	d->tabletActive = active;
+}
+
+void CanvasView::onViewportReady()
+{
+	d->viewportController->setDocumentSize(d->sceneSize);
+	updateTransforms();
+	updateTiles(layerModel()->document()->tileKeys());
 }
 
 void CanvasView::keyPressEvent(QKeyEvent *event)

@@ -69,6 +69,7 @@ CanvasViewportControllerSoftware::CanvasViewportControllerSoftware(QObject *pare
     d(new Data)
 {
 	d->view = new CanvasViewportSoftware();
+	emit ready();
 }
 
 CanvasViewportControllerSoftware::~CanvasViewportControllerSoftware()
@@ -104,6 +105,11 @@ void CanvasViewportControllerSoftware::updateTile(const QPoint &tileKey, const I
 	QRect mappedRect = d->view->transform().mapRect(QRectF(tilePos + offset, image.size())).toAlignedRect();
 	PAINTFIELD_DEBUG << "repainting" << mappedRect;
 	d->view->repaint(mappedRect);
+}
+
+void CanvasViewportControllerSoftware::update()
+{
+	
 }
 
 }

@@ -82,7 +82,8 @@ HEADERS += \
     settingsmanager.h \
     workspacetabwidget.h \
     abstractcanvasviewportcontroller.h \
-    canvasviewportcontrollersoftware.h
+    canvasviewportcontrollersoftware.h \
+    canvasviewportcontrollergl.h
 FORMS += dialogs/exportdialog.ui dialogs/newdocumentdialog.ui
 SOURCES += \
            canvascontroller.cpp \
@@ -138,4 +139,5 @@ SOURCES += \
     settingsmanager.cpp \
     workspacetabwidget.cpp \
     abstractcanvasviewportcontroller.cpp \
-    canvasviewportcontrollersoftware.cpp
+    canvasviewportcontrollersoftware.cpp \
+    canvasviewportcontrollergl.cpp

@@ -1,28 +1,31 @@
 #pragma once
-
-#include <QWidget>
+#include <QGLWidget>
 #include "abstractcanvasviewportcontroller.h"
 
 namespace PaintField {
 
-class CanvasViewportSoftware : public QWidget
+class CanvasViewportGL : public QGLWidget
 {
 	Q_OBJECT
 	
 public:
 	
-	explicit CanvasViewportSoftware(QWidget *parent = 0);
-	~CanvasViewportSoftware();
+	CanvasViewportGL(QWidget *parent = 0);
+	~CanvasViewportGL();
 	
 	void setDocumentSize(const QSize &size);
 	void setTransform(const QTransform &transform);
+	void updateTile(const QPoint &tileKey, const Malachite::Image &image, const QPoint &offset);
 	
-	QTransform transform() const;
-	QPixmap *pixmap();
+signals:
+	
+	void ready();
 	
 protected:
 	
-	void paintEvent(QPaintEvent *event);
+	void initializeGL();
+	void resizeGL(int w, int h);
+	void paintGL();
 	
 private:
 	
@@ -30,12 +33,12 @@ private:
 	Data *d;
 };
 
-class CanvasViewportControllerSoftware : public AbstractCanvasViewportController
+class CanvasViewportControllerGL : public AbstractCanvasViewportController
 {
 	Q_OBJECT
 public:
-	explicit CanvasViewportControllerSoftware(QObject *parent = 0);
-	~CanvasViewportControllerSoftware();
+	explicit CanvasViewportControllerGL(QObject *parent = 0);
+	~CanvasViewportControllerGL();
 	
 	QWidget *view() override;
 	
@@ -44,14 +47,11 @@ public:
 	void updateTile(const QPoint &tileKey, const Malachite::Image &image, const QPoint &offset) override;
 	void update();
 	
-signals:
-	
-public slots:
-	
 private:
 	
 	class Data;
 	Data *d;
 };
 
-}
+} // namespace PaintField
+

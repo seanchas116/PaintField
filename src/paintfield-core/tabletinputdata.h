@@ -1,7 +1,7 @@
 #ifndef FSTABLETINPUTDATA_H
 #define FSTABLETINPUTDATA_H
 
-#include <Malachite/Vector>
+#include <Malachite/Vec2D>
 #include <QTransform>
 
 namespace PaintField {
