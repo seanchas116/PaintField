@@ -3,7 +3,8 @@
 
 #include <QPoint>
 #include <QVector>
-#include <Malachite/Vector>
+#include <Malachite/Vec2D>
+#include <Malachite/Pixel>
 
 namespace PaintField {
 
@@ -49,7 +50,7 @@ private:
 	
 	QRect _rect;
 	int _y;
-	Malachite::Vec4F _offsetCenterXs, _offsetCenterYs;
+	Malachite::PixelVec _offsetCenterXs, _offsetCenterYs;
 	float _radius, _cutoff, _max, _cutoffSlope;
 	QScopedArrayPointer<float> _covers;
 };

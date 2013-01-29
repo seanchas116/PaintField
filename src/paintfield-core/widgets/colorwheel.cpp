@@ -24,7 +24,7 @@ ColorWheel::ColorWheel(QWidget *parent) :
 			if (degree < 0)
 				degree += 360.0;
 			
-			*p++ = Color::fromHsvValue(degree, 1, 1).toQRgb();
+			*p++ = Color::fromHsvValue(degree, 1, 1).toQRgbPremult();
 		}
 	}
 	
@@ -90,7 +90,7 @@ void ColorWheel::updateHsv()
 			double s = (double)x / (double)(CenterSquareRadius * 2 + 1);
 			double v = 1.0 - (double)y / (double)(CenterSquareRadius * 2 + 1);
 			
-			*p++ = Color::fromHsvValue(_color.hue(), s, v).toQRgb();
+			*p++ = Color::fromHsvValue(_color.hue(), s, v).toQRgbPremult();
 		}
 	}
 	

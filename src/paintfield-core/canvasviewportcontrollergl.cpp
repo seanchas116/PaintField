@@ -1,4 +1,5 @@
 #include <Malachite/Surface>
+#include <Malachite/Vec2D>
 #include "canvasviewportcontrollergl.h"
 
 using namespace Malachite;
@@ -7,6 +8,7 @@ namespace PaintField {
 
 struct vec2
 {
+	vec2() {}
 	vec2(float x, float y) : x(x), y(y) {}
 	vec2(const vec2 &other) = default;
 	float x, y;
@@ -67,10 +69,7 @@ void CanvasViewportGL::setDocumentSize(const QSize &size)
 
 void CanvasViewportGL::setTransform(const QTransform &transform)
 {
-	auto v0 = transform.map(QPointF(0, 0));
-	auto v1 = transform.map(QPointF(size.width(), 0));
-	auto v2 = transform.map(QPointF(size.width(), size.height()));
-	auto v3 = transform.map(QPointF(0, size.height()));
+	
 }
 
 void CanvasViewportGL::updateTile(const QPoint &tileKey, const Malachite::Image &image, const QPoint &offset)

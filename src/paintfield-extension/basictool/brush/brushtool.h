@@ -28,7 +28,7 @@ signals:
 	
 public slots:
 	
-	void setColor(const Malachite::Color &color) { _argb = color.toArgb(); }
+	void setColor(const Malachite::Color &color) { _pixel = color.toPixel(); }
 	void setStrokerFactory(BrushStrokerFactory *factory) { _strokerFactory = factory; }
 	void setBrushSettings(const QVariantMap &settings);
 	void setBrushSize(int size);
@@ -52,7 +52,7 @@ private:
 	bool isStroking() const { return _stroker; }
 	void setPrevData(const TabletInputData &data);
 	
-	Malachite::Vec4F _argb;
+	Malachite::Pixel _pixel;
 	BrushStrokerFactory *_strokerFactory = 0;
 	QScopedPointer<BrushStroker> _stroker;
 	QVariantMap _settings;

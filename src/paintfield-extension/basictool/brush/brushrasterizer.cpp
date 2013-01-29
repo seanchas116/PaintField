@@ -9,7 +9,7 @@ using namespace Malachite;
 
 BrushRasterizer::BrushRasterizer(const Vec2D &center, double radius, double aaWidth)
 {
-	_rect = QRectF(center.x - radius, center.y - radius, radius * 2, radius * 2).toAlignedRect();
+	_rect = QRectF(center.x() - radius, center.y() - radius, radius * 2, radius * 2).toAlignedRect();
 	_y = _rect.top();
 	_offsetCenter = center - Vec2D(0.5);
 	
@@ -50,13 +50,13 @@ BrushScanline BrushRasterizer::nextScanline()
 		Vec2D pos(_rect.left() + i, _y);
 		Vec2D dp = pos - _offsetCenter;
 		
-		if (dp.x == 0 && dp.y == 0)
+		if (dp.x() == 0 && dp.y() == 0)
 		{
 			cover = _max;
 		}
 		else
 		{
-			double r = vecLength(dp);
+			double r = dp.length();
 			
 			if (r <= _cutoff)
 				cover = _max;
@@ -75,7 +75,7 @@ BrushScanline BrushRasterizer::nextScanline()
 
 BrushRasterizerFast::BrushRasterizerFast(const Vec2D &center, float radius, float aaWidth)
 {
-	_rect = QRectF(center.x - radius, center.y - radius, radius * 2.f, radius * 2.f).toAlignedRect();
+	_rect = QRectF(center.x() - radius, center.y() - radius, radius * 2.f, radius * 2.f).toAlignedRect();
 	_y = _rect.top();
 	
 	if (radius <= 1.f)
@@ -102,8 +102,37 @@ BrushRasterizerFast::BrushRasterizerFast(const Vec2D &center, float radius, floa
 	int coverCount = (_rect.width() / 4 + 1) * 4;
 	_covers.reset(new float[coverCount]);
 	
-	_offsetCenterXs = Vec4F(center.x - 0.5f);
-	_offsetCenterYs = Vec4F(center.y - 0.5f);
+	_offsetCenterXs = Vector<float, 4>(center.x() - 0.5f);
+	_offsetCenterYs = Vector<float, 4>(center.y() - 0.5f);
+}
+
+inline static Vector<float, 4> sseVec4FromInt(int x1, int x2, int x3, int x4)
+{
+	union
+	{
+		std::array<int32_t, 4> a;
+		__m128i m;
+	} u;
+	
+	u.a[0] = x1;
+	u.a[1] = x2;
+	u.a[2] = x3;
+	u.a[3] = x4;
+	return _mm_cvtepi32_ps(u.m);
+}
+
+inline static Vector<float, 4> sseVec4FromInt(int32_t i)
+{
+	union
+	{
+		std::array<int32_t, 4> a;
+		__m128i m;
+	} u;
+	
+	u.a[0] = i;
+	u.m = _mm_unpacklo_epi32(u.m, u.m);
+	u.m = _mm_unpacklo_epi32(u.m, u.m);
+	return _mm_cvtepi32_ps(u.m);
 }
 
 BrushScanline BrushRasterizerFast::nextScanline()
@@ -117,19 +146,19 @@ BrushScanline BrushRasterizerFast::nextScanline()
 	
 	float *p = _covers.data();
 	
-	Vec4F xs, ys;
-	xs = Vec4I32(x, x+1, x+2, x+3);
-	ys = Vec4I32(_y);
+	PixelVec xs, ys;
+	xs = sseVec4FromInt(x, x+1, x+2, x+3);
+	ys = sseVec4FromInt(_y);
 	
 	xs -= _offsetCenterXs;
 	ys -= _offsetCenterYs;
 	
-	Vec4F yys = ys * ys;
+	PixelVec yys = ys * ys;
 	
-	for (int i = 0; i < scanline.count; i += 4, xs += Vec4F(4.f))
+	for (int i = 0; i < scanline.count; i += 4, xs += PixelVec(4.f))
 	{
-		Vec4F rrs = xs * xs + yys;
-		Vec4F rs = vecRsqrt(rrs) * rrs;
+		PixelVec rrs = xs * xs + yys;
+		PixelVec rs = sseRsqrt(rrs) * rrs;
 		
 		for (int iv = 0; iv < 4; ++iv)
 		{

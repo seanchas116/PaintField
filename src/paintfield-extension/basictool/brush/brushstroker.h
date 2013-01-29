@@ -16,8 +16,8 @@ public:
 	void setRadiusBase(double radius) { _radiusBase = radius; }
 	double radiusBase() const { return _radiusBase; }
 	
-	void setArgb(const Malachite::Vec4F &argb) { _argb = argb; }
-	Malachite::Vec4F argb() const { return _argb; }
+	void setPixel(const Malachite::Pixel &pixel) { _pixel = pixel; }
+	Malachite::Pixel pixel() const { return _pixel; }
 	
 	virtual void loadSettings(const QVariantMap &settings) = 0;
 	
@@ -56,7 +56,7 @@ private:
 	TabletInputData  _dataPrev, _dataStart, _dataEnd, _currentData;
 	//MLVec2D _v1, v2;
 	
-	Malachite::Vec4F _argb;
+	Malachite::Pixel _pixel;
 	double _radiusBase = 10;
 };
 

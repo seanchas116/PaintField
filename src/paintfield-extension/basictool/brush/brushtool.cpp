@@ -50,7 +50,7 @@ void BrushTool::drawCustomCursor(QPainter *painter, const Vec2D &pos)
 QRect BrushTool::customCursorRect(const Vec2D &pos)
 {
 	double radius = _brushSize * 0.5 * canvasView()->scale() + 0.5;
-	return QRectF(pos.x - radius, pos.y - radius, radius * 2, radius * 2).toAlignedRect();
+	return QRectF(pos.x() - radius, pos.y() - radius, radius * 2, radius * 2).toAlignedRect();
 }
 
 void BrushTool::tabletPressEvent(CanvasTabletEvent *event)
@@ -99,7 +99,7 @@ void BrushTool::beginStroke(const TabletInputData &data)
 	
 	_stroker.reset(_strokerFactory->createStroker(&_surface));
 	_stroker->loadSettings(_settings);
-	_stroker->setArgb(_argb);
+	_stroker->setPixel(_pixel);
 	_stroker->setRadiusBase(double(_brushSize) * 0.5);
 	
 	addCustomDrawLayer(_layer);

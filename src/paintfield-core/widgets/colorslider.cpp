@@ -154,12 +154,8 @@ void ColorSlider::updateImage()
 		Color color = _color;
 		color.setNormalizedComponent(_component, value);
 		
-		QRgb rgb = color.toQRgb();
-		
 		for (int y = 0; y < height; ++y)
-		{
-			_image.setPixel(x, y, rgb);
-		}
+			_image.setPixel(x, y, color.toQRgbPremult());
 	}
 }
 

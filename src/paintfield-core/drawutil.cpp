@@ -11,36 +11,56 @@ namespace PaintField
 using namespace Malachite;
 
 // assumes both dst and src are 16bit aligned
-void copyColorFast(int count, Vec4U8 *dst, const Vec4F *src)
+void copyColorFast(int count, BgraPremultU8 *dst, const Pixel *src)
 {
 	int countPer4 = count / 4;
 	int rem = count % 4;
 	
 	while (countPer4--)
 	{
-		Vec4I32 d0 = vecRound(*src * 0xFF);
+		__m128i d0 = _mm_cvtps_epi32((src->v() * 0xFF).data());
 		src++;
-		Vec4I32 d1 = vecRound(*src * 0xFF);
-		src++;
-		
-		Vec8I16 w0 = Vec8I16::pack(d0, d1);
-		
-		Vec4I32 d2 = vecRound(*src * 0xFF);
-		src++;
-		Vec4I32 d3 = vecRound(*src * 0xFF);
+		__m128i d1 = _mm_cvtps_epi32((src->v() * 0xFF).data());
 		src++;
 		
-		Vec8I16 w1 = Vec8I16::pack(d2, d3);
+		__m128i w0 = _mm_packs_epi32(d0, d1);
 		
-		Vec16U8 b = Vec16U8::pack(w0, w1);
+		__m128i d2 = _mm_cvtps_epi32((src->v() * 0xFF).data());
+		src++;
+		__m128i d3 = _mm_cvtps_epi32((src->v() * 0xFF).data());
+		src++;
 		
-		*(reinterpret_cast<Vec16U8 *>(dst)) = b;
+		__m128i w1 = _mm_packs_epi32(d2, d3);
+		
+		__m128i b = _mm_packus_epi16(w0, w1);
+		
+		*(reinterpret_cast<__m128i *>(dst)) = b;
 		
 		dst += 4;
 	}
 	
-	while (rem--)
-		convertPixel<ImageFormatArgbFast, Vec4U8, ImageFormatArgbFast, Vec4F>(*dst++, *src++);
+	if (rem)
+	{
+		auto dstDwords = reinterpret_cast<uint32_t *>(dst);
+		
+		auto convert1 = [](const Pixel &p) -> uint32_t
+		{
+			union
+			{
+				uint32_t dwords[4];
+				__m128i d;
+			} u;
+			
+			u.d = _mm_cvtps_epi32((p.v() * 0xFF).data());
+			u.d = _mm_packs_epi32(u.d, u.d);
+			u.d = _mm_packus_epi16(u.d, u.d);
+			
+			return u.dwords[0];
+		};
+		
+		while (rem--)
+			*dstDwords++ = convert1(*src++);
+	}
 }
 
 void drawMLSurface(QPainter *painter, const QPoint &point, const Surface &surface)
@@ -53,7 +73,7 @@ void drawMLImage(QPainter *painter, const QPoint &point, const Image &image)
 {
 	QImage qimage(image.size(), QImage::Format_ARGB32_Premultiplied);
 	
-	auto wrapper = GenericImage<ImageFormatArgbFast, Vec4U8>::wrap(qimage.bits(), qimage.size());
+	auto wrapper = GenericImage<BgraPremultU8>::wrap(qimage.bits(), qimage.size());
 	
 	wrapper.paste(image);
 	painter->drawImage(point, qimage);
@@ -64,14 +84,12 @@ void drawMLImageFast(QPainter *painter, const QPoint &point, const Image &image)
 	QSize size = image.size();
 	int pixelCount = size.width() * size.height();
 	
-	Vec4U8 *buffer = reinterpret_cast<Vec4U8 *>(allocateAlignedMemory(pixelCount * sizeof(Vec4U8), 16));
+	QScopedPointer<BgraPremultU8> buffer(new BgraPremultU8(pixelCount));
 	
-	copyColorFast(pixelCount, buffer, image.constBits());
+	copyColorFast(pixelCount, buffer.data(), image.constBits());
 	
-	QImage qimage(reinterpret_cast<uint8_t *>(buffer), size.width(), size.height(), QImage::Format_ARGB32_Premultiplied);
+	QImage qimage(reinterpret_cast<uint8_t *>(buffer.data()), size.width(), size.height(), QImage::Format_ARGB32_Premultiplied);
 	painter->drawImage(point, qimage);
-	
-	freeAlignedMemory(buffer);
 }
 
 void drawMLImageFast(QPainter *painter, const QPoint &point, const Image &image, const QRect &rect)
@@ -85,15 +103,13 @@ void drawMLImageFast(QPainter *painter, const QPoint &point, const Image &image,
 	
 	int pixelCount = copyRect.width() * copyRect.height();
 	
-	Vec4U8 *buffer = reinterpret_cast<Vec4U8 *>(allocateAlignedMemory(pixelCount * sizeof(Vec4U8), 16));
+	QScopedPointer<BgraPremultU8> buffer(new BgraPremultU8(pixelCount));
 	
 	for (int i = 0; i < copyRect.height(); ++i)
-		copyColorFast(copyRect.width(), buffer + i * copyRect.width(), image.constPixelPointer(copyRect.left(), copyRect.top() + i));
+		copyColorFast(copyRect.width(), buffer.data() + i * copyRect.width(), image.constPixelPointer(copyRect.left(), copyRect.top() + i));
 	
-	QImage qimage(reinterpret_cast<uint8_t *>(buffer), copyRect.width(), copyRect.height(), QImage::Format_ARGB32_Premultiplied);
+	QImage qimage(reinterpret_cast<uint8_t *>(buffer.data()), copyRect.width(), copyRect.height(), QImage::Format_ARGB32_Premultiplied);
 	painter->drawImage(point + copyRect.topLeft(), qimage, rect.translated(-copyRect.topLeft()));
-	
-	freeAlignedMemory(buffer);
 }
 
 }

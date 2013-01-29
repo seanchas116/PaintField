@@ -100,7 +100,7 @@ QRect BrushStrokerSimpleBrush::drawDab(const Vec2D &pos, double pressure)
 	return ras.boundingRect();
 }
 
-static void drawScanlineInTile(Image *tileImage, const QPoint &offset, const BrushScanline &scanline, const Vec4F &argb, BlendOp *blendOp)
+static void drawScanlineInTile(Image *tileImage, const QPoint &offset, const BrushScanline &scanline, const Pixel &argb, BlendOp *blendOp)
 {
 	QPoint pos = scanline.pos - offset;
 	
@@ -142,7 +142,7 @@ void BrushStrokerSimpleBrush::drawScanline(const BrushScanline &scanline, Surfac
 		QPoint key(tileX, tileY);
 		
 		auto tile = getTile(key, surfaceEditor);
-		drawScanlineInTile(tile, key * Surface::TileSize, scanline, argb(), blendOp);
+		drawScanlineInTile(tile, key * Surface::TileSize, scanline, pixel(), blendOp);
 	}
 }
 

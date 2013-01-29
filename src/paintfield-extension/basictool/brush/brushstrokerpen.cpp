@@ -21,15 +21,15 @@ Polygon BrushStrokerPen::calcTangentQuadrangle(double r1, const Vec2D &k1, doubl
 	double nc = -c;
 	
 	Vec2D k1_k2 = k2 - k1;
-	Vec2D k1_k2_0 = k1_k2.extract0();
-	Vec2D k1_k2_1 = k1_k2.extract1();
+	Vec2D k1_k2_0 = k1_k2.extractX();
+	Vec2D k1_k2_1 = k1_k2.extractY();
 	
 	Vec2D vp = Vec2D(ns, c) * k1_k2_0 + Vec2D(nc, ns) * k1_k2_1;
 	Vec2D vq = Vec2D(ns, nc) * k1_k2_0 + Vec2D(c, ns) * k1_k2_1;
 	
 	Vec2D t = Vec2D(r1, r2) / d;
-	Vec2D t1 = t.extract0();
-	Vec2D t2 = t.extract1();
+	Vec2D t1 = t.extractX();
+	Vec2D t2 = t.extractY();
 	
 	Polygon poly(4);
 	poly[0] = k1 + vq * t1;
@@ -118,7 +118,7 @@ void BrushStrokerPen::drawShape(const FixedMultiPolygon &shape)
 			_drawnShapes[key] = drawShape;
 			
 			Painter painter(drawSurfaceEditor.tileRefForKey(key));
-			painter.setArgb(argb());
+			painter.setPixel(pixel());
 			painter.setBlendMode(_settings.blendMode);
 			painter.drawTransformedPolygons(drawShape);
 			

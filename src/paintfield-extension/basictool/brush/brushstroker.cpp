@@ -90,7 +90,7 @@ QVector<double> BrushStroker::calcLength(const Polygon &polygon, double *totalLe
 	
 	for (int i = 0; i < count; ++i)
 	{
-		double length = vecLength(polygon.at(i+1) - polygon.at(i));
+		double length = (polygon.at(i+1) - polygon.at(i)).length();
 		total += length;
 		lengths[i] = length;
 	}

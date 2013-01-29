@@ -81,15 +81,15 @@ Image BrushStrokerCustomBrush::drawDabImage(const TabletInputData &data, QRect *
 	Q_ASSERT(data.pressure > 0);
 	
 	Vec2D radiusVec;
-	radiusVec.x = radiusBase() * data.pressure;
-	radiusVec.y = radiusVec.x * (1.0 - _setting.flattening);
+	radiusVec.rx() = radiusBase() * data.pressure;
+	radiusVec.ry() = radiusVec.x() * (1.0 - _setting.flattening);
 	
-	_lastMinorRadius = radiusVec.y;
+	_lastMinorRadius = radiusVec.y();
 	
 	//qDebug() << "radius" << radiusVec.x << radiusVec.y;
 	
 	QPainterPath ellipse;
-	ellipse.addEllipse(data.pos, radiusVec.x, radiusVec.y);
+	ellipse.addEllipse(data.pos, radiusVec.x(), radiusVec.y());
 	
 	QRect dabRect;
 	
@@ -116,14 +116,14 @@ Image BrushStrokerCustomBrush::drawDabImage(const TabletInputData &data, QRect *
 	if (_setting.tableWidth == 1 && _setting.tableHeight == 1)
 	{
 		// no gradient
-		dabPainter.setArgb(argb());
+		dabPainter.setPixel(pixel());
 	}
 	else
 	{
 		ArgbGradient gradient;
-		gradient.addStop(0, argb());
-		gradient.addStop(_setting.tableWidth, argb() * _setting.tableHeight);
-		gradient.addStop(1, Vec4F(0));
+		gradient.addStop(0, pixel());
+		gradient.addStop(_setting.tableWidth, pixel() * _setting.tableHeight);
+		gradient.addStop(1, Pixel(0));
 		
 		dabPainter.setBrush(Malachite::Brush::fromRadialGradient(gradient, data.pos, radiusVec));
 	}

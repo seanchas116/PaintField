@@ -282,7 +282,7 @@ void CanvasView::updateTiles(const QPointSet &keys, const QHash<QPoint, QRect> &
 		}
 		
 		Image image(rect.size());
-		image.fill(Color::fromRgbValue(1,1,1).toArgb());
+		image.fill(Color::fromRgbValue(1,1,1).toPixel());
 		
 		if (surface.contains(key))
 		{
