@@ -33,9 +33,10 @@ void CanvasViewportSoftware::setDocumentSize(const QSize &size)
 	d->pixmap = QPixmap(size);
 }
 
-void CanvasViewportSoftware::setTransform(const QTransform &transform)
+void CanvasViewportSoftware::setTransform(const Affine2D &transform)
 {
-	d->transform = transform;
+	d->transform = transform.toQTransform();
+	PAINTFIELD_DEBUG << d->transform;
 }
 
 QTransform CanvasViewportSoftware::transform() const
@@ -87,7 +88,7 @@ void CanvasViewportControllerSoftware::setDocumentSize(const QSize &size)
 	d->view->setDocumentSize(size);
 }
 
-void CanvasViewportControllerSoftware::setTransform(const QTransform &transform)
+void CanvasViewportControllerSoftware::setTransform(const Affine2D &transform)
 {
 	d->view->setTransform(transform);
 }

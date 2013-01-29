@@ -1,5 +1,7 @@
 #include <Malachite/Surface>
 #include <Malachite/Vec2D>
+#include <QDebug>
+#include "debug.h"
 #include "canvasviewportcontrollergl.h"
 
 using namespace Malachite;
@@ -11,6 +13,7 @@ struct vec2
 	vec2() {}
 	vec2(float x, float y) : x(x), y(y) {}
 	vec2(const vec2 &other) = default;
+	vec2(const Vec2D &p) : x(p.x()), y(p.y()) {}
 	float x, y;
 };
 
@@ -19,7 +22,7 @@ struct CanvasViewportGL::Data
 	GLuint texture = 0;
 	vec2 vertices[4];
 	vec2 texCoords[4];
-	QSize size;
+	QSize sceneSize;
 };
 
 CanvasViewportGL::CanvasViewportGL(QWidget *parent) :
@@ -51,8 +54,8 @@ void CanvasViewportGL::setDocumentSize(const QSize &size)
 	int texWidth = powerOf2Bound(size.width());
 	int texHeight = powerOf2Bound(size.height());
 	
-	float s = float(texWidth) / float(size.width());
-	float t = float(texHeight) / float(size.height());
+	float s = float(size.width()) / float(texWidth);
+	float t = float(size.height()) / float(texHeight);
 	d->texCoords[0] = vec2(0, 0);
 	d->texCoords[1] = vec2(s, 0);
 	d->texCoords[2] = vec2(s, t);
@@ -65,11 +68,33 @@ void CanvasViewportGL::setDocumentSize(const QSize &size)
 	glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
 	glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
 	glTexImage2D ( GL_TEXTURE_2D, 0, 3, texWidth, texHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, 0 );
+	
+	d->sceneSize = size;
 }
 
-void CanvasViewportGL::setTransform(const QTransform &transform)
+void CanvasViewportGL::setTransform(const Affine2D &transform)
 {
+	double w = width();
+	double h = height();
 	
+	PAINTFIELD_DEBUG << transform.toQTransform();
+	
+	auto t = Affine2D(2.0 / w, 0, 0, -2.0 / h, -1.0, 1.0) * transform;
+	
+	PAINTFIELD_DEBUG << t.toQTransform();
+	
+	PAINTFIELD_DEBUG << d->sceneSize;
+	
+	double sceneWidth = d->sceneSize.width();
+	double sceneHeight = d->sceneSize.height();
+	
+	d->vertices[0] = t * Vec2D(0, 0);
+	d->vertices[1] = t * Vec2D(sceneWidth, 0);
+	d->vertices[2] = t * Vec2D(sceneWidth, sceneHeight);
+	d->vertices[3] = t * Vec2D(0, sceneHeight);
+	
+	qDebug() << d->vertices[0].x << d->vertices[0].y;
+	qDebug() << d->vertices[2].x << d->vertices[2].y;
 }
 
 void CanvasViewportGL::updateTile(const QPoint &tileKey, const Malachite::Image &image, const QPoint &offset)
@@ -96,7 +121,6 @@ void CanvasViewportGL::resizeGL(int w, int h)
 	
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	//glOrtho(0, w, h, 0, 0, 0);
 	
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -110,14 +134,16 @@ void CanvasViewportGL::paintGL()
 	glBindTexture(GL_TEXTURE_2D, d->texture);
 	
 	glBegin(GL_QUADS);
-	glTexCoord2f(1, 1);
-	glVertex2f(0.5f, 0.5f);
-	glTexCoord2f(1, 0);
-	glVertex2f(0.5f, -0.5f);
-	glTexCoord2f(0, 0);
-	glVertex2f(-0.5f, -0.5f);
-	glTexCoord2f(0, 1);
-	glVertex2f(-0.5f, 0.5f);
+	
+	glTexCoord2f(d->texCoords[0].x, d->texCoords[0].y);
+	glVertex2f(d->vertices[0].x, d->vertices[0].y);
+	glTexCoord2f(d->texCoords[1].x, d->texCoords[1].y);
+	glVertex2f(d->vertices[1].x, d->vertices[1].y);
+	glTexCoord2f(d->texCoords[2].x, d->texCoords[2].y);
+	glVertex2f(d->vertices[2].x, d->vertices[2].y);
+	glTexCoord2f(d->texCoords[3].x, d->texCoords[3].y);
+	glVertex2f(d->vertices[3].x, d->vertices[3].y);
+	
 	glEnd();
 }
 
@@ -149,7 +175,7 @@ void CanvasViewportControllerGL::setDocumentSize(const QSize &size)
 	d->view->setDocumentSize(size);
 }
 
-void CanvasViewportControllerGL::setTransform(const QTransform &transform)
+void CanvasViewportControllerGL::setTransform(const Affine2D &transform)
 {
 	d->view->setTransform(transform);
 }

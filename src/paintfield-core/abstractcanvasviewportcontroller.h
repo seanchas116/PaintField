@@ -1,5 +1,6 @@
 #pragma once
 #include <QObject>
+#include <Malachite/Affine2D>
 
 class QPoint;
 class QSize;
@@ -25,9 +26,10 @@ public:
 	virtual QWidget *view() = 0;
 	
 	virtual void setDocumentSize(const QSize &size) = 0;
-	virtual void setTransform(const QTransform &transform) = 0;
+	virtual void setTransform(const Malachite::Affine2D &transform) = 0;
 	virtual void updateTile(const QPoint &tileKey, const Malachite::Image &image, const QPoint &offset) = 0;
 	virtual void update() = 0;
+	virtual bool isReady() = 0;
 	
 signals:
 	

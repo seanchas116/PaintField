@@ -84,7 +84,7 @@ void drawMLImageFast(QPainter *painter, const QPoint &point, const Image &image)
 	QSize size = image.size();
 	int pixelCount = size.width() * size.height();
 	
-	QScopedPointer<BgraPremultU8> buffer(new BgraPremultU8(pixelCount));
+	QScopedArrayPointer<BgraPremultU8> buffer(new BgraPremultU8[pixelCount]);
 	
 	copyColorFast(pixelCount, buffer.data(), image.constBits());
 	
@@ -103,7 +103,7 @@ void drawMLImageFast(QPainter *painter, const QPoint &point, const Image &image,
 	
 	int pixelCount = copyRect.width() * copyRect.height();
 	
-	QScopedPointer<BgraPremultU8> buffer(new BgraPremultU8(pixelCount));
+	QScopedArrayPointer<BgraPremultU8> buffer(new BgraPremultU8[pixelCount]);
 	
 	for (int i = 0; i < copyRect.height(); ++i)
 		copyColorFast(copyRect.width(), buffer.data() + i * copyRect.width(), image.constPixelPointer(copyRect.left(), copyRect.top() + i));

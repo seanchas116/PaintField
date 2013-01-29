@@ -1,6 +1,7 @@
 #ifndef CANVASVIEW_H
 #define CANVASVIEW_H
 
+#include <Malachite/Affine2D>
 #include "widgets/navigatablearea.h"
 #include "smartpointer.h"
 #include "tabletevent.h"
@@ -39,8 +40,8 @@ public:
 	
 	QPoint viewCenter() const;
 	
-	QTransform transformToScene() const;
-	QTransform transformFromScene() const;
+	Malachite::Affine2D transformToScene() const;
+	Malachite::Affine2D transformFromScene() const;
 	
 public slots:
 	

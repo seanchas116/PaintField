@@ -74,7 +74,7 @@ public:
 	QSize sceneSize;
 	QPoint viewCenter;
 	
-	QTransform transformToScene, transformFromScene;
+	Affine2D transformToScene, transformFromScene;
 	
 	AbstractCanvasViewportController *viewportController = 0;
 };
@@ -89,7 +89,12 @@ CanvasView::CanvasView(CanvasController *canvas, QWidget *parent) :
 	// setup viewport
 	{
 		d->viewportController = new CanvasViewportControllerGL(this);
-		connect(d->viewportController, SIGNAL(ready()), this, SLOT(onViewportReady()));
+		
+		if (d->viewportController->isReady())
+			onViewportReady();
+		else
+			connect(d->viewportController, SIGNAL(ready()), this, SLOT(onViewportReady()));
+		
 		
 		auto layout = new QVBoxLayout;
 		layout->addWidget(d->viewportController->view());
@@ -187,30 +192,25 @@ void CanvasView::restoreNavigation()
 	d->nav = d->memorizedNav;
 }
 
-QTransform CanvasView::transformToScene() const
+Affine2D CanvasView::transformToScene() const
 {
 	return d->transformToScene;
 }
 
-QTransform CanvasView::transformFromScene() const
+Affine2D CanvasView::transformFromScene() const
 {
 	return d->transformFromScene;
 }
 
 void CanvasView::updateTransforms()
 {
-	QTransform transform;
-	
-	PAINTFIELD_DEBUG << d->sceneSize;
-	PAINTFIELD_DEBUG << viewCenter();
-	
 	QPoint sceneOffset = QPoint(d->sceneSize.width(), d->sceneSize.height()) / 2;
 	QPoint viewOffset = viewCenter() + translation();
 	
-	transform.translate(-sceneOffset.x(), -sceneOffset.y());
-	transform.scale(scale(), scale());
-	transform.rotate(rotation());
-	transform.translate(viewOffset.x(), viewOffset.y());
+	auto transform = Affine2D::fromTranslation(Vec2D(viewOffset)) *
+	                 Affine2D::fromRotation(rotation()) *
+	                 Affine2D::fromScale(scale()) *
+	                 Affine2D::fromTranslation(Vec2D(-sceneOffset));
 	
 	d->transformFromScene = transform;
 	d->transformToScene = transform.inverted();
@@ -525,7 +525,7 @@ bool CanvasView::sendCanvasMouseEvent(QMouseEvent *event)
 		}
 	};
 	
-	CanvasMouseEvent canvasEvent(toCanvasEventType(event->type()), event->globalPos(), event->posF() * transformToScene(), event->modifiers());
+	CanvasMouseEvent canvasEvent(toCanvasEventType(event->type()), event->globalPos(), transformToScene() * event->posF(), event->modifiers());
 	d->tool->toolEvent(&canvasEvent);
 	
 	return canvasEvent.isAccepted();
@@ -536,7 +536,7 @@ bool CanvasView::sendCanvasTabletEvent(WidgetTabletEvent *event)
 	TabletInputData data = event->globalData;
 	Vec2D globalPos = data.pos;
 	data.pos += Vec2D(event->posInt - event->globalPosInt);
-	data.pos *= transformToScene();
+	data.pos = transformToScene() * data.pos;
 	
 	auto toCanvasEventType = [](int type)
 	{
@@ -581,7 +581,7 @@ bool CanvasView::sendCanvasTabletEvent(QMouseEvent *mouseEvent)
 	if (type == EventCanvasTabletRelease)
 		d->mousePressure = 0.0;
 	
-	TabletInputData data(mouseEvent->posF() * transformToScene(), d->mousePressure, 0, 0, Vec2D(0));
+	TabletInputData data(transformToScene() * mouseEvent->posF(), d->mousePressure, 0, 0, Vec2D(0));
 	CanvasTabletEvent tabletEvent(type, mouseEvent->globalPos(), mouseEvent->globalPos(), data, mouseEvent->modifiers());
 	d->tool->toolEvent(&tabletEvent);
 	return tabletEvent.isAccepted();

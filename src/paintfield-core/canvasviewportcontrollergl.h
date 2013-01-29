@@ -14,7 +14,7 @@ public:
 	~CanvasViewportGL();
 	
 	void setDocumentSize(const QSize &size);
-	void setTransform(const QTransform &transform);
+	void setTransform(const Malachite::Affine2D &transform);
 	void updateTile(const QPoint &tileKey, const Malachite::Image &image, const QPoint &offset);
 	
 signals:
@@ -43,9 +43,10 @@ public:
 	QWidget *view() override;
 	
 	void setDocumentSize(const QSize &size) override;
-	void setTransform(const QTransform &transform) override;
+	void setTransform(const Malachite::Affine2D &transform) override;
 	void updateTile(const QPoint &tileKey, const Malachite::Image &image, const QPoint &offset) override;
 	void update();
+	bool isReady() { return false; }
 	
 private:
 	
