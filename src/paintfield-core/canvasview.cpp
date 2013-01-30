@@ -88,7 +88,7 @@ CanvasView::CanvasView(CanvasController *canvas, QWidget *parent) :
 	
 	// setup viewport
 	{
-		d->viewportController = new CanvasViewportControllerGL(this);
+		d->viewportController = new CanvasViewportControllerSoftware(this);
 		
 		if (d->viewportController->isReady())
 			onViewportReady();
@@ -259,6 +259,8 @@ void CanvasView::setTool(Tool *tool)
 
 void CanvasView::updateTiles(const QPointSet &keys, const QHash<QPoint, QRect> &rects)
 {
+	d->viewportController->beforeUpdateTile();
+	
 	CanvasRenderer renderer;
 	renderer.setTool(d->tool.data());
 	
@@ -293,7 +295,7 @@ void CanvasView::updateTiles(const QPointSet &keys, const QHash<QPoint, QRect> &
 		d->viewportController->updateTile(key, image, rect.topLeft());
 	}
 	
-	d->viewportController->update();
+	d->viewportController->afterUpdateTile();
 }
 
 void CanvasView::onClicked()

@@ -10,12 +10,14 @@ class CanvasViewportGL : public QGLWidget
 	
 public:
 	
-	CanvasViewportGL(QWidget *parent = 0);
+	CanvasViewportGL(const QGLFormat &format, QWidget *parent = 0);
 	~CanvasViewportGL();
 	
 	void setDocumentSize(const QSize &size);
 	void setTransform(const Malachite::Affine2D &transform);
 	void updateTile(const QPoint &tileKey, const Malachite::Image &image, const QPoint &offset);
+	void beforeUpdateTile();
+	void afterUpdateTile();
 	
 signals:
 	
@@ -45,6 +47,8 @@ public:
 	void setDocumentSize(const QSize &size) override;
 	void setTransform(const Malachite::Affine2D &transform) override;
 	void updateTile(const QPoint &tileKey, const Malachite::Image &image, const QPoint &offset) override;
+	void beforeUpdateTile();
+	void afterUpdateTile();
 	void update();
 	bool isReady() { return false; }
 	

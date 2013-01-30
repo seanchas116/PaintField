@@ -20,13 +20,91 @@ struct vec2
 struct CanvasViewportGL::Data
 {
 	GLuint texture = 0;
-	vec2 vertices[4];
-	vec2 texCoords[4];
+	
 	QSize sceneSize;
+	Vec2D textureSizeInv;
+	Affine2D transformNormalize, transformToNormalizedView, transformToView, transformToScene;
+	
+	std::array<Vec2D, 4> texCoords;
+	std::array<Vec2D, 4> vertices;
+	
+	Vec2D texturePos(const Vec2D &scenePos)
+	{
+		return scenePos * textureSizeInv;
+	}
+	
+	QRectF mapAlignedRectToView(const QRectF &sceneRect)
+	{
+		auto topLeft = transformToView * Vec2D(sceneRect.topLeft());
+		auto topRight = transformToView * Vec2D(sceneRect.topRight());
+		auto bottomLeft = transformToView * Vec2D(sceneRect.bottomLeft());
+		auto bottomRight = transformToView * Vec2D(sceneRect.bottomRight());
+		
+		auto left = qMax(qMax(topLeft.x(), topRight.x()), qMax(bottomLeft.x(), bottomRight.x()));
+		auto right = qMin(qMin(topLeft.x(), topRight.x()), qMin(bottomLeft.x(), bottomRight.x()));
+		auto top = qMax(qMax(topLeft.y(), topRight.y()), qMax(bottomLeft.y(), bottomRight.y()));
+		auto bottom = qMin(qMax(topLeft.y(), topRight.y()), qMin(bottomLeft.y(), bottomRight.y()));
+		
+		left = std::floor(left);
+		right = std::ceil(right);
+		top = std::floor(top);
+		bottom = std::ceil(bottom);
+		
+		return QRectF(left, top, right - left, bottom - top);
+	}
+	
+	Vec2D normalizedPos(const Vec2D &viewPos)
+	{
+		return transformNormalize * viewPos;
+	}
+	
+	void texCoord(const Vec2D &pos)
+	{
+		glTexCoord2d(pos.x(), pos.y());
+	}
+	
+	void vertex(const Vec2D &pos)
+	{
+		glVertex2d(pos.x(), pos.y());
+	}
+	
+	void quadTo(const Vec2D &viewPos)
+	{
+		texCoord(texturePos(transformToScene * viewPos));
+		vertex(transformNormalize * viewPos);
+	}
+	
+	void repaintRect(const QRectF &sceneRect)
+	{
+		auto viewRect = mapAlignedRectToView(sceneRect);
+		PAINTFIELD_DEBUG << viewRect;
+		
+		glBegin(GL_QUADS);
+		
+		quadTo(viewRect.topLeft());
+		quadTo(viewRect.topRight());
+		quadTo(viewRect.bottomRight());
+		quadTo(viewRect.bottomLeft());
+		
+		glEnd();
+	}
+	
+	void drawWhole()
+	{
+		glBegin(GL_QUADS);
+		
+		for (int i = 0; i < 4; ++i)
+		{
+			texCoord(texCoords[i]);
+			vertex(vertices[i]);
+		}
+		
+		glEnd();
+	}
 };
 
-CanvasViewportGL::CanvasViewportGL(QWidget *parent) :
-    QGLWidget(parent),
+CanvasViewportGL::CanvasViewportGL(const QGLFormat &format, QWidget *parent) :
+    QGLWidget(format, parent),
     d(new Data)
 {
 	
@@ -54,12 +132,13 @@ void CanvasViewportGL::setDocumentSize(const QSize &size)
 	int texWidth = powerOf2Bound(size.width());
 	int texHeight = powerOf2Bound(size.height());
 	
-	float s = float(size.width()) / float(texWidth);
-	float t = float(size.height()) / float(texHeight);
-	d->texCoords[0] = vec2(0, 0);
-	d->texCoords[1] = vec2(s, 0);
-	d->texCoords[2] = vec2(s, t);
-	d->texCoords[3] = vec2(0, t);
+	double s = double(size.width()) / double(texWidth);
+	double t = double(size.height()) / double(texHeight);
+	
+	d->texCoords[0] = Vec2D(0, 0);
+	d->texCoords[1] = Vec2D(s, 0);
+	d->texCoords[2] = Vec2D(s, t);
+	d->texCoords[3] = Vec2D(0, t);
 	
 	glGenTextures ( 1, &d->texture );
 	glBindTexture ( GL_TEXTURE_2D, d->texture );
@@ -70,6 +149,7 @@ void CanvasViewportGL::setDocumentSize(const QSize &size)
 	glTexImage2D ( GL_TEXTURE_2D, 0, 3, texWidth, texHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, 0 );
 	
 	d->sceneSize = size;
+	d->textureSizeInv = Vec2D(1) / Vec2D(texWidth, texHeight);
 }
 
 void CanvasViewportGL::setTransform(const Affine2D &transform)
@@ -79,22 +159,23 @@ void CanvasViewportGL::setTransform(const Affine2D &transform)
 	
 	PAINTFIELD_DEBUG << transform.toQTransform();
 	
-	auto t = Affine2D(2.0 / w, 0, 0, -2.0 / h, -1.0, 1.0) * transform;
+	Affine2D tNormalize(2.0 / w, 0, 0, -2.0 / h, -1.0, 1.0);
+	
+	auto t = tNormalize * transform;
 	
 	PAINTFIELD_DEBUG << t.toQTransform();
 	
 	PAINTFIELD_DEBUG << d->sceneSize;
 	
-	double sceneWidth = d->sceneSize.width();
-	double sceneHeight = d->sceneSize.height();
-	
 	d->vertices[0] = t * Vec2D(0, 0);
-	d->vertices[1] = t * Vec2D(sceneWidth, 0);
-	d->vertices[2] = t * Vec2D(sceneWidth, sceneHeight);
-	d->vertices[3] = t * Vec2D(0, sceneHeight);
+	d->vertices[1] = t * Vec2D(d->sceneSize.width(), 0);
+	d->vertices[2] = t * Vec2D(d->sceneSize.width(), d->sceneSize.height());
+	d->vertices[3] = t * Vec2D(0, d->sceneSize.height());
 	
-	qDebug() << d->vertices[0].x << d->vertices[0].y;
-	qDebug() << d->vertices[2].x << d->vertices[2].y;
+	d->transformToView = transform;
+	d->transformToScene = transform.inverted();
+	d->transformToNormalizedView = t;
+	d->transformNormalize = tNormalize;
 }
 
 void CanvasViewportGL::updateTile(const QPoint &tileKey, const Malachite::Image &image, const QPoint &offset)
@@ -103,9 +184,21 @@ void CanvasViewportGL::updateTile(const QPoint &tileKey, const Malachite::Image 
 	{
 		QPoint totalOffset = tileKey * Surface::TileSize + offset;
 		
-		glBindTexture(GL_TEXTURE_2D, d->texture);
 		glTexSubImage2D(GL_TEXTURE_2D, 0, totalOffset.x(), totalOffset.y(), image.width(), image.height(), GL_BGRA, GL_FLOAT, image.constBits());
+		
+		d->repaintRect(QRect(totalOffset, image.size()));
 	}
+}
+
+void CanvasViewportGL::beforeUpdateTile()
+{
+	makeCurrent();
+	glBindTexture(GL_TEXTURE_2D, d->texture);
+}
+
+void CanvasViewportGL::afterUpdateTile()
+{
+	glFlush();
 }
 
 void CanvasViewportGL::initializeGL()
@@ -133,18 +226,7 @@ void CanvasViewportGL::paintGL()
 	
 	glBindTexture(GL_TEXTURE_2D, d->texture);
 	
-	glBegin(GL_QUADS);
-	
-	glTexCoord2f(d->texCoords[0].x, d->texCoords[0].y);
-	glVertex2f(d->vertices[0].x, d->vertices[0].y);
-	glTexCoord2f(d->texCoords[1].x, d->texCoords[1].y);
-	glVertex2f(d->vertices[1].x, d->vertices[1].y);
-	glTexCoord2f(d->texCoords[2].x, d->texCoords[2].y);
-	glVertex2f(d->vertices[2].x, d->vertices[2].y);
-	glTexCoord2f(d->texCoords[3].x, d->texCoords[3].y);
-	glVertex2f(d->vertices[3].x, d->vertices[3].y);
-	
-	glEnd();
+	d->drawWhole();
 }
 
 struct CanvasViewportControllerGL::Data
@@ -156,7 +238,13 @@ CanvasViewportControllerGL::CanvasViewportControllerGL(QObject *parent) :
     AbstractCanvasViewportController(parent),
     d(new Data)
 {
-	d->view = new CanvasViewportGL();
+	
+	QGLFormat format;
+	format.setDepth(false);
+	format.setDoubleBuffer(false);
+	format.setStencil(false);
+	
+	d->view = new CanvasViewportGL(format);
 	connect(d->view, SIGNAL(ready()), this, SIGNAL(ready()));
 }
 
@@ -183,6 +271,16 @@ void CanvasViewportControllerGL::setTransform(const Affine2D &transform)
 void CanvasViewportControllerGL::updateTile(const QPoint &tileKey, const Malachite::Image &image, const QPoint &offset)
 {
 	d->view->updateTile(tileKey, image, offset);
+}
+
+void CanvasViewportControllerGL::beforeUpdateTile()
+{
+	d->view->beforeUpdateTile();
+}
+
+void CanvasViewportControllerGL::afterUpdateTile()
+{
+	d->view->afterUpdateTile();
 }
 
 void CanvasViewportControllerGL::update()

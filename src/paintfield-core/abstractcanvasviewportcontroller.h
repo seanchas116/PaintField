@@ -28,6 +28,8 @@ public:
 	virtual void setDocumentSize(const QSize &size) = 0;
 	virtual void setTransform(const Malachite::Affine2D &transform) = 0;
 	virtual void updateTile(const QPoint &tileKey, const Malachite::Image &image, const QPoint &offset) = 0;
+	virtual void beforeUpdateTile() {}
+	virtual void afterUpdateTile() {}
 	virtual void update() = 0;
 	virtual bool isReady() = 0;
 	
