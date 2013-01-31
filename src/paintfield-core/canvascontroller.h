@@ -4,15 +4,13 @@
 #include <QObject>
 #include <QPointer>
 
-#include "smartpointer.h"
+#include "document.h"
 #include "module.h"
-#include "canvasview.h"
 
 namespace PaintField
 {
 
 class CanvasModule;
-class Document;
 class WorkspaceController;
 
 class CanvasController : public QObject

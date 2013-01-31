@@ -1,13 +1,16 @@
 #include <QtGui>
 
+#include "smartpointer.h"
 #include "util.h"
 #include "appcontroller.h"
 #include "toolmanager.h"
 #include "palettemanager.h"
 #include "module.h"
 #include "modulemanager.h"
+#include "canvascontroller.h"
+
 #include "canvassplitareacontroller.h"
-#include "debug.h"
+#include "workspaceview.h"
 
 #include "workspacecontroller.h"
 

@@ -1,5 +1,4 @@
 #include <float.h>
-#include "paintfield-core/debug.h"
 
 #include "brushstrokerpen.h"
 

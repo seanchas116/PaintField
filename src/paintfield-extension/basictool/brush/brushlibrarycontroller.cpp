@@ -1,6 +1,7 @@
 #include <QtGui>
-#include "paintfield-core/debug.h"
+#include "paintfield-core/util.h"
 #include "paintfield-core/appcontroller.h"
+#include "paintfield-core/settingsmanager.h"
 #include "brushlibrarymodel.h"
 #include "brushpresetmanager.h"
 #include "brushlibraryview.h"

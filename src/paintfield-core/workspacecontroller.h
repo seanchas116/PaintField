@@ -4,12 +4,14 @@
 #include <QObject>
 #include <QPointer>
 
-#include "canvascontroller.h"
-#include "workspaceview.h"
+#include "module.h"
+#include "global.h"
 
 namespace PaintField
 {
 
+class CanvasController;
+class WorkspaceView;
 class WorkspaceModule;
 class ToolManager;
 class PaletteManager;

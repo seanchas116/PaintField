@@ -2,7 +2,6 @@
 #include <Malachite/Image>
 #include <Malachite/Surface>
 #include "drawutil.h"
-#include "debug.h"
 
 #include "canvasviewportcontrollersoftware.h"
 

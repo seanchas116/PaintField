@@ -1,10 +1,12 @@
 #include <QtGui>
 
-#include "debug.h"
 #include "util.h"
 #include "workspacemanager.h"
 #include "modulemanager.h"
 #include "settingsmanager.h"
+#include "application.h"
+#include "document.h"
+#include "canvascontroller.h"
 
 #include "appcontroller.h"
 

@@ -1,6 +1,5 @@
 #include <QtGui>
 
-#include "debug.h"
 #include "docktabwidget.h"
 
 #include "docktabmotherwidget.h"

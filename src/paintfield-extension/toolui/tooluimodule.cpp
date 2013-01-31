@@ -1,4 +1,6 @@
 #include <QToolBar>
+#include "paintfield-core/workspacecontroller.h"
+#include "paintfield-core/appcontroller.h"
 #include "paintfield-core/toolmanager.h"
 #include "tooluimodule.h"
 

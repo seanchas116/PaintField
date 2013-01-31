@@ -4,6 +4,8 @@
 #include <QStandardItemModel>
 #include <QDir>
 
+#include "global.h"
+
 namespace PaintField {
 
 enum LibraryItemType

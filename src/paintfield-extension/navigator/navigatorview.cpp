@@ -1,6 +1,5 @@
 #include <QtGui>
 #include <Malachite/Division>
-#include "paintfield-core/debug.h"
 #include "paintfield-core/widgets/simplebutton.h"
 #include "paintfield-core/widgets/doubleslider.h"
 #include "paintfield-core/widgets/loosespinbox.h"

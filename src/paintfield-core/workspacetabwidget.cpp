@@ -1,4 +1,5 @@
 #include "workspacecontroller.h"
+#include "workspaceview.h"
 #include "appcontroller.h"
 #include "workspacemanager.h"
 

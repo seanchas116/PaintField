@@ -2,7 +2,6 @@
 #include "canvastabwidget.h"
 #include "canvassplitwidget.h"
 #include "widgets/memorizablesplitter.h"
-#include "debug.h"
 
 #include "canvassplitareacontroller.h"
 

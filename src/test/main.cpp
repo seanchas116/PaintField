@@ -5,7 +5,6 @@
 #include "testobject.h"
 
 
-#include "paintfield-core/debug.h"
 #include "paintfield-core/canvascontroller.h"
 #include "paintfield-core/canvasview.h"
 #include "paintfield-core/drawutil.h"

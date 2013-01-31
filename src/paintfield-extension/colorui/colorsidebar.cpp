@@ -1,4 +1,5 @@
 #include <QtGui>
+#include "paintfield-core/util.h"
 #include "paintfield-core/appcontroller.h"
 #include "paintfield-core/widgets/colorbutton.h"
 #include "paintfield-core/widgets/colorslider.h"

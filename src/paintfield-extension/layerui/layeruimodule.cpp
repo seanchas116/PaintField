@@ -1,6 +1,7 @@
 #include <QMenu>
 
 #include "paintfield-core/appcontroller.h"
+#include "paintfield-core/settingsmanager.h"
 #include "paintfield-core/widgets/simplebutton.h"
 #include "layertreesidebar.h"
 #include "layeruicontroller.h"

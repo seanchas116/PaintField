@@ -1,7 +1,7 @@
 #include <QtGui>
 
-#include "../debug.h"
 #include "../appcontroller.h"
+#include "../settingsmanager.h"
 
 #include "filedialog.h"
 

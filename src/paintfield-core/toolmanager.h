@@ -2,8 +2,9 @@
 #define FSTOOLMANAGER_H
 
 #include <QObject>
-#include "appcontroller.h"
+#include "settingsmanager.h"
 
+class QAction;
 class QActionGroup;
 
 namespace PaintField

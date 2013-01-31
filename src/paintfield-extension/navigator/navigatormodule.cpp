@@ -1,5 +1,6 @@
 #include "paintfield-core/appcontroller.h"
 #include "paintfield-core/canvascontroller.h"
+#include "paintfield-core/settingsmanager.h"
 #include "navigatorcontroller.h"
 
 #include "navigatormodule.h"

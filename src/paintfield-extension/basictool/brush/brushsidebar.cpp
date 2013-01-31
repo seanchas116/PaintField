@@ -1,6 +1,4 @@
 #include <QtGui>
-#include "paintfield-core/debug.h"
-
 #include "brushsidebar.h"
 
 namespace PaintField {

@@ -1,11 +1,16 @@
 #include <QtGui>
 
+#include "application.h"
+#include "settingsmanager.h"
+#include "smartpointer.h"
 #include "drawutil.h"
 #include "tool.h"
 #include "layerrenderer.h"
-#include "debug.h"
 #include "canvascontroller.h"
 #include "appcontroller.h"
+#include "workspacecontroller.h"
+#include "keytracker.h"
+
 #include "abstractcanvasviewportcontroller.h"
 #include "canvasviewportcontrollersoftware.h"
 #include "canvasviewportcontrollergl.h"

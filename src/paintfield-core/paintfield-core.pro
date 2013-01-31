@@ -5,6 +5,8 @@
 TEMPLATE = lib
 TARGET = paintfield-core
 
+DEFINES += PAINTFIELD_LIBRARY
+
 include(../src.pri)
 
 QMAKE_CXXFLAGS += -std=c++11
@@ -58,7 +60,6 @@ HEADERS += \
     canvasview.h \
     smartpointer.h \
     interface.h \
-    debug.h \
     qtsingleapplication/qtsingleapplication.h \
     qtsingleapplication/qtlockedfile.h \
     qtsingleapplication/qtlocalpeer.h \
@@ -83,7 +84,8 @@ HEADERS += \
     workspacetabwidget.h \
     abstractcanvasviewportcontroller.h \
     canvasviewportcontrollersoftware.h \
-    canvasviewportcontrollergl.h
+    canvasviewportcontrollergl.h \
+    scopedtimer.h
 FORMS += dialogs/exportdialog.ui dialogs/newdocumentdialog.ui
 SOURCES += \
            canvascontroller.cpp \

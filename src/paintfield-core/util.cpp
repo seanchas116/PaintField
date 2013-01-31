@@ -2,7 +2,6 @@
 #include <qjson/parser.h>
 #include <qjson/serializer.h>
 
-#include "debug.h"
 #include "util.h"
 
 namespace PaintField

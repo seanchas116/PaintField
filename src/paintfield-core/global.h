@@ -1,13 +1,14 @@
-#ifndef FSGLOBAL_H
-#define FSGLOBAL_H
+#pragma once
 
 #include <Qt>
 #include <QEvent>
-#include <QMetaType>
-#include <QHash>
-#include <QString>
-#include <QIcon>
-#include <QKeySequence>
+#include <QDebug>
+
+#if defined(PAINTFIELD_LIBRARY)
+#define PAINTFIELDCORE_EXPORT Q_DECL_EXPORT
+#else
+#define PAINTFIELDCORE_EXPORT Q_DECL_IMPORT
+#endif
 
 namespace PaintField
 {
@@ -54,6 +55,7 @@ enum EditActionType
 	EditActionSelectAll
 };
 
-}
+#define PAINTFIELD_WARNING qWarning() << Q_FUNC_INFO << ":"
+#define PAINTFIELD_DEBUG qDebug() << Q_FUNC_INFO << ":"
 
-#endif // FSGLOBAL_H
+}

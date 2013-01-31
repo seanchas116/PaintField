@@ -2,6 +2,8 @@
 #include <QObject>
 #include <Malachite/Affine2D>
 
+#include "global.h"
+
 class QPoint;
 class QSize;
 class QTransform;

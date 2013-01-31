@@ -1,4 +1,3 @@
-#include "paintfield-core/debug.h"
 
 #include "brushrasterizer.h"
 

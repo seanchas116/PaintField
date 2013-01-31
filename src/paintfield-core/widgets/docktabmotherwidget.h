@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QHash>
 
+#include "../global.h"
 #include "docktabwidget.h"
 
 class QSplitter;

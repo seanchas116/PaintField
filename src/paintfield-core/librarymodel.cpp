@@ -1,5 +1,4 @@
 #include <QDebug>
-#include "debug.h"
 
 #include "librarymodel.h"
 

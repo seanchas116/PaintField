@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include "paintfield-core/workspacecontroller.h"
+#include "paintfield-core/canvascontroller.h"
 
 namespace PaintField
 {

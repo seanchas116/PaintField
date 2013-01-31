@@ -1,7 +1,6 @@
 #include <QtGui>
 #include <cfloat>
 #include <functional>
-#include "../debug.h"
 #include "../callbackanimation.h"
 
 #include "vanishingscrollbar.h"

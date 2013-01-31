@@ -5,6 +5,8 @@
 #include <QMargins>
 #include <QPixmap>
 
+#include "../global.h"
+
 namespace PaintField
 {
 

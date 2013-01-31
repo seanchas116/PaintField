@@ -1,6 +1,7 @@
 #include <QtGui>
 #include <Malachite/ImageIO>
 
+#include "smartpointer.h"
 #include "appcontroller.h"
 #include "toolmanager.h"
 #include "documentio.h"

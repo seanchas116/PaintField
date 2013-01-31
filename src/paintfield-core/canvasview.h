@@ -2,17 +2,18 @@
 #define CANVASVIEW_H
 
 #include <Malachite/Affine2D>
-#include "widgets/navigatablearea.h"
-#include "smartpointer.h"
-#include "tabletevent.h"
-#include "document.h"
-#include "keytracker.h"
+#include <Malachite/Surface>
+#include "global.h"
+#include <QWidget>
 
 namespace PaintField
 {
 
+class WidgetTabletEvent;
+class Document;
 class Tool;
 class CanvasController;
+class LayerModel;
 
 class CanvasView : public QWidget
 {

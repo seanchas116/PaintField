@@ -1,8 +1,6 @@
 #include <QtGui>
 #include <Malachite/CurveSubdivision>
 
-#include "paintfield-core/debug.h"
-
 #include "brushstroker.h"
 
 using namespace Malachite;

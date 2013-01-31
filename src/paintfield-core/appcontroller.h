@@ -4,15 +4,14 @@
 #include <QMainWindow>
 #include <QDir>
 
-#include "application.h"
-#include "util.h"
-#include "palettemanager.h"
-#include "workspacemanager.h"
 #include "global.h"
 
 namespace PaintField
 {
 
+class Application;
+class PaletteManager;
+class WorkspaceManager;
 class ModuleManager;
 class SettingsManager;
 class AppModule;

@@ -1,8 +1,9 @@
-#include <QUrl>
+#include <QtGui>
 #include "workspacecontroller.h"
 #include "appcontroller.h"
 #include "workspacemanager.h"
-#include "debug.h"
+#include "canvasview.h"
+#include "canvascontroller.h"
 
 #include "canvastabwidget.h"
 

@@ -1,7 +1,6 @@
 #include <Malachite/Surface>
 #include <Malachite/Vec2D>
 #include <QDebug>
-#include "debug.h"
 #include "canvasviewportcontrollergl.h"
 
 using namespace Malachite;
@@ -131,6 +130,8 @@ void CanvasViewportGL::setDocumentSize(const QSize &size)
 {
 	int texWidth = powerOf2Bound(size.width());
 	int texHeight = powerOf2Bound(size.height());
+	//int texWidth = 128;
+	//int texHeight = 128;
 	
 	double s = double(size.width()) / double(texWidth);
 	double t = double(size.height()) / double(texHeight);
@@ -198,6 +199,7 @@ void CanvasViewportGL::beforeUpdateTile()
 
 void CanvasViewportGL::afterUpdateTile()
 {
+	//swapBuffers();
 	glFlush();
 }
 

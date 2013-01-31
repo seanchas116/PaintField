@@ -3,6 +3,7 @@
 
 #include <QTabBar>
 #include <QTabWidget>
+#include "../global.h"
 #include "../interface.h"
 
 namespace PaintField

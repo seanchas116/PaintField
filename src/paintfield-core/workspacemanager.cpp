@@ -2,6 +2,8 @@
 #include "application.h"
 #include "appcontroller.h"
 #include "modulemanager.h"
+#include "util.h"
+#include "workspaceview.h"
 
 #include "workspacemanager.h"
 

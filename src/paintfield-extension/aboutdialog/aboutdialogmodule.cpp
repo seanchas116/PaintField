@@ -1,4 +1,8 @@
+#include <QAction>
+#include <QApplication>
+
 #include "paintfield-core/appcontroller.h"
+#include "paintfield-core/settingsmanager.h"
 
 #include "aboutdialog.h"
 

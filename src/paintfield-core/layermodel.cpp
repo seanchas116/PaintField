@@ -1,7 +1,6 @@
 #include <QtGui>
 #include <Malachite/Painter>
 
-#include "debug.h"
 #include "util.h"
 #include "document.h"
 #include "layerrenderer.h"

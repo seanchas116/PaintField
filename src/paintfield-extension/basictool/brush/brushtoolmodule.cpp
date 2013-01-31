@@ -1,6 +1,8 @@
 #include "paintfield-core/appcontroller.h"
+#include "paintfield-core/workspacecontroller.h"
+#include "paintfield-core/settingsmanager.h"
 #include "paintfield-core/widgets/simplebutton.h"
-#include "paintfield-core/debug.h"
+#include "paintfield-core/palettemanager.h"
 
 #include "brushpreferencesmanager.h"
 #include "brushsidebar.h"

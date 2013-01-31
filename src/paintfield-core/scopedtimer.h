@@ -1,11 +1,7 @@
-#ifndef DEBUG_H
-#define DEBUG_H
+#pragma once
 
-#include <QDebug>
 #include <QElapsedTimer>
-
-#define PAINTFIELD_WARNING qWarning() << Q_FUNC_INFO << ":"
-#define PAINTFIELD_DEBUG qDebug() << Q_FUNC_INFO << ":"
+#include "global.h"
 
 namespace PaintField
 {
@@ -13,6 +9,7 @@ namespace PaintField
 class ScopedTimer
 {
 public:
+	
 	ScopedTimer(const QString &functionName) :
 		_functionName(functionName)
 	{
@@ -29,9 +26,6 @@ private:
 	const QString _functionName;
 };
 
-}
-
 #define PAINTFIELD_CALC_SCOPE_ELAPSED_TIME	ScopedTimer timer__(Q_FUNC_INFO)
 
-
-#endif // DEBUG_H
+}

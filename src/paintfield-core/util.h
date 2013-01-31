@@ -5,6 +5,8 @@
 #include <QTransform>
 #include <QModelIndex>
 
+#include "global.h"
+
 class QAction;
 class QTreeView;
 typedef QList<QAction *> QActionList;

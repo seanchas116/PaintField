@@ -5,11 +5,10 @@
 #include <QMdiArea>
 #include <QMdiSubWindow>
 #include <QAction>
-#include <QPointer>
 #include <QVBoxLayout>
+#include <QPointer>
 
 #include "global.h"
-#include "canvasview.h"
 #include "settingsmanager.h"
 #include "workspacetabwidget.h"
 
@@ -18,6 +17,8 @@
 
 namespace PaintField
 {
+
+class CanvasController;
 
 class SidebarTabWidget : public WorkspaceTabWidget
 {
@@ -105,7 +106,7 @@ public:
 	
 	void setSidebar(const QString &id, QWidget *sidebar);
 	QToolBar *toolBar(const QString &id);
-	void associateMenuBarWithActions(const QActionList &actions);
+	void associateMenuBarWithActions(const QList<QAction *> &actions);
 	
 	WorkspaceController *controller();
 	
