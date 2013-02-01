@@ -37,7 +37,7 @@ QList<AppModule *> ModuleManager::createAppModules(AppController *app, QObject *
 	return modules;
 }
 
-QList<WorkspaceModule  *> ModuleManager::createWorkspaceModules(WorkspaceController *workspace, QObject *parent)
+QList<WorkspaceModule  *> ModuleManager::createWorkspaceModules(Workspace *workspace, QObject *parent)
 {
 	QList<WorkspaceModule *> modules;
 	
@@ -48,7 +48,7 @@ QList<WorkspaceModule  *> ModuleManager::createWorkspaceModules(WorkspaceControl
 	return modules;
 }
 
-QList<CanvasModule *> ModuleManager::createCanvasModules(CanvasController *canvas, QObject *parent)
+QList<CanvasModule *> ModuleManager::createCanvasModules(Canvas *canvas, QObject *parent)
 {
 	QList<CanvasModule *> modules;
 	

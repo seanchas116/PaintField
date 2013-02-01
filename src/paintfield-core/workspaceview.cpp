@@ -7,7 +7,7 @@
 namespace PaintField
 {
 
-SidebarTabWidget::SidebarTabWidget(WorkspaceController *workspace, QWidget *parent) :
+SidebarTabWidget::SidebarTabWidget(Workspace *workspace, QWidget *parent) :
     WorkspaceTabWidget(workspace, parent)
 {
 	setAutoDeletionEnabled(true);
@@ -210,17 +210,17 @@ void WorkspaceMenuAction::onBackendActionChanged()
 
 struct WorkspaceView::Data
 {
-	WorkspaceController *controller = 0;
+	Workspace *controller = 0;
 	
 	DockTabMotherWidget *motherWidget = 0;
 	
 	QList<SideBarFrame *> sideBarFrames;
 	QList<QToolBar *> toolBars;
 	
-	CanvasController *currentCanvas = 0;
+	Canvas *currentCanvas = 0;
 };
 
-WorkspaceView::WorkspaceView(WorkspaceController *controller, QWidget *parent) :
+WorkspaceView::WorkspaceView(Workspace *controller, QWidget *parent) :
     QMainWindow(parent),
     d(new Data)
 {
@@ -278,7 +278,7 @@ void WorkspaceView::createSideBarFramesInSplitter(DockTabMotherWidget::Direction
 {
 	for (const QVariant &tabWidgetOrder : splitterOrder.toList())
 	{
-		auto tabWidget = new SidebarTabWidget(controller(), 0);
+		auto tabWidget = new SidebarTabWidget(workspace(), 0);
 		
 		for (const QString &sideBarName : tabWidgetOrder.toStringList())
 		{
@@ -375,12 +375,12 @@ void WorkspaceView::associateMenuBarWithActions(const QActionList &actions)
 	MenuArranger::associateMenuBarWithActions(menuBar(), actions);
 }
 
-WorkspaceController *WorkspaceView::controller()
+Workspace *WorkspaceView::workspace()
 {
 	return d->controller;
 }
 
-void WorkspaceView::setCurrentCanvas(CanvasController *canvas)
+void WorkspaceView::setCurrentCanvas(Canvas *canvas)
 {
 	if (d->currentCanvas)
 	{

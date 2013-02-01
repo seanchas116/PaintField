@@ -17,10 +17,10 @@
 namespace PaintField
 {
 
-struct WorkspaceController::Data
+struct Workspace::Data
 {
-	QList<CanvasController *> canvasControllers;
-	QPointer<CanvasController> currentCanvas;
+	QList<Canvas *> canvasControllers;
+	QPointer<Canvas> currentCanvas;
 	
 	ToolManager *toolManager = 0;
 	PaletteManager *paletteManager = 0;
@@ -35,7 +35,7 @@ struct WorkspaceController::Data
 };
 
 
-WorkspaceController::WorkspaceController(QObject *parent) :
+Workspace::Workspace(QObject *parent) :
     QObject(parent),
     d(new Data)
 {
@@ -50,8 +50,8 @@ WorkspaceController::WorkspaceController(QObject *parent) :
 		{
 			auto controller = new CanvasSplitAreaController(this, this);
 			
-			connect(this, SIGNAL(canvasShowRequested(CanvasController*)),
-			        controller, SLOT(addCanvas(CanvasController*)));
+			connect(this, SIGNAL(canvasShowRequested(Canvas*)),
+			        controller, SLOT(addCanvas(Canvas*)));
 			
 			d->actions << createAction("paintfield.view.splitVertically", controller, SLOT(splitCurrentVertically()));
 			d->actions << createAction("paintfield.view.splitHorizontally", controller, SLOT(splitCurrentHorizontally()));
@@ -60,8 +60,8 @@ WorkspaceController::WorkspaceController(QObject *parent) :
 			view->setCentralWidget(controller->view());
 		}
 		
-		connect(this, SIGNAL(currentCanvasChanged(CanvasController*)),
-		        view, SLOT(setCurrentCanvas(CanvasController*)));
+		connect(this, SIGNAL(currentCanvasChanged(Canvas*)),
+		        view, SLOT(setCurrentCanvas(Canvas*)));
 		connect(view, SIGNAL(closeRequested()), this, SLOT(tryClose()));
 		
 		view->createSideBarFrames(appController()->settingsManager()->sideBarDeclarationHash(),
@@ -87,27 +87,27 @@ WorkspaceController::WorkspaceController(QObject *parent) :
 	updateMenuBar();
 }
 
-WorkspaceController::~WorkspaceController()
+Workspace::~Workspace()
 {
 	delete d;
 }
 
-ToolManager *WorkspaceController::toolManager()
+ToolManager *Workspace::toolManager()
 {
 	return d->toolManager;
 }
 
-PaletteManager *WorkspaceController::paletteManager()
+PaletteManager *Workspace::paletteManager()
 {
 	return d->paletteManager;
 }
 
-WorkspaceView *WorkspaceController::view()
+WorkspaceView *Workspace::view()
 {
 	return d->view.data();
 }
 
-void WorkspaceController::addModules(const QList<WorkspaceModule *> &modules)
+void Workspace::addModules(const QList<WorkspaceModule *> &modules)
 {
 	for (auto module : modules)
 		addActions(module->actions());
@@ -115,22 +115,22 @@ void WorkspaceController::addModules(const QList<WorkspaceModule *> &modules)
 	d->modules += modules;
 }
 
-WorkspaceModuleList WorkspaceController::modules()
+WorkspaceModuleList Workspace::modules()
 {
 	return d->modules;
 }
 
-void WorkspaceController::addActions(const QActionList &actions)
+void Workspace::addActions(const QActionList &actions)
 {
 	d->actions += actions;
 }
 
-QActionList WorkspaceController::actions()
+QActionList Workspace::actions()
 {
 	return d->actions;
 }
 
-void WorkspaceController::addNullCanvasModules(const CanvasModuleList &modules)
+void Workspace::addNullCanvasModules(const CanvasModuleList &modules)
 {
 	for (auto module : modules)
 		addNullCanvasActions(module->actions());
@@ -138,24 +138,24 @@ void WorkspaceController::addNullCanvasModules(const CanvasModuleList &modules)
 	d->nullCanvasModules += modules;
 }
 
-CanvasModuleList WorkspaceController::nullCanvasModules()
+CanvasModuleList Workspace::nullCanvasModules()
 {
 	return d->nullCanvasModules;
 }
 
-void WorkspaceController::addNullCanvasActions(const QActionList &actions)
+void Workspace::addNullCanvasActions(const QActionList &actions)
 {
 	d->nullCanvasActions += actions;
 }
 
-QActionList WorkspaceController::nullCanvasActions()
+QActionList Workspace::nullCanvasActions()
 {
 	return d->nullCanvasActions;
 }
 
-void WorkspaceController::newCanvas()
+void Workspace::newCanvas()
 {
-	auto canvas = CanvasController::fromNew();
+	auto canvas = Canvas::fromNew();
 	if (canvas)
 	{
 		addAndShowCanvas(canvas);
@@ -163,9 +163,9 @@ void WorkspaceController::newCanvas()
 	}
 }
 
-void WorkspaceController::newCanvasFromImageFile()
+void Workspace::newCanvasFromImageFile()
 {
-	auto canvas = CanvasController::fromNewFromImageFile();
+	auto canvas = Canvas::fromNewFromImageFile();
 	if (canvas)
 	{
 		addAndShowCanvas(canvas);
@@ -173,9 +173,9 @@ void WorkspaceController::newCanvasFromImageFile()
 	}
 }
 
-void WorkspaceController::openCanvas()
+void Workspace::openCanvas()
 {
-	auto canvas = CanvasController::fromOpen();
+	auto canvas = Canvas::fromOpen();
 	if (canvas)
 	{
 		addAndShowCanvas(canvas);
@@ -183,9 +183,9 @@ void WorkspaceController::openCanvas()
 	}
 }
 
-void WorkspaceController::openCanvasFromFilepath(const QString &filepath)
+void Workspace::openCanvasFromFilepath(const QString &filepath)
 {
-	auto canvas = CanvasController::fromFile(filepath);
+	auto canvas = Canvas::fromFile(filepath);
 	if (canvas)
 	{
 		addAndShowCanvas(canvas);
@@ -193,9 +193,9 @@ void WorkspaceController::openCanvasFromFilepath(const QString &filepath)
 	}
 }
 
-bool WorkspaceController::tryClose()
+bool Workspace::tryClose()
 {
-	for (CanvasController *canvas : d->canvasControllers)
+	for (Canvas *canvas : d->canvasControllers)
 	{
 		if (!canvas->closeCanvas())
 			return false;
@@ -204,12 +204,12 @@ bool WorkspaceController::tryClose()
 	return true;
 }
 
-void WorkspaceController::setFocus()
+void Workspace::setFocus()
 {
 	d->view->setFocus();
 }
 
-void WorkspaceController::setCurrentCanvas(CanvasController *canvas)
+void Workspace::setCurrentCanvas(Canvas *canvas)
 {
 	if (d->currentCanvas != canvas)
 	{
@@ -225,13 +225,13 @@ void WorkspaceController::setCurrentCanvas(CanvasController *canvas)
 	}
 }
 
-void WorkspaceController::addAndShowCanvas(CanvasController *canvas)
+void Workspace::addAndShowCanvas(Canvas *canvas)
 {
 	addCanvas(canvas);
 	emit canvasShowRequested(canvas);
 }
 
-void WorkspaceController::addCanvas(CanvasController *canvas)
+void Workspace::addCanvas(Canvas *canvas)
 {
 	if (!canvas)
 		return;
@@ -243,12 +243,12 @@ void WorkspaceController::addCanvas(CanvasController *canvas)
 	{
 		canvas->setWorkspace(this);
 		d->canvasControllers << canvas;
-		connect(canvas, SIGNAL(shouldBeDeleted(CanvasController*)),
-		        this, SLOT(deleteCanvas(CanvasController*)));
+		connect(canvas, SIGNAL(shouldBeDeleted(Canvas*)),
+		        this, SLOT(deleteCanvas(Canvas*)));
 	}
 }
 
-void WorkspaceController::removeCanvas(CanvasController *canvas)
+void Workspace::removeCanvas(Canvas *canvas)
 {
 	if (d->canvasControllers.contains(canvas))
 	{
@@ -258,12 +258,12 @@ void WorkspaceController::removeCanvas(CanvasController *canvas)
 	}
 }
 
-QList<CanvasController *> WorkspaceController::canvases()
+QList<Canvas *> Workspace::canvases()
 {
 	return d->canvasControllers;
 }
 
-void WorkspaceController::deleteCanvas(CanvasController *canvas)
+void Workspace::deleteCanvas(Canvas *canvas)
 {
 	if (d->canvasControllers.contains(canvas))
 	{
@@ -275,17 +275,17 @@ void WorkspaceController::deleteCanvas(CanvasController *canvas)
 	}
 }
 
-QActionList WorkspaceController::currentCanvasActions()
+QActionList Workspace::currentCanvasActions()
 {
 	return d->currentCanvas ? d->currentCanvas->actions() : d->nullCanvasActions;
 }
 
-CanvasModuleList WorkspaceController::currentCanvasModules()
+CanvasModuleList Workspace::currentCanvasModules()
 {
 	return d->currentCanvas ? d->currentCanvas->modules() : d->nullCanvasModules;
 }
 
-void WorkspaceController::updateWorkspaceItems()
+void Workspace::updateWorkspaceItems()
 {
 	for (const QString &name : appController()->settingsManager()->sidebarNames())
 	{
@@ -302,7 +302,7 @@ void WorkspaceController::updateWorkspaceItems()
 	}
 }
 
-void WorkspaceController::updateWorkspaceItemsForCanvas(CanvasController *canvas)
+void Workspace::updateWorkspaceItemsForCanvas(Canvas *canvas)
 {
 	Q_UNUSED(canvas)
 	
@@ -321,7 +321,7 @@ void WorkspaceController::updateWorkspaceItemsForCanvas(CanvasController *canvas
 	}
 }
 
-void WorkspaceController::updateMenuBar()
+void Workspace::updateMenuBar()
 {
 	QActionList actions = appController()->actions() + this->actions() + currentCanvasActions();
 	view()->associateMenuBarWithActions(actions);

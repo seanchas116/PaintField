@@ -18,7 +18,7 @@
 namespace PaintField
 {
 
-class CanvasController;
+class Canvas;
 
 class SidebarTabWidget : public WorkspaceTabWidget
 {
@@ -27,7 +27,7 @@ class SidebarTabWidget : public WorkspaceTabWidget
 	
 public:
 	
-	SidebarTabWidget(WorkspaceController *workspace, QWidget *parent);
+	SidebarTabWidget(Workspace *workspace, QWidget *parent);
 	
 	bool tabIsInsertable(DockTabWidget *other, int index) override;
 	QObject *createNew() override;
@@ -44,13 +44,13 @@ class WorkspaceMotherWidget : public DockTabMotherWidget
 	
 public:
 	
-	explicit WorkspaceMotherWidget(WorkspaceController *workspace, QWidget *parent = 0) : DockTabMotherWidget(parent), _workspace(workspace) {}
+	explicit WorkspaceMotherWidget(Workspace *workspace, QWidget *parent = 0) : DockTabMotherWidget(parent), _workspace(workspace) {}
 	
 	bool tabIsInsertable(DockTabWidget *src, int srcIndex) override;
 	
 private:
 	
-	WorkspaceController *_workspace;
+	Workspace *_workspace;
 };
 
 class WorkspaceMenuAction : public QAction
@@ -90,13 +90,13 @@ private:
 	QWidget *_sideBar = 0;
 };
 
-class WorkspaceController;
+class Workspace;
 
 class WorkspaceView : public QMainWindow
 {
 	Q_OBJECT
 public:
-	explicit WorkspaceView(WorkspaceController *controller, QWidget *parent = 0);
+	explicit WorkspaceView(Workspace *workspace, QWidget *parent = 0);
 	
 	void createSideBarFrames(const SideBarDeclarationHash &sidebarDeclarations, const QVariant &order);
 	void createToolBars(const ToolBarDeclarationHash &toolBarDeclarations, const QVariant &order);
@@ -108,7 +108,7 @@ public:
 	QToolBar *toolBar(const QString &id);
 	void associateMenuBarWithActions(const QList<QAction *> &actions);
 	
-	WorkspaceController *controller();
+	Workspace *workspace();
 	
 signals:
 	
@@ -117,7 +117,7 @@ signals:
 	
 public slots:
 	
-	void setCurrentCanvas(CanvasController *canvas);
+	void setCurrentCanvas(Canvas *canvas);
 	
 protected:
 	

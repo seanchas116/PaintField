@@ -13,14 +13,14 @@ class WorkspaceManager : public QObject
 public:
 	explicit WorkspaceManager(QObject *parent = 0);
 	
-	WorkspaceController *currentWorkspace() { return _currentWorkspace; }
-	QList<WorkspaceController *> workspaces() { return _workspaces; }
+	Workspace *currentWorkspace() { return _currentWorkspace; }
+	QList<Workspace *> workspaces() { return _workspaces; }
 	
 signals:
 	
-	void workspaceAdded(WorkspaceController *controller);
-	void workspaceAboutToBeRemoved(WorkspaceController *controller);
-	void currentWorkspaceChanged(WorkspaceController *controller);
+	void workspaceAdded(Workspace *controller);
+	void workspaceAboutToBeRemoved(Workspace *controller);
+	void currentWorkspaceChanged(Workspace *controller);
 	
 public slots:
 	
@@ -32,29 +32,29 @@ public slots:
 	bool tryCloseAll();
 	
 	void newWorkspace();
-	void setCurrentWorkspace(WorkspaceController *workspace);
+	void setCurrentWorkspace(Workspace *workspace);
 	
 	/**
 	 * Removes a workspace.
 	 * The app will quit if there is no workspace after it.
 	 * @param workspace
 	 */
-	void removeWorkspace(WorkspaceController *workspace);
+	void removeWorkspace(Workspace *workspace);
 	
 protected:
 	
-	void addWorkspace(WorkspaceController *workspace);
+	void addWorkspace(Workspace *workspace);
 	
 private slots:
 	
 	void onWorkspaceFocusIn();
-	void onWorkspaceShouldBeDeleted(WorkspaceController *workspace);
+	void onWorkspaceShouldBeDeleted(Workspace *workspace);
 	void onFocusWidgetChanged(QWidget *old, QWidget *now);
 	
 private:
 	
-	QList<WorkspaceController *> _workspaces;
-	WorkspaceController *_currentWorkspace = 0;
+	QList<Workspace *> _workspaces;
+	Workspace *_currentWorkspace = 0;
 };
 
 }

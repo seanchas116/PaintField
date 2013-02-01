@@ -12,7 +12,7 @@ namespace PaintField
 class WidgetTabletEvent;
 class Document;
 class Tool;
-class CanvasController;
+class Canvas;
 class LayerModel;
 
 class CanvasView : public QWidget
@@ -23,18 +23,12 @@ class CanvasView : public QWidget
 	
 public:
 	
-	CanvasView(CanvasController *canvas, QWidget *parent = 0);
+	CanvasView(Canvas *canvas, QWidget *parent = 0);
 	~CanvasView();
 	
-	CanvasController *controller();
+	Canvas *canvas();
 	Document *document();
 	LayerModel *layerModel();
-	
-	void setTool(Tool *tool);
-	
-	double scale() const;
-	double rotation() const;
-	QPoint translation() const;
 	
 	void memorizeNavigation();
 	void restoreNavigation();
@@ -50,11 +44,7 @@ public slots:
 	void setRotation(double value);
 	void setTranslation(const QPoint &value);
 	
-signals:
-	
-	void scaleChanged(double value);
-	void rotationChanged(double value);
-	void translationChanged(const QPoint &value);
+	void setTool(Tool *tool);
 	
 protected:
 	

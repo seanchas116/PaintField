@@ -14,7 +14,7 @@ class NavigatorModule : public CanvasModule
 {
 	Q_OBJECT
 public:
-	NavigatorModule(CanvasController *canvas, QObject *parent);
+	NavigatorModule(Canvas *canvas, QObject *parent);
 	
 signals:
 	
@@ -30,7 +30,7 @@ public:
 	
 	void initialize(AppController *app) override;
 	
-	CanvasModuleList createCanvasModules(CanvasController *canvas, QObject *parent);
+	CanvasModuleList createCanvasModules(Canvas *canvas, QObject *parent);
 };
 
 }

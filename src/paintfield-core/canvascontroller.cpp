@@ -9,6 +9,7 @@
 #include "module.h"
 #include "layerrenderer.h"
 #include "modulemanager.h"
+#include "tool.h"
 
 #include "dialogs/filedialog.h"
 #include "dialogs/messagebox.h"
@@ -23,20 +24,25 @@ using namespace Malachite;
 namespace PaintField
 {
 
-struct CanvasController::Data
+struct Canvas::Data
 {
-	WorkspaceController *workspace = 0;
+	Workspace *workspace = 0;
 	Document *document = 0;
 	int *documentRefCount = 0;
 	
 	QItemSelectionModel *selectionModel = 0;
 	
-	ScopedQObjectPointer<CanvasView> view;
+	CanvasView *view;
 	QActionList actions;
 	CanvasModuleList modules;
+	
+	double scale = 1, rotation = 0;
+	QPoint translation;
+	
+	QScopedPointer<Tool> tool;
 };
 
-CanvasController::CanvasController(Document *document, WorkspaceController *parent) :
+Canvas::Canvas(Document *document, Workspace *parent) :
     QObject(parent),
     d(new Data)
 {
@@ -49,7 +55,7 @@ CanvasController::CanvasController(Document *document, WorkspaceController *pare
 	commonInit();
 }
 
-CanvasController::CanvasController(CanvasController *other, WorkspaceController *parent) :
+Canvas::Canvas(Canvas *other, Workspace *parent) :
     QObject(parent),
     d(new Data)
 {
@@ -60,7 +66,7 @@ CanvasController::CanvasController(CanvasController *other, WorkspaceController 
 	commonInit();
 }
 
-void CanvasController::commonInit()
+void Canvas::commonInit()
 {
 	(*d->documentRefCount)++;
 	
@@ -85,14 +91,12 @@ void CanvasController::commonInit()
 	redoAction->setObjectName("paintfield.edit.redo");
 	d->actions << redoAction;
 	
-	d->view.reset(new CanvasView(this, 0));
-	
 	addModules(appController()->moduleManager()->createCanvasModules(this, this));
 	
 	setWorkspace(d->workspace);
 }
 
-CanvasController::~CanvasController()
+Canvas::~Canvas()
 {
 	(*d->documentRefCount)--;
 	
@@ -105,7 +109,52 @@ CanvasController::~CanvasController()
 	delete d;
 }
 
-void CanvasController::setWorkspace(WorkspaceController *workspace)
+double Canvas::scale() const
+{
+	return d->scale;
+}
+
+double Canvas::rotation() const
+{
+	return d->rotation;
+}
+
+QPoint Canvas::translation() const
+{
+	return d->translation;
+}
+
+void Canvas::setScale(double scale)
+{
+	if (d->scale != scale)
+	{
+		d->scale = scale;
+		emit scaleChanged(scale);
+	}
+}
+
+void Canvas::setRotation(double rotation)
+{
+	// rotation will be in [-180, 180)
+	rotation = fmod(rotation + 180, 360) - 180;
+	
+	if (d->rotation != rotation)
+	{
+		d->rotation = rotation;
+		emit rotationChanged(rotation);
+	}
+}
+
+void Canvas::setTranslation(const QPoint &translation)
+{
+	if (d->translation != translation)
+	{
+		d->translation = translation;
+		emit translationChanged(translation);
+	}
+}
+
+void Canvas::setWorkspace(Workspace *workspace)
 {
 	if (d->workspace)
 		disconnect(d->workspace->toolManager(), 0, this, 0);
@@ -120,59 +169,71 @@ void CanvasController::setWorkspace(WorkspaceController *workspace)
 	}
 }
 
-WorkspaceController *CanvasController::workspace()
+Workspace *Canvas::workspace()
 {
 	return d->workspace;
 }
 
-Document *CanvasController::document()
+Document *Canvas::document()
 {
 	return d->document;
 }
 
-QItemSelectionModel *CanvasController::selectionModel()
+QItemSelectionModel *Canvas::selectionModel()
 {
 	return d->selectionModel;
 }
 
-void CanvasController::addActions(const QActionList &actions)
+void Canvas::addActions(const QActionList &actions)
 {
 	d->actions += actions;
 }
 
-QActionList CanvasController::actions()
+QActionList Canvas::actions()
 {
 	return d->actions;
 }
 
-CanvasModuleList CanvasController::modules()
+CanvasModuleList Canvas::modules()
 {
 	return d->modules;
 }
 
-CanvasView *CanvasController::view()
+void Canvas::setView(CanvasView *view)
 {
-	return d->view.data();
+	d->view = view;
 }
 
-void CanvasController::addModules(const CanvasModuleList &modules)
+CanvasView *Canvas::view()
+{
+	return d->view;
+}
+
+void Canvas::addModules(const CanvasModuleList &modules)
 {
 	for (CanvasModule *module : modules)
 		addActions(module->actions());
 	d->modules += modules;
 }
 
-void CanvasController::onSetCurrent()
+void Canvas::onSetCurrent()
 {
 	d->view->setFocus();
 }
 
-void CanvasController::onToolChanged(const QString &name)
+Tool *Canvas::tool()
 {
-	d->view->setTool(createTool(appController()->modules(), workspace()->modules(), modules(), name, d->view.data()));
+	return d->tool.data();
 }
 
-CanvasController *CanvasController::fromNew()
+void Canvas::onToolChanged(const QString &name)
+{
+	auto tool = createTool(appController()->modules(), workspace()->modules(), modules(), name, this);
+	d->tool.reset(tool);
+	emit toolChanged(tool);
+}
+
+Canvas *Canvas::fromNew()
 {
 	NewDocumentDialog dialog;
 	if (dialog.exec() != QDialog::Accepted)
@@ -181,10 +242,10 @@ CanvasController *CanvasController::fromNew()
 	RasterLayer *layer = new RasterLayer(tr("Untitled Layer"));
 	
 	Document *document = new Document(appController()->unduplicatedNewFileTempName(), dialog.documentSize(), {layer});
-	return new CanvasController(document);
+	return new Canvas(document);
 }
 
-CanvasController *CanvasController::fromOpen()
+Canvas *Canvas::fromOpen()
 {
 	QString filePath = FileDialog::getOpenFilePath(0, tr("Open"), tr("PaintField Document"), {"pfield"});
 	
@@ -194,7 +255,7 @@ CanvasController *CanvasController::fromOpen()
 	return fromSavedFile(filePath);
 }
 
-CanvasController *CanvasController::fromNewFromImageFile()
+Canvas *Canvas::fromNewFromImageFile()
 {
 	QString filePath = FileDialog::getOpenFilePath(0, tr("Open"), tr("Image File"), ImageImporter::importableExtensions());
 	
@@ -204,7 +265,7 @@ CanvasController *CanvasController::fromNewFromImageFile()
 	return fromImageFile(filePath);
 }
 
-CanvasController *CanvasController::fromFile(const QString &path)
+Canvas *Canvas::fromFile(const QString &path)
 {
 	QFileInfo fileInfo(path);
 	
@@ -214,7 +275,7 @@ CanvasController *CanvasController::fromFile(const QString &path)
 		return fromImageFile(path);
 }
 
-CanvasController *CanvasController::fromSavedFile(const QString &path)
+Canvas *Canvas::fromSavedFile(const QString &path)
 {
 	DocumentIO documentIO(path);
 	if (!documentIO.openUnzip())
@@ -231,10 +292,10 @@ CanvasController *CanvasController::fromSavedFile(const QString &path)
 		return 0;
 	}
 	
-	return new CanvasController(document);
+	return new Canvas(document);
 }
 
-CanvasController *CanvasController::fromImageFile(const QString &path)
+Canvas *Canvas::fromImageFile(const QString &path)
 {
 	QSize size;
 	
@@ -243,10 +304,10 @@ CanvasController *CanvasController::fromImageFile(const QString &path)
 		return 0;
 	
 	auto document = new Document(appController()->unduplicatedNewFileTempName(), size, {layer});
-	return new CanvasController(document);
+	return new Canvas(document);
 }
 
-bool CanvasController::saveAsCanvas()
+bool Canvas::saveAsCanvas()
 {
 	Document *document = d->document;
 	
@@ -273,7 +334,7 @@ bool CanvasController::saveAsCanvas()
 	return true;
 }
 
-bool CanvasController::saveCanvas()
+bool Canvas::saveCanvas()
 {
 	Document *document = d->document;
 	
@@ -292,7 +353,7 @@ bool CanvasController::saveCanvas()
 	return true;
 }
 
-bool CanvasController::closeCanvas()
+bool Canvas::closeCanvas()
 {
 	if (*d->documentRefCount == 1)
 	{
@@ -325,15 +386,15 @@ bool CanvasController::closeCanvas()
 	return true;
 }
 
-void CanvasController::newCanvasIntoDocument()
+void Canvas::newCanvasIntoDocument()
 {
-	auto newCanvas = new CanvasController(this);
+	auto newCanvas = new Canvas(this);
 	
 	workspace()->addAndShowCanvas(newCanvas);
 	workspace()->setCurrentCanvas(newCanvas);
 }
 
-bool CanvasController::exportCanvas()
+bool Canvas::exportCanvas()
 {
 	ExportDialog dialog;
 	

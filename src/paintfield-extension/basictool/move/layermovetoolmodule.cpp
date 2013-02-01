@@ -11,10 +11,10 @@ namespace PaintField
 
 const QString _layerMoveToolName = "paintfield.tool.move";
 
-Tool *LayerMoveToolModule::createTool(const QString &name, CanvasView *view)
+Tool *LayerMoveToolModule::createTool(const QString &name, Canvas *canvas)
 {
 	if (name == _layerMoveToolName)
-		return new LayerMoveTool(view);
+		return new LayerMoveTool(canvas);
 	return 0;
 }
 

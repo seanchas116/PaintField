@@ -11,9 +11,9 @@ namespace PaintField
 {
 
 class CanvasModule;
-class WorkspaceController;
+class Workspace;
 
-class CanvasController : public QObject
+class Canvas : public QObject
 {
 	Q_OBJECT
 public:
@@ -23,38 +23,38 @@ public:
 	 * @param document
 	 * @param parent
 	 */
-	CanvasController(Document *document, WorkspaceController *parent = 0);
+	Canvas(Document *document, Workspace *parent = 0);
 	
-	CanvasController(CanvasController *other, WorkspaceController *parent = 0);
+	Canvas(Canvas *other, Workspace *parent = 0);
 	
-	~CanvasController();
+	~Canvas();
 	
 	/**
 	 * Shows a dialog, creates a new file and creates a controller from it.
 	 * @param parent The new controller's parent
 	 * @return The created controller
 	 */
-	static CanvasController *fromNew();
+	static Canvas *fromNew();
 	
 	/**
 	 * Shows a dialog, opens a file and creates a controller from it.
 	 * @param parent The new controller's parent
 	 * @return The created controller
 	 */
-	static CanvasController *fromOpen();
+	static Canvas *fromOpen();
 	
-	static CanvasController *fromNewFromImageFile();
+	static Canvas *fromNewFromImageFile();
 	
-	static CanvasController *fromFile(const QString &path);
-	static CanvasController *fromSavedFile(const QString &path);
-	static CanvasController *fromImageFile(const QString &path);
+	static Canvas *fromFile(const QString &path);
+	static Canvas *fromSavedFile(const QString &path);
+	static Canvas *fromImageFile(const QString &path);
 	
-	void setWorkspace(WorkspaceController *workspace);
+	void setWorkspace(Workspace *workspace);
 	
 	/**
 	 * @return The workspace controller which have the canvas controller
 	 */
-	WorkspaceController *workspace();
+	Workspace *workspace();
 	
 	/**
 	 * @return The document the canvas handles
@@ -75,16 +75,34 @@ public:
 	void addModules(const CanvasModuleList &modules);
 	CanvasModuleList modules();
 	
+	/**
+	 * This function must be used only by CanvasView.
+	 * @param view
+	 */
+	void setView(CanvasView *view);
+	
 	CanvasView *view();
 	
 	virtual void onSetCurrent();
+	
+	double scale() const;
+	double rotation() const;
+	QPoint translation() const;
+	
+	Tool *tool();
 	
 signals:
 	
 	/**
 	 * Emitted when the canvas should be deleted.
 	 */
-	void shouldBeDeleted(CanvasController *canvas);
+	void shouldBeDeleted(Canvas *canvas);
+	
+	void scaleChanged(double scale);
+	void rotationChanged(double rotation);
+	void translationChanged(const QPoint &translation);
+	
+	void toolChanged(Tool *tool);
 	
 public slots:
 	
@@ -109,6 +127,10 @@ public slots:
 	void newCanvasIntoDocument();
 	
 	bool exportCanvas();
+	
+	void setScale(double scale);
+	void setRotation(double rotation);
+	void setTranslation(const QPoint &translation);
 	
 private slots:
 	

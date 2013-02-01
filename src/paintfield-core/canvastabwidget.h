@@ -6,9 +6,9 @@
 
 namespace PaintField {
 
-class CanvasController;
+class Canvas;
 class WorkspaceView;
-class WorkspaceController;
+class Workspace;
 class CanvasView;
 
 class CanvasTabWidget : public WorkspaceTabWidget
@@ -17,7 +17,7 @@ class CanvasTabWidget : public WorkspaceTabWidget
 	
 public:
 	
-	CanvasTabWidget(WorkspaceController *workspace, QWidget *parent);
+	CanvasTabWidget(Workspace *workspace, QWidget *parent);
 	~CanvasTabWidget();
 	
 	bool tabIsInsertable(DockTabWidget *other, int index) override;
@@ -28,14 +28,14 @@ public:
 	void memorizeTransforms();
 	void restoreTransforms();
 	
-	void insertCanvas(int index, CanvasController *canvas);
-	void addCanvas(CanvasController *canvas) { insertCanvas(count(), canvas); }
+	void insertCanvas(int index, Canvas *canvas);
+	void addCanvas(Canvas *canvas) { insertCanvas(count(), canvas); }
 	
 	QList<CanvasView *> canvasViews();
 	
 signals:
 	
-	void currentCanvasChanged(CanvasController *canvas);
+	void currentCanvasChanged(Canvas *canvas);
 	void activated();
 	
 public slots:
@@ -46,7 +46,7 @@ public slots:
 private slots:
 	
 	void onTabCloseRequested(int index);
-	void onCurrentCanvasChanged(CanvasController *canvas);
+	void onCurrentCanvasChanged(Canvas *canvas);
 	
 	void onTabMovedIn(QWidget *widget);
 	void onTabAboutToBeMovedOut(QWidget *widget);

@@ -15,8 +15,8 @@ namespace PaintField
 {
 
 class AppController;
-class WorkspaceController;
-class CanvasController;
+class Workspace;
+class Canvas;
 class CanvasView;
 class Tool;
 
@@ -33,10 +33,10 @@ public:
 	 * Creates a Tool, which is installed in CanvasView and delegates editing.
 	 * This function is called when a new canvas is added or the current tool is changed for each canvas.
 	 * @param name declared name of the tool
-	 * @param view
+	 * @param canvas
 	 * @return 
 	 */
-	virtual Tool *createTool(const QString &name, CanvasView *view);
+	virtual Tool *createTool(const QString &name, Canvas *canvas);
 	
 	/**
 	 * Updates a toolbar.
@@ -64,13 +64,13 @@ class CanvasModule : public Module
 	Q_OBJECT
 public:
 	
-	CanvasModule(CanvasController *canvas, QObject *parent) : Module(parent), _canvas(canvas) {}
+	CanvasModule(Canvas *canvas, QObject *parent) : Module(parent), _canvas(canvas) {}
 	
-	CanvasController *canvas() { return _canvas; }
+	Canvas *canvas() { return _canvas; }
 	
 private:
 	
-	CanvasController *_canvas = 0;
+	Canvas *_canvas = 0;
 };
 typedef QList<CanvasModule *> CanvasModuleList;
 
@@ -79,13 +79,13 @@ class WorkspaceModule : public Module
 	Q_OBJECT
 public:
 	
-	WorkspaceModule(WorkspaceController *workspace, QObject *parent) : Module(parent), _workspace(workspace) {}
+	WorkspaceModule(Workspace *workspace, QObject *parent) : Module(parent), _workspace(workspace) {}
 	
-	WorkspaceController *workspace() { return _workspace; }
+	Workspace *workspace() { return _workspace; }
 	
 private:
 	
-	WorkspaceController *_workspace;
+	Workspace *_workspace;
 };
 typedef QList<WorkspaceModule *> WorkspaceModuleList;
 
@@ -103,7 +103,7 @@ private:
 };
 typedef QList<AppModule *> AppModuleList;
 
-Tool *createTool(const AppModuleList &appModules, const WorkspaceModuleList &workspaceModules, const CanvasModuleList &canvasModules, const QString &name, CanvasView *view);
+Tool *createTool(const AppModuleList &appModules, const WorkspaceModuleList &workspaceModules, const CanvasModuleList &canvasModules, const QString &name, Canvas *canvas);
 QWidget *sideBarForWorkspace(const AppModuleList &appModules, const WorkspaceModuleList &workspaceModules, const QString &name);
 QWidget *sideBarForCanvas(const CanvasModuleList &canvasModules, const QString &name);
 void updateToolBar(const AppModuleList &appModules, const WorkspaceModuleList &workspaceModules, const CanvasModuleList &canvasModules, QToolBar *toolBar, const QString &name);
@@ -119,8 +119,8 @@ public:
 	virtual void initialize(AppController *app) = 0;
 	
 	virtual AppModuleList createAppModules(AppController *app, QObject *parent);
-	virtual WorkspaceModuleList createWorkspaceModules(WorkspaceController *workspace, QObject *parent);
-	virtual CanvasModuleList createCanvasModules(CanvasController *canvas, QObject *parent);
+	virtual WorkspaceModuleList createWorkspaceModules(Workspace *workspace, QObject *parent);
+	virtual CanvasModuleList createCanvasModules(Canvas *canvas, QObject *parent);
 	
 	QList<ModuleFactory *> subModuleFactories() { return _subModuleFactories; }
 	void addSubModuleFactory(ModuleFactory *factory) { _subModuleFactories << factory; }

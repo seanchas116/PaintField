@@ -24,58 +24,48 @@ void Module::addSideBar(const QString &name, QWidget *sideBar)
 	_sideBars.insert(name, sideBar);
 }
 
-Tool *Module::createTool(const QString &name, CanvasView *view)
+Tool *Module::createTool(const QString &, Canvas *)
 {
-	Q_UNUSED(name)
-	Q_UNUSED(view)
 	return 0;
 }
 
-void Module::updateToolBar(QToolBar *toolBar, const QString &name)
+void Module::updateToolBar(QToolBar *, const QString &)
 {
-	Q_UNUSED(toolBar)
-	Q_UNUSED(name)
 }
 
-AppModuleList ModuleFactory::createAppModules(AppController *app, QObject *parent)
+AppModuleList ModuleFactory::createAppModules(AppController *, QObject *)
 {
-	Q_UNUSED(app)
-	Q_UNUSED(parent)
 	return AppModuleList();
 }
 
-WorkspaceModuleList ModuleFactory::createWorkspaceModules(WorkspaceController *workspace, QObject *parent)
+WorkspaceModuleList ModuleFactory::createWorkspaceModules(Workspace *, QObject *)
 {
-	Q_UNUSED(workspace)
-	Q_UNUSED(parent)
 	return WorkspaceModuleList();
 }
 
-CanvasModuleList ModuleFactory::createCanvasModules(CanvasController *canvas, QObject *parent)
+CanvasModuleList ModuleFactory::createCanvasModules(Canvas *, QObject *)
 {
-	Q_UNUSED(canvas)
-	Q_UNUSED(parent)
 	return CanvasModuleList();
 }
 
-Tool *createTool(const AppModuleList &appModules, const WorkspaceModuleList &workspaceModules, const CanvasModuleList &canvasModules, const QString &name, CanvasView *view)
+Tool *createTool(const AppModuleList &appModules, const WorkspaceModuleList &workspaceModules, const CanvasModuleList &canvasModules, const QString &name, Canvas *canvas)
 {
 	Tool *tool;
 	for (Module *module : appModules)
 	{
-		tool = module->createTool(name, view);
+		tool = module->createTool(name, canvas);
 		if (tool)
 			return tool;
 	}
 	for (Module *module : workspaceModules)
 	{
-		tool = module->createTool(name, view);
+		tool = module->createTool(name, canvas);
 		if (tool)
 			return tool;
 	}
 	for (Module *module : canvasModules)
 	{
-		tool = module->createTool(name, view);
+		tool = module->createTool(name, canvas);
 		if (tool)
 			return tool;
 	}

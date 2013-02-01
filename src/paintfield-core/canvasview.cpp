@@ -55,8 +55,8 @@ class CanvasView::Data
 {
 public:
 	
-	CanvasController *canvas = 0;
-	ScopedQObjectPointer<Tool> tool;
+	Canvas *canvas = 0;
+	Tool *tool = 0;
 	
 	double mousePressure = 0;
 	QRect repaintRect;
@@ -84,22 +84,22 @@ public:
 	AbstractCanvasViewportController *viewportController = 0;
 };
 
-CanvasView::CanvasView(CanvasController *canvas, QWidget *parent) :
+CanvasView::CanvasView(Canvas *canvas, QWidget *parent) :
     QWidget(parent),
     d(new Data)
 {
 	d->canvas = canvas;
 	d->sceneSize = canvas->document()->size();
 	
+	d->viewportController = new CanvasViewportControllerSoftware(this);
+	
 	// setup viewport
 	{
-		d->viewportController = new CanvasViewportControllerSoftware(this);
 		
 		if (d->viewportController->isReady())
 			onViewportReady();
 		else
 			connect(d->viewportController, SIGNAL(ready()), this, SLOT(onViewportReady()));
-		
 		
 		auto layout = new QVBoxLayout;
 		layout->addWidget(d->viewportController->view());
@@ -108,6 +108,24 @@ CanvasView::CanvasView(CanvasController *canvas, QWidget *parent) :
 		setLayout(layout);
 		
 		d->viewCenter = QPoint(width() / 2, height() / 2);
+	}
+	
+	// connect to canvas
+	{
+		connect(canvas, SIGNAL(scaleChanged(double)), this, SLOT(setScale(double)));
+		connect(canvas, SIGNAL(rotationChanged(double)), this, SLOT(setRotation(double)));
+		connect(canvas, SIGNAL(translationChanged(QPoint)), this, SLOT(setTranslation(QPoint)));
+		
+		setScale(canvas->scale());
+		setRotation(canvas->rotation());
+		setTranslation(canvas->translation());
+		
+		connect(canvas, SIGNAL(toolChanged(Tool*)), this, SLOT(setTool(Tool*)));
+		setTool(canvas->tool());
+		
+		connect(canvas, SIGNAL(shouldBeDeleted(Canvas*)), this, SLOT(deleteLater()));
+		
+		canvas->setView(this);
 	}
 	
 	connect(layerModel(), SIGNAL(tilesUpdated(QPointSet)),
@@ -140,20 +158,6 @@ CanvasView::~CanvasView()
 	delete d;
 }
 
-double CanvasView::scale() const
-{
-	return d->nav.scale;
-}
-
-double CanvasView::rotation() const
-{
-	return d->nav.rotation;
-}
-
-QPoint CanvasView::translation() const
-{
-	return d->nav.translation;
-}
 
 QPoint CanvasView::viewCenter() const
 {
@@ -162,29 +166,20 @@ QPoint CanvasView::viewCenter() const
 
 void CanvasView::setScale(double value)
 {
-	if (d->nav.scale != value)
-	{
-		d->nav.scale = value;
-		emit scaleChanged(value);
-	}
+	d->nav.scale = value;
+	updateTransforms();
 }
 
 void CanvasView::setRotation(double value)
 {
-	if (d->nav.rotation != value)
-	{
-		d->nav.rotation = value;
-		emit rotationChanged(value);
-	}
+	d->nav.rotation = value;
+	updateTransforms();
 }
 
 void CanvasView::setTranslation(const QPoint &value)
 {
-	if (d->nav.translation != value)
-	{
-		d->nav.translation = value;
-		emit translationChanged(value);
-	}
+	d->nav.translation = value;
+	updateTransforms();
 }
 
 void CanvasView::memorizeNavigation()
@@ -210,11 +205,11 @@ Affine2D CanvasView::transformFromScene() const
 void CanvasView::updateTransforms()
 {
 	QPoint sceneOffset = QPoint(d->sceneSize.width(), d->sceneSize.height()) / 2;
-	QPoint viewOffset = viewCenter() + translation();
+	QPoint viewOffset = viewCenter() + d->nav.translation;
 	
 	auto transform = Affine2D::fromTranslation(Vec2D(viewOffset)) *
-	                 Affine2D::fromRotation(rotation()) *
-	                 Affine2D::fromScale(scale()) *
+	                 Affine2D::fromRotation(d->nav.rotation) *
+	                 Affine2D::fromScale(d->nav.scale) *
 	                 Affine2D::fromTranslation(Vec2D(-sceneOffset));
 	
 	d->transformFromScene = transform;
@@ -224,7 +219,7 @@ void CanvasView::updateTransforms()
 	update();
 }
 
-CanvasController *CanvasView::controller()
+Canvas *CanvasView::canvas()
 {
 	return d->canvas;
 }
@@ -241,10 +236,10 @@ LayerModel *CanvasView::layerModel()
 
 void CanvasView::setTool(Tool *tool)
 {
-	d->tool.reset(tool);
-	
 	if (tool)
 	{
+		d->tool = tool;
+		
 		connect(tool, SIGNAL(requestUpdate(QPointSet)), this, SLOT(updateTiles(QPointSet)));
 		connect(tool, SIGNAL(requestUpdate(QHash<QPoint,QRect>)), this, SLOT(updateTiles(QHash<QPoint,QRect>)));
 		
@@ -267,7 +262,7 @@ void CanvasView::updateTiles(const QPointSet &keys, const QHash<QPoint, QRect> &
 	d->viewportController->beforeUpdateTile();
 	
 	CanvasRenderer renderer;
-	renderer.setTool(d->tool.data());
+	renderer.setTool(d->tool);
 	
 	Surface surface = renderer.renderToSurface(layerModel()->rootLayer()->children(), keys, rects);
 	
@@ -306,7 +301,7 @@ void CanvasView::updateTiles(const QPointSet &keys, const QHash<QPoint, QRect> &
 void CanvasView::onClicked()
 {
 	setFocus();
-	controller()->workspace()->setCurrentCanvas(controller());
+	canvas()->workspace()->setCurrentCanvas(canvas());
 }
 
 void CanvasView::onToolCursorChanged(const QCursor &cursor)

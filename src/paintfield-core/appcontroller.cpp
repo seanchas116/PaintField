@@ -110,9 +110,9 @@ QString AppController::unduplicatedTempName(const QString &name)
 {
 	QStringList existingTempNames;
 	
-	for (WorkspaceController *workspace : workspaceManager()->workspaces())
+	for (Workspace *workspace : workspaceManager()->workspaces())
 	{
-		for (CanvasController *canvas : workspace->canvases())
+		for (Canvas *canvas : workspace->canvases())
 		{
 			Document *eachDoc = canvas->document();
 			

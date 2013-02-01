@@ -48,7 +48,7 @@ void FSLayerMoveEdit::undo(Layer *layer)
 	rasterLayer->setSurface(surface);
 }
 
-LayerMoveTool::LayerMoveTool(CanvasView *parent) :
+LayerMoveTool::LayerMoveTool(Canvas *parent) :
 	Tool(parent)
 {}
 

@@ -29,7 +29,7 @@ class Tool : public QObject
 	
 public:
 	
-	explicit Tool(CanvasView *parent = 0) : QObject(parent) {}
+	explicit Tool(Canvas *parent = 0) : QObject(parent) {}
 	
 	/**
 	 * @return The document's current layer index
@@ -91,10 +91,10 @@ protected:
 	void setCustomCursorEnabled(bool enabled) { _customCursorEnabled = enabled; }
 	void setCursor(const QCursor &cursor) { emit cursorChanged(cursor); _cursor = cursor; }
 	
-	CanvasView *canvasView() { return static_cast<CanvasView *>(parent()); }
-	Document *document() { return canvasView()->document(); }
+	Canvas *canvas() { return static_cast<Canvas *>(parent()); }
+	Document *document() { return canvas()->document(); }
 	LayerModel *layerModel() { return document()->layerModel(); }
-	QItemSelectionModel *selectionModel() { return canvasView()->controller()->selectionModel(); }
+	QItemSelectionModel *selectionModel() { return canvas()->selectionModel(); }
 	
 private:
 	

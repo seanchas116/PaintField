@@ -14,7 +14,7 @@ class LayerUIModule : public CanvasModule
 {
 	Q_OBJECT
 public:
-	LayerUIModule(CanvasController *canvas, QObject *parent);
+	LayerUIModule(Canvas *canvas, QObject *parent);
 	
 };
 
@@ -27,7 +27,7 @@ public:
 	
 	void initialize(AppController *app) override;
 	
-	CanvasModuleList createCanvasModules(CanvasController *canvas, QObject *parent) override
+	CanvasModuleList createCanvasModules(Canvas *canvas, QObject *parent) override
 	{
 		return { new LayerUIModule(canvas, parent) };
 	}

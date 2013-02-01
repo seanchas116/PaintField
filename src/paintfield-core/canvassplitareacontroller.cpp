@@ -1,4 +1,5 @@
 #include "canvascontroller.h"
+#include "canvasview.h"
 #include "canvastabwidget.h"
 #include "canvassplitwidget.h"
 #include "widgets/memorizablesplitter.h"
@@ -7,7 +8,7 @@
 
 namespace PaintField {
 
-CanvasSplitAreaController::CanvasSplitAreaController(WorkspaceController *workspace, QObject *parent) :
+CanvasSplitAreaController::CanvasSplitAreaController(Workspace *workspace, QObject *parent) :
     QObject(parent),
     _workspace(workspace)
 {
@@ -29,8 +30,9 @@ void CanvasSplitAreaController::closeCurrent()
 	removeSplit(_currentSplit);
 }
 
-void CanvasSplitAreaController::addCanvas(CanvasController *canvas)
+void CanvasSplitAreaController::addCanvas(Canvas *canvas)
 {
+	new CanvasView(canvas);
 	_currentSplit->tabWidget()->addCanvas(canvas);
 }
 

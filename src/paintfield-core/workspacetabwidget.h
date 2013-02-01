@@ -5,7 +5,7 @@
 
 namespace PaintField {
 
-class WorkspaceController;
+class Workspace;
 
 class WorkspaceTabWidget : public DockTabWidget
 {
@@ -15,13 +15,13 @@ class WorkspaceTabWidget : public DockTabWidget
 	
 public:
 	
-	explicit WorkspaceTabWidget(WorkspaceController *workspace, QWidget *parent = 0);
+	explicit WorkspaceTabWidget(Workspace *workspace, QWidget *parent = 0);
 	~WorkspaceTabWidget();
 	
 	bool isFloating() const;
 	void setFloating(bool floating);
 	
-	WorkspaceController *workspace();
+	Workspace *workspace();
 	
 signals:
 	
@@ -33,7 +33,7 @@ protected:
 	
 private slots:
 	
-	void onCurrentWorkspaceChanged(WorkspaceController *workspace);
+	void onCurrentWorkspaceChanged(Workspace *workspace);
 	
 private:
 	

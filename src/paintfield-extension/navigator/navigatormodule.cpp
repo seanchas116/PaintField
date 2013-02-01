@@ -10,7 +10,7 @@ namespace PaintField
 
 const QString _navigatorSidebarName = "paintfield.sidebar.navigator";
 
-NavigatorModule::NavigatorModule(CanvasController *canvas, QObject *parent) :
+NavigatorModule::NavigatorModule(Canvas *canvas, QObject *parent) :
     CanvasModule(canvas, parent)
 {
 	auto controller = new NavigatorController(canvas, this);
@@ -22,7 +22,7 @@ void NavigatorModuleFactory::initialize(AppController *app)
 	app->settingsManager()->declareSideBar(_navigatorSidebarName, SidebarDeclaration(tr("Navigator")));
 }
 
-CanvasModuleList NavigatorModuleFactory::createCanvasModules(CanvasController *canvas, QObject *parent)
+CanvasModuleList NavigatorModuleFactory::createCanvasModules(Canvas *canvas, QObject *parent)
 {
 	return { new NavigatorModule(canvas, parent) };
 }

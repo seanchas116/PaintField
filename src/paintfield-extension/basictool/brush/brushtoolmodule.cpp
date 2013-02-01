@@ -21,7 +21,7 @@ const QString _brushToolName("paintfield.tool.brush");
 const QString _brushLibrarySidebarName("paintfield.sidebar.brushLibrary");
 const QString _brushSideBarName("paintfield.sidebar.brush");
 
-BrushToolModule::BrushToolModule(WorkspaceController *workspace, QObject *parent) :
+BrushToolModule::BrushToolModule(Workspace *workspace, QObject *parent) :
     WorkspaceModule(workspace, parent),
     _presetManager(new BrushPresetManager(this)),
     _strokerFactoryManager(new BrushStrokerFactoryManager(this)),
@@ -48,7 +48,7 @@ BrushToolModule::BrushToolModule(WorkspaceController *workspace, QObject *parent
 	}
 }
 
-Tool *BrushToolModule::createTool(const QString &name, CanvasView *parent)
+Tool *BrushToolModule::createTool(const QString &name, Canvas *parent)
 {
 	if (name == _brushToolName)
 	{

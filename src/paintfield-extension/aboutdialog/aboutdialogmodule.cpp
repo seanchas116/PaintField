@@ -13,7 +13,7 @@ namespace PaintField {
 static const QString _aboutActionName = "paintfield.help.about";
 static const QString _aboutQtActionName = "paintfield.help.aboutQt";
 
-AboutDialogModule::AboutDialogModule(WorkspaceController *workspace, QObject *parent) :
+AboutDialogModule::AboutDialogModule(Workspace *workspace, QObject *parent) :
     WorkspaceModule(workspace, parent)
 {
 	{ // About PaintField

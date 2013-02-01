@@ -8,7 +8,7 @@
 namespace PaintField
 {
 
-LayerUIController::LayerUIController(CanvasController *parent) :
+LayerUIController::LayerUIController(Canvas *parent) :
     QObject(parent),
     _canvas(parent)
 {

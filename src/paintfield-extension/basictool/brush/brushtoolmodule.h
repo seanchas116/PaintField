@@ -16,12 +16,12 @@ class BrushToolModule : public WorkspaceModule
 {
 	Q_OBJECT
 public:
-	BrushToolModule(WorkspaceController *workspace, QObject *parent);
+	BrushToolModule(Workspace *workspace, QObject *parent);
 	
 	BrushPresetManager *presetManager() { return _presetManager; }
 	BrushStrokerFactoryManager *sourceFactoryManager() { return _strokerFactoryManager; }
 	
-	Tool *createTool(const QString &name, CanvasView *parent) override;
+	Tool *createTool(const QString &name, Canvas *parent) override;
 	
 signals:
 	
@@ -46,7 +46,7 @@ public:
 	
 	void initialize(AppController *app) override;
 	
-	WorkspaceModuleList createWorkspaceModules(WorkspaceController *workspace, QObject *parent) override
+	WorkspaceModuleList createWorkspaceModules(Workspace *workspace, QObject *parent) override
 	{
 		return { new BrushToolModule(workspace, parent) };
 	}

@@ -20,7 +20,7 @@ using namespace Malachite;
 
 void test_CanvasView()
 {
-    auto controller = new CanvasController(TestUtil::createTestDocument(), 0);
+    auto controller = new Canvas(TestUtil::createTestDocument(), 0);
     auto view = new CanvasView(controller);
 	view->show();
 }
@@ -57,7 +57,7 @@ void test_DocumentIO_saveLoad()
 		openedDoc = documentIO.load(0);
 	}
 	
-    auto controller = new CanvasController(openedDoc, 0);
+    auto controller = new Canvas(openedDoc, 0);
     auto view = new CanvasView(controller);
     view->show();
 }

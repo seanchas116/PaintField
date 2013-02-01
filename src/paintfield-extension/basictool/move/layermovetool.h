@@ -14,7 +14,7 @@ class LayerMoveTool : public Tool
 {
 	Q_OBJECT
 public:
-	explicit LayerMoveTool(CanvasView *parent = 0);
+	explicit LayerMoveTool(Canvas *parent = 0);
 	
 	void drawLayer(Malachite::SurfacePainter *painter, const Layer *layer);
 	

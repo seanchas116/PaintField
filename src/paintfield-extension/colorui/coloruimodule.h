@@ -13,7 +13,7 @@ class ColorUIModule : public WorkspaceModule
 {
 	Q_OBJECT
 public:
-	ColorUIModule(WorkspaceController *workspace, QObject *parent);
+	ColorUIModule(Workspace *workspace, QObject *parent);
 	
 signals:
 	
@@ -29,7 +29,7 @@ public:
 	
 	void initialize(AppController *app) override;
 	
-	QList<WorkspaceModule *> createWorkspaceModules(WorkspaceController *workspace, QObject *parent) override
+	QList<WorkspaceModule *> createWorkspaceModules(Workspace *workspace, QObject *parent) override
 	{
 		return { new ColorUIModule(workspace, parent) };
 	}

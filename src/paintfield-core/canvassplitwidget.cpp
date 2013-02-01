@@ -1,5 +1,6 @@
 #include <QtGui>
 #include "canvastabwidget.h"
+#include "canvasview.h"
 #include "canvascontroller.h"
 
 #include "canvassplitwidget.h"
@@ -47,9 +48,12 @@ void CanvasSplitDefaultWidget::dropEvent(QDropEvent *event)
 	{
 		for (const QUrl &url : mimeData->urls())
 		{
-			auto canvas = CanvasController::fromFile(url.toLocalFile());
+			auto canvas = Canvas::fromFile(url.toLocalFile());
 			if (canvas)
+			{
+				new CanvasView(canvas);
 				_tabWidget->addCanvas(canvas);
+			}
 		}
 		event->acceptProposedAction();
 	}

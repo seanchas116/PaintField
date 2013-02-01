@@ -12,7 +12,7 @@ class LayerMoveToolModule : public AppModule
 public:
 	LayerMoveToolModule(AppController *app, QObject *parent) : AppModule(app, parent) {}
 	
-	Tool *createTool(const QString &name, CanvasView *view) override;
+	Tool *createTool(const QString &name, Canvas *canvas) override;
 	
 signals:
 	

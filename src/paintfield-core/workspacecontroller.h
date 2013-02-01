@@ -10,19 +10,19 @@
 namespace PaintField
 {
 
-class CanvasController;
+class Canvas;
 class WorkspaceView;
 class WorkspaceModule;
 class ToolManager;
 class PaletteManager;
 class CanvasSplitAreaController;
 
-class WorkspaceController : public QObject
+class Workspace : public QObject
 {
 	Q_OBJECT
 public:
-	explicit WorkspaceController(QObject *parent = 0);
-	~WorkspaceController();
+	explicit Workspace(QObject *parent = 0);
+	~Workspace();
 	
 	ToolManager *toolManager();
 	PaletteManager *paletteManager();
@@ -41,33 +41,33 @@ public:
 	void addNullCanvasActions(const QActionList &actions);
 	QActionList nullCanvasActions();
 	
-	void addAndShowCanvas(CanvasController *canvas);
+	void addAndShowCanvas(Canvas *canvas);
 	
 	/**
 	 * Adds a canvas.
 	 * @param canvas
 	 */
-	void addCanvas(CanvasController *canvas);
+	void addCanvas(Canvas *canvas);
 	
 	/**
 	 * Removes a canvas.
 	 * The canvas is not deleted.
 	 * @param canvas
 	 */
-	void removeCanvas(CanvasController *canvas);
+	void removeCanvas(Canvas *canvas);
 	
-	QList<CanvasController *> canvases();
+	QList<Canvas *> canvases();
 	
 signals:
 	
-	void currentCanvasChanged(CanvasController *canvas);
+	void currentCanvasChanged(Canvas *canvas);
 	
-	void canvasShowRequested(CanvasController *canvas);
+	void canvasShowRequested(Canvas *canvas);
 	
-	void canvasAboutToBeRemoved(CanvasController *canvas);
+	void canvasAboutToBeRemoved(Canvas *canvas);
 	void focused();
 	
-	void shouldBeDeleted(WorkspaceController *workspace);
+	void shouldBeDeleted(Workspace *workspace);
 	
 public slots:
 	
@@ -77,7 +77,7 @@ public slots:
 	 * Sets the current canvas.
 	 * @param canvas
 	 */
-	void setCurrentCanvas(CanvasController *canvas);
+	void setCurrentCanvas(Canvas *canvas);
 	
 	/**
 	 * Creates a new document and adds a canvas of it.
@@ -101,7 +101,7 @@ public slots:
 	
 private slots:
 	
-	void deleteCanvas(CanvasController *canvas);
+	void deleteCanvas(Canvas *canvas);
 	
 private:
 	
@@ -109,7 +109,7 @@ private:
 	CanvasModuleList currentCanvasModules();
 	
 	void updateWorkspaceItems();
-	void updateWorkspaceItemsForCanvas(CanvasController *canvas);
+	void updateWorkspaceItemsForCanvas(Canvas *canvas);
 	void updateMenuBar();
 	
 	class Data;

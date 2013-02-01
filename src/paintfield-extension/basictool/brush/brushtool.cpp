@@ -17,7 +17,7 @@ using namespace Malachite;
 
 namespace PaintField {
 
-BrushTool::BrushTool(CanvasView *parent) :
+BrushTool::BrushTool(Canvas *parent) :
 	Tool(parent)
 {
 	//setCustomCursorEnabled(true);
@@ -33,7 +33,7 @@ void BrushTool::drawLayer(SurfacePainter *painter, const Layer *layer)
 
 void BrushTool::drawCustomCursor(QPainter *painter, const Vec2D &pos)
 {
-	double radius = _brushSize * 0.5 * canvasView()->scale();
+	double radius = _brushSize * 0.5 * canvas()->scale();
 	
 	QColor color(255, 255, 255, 128);
 	
@@ -48,7 +48,7 @@ void BrushTool::drawCustomCursor(QPainter *painter, const Vec2D &pos)
 
 QRect BrushTool::customCursorRect(const Vec2D &pos)
 {
-	double radius = _brushSize * 0.5 * canvasView()->scale() + 0.5;
+	double radius = _brushSize * 0.5 * canvas()->scale() + 0.5;
 	return QRectF(pos.x() - radius, pos.y() - radius, radius * 2, radius * 2).toAlignedRect();
 }
 

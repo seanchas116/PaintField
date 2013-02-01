@@ -17,8 +17,8 @@ namespace PaintField
 
 class Document;
 class LayerModel;
-class WorkspaceController;
-class CanvasController;
+class Workspace;
+class Canvas;
 class LayerUIController;
 
 class LayerModelView;
@@ -51,7 +51,7 @@ private:
 	
 	LayerUIController *_layerUIController = 0;
 	
-	CanvasController *_canvas = 0;
+	Canvas *_canvas = 0;
 	
 	// forms
 	

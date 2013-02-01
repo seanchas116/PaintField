@@ -18,7 +18,7 @@ WorkspaceManager::WorkspaceManager(QObject *parent) :
 
 bool WorkspaceManager::tryCloseAll()
 {
-	for (WorkspaceController *controller : _workspaces)
+	for (Workspace *controller : _workspaces)
 	{
 		if (!controller->tryClose())
 			return false;
@@ -28,10 +28,10 @@ bool WorkspaceManager::tryCloseAll()
 
 void WorkspaceManager::newWorkspace()
 {
-	addWorkspace(new WorkspaceController(this));
+	addWorkspace(new Workspace(this));
 }
 
-void WorkspaceManager::setCurrentWorkspace(WorkspaceController *workspace)
+void WorkspaceManager::setCurrentWorkspace(Workspace *workspace)
 {
 	if (_workspaces.contains(workspace))
 	{
@@ -44,7 +44,7 @@ void WorkspaceManager::setCurrentWorkspace(WorkspaceController *workspace)
 	}
 }
 
-void WorkspaceManager::removeWorkspace(WorkspaceController *workspace)
+void WorkspaceManager::removeWorkspace(Workspace *workspace)
 {
 	if (_workspaces.contains(workspace))
 	{
@@ -60,12 +60,12 @@ void WorkspaceManager::removeWorkspace(WorkspaceController *workspace)
 	}
 }
 
-void WorkspaceManager::addWorkspace(WorkspaceController *workspace)
+void WorkspaceManager::addWorkspace(Workspace *workspace)
 {
 	_workspaces << workspace;
 	
 	connect(workspace, SIGNAL(focused()), this, SLOT(onWorkspaceFocusIn()));
-	connect(workspace, SIGNAL(shouldBeDeleted(WorkspaceController*)), this, SLOT(removeWorkspace(WorkspaceController*)));
+	connect(workspace, SIGNAL(shouldBeDeleted(Workspace*)), this, SLOT(removeWorkspace(Workspace*)));
 	
 	emit workspaceAdded(workspace);
 	
@@ -78,12 +78,12 @@ void WorkspaceManager::addWorkspace(WorkspaceController *workspace)
 
 void WorkspaceManager::onWorkspaceFocusIn()
 {
-	WorkspaceController *workspace = qobject_cast<WorkspaceController *>(sender());
+	Workspace *workspace = qobject_cast<Workspace *>(sender());
 	if (workspace)
 		setCurrentWorkspace(workspace);
 }
 
-void WorkspaceManager::onWorkspaceShouldBeDeleted(WorkspaceController *workspace)
+void WorkspaceManager::onWorkspaceShouldBeDeleted(Workspace *workspace)
 {
 	removeWorkspace(workspace);
 }
@@ -97,7 +97,7 @@ void WorkspaceManager::onFocusWidgetChanged(QWidget *old, QWidget *now)
 	
 	QWidget *window = now->topLevelWidget();
 	
-	for (WorkspaceController *workspace : _workspaces)
+	for (Workspace *workspace : _workspaces)
 	{
 		if (workspace->view() == window)
 			setCurrentWorkspace(workspace);

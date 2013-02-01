@@ -16,7 +16,7 @@ class BrushTool : public Tool
 	Q_OBJECT
 public:
 	
-	BrushTool(CanvasView *parent = 0);
+	BrushTool(Canvas *parent = 0);
 	~BrushTool();
 	
 	void drawLayer(Malachite::SurfacePainter *painter, const Layer *layer);

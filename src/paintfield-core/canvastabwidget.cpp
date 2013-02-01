@@ -13,7 +13,7 @@ struct CanvasTabWidget::Data
 {
 };
 
-CanvasTabWidget::CanvasTabWidget(WorkspaceController *workspace, QWidget *parent) :
+CanvasTabWidget::CanvasTabWidget(Workspace *workspace, QWidget *parent) :
     WorkspaceTabWidget(workspace, parent),
     d(new Data)
 {
@@ -31,8 +31,8 @@ CanvasTabWidget::CanvasTabWidget(WorkspaceController *workspace, QWidget *parent
 	connect(this, SIGNAL(tabMovedIn(QWidget*)), this, SLOT(onTabMovedIn(QWidget*)));
 	connect(this, SIGNAL(tabAboutToBeMovedOut(QWidget*)), this, SLOT(onTabAboutToBeMovedOut(QWidget*)));
 	
-	connect(workspace, SIGNAL(currentCanvasChanged(CanvasController*)), this, SLOT(onCurrentCanvasChanged(CanvasController*)));
-	connect(this, SIGNAL(currentCanvasChanged(CanvasController*)), workspace, SLOT(setCurrentCanvas(CanvasController*)));
+	connect(workspace, SIGNAL(currentCanvasChanged(Canvas*)), this, SLOT(onCurrentCanvasChanged(Canvas*)));
+	connect(this, SIGNAL(currentCanvasChanged(Canvas*)), workspace, SLOT(setCurrentCanvas(Canvas*)));
 }
 
 CanvasTabWidget::~CanvasTabWidget()
@@ -56,7 +56,7 @@ void CanvasTabWidget::insertTab(int index, QWidget *widget, const QString &title
 	if (!canvasView)
 		return;
 	
-	insertCanvas(index, canvasView->controller());
+	insertCanvas(index, canvasView->canvas());
 }
 
 QObject *CanvasTabWidget::createNew()
@@ -76,7 +76,7 @@ void CanvasTabWidget::restoreTransforms()
 		view->restoreNavigation();
 }
 
-void CanvasTabWidget::insertCanvas(int index, CanvasController *canvas)
+void CanvasTabWidget::insertCanvas(int index, Canvas *canvas)
 {
 	workspace()->addCanvas(canvas);
 	DockTabWidget::insertTab(index, canvas->view(), canvas->document()->fileName());
@@ -96,7 +96,7 @@ QList<CanvasView *> CanvasTabWidget::canvasViews()
 	return list;
 }
 
-void CanvasTabWidget::onCurrentCanvasChanged(CanvasController *canvas)
+void CanvasTabWidget::onCurrentCanvasChanged(Canvas *canvas)
 {
 	if (!canvas)
 		return;
@@ -134,7 +134,7 @@ bool CanvasTabWidget::tryClose()
 {
 	for (auto canvasView : canvasViews())
 	{
-		if (!canvasView->controller()->closeCanvas())
+		if (!canvasView->canvas()->closeCanvas())
 			return false;
 	}
 	
@@ -144,7 +144,7 @@ bool CanvasTabWidget::tryClose()
 void CanvasTabWidget::activate()
 {
 	auto canvasView = canvasViewAt(currentIndex());
-	emit currentCanvasChanged(canvasView ? canvasView->controller() : 0);
+	emit currentCanvasChanged(canvasView ? canvasView->canvas() : 0);
 	emit activated();
 }
 
@@ -152,7 +152,7 @@ void CanvasTabWidget::onTabCloseRequested(int index)
 {
 	auto canvasView = canvasViewAt(index);
 	if (canvasView)
-		canvasView->controller()->closeCanvas();
+		canvasView->canvas()->closeCanvas();
 }
 CanvasView *CanvasTabWidget::canvasViewAt(int index)
 {
@@ -180,9 +180,12 @@ void CanvasTabBar::dropEvent(QDropEvent *event)
 	{
 		for (const QUrl &url : mimeData->urls())
 		{
-			auto canvas = CanvasController::fromFile(url.toLocalFile());
+			auto canvas = Canvas::fromFile(url.toLocalFile());
 			if (canvas)
+			{
+				new CanvasView(canvas);
 				_tabWidget->insertCanvas(insertionIndexAt(event->pos()), canvas);
+			}
 		}
 		event->acceptProposedAction();
 	}

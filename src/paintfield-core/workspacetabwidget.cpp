@@ -9,18 +9,18 @@ namespace PaintField {
 
 struct WorkspaceTabWidget::Data
 {
-	WorkspaceController *workspace = 0;
+	Workspace *workspace = 0;
 	bool floating = false;
 };
 
-WorkspaceTabWidget::WorkspaceTabWidget(WorkspaceController *workspace, QWidget *parent) :
+WorkspaceTabWidget::WorkspaceTabWidget(Workspace *workspace, QWidget *parent) :
     DockTabWidget(parent),
     d(new Data)
 {
 	d->workspace = workspace;
 	
-	connect(appController()->workspaceManager(), SIGNAL(currentWorkspaceChanged(WorkspaceController*)),
-	        this, SLOT(onCurrentWorkspaceChanged(WorkspaceController*)));
+	connect(appController()->workspaceManager(), SIGNAL(currentWorkspaceChanged(Workspace*)),
+	        this, SLOT(onCurrentWorkspaceChanged(Workspace*)));
 	
 	if (parent == 0)
 		setFloating(true);
@@ -47,12 +47,12 @@ void WorkspaceTabWidget::setFloating(bool floating)
 	}
 }
 
-WorkspaceController *WorkspaceTabWidget::workspace()
+Workspace *WorkspaceTabWidget::workspace()
 {
 	return d->workspace;
 }
 
-void WorkspaceTabWidget::onCurrentWorkspaceChanged(WorkspaceController *workspace)
+void WorkspaceTabWidget::onCurrentWorkspaceChanged(Workspace *workspace)
 {
 	if (d->floating)
 		setVisible(workspace == d->workspace);

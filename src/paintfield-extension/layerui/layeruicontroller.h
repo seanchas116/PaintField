@@ -13,7 +13,7 @@ class LayerUIController : public QObject
 	Q_OBJECT
 public:
 	
-	LayerUIController(CanvasController *parent);
+	LayerUIController(Canvas *parent);
 	
 	QAction *importAction() { return _importAction; }
 	QAction *newRasterAction() { return _newRasterAction; }
@@ -21,7 +21,7 @@ public:
 	QAction *removeAction() { return _removeAction; }
 	QAction *mergeAction() { return _mergeAction; }
 	
-	CanvasController *canvas() { return static_cast<CanvasController *>(parent()); }
+	Canvas *canvas() { return static_cast<Canvas *>(parent()); }
 	
 signals:
 	
@@ -42,7 +42,7 @@ private:
 	void newLayer(Layer::Type type);
 	void setActionsEnabled(const QList<QAction *> &actions, bool enabled);
 	
-	CanvasController *_canvas = nullptr;
+	Canvas *_canvas = nullptr;
 	
 	QAction *_importAction = nullptr, *_newRasterAction = nullptr, *_newGroupAction = nullptr, *_removeAction = nullptr, *_mergeAction = nullptr;
 	

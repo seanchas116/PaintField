@@ -9,7 +9,7 @@ class AboutDialogModule : public WorkspaceModule
 {
 	Q_OBJECT
 public:
-	explicit AboutDialogModule(WorkspaceController *workspace, QObject *parent = 0);
+	explicit AboutDialogModule(Workspace *workspace, QObject *parent = 0);
 	
 signals:
 	
@@ -28,7 +28,7 @@ public:
 	AboutDialogModuleFactory(QObject *parent = 0) : ModuleFactory(parent) {}
 	
 	void initialize(AppController *app) override;
-	QList<WorkspaceModule *> createWorkspaceModules(WorkspaceController *workspace, QObject *parent) override
+	QList<WorkspaceModule *> createWorkspaceModules(Workspace *workspace, QObject *parent) override
 	{
 		return { new AboutDialogModule(workspace, parent) };
 	}

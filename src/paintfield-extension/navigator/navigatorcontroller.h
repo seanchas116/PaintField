@@ -7,13 +7,13 @@
 
 namespace PaintField {
 
-class CanvasController;
+class Canvas;
 
 class NavigatorController : public QObject
 {
 	Q_OBJECT
 public:
-	NavigatorController(CanvasController *canvas, QObject *parent = 0);
+	NavigatorController(Canvas *canvas, QObject *parent = 0);
 	
 	NavigatorView *view() { return _view.data(); }
 	
