@@ -69,9 +69,11 @@ void WorkspaceManager::addWorkspace(Workspace *workspace)
 	
 	emit workspaceAdded(workspace);
 	
-	maximizeWindowSize(workspace->view());
+	auto view = new WorkspaceView(workspace);
 	
-	workspace->view()->show();
+	maximizeWindowSize(view);
+	
+	view->show();
 	
 	setCurrentWorkspace(workspace);
 }

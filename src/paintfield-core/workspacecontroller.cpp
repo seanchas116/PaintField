@@ -9,9 +9,6 @@
 #include "modulemanager.h"
 #include "canvascontroller.h"
 
-#include "canvassplitareacontroller.h"
-#include "workspaceview.h"
-
 #include "workspacecontroller.h"
 
 namespace PaintField
@@ -31,7 +28,7 @@ struct Workspace::Data
 	QActionList nullCanvasActions;
 	CanvasModuleList nullCanvasModules;
 	
-	ScopedQObjectPointer<WorkspaceView> view;
+	WorkspaceView *view = 0;
 };
 
 
@@ -42,38 +39,9 @@ Workspace::Workspace(QObject *parent) :
 	d->toolManager = new ToolManager(this);
 	d->paletteManager = new PaletteManager(this);
 	
-	QVariantMap workspaceItemOrderMap = appController()->settingsManager()->workspaceItemOrder().toMap();
-	
-	{
-		auto view = new WorkspaceView(this, 0);
-		
-		{
-			auto controller = new CanvasSplitAreaController(this, this);
-			
-			connect(this, SIGNAL(canvasShowRequested(Canvas*)),
-			        controller, SLOT(addCanvas(Canvas*)));
-			
-			d->actions << createAction("paintfield.view.splitVertically", controller, SLOT(splitCurrentVertically()));
-			d->actions << createAction("paintfield.view.splitHorizontally", controller, SLOT(splitCurrentHorizontally()));
-			d->actions << createAction("paintfield.view.closeCurrentSplit", controller, SLOT(closeCurrent()));
-			
-			view->setCentralWidget(controller->view());
-		}
-		
-		connect(this, SIGNAL(currentCanvasChanged(Canvas*)),
-		        view, SLOT(setCurrentCanvas(Canvas*)));
-		connect(view, SIGNAL(closeRequested()), this, SLOT(tryClose()));
-		
-		view->createSideBarFrames(appController()->settingsManager()->sideBarDeclarationHash(),
-		                          workspaceItemOrderMap["sidebars"]);
-		view->createToolBars(appController()->settingsManager()->toolBarDeclarationHash(),
-		                     workspaceItemOrderMap["toolbars"]);
-		view->createMenuBar(appController()->settingsManager()->actionDeclarationHash(),
-		                    appController()->settingsManager()->menuDeclarationHash(),
-		                    appController()->settingsManager()->menuBarOrder());
-		
-		d->view.reset(view);
-	}
+	d->actions << createAction("paintfield.view.splitVertically", this, SIGNAL(splitVerticallyRequested()));
+	d->actions << createAction("paintfield.view.splitHorizontally", this, SIGNAL(splitHorizontallyRequested()));
+	d->actions << createAction("paintfield.view.closeCurrentSplit", this, SIGNAL(closeCurrentSplitRequested()));
 	
 	d->actions << createAction("paintfield.file.new", this, SLOT(newCanvas()));
 	d->actions << createAction("paintfield.file.open", this, SLOT(openCanvas()));
@@ -81,10 +49,6 @@ Workspace::Workspace(QObject *parent) :
 	
 	addModules(appController()->moduleManager()->createWorkspaceModules(this, this));
 	addNullCanvasModules(appController()->moduleManager()->createCanvasModules(0, this));
-	
-	updateWorkspaceItems();
-	updateWorkspaceItemsForCanvas(d->currentCanvas);
-	updateMenuBar();
 }
 
 Workspace::~Workspace()
@@ -102,9 +66,14 @@ PaletteManager *Workspace::paletteManager()
 	return d->paletteManager;
 }
 
+void Workspace::setView(WorkspaceView *view)
+{
+	d->view = view;
+}
+
 WorkspaceView *Workspace::view()
 {
-	return d->view.data();
+	return d->view;
 }
 
 void Workspace::addModules(const QList<WorkspaceModule *> &modules)
@@ -206,7 +175,7 @@ bool Workspace::tryClose()
 
 void Workspace::setFocus()
 {
-	d->view->setFocus();
+	emit focused();
 }
 
 void Workspace::setCurrentCanvas(Canvas *canvas)
@@ -216,9 +185,6 @@ void Workspace::setCurrentCanvas(Canvas *canvas)
 		d->currentCanvas = canvas;
 		if (canvas)
 			canvas->onSetCurrent();
-		
-		updateWorkspaceItemsForCanvas(canvas);
-		updateMenuBar();
 		
 		PAINTFIELD_DEBUG << "current canvas changed:" << canvas;
 		emit currentCanvasChanged(canvas);
@@ -263,6 +229,11 @@ QList<Canvas *> Workspace::canvases()
 	return d->canvasControllers;
 }
 
+Canvas *Workspace::currentCanvas()
+{
+	return d->currentCanvas;
+}
+
 void Workspace::deleteCanvas(Canvas *canvas)
 {
 	if (d->canvasControllers.contains(canvas))
@@ -283,48 +254,6 @@ QActionList Workspace::currentCanvasActions()
 CanvasModuleList Workspace::currentCanvasModules()
 {
 	return d->currentCanvas ? d->currentCanvas->modules() : d->nullCanvasModules;
-}
-
-void Workspace::updateWorkspaceItems()
-{
-	for (const QString &name : appController()->settingsManager()->sidebarNames())
-	{
-		QWidget *sidebar = sideBarForWorkspace(appController()->modules(), modules(), name);
-		if (sidebar)
-			view()->setSidebar(name, sidebar);
-	}
-	
-	for (const QString &name : appController()->settingsManager()->toolbarNames())
-	{
-		QToolBar *toolBar = view()->toolBar(name);
-		if (toolBar)
-			updateToolBar(appController()->modules(), modules(), currentCanvasModules(), toolBar, name);
-	}
-}
-
-void Workspace::updateWorkspaceItemsForCanvas(Canvas *canvas)
-{
-	Q_UNUSED(canvas)
-	
-	for (const QString &name : appController()->settingsManager()->sidebarNames())
-	{
-		QWidget *sidebar = sideBarForCanvas(currentCanvasModules(), name);
-		if (sidebar)
-			view()->setSidebar(name, sidebar);
-	}
-	
-	for (const QString &name : appController()->settingsManager()->toolbarNames())
-	{
-		QToolBar *toolBar = view()->toolBar(name);
-		if (toolBar)
-			updateToolBar(AppModuleList(), WorkspaceModuleList(), currentCanvasModules(), toolBar, name);
-	}
-}
-
-void Workspace::updateMenuBar()
-{
-	QActionList actions = appController()->actions() + this->actions() + currentCanvasActions();
-	view()->associateMenuBarWithActions(actions);
 }
 
 }

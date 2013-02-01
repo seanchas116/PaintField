@@ -32,7 +32,7 @@ struct Canvas::Data
 	
 	QItemSelectionModel *selectionModel = 0;
 	
-	CanvasView *view;
+	CanvasView *view = 0;
 	QActionList actions;
 	CanvasModuleList modules;
 	

@@ -27,6 +27,7 @@ public:
 	ToolManager *toolManager();
 	PaletteManager *paletteManager();
 	
+	void setView(WorkspaceView *view);
 	WorkspaceView *view();
 	
 	void addModules(const WorkspaceModuleList &modules);
@@ -58,6 +59,11 @@ public:
 	
 	QList<Canvas *> canvases();
 	
+	Canvas *currentCanvas();
+	
+	QActionList currentCanvasActions();
+	CanvasModuleList currentCanvasModules();
+	
 signals:
 	
 	void currentCanvasChanged(Canvas *canvas);
@@ -68,6 +74,10 @@ signals:
 	void focused();
 	
 	void shouldBeDeleted(Workspace *workspace);
+	
+	void splitVerticallyRequested();
+	void splitHorizontallyRequested();
+	void closeCurrentSplitRequested();
 	
 public slots:
 	
@@ -104,13 +114,6 @@ private slots:
 	void deleteCanvas(Canvas *canvas);
 	
 private:
-	
-	QActionList currentCanvasActions();
-	CanvasModuleList currentCanvasModules();
-	
-	void updateWorkspaceItems();
-	void updateWorkspaceItemsForCanvas(Canvas *canvas);
-	void updateMenuBar();
 	
 	class Data;
 	Data *d;

@@ -1,6 +1,10 @@
 #include <QtGui>
 #include "widgets/docktabmotherwidget.h"
 #include "canvascontroller.h"
+#include "canvassplitareacontroller.h"
+#include "workspacecontroller.h"
+#include "appcontroller.h"
+#include "settingsmanager.h"
 
 #include "workspaceview.h"
 
@@ -210,7 +214,7 @@ void WorkspaceMenuAction::onBackendActionChanged()
 
 struct WorkspaceView::Data
 {
-	Workspace *controller = 0;
+	Workspace *workspace = 0;
 	
 	DockTabMotherWidget *motherWidget = 0;
 	
@@ -220,25 +224,54 @@ struct WorkspaceView::Data
 	Canvas *currentCanvas = 0;
 };
 
-WorkspaceView::WorkspaceView(Workspace *controller, QWidget *parent) :
+WorkspaceView::WorkspaceView(Workspace *workspace, QWidget *parent) :
     QMainWindow(parent),
     d(new Data)
 {
-	d->controller = controller;
+	d->workspace = workspace;
+	d->currentCanvas = workspace->currentCanvas();
 	
 	setAnimated(false);
-		
-	d->motherWidget = new WorkspaceMotherWidget(controller, 0);
+	
+	d->motherWidget = new WorkspaceMotherWidget(workspace, 0);
 	QMainWindow::setCentralWidget(d->motherWidget);
+	
+	{
+		auto controller = new CanvasSplitAreaController(workspace, this);
+		
+		connect(workspace, SIGNAL(canvasShowRequested(Canvas*)),
+		        controller, SLOT(addCanvas(Canvas*)));
+		
+		connect(workspace, SIGNAL(splitHorizontallyRequested()), controller, SLOT(splitCurrentHorizontally()));
+		connect(workspace, SIGNAL(splitVerticallyRequested()), controller, SLOT(splitCurrentVertically()));
+		connect(workspace, SIGNAL(closeCurrentSplitRequested()), controller, SLOT(closeCurrent()));
+		
+		d->motherWidget->setCentralWidget(controller->view());
+	}
+	
+	connect(workspace, SIGNAL(currentCanvasChanged(Canvas*)), this, SLOT(setCurrentCanvas(Canvas*)));
+	connect(this, SIGNAL(closeRequested()), workspace, SLOT(tryClose()));
+	
+	{
+		QVariantMap workspaceItemOrderMap = appController()->settingsManager()->workspaceItemOrder().toMap();
+		
+		createSideBarFrames(appController()->settingsManager()->sideBarDeclarationHash(),
+		                    workspaceItemOrderMap["sidebars"]);
+		createToolBars(appController()->settingsManager()->toolBarDeclarationHash(),
+		               workspaceItemOrderMap["toolbars"]);
+		createMenuBar(appController()->settingsManager()->actionDeclarationHash(),
+		              appController()->settingsManager()->menuDeclarationHash(),
+		              appController()->settingsManager()->menuBarOrder());
+	}
+	
+	connect(workspace, SIGNAL(shouldBeDeleted(Workspace*)), this, SLOT(deleteLater()));
+	connect(workspace, SIGNAL(focused()), this, SLOT(setFocus()));
 	
 	onCurrentCanvasPropertyChanged();
 	
-	//showMaximized();
-}
-
-void WorkspaceView::setCentralWidget(QWidget *widget)
-{
-	d->motherWidget->setCentralWidget(widget);
+	updateWorkspaceItems();
+	updateWorkspaceItemsForCanvas(workspace->currentCanvas());
+	updateMenuBar();
 }
 
 void WorkspaceView::createSideBarFrames(const SideBarDeclarationHash &sidebarDeclarations, const QVariant &order)
@@ -377,7 +410,7 @@ void WorkspaceView::associateMenuBarWithActions(const QActionList &actions)
 
 Workspace *WorkspaceView::workspace()
 {
-	return d->controller;
+	return d->workspace;
 }
 
 void WorkspaceView::setCurrentCanvas(Canvas *canvas)
@@ -394,6 +427,9 @@ void WorkspaceView::setCurrentCanvas(Canvas *canvas)
 		connect(canvas->document(), SIGNAL(modifiedChanged(bool)), this, SLOT(onCurrentCanvasPropertyChanged()));
 		connect(canvas->document(), SIGNAL(filePathChanged(QString)), this, SLOT(onCurrentCanvasPropertyChanged()));
 	}
+	
+	updateWorkspaceItemsForCanvas(canvas);
+	updateMenuBar();
 	
 	onCurrentCanvasPropertyChanged();
 }
@@ -413,21 +449,54 @@ void WorkspaceView::onCurrentCanvasPropertyChanged()
 	}
 }
 
+void WorkspaceView::updateWorkspaceItems()
+{
+	for (const QString &name : appController()->settingsManager()->sidebarNames())
+	{
+		QWidget *sidebar = sideBarForWorkspace(appController()->modules(), workspace()->modules(), name);
+		if (sidebar)
+			setSidebar(name, sidebar);
+	}
+	
+	for (const QString &name : appController()->settingsManager()->toolbarNames())
+	{
+		QToolBar *toolBar = this->toolBar(name);
+		if (toolBar)
+			updateToolBar(appController()->modules(), workspace()->modules(), workspace()->currentCanvasModules(), toolBar, name);
+	}
+}
+
+void WorkspaceView::updateWorkspaceItemsForCanvas(Canvas *canvas)
+{
+	Q_UNUSED(canvas)
+	
+	for (const QString &name : appController()->settingsManager()->sidebarNames())
+	{
+		QWidget *sidebar = sideBarForCanvas(workspace()->currentCanvasModules(), name);
+		if (sidebar)
+			setSidebar(name, sidebar);
+	}
+	
+	for (const QString &name : appController()->settingsManager()->toolbarNames())
+	{
+		QToolBar *toolBar = this->toolBar(name);
+		if (toolBar)
+			updateToolBar(AppModuleList(), WorkspaceModuleList(), workspace()->currentCanvasModules(), toolBar, name);
+	}
+}
+
+void WorkspaceView::updateMenuBar()
+{
+	QActionList actions = appController()->actions() + workspace()->actions() + workspace()->currentCanvasActions();
+	associateMenuBarWithActions(actions);
+}
+
 void WorkspaceView::closeEvent(QCloseEvent *event)
 {
 	emit closeRequested();
 	event->ignore();
 }
 
-void WorkspaceView::focusInEvent(QFocusEvent *)
-{
-	emit focusChanged(true);
-}
-
-void WorkspaceView::focusOutEvent(QFocusEvent *)
-{
-	emit focusChanged(false);
-}
 
 
 }

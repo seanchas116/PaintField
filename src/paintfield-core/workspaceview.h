@@ -102,8 +102,6 @@ public:
 	void createToolBars(const ToolBarDeclarationHash &toolBarDeclarations, const QVariant &order);
 	void createMenuBar(const ActionDeclarationHash &actionDeclarations, const MenuDeclarationHash &menuDeclarations,  const QVariant &order);
 	
-	void setCentralWidget(QWidget *widget);
-	
 	void setSidebar(const QString &id, QWidget *sidebar);
 	QToolBar *toolBar(const QString &id);
 	void associateMenuBarWithActions(const QList<QAction *> &actions);
@@ -112,7 +110,6 @@ public:
 	
 signals:
 	
-	void focusChanged(bool x);
 	void closeRequested();
 	
 public slots:
@@ -123,9 +120,6 @@ protected:
 	
 	void closeEvent(QCloseEvent *event);
 	
-	void focusInEvent(QFocusEvent *);
-	void focusOutEvent(QFocusEvent *);
-	
 private slots:
 	
 	void onCurrentCanvasPropertyChanged();
@@ -135,6 +129,10 @@ private:
 	void createSideBarFramesInArea(DockTabMotherWidget::Direction splitterDir, const SideBarDeclarationHash &sidebarDeclarations, const QVariant &areaOrder);
 	void createSideBarFramesInSplitter(DockTabMotherWidget::Direction splitterDir, int splitterIndex, const SideBarDeclarationHash &sidebarDeclarations, const QVariant &splitterOrder);
 	void createToolBarsInArea(Qt::ToolBarArea area, const ToolBarDeclarationHash &toolBarDeclarations, const QVariant &areaOrder);
+	
+	void updateWorkspaceItems();
+	void updateWorkspaceItemsForCanvas(Canvas *canvas);
+	void updateMenuBar();
 	
 	class Data;
 	Data *d;
