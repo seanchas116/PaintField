@@ -1,4 +1,4 @@
-#include "paintfield-core/workspacecontroller.h"
+#include "paintfield-core/workspace.h"
 #include "paintfield-core/palettemanager.h"
 
 #include "brushstroker.h"

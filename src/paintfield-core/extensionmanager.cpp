@@ -1,9 +1,9 @@
 #include <QMetaObject>
 
 #include "appcontroller.h"
-#include "module.h"
+#include "extension.h"
 
-#include "modulemanager.h"
+#include "extensionmanager.h"
 
 namespace PaintField
 {

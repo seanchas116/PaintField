@@ -1,11 +1,10 @@
-#ifndef CANVASCONTROLLER_H
-#define CANVASCONTROLLER_H
+#pragma once
 
 #include <QObject>
 #include <QPointer>
 
 #include "document.h"
-#include "module.h"
+#include "extension.h"
 
 namespace PaintField
 {
@@ -199,4 +198,3 @@ private:
 
 }
 
-#endif // CANVASCONTROLLER_H

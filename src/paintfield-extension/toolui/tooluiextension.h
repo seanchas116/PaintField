@@ -1,7 +1,6 @@
-#ifndef TOOLUIMODULE_H
-#define TOOLUIMODULE_H
+#pragma once
 
-#include "paintfield-core/module.h"
+#include "paintfield-core/extension.h"
 
 namespace PaintField
 {
@@ -31,4 +30,3 @@ public:
 
 }
 
-#endif // TOOLUIMODULE_H

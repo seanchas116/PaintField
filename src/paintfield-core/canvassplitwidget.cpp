@@ -1,7 +1,7 @@
 #include <QtGui>
 #include "canvastabwidget.h"
 #include "canvasview.h"
-#include "canvascontroller.h"
+#include "canvas.h"
 
 #include "canvassplitwidget.h"
 

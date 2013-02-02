@@ -1,8 +1,7 @@
-#ifndef COLORMODULE_H
-#define COLORMODULE_H
+#pragma once
 
 #include "paintfield-core/smartpointer.h"
-#include "paintfield-core/module.h"
+#include "paintfield-core/extension.h"
 
 namespace PaintField
 {
@@ -36,5 +35,3 @@ public:
 };
 
 }
-
-#endif // COLORMODULE_H

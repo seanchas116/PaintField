@@ -6,7 +6,7 @@
 #include "layertreesidebar.h"
 #include "layeruicontroller.h"
 
-#include "layeruimodule.h"
+#include "layeruiextension.h"
 
 namespace PaintField
 {

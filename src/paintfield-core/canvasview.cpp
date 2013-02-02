@@ -6,9 +6,9 @@
 #include "drawutil.h"
 #include "tool.h"
 #include "layerrenderer.h"
-#include "canvascontroller.h"
+#include "canvas.h"
 #include "appcontroller.h"
-#include "workspacecontroller.h"
+#include "workspace.h"
 #include "keytracker.h"
 
 #include "abstractcanvasviewportcontroller.h"

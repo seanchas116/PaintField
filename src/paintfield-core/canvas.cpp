@@ -5,10 +5,10 @@
 #include "appcontroller.h"
 #include "toolmanager.h"
 #include "documentio.h"
-#include "workspacecontroller.h"
-#include "module.h"
+#include "workspace.h"
+#include "extension.h"
 #include "layerrenderer.h"
-#include "modulemanager.h"
+#include "extensionmanager.h"
 #include "tool.h"
 
 #include "dialogs/filedialog.h"
@@ -17,7 +17,7 @@
 #include "dialogs/newdocumentdialog.h"
 #include "canvasview.h"
 
-#include "canvascontroller.h"
+#include "canvas.h"
 
 using namespace Malachite;
 

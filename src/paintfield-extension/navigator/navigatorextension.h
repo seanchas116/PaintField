@@ -1,8 +1,7 @@
-#ifndef NAVIGATORMODULE_H
-#define NAVIGATORMODULE_H
+#pragma once
 
 #include <QObject>
-#include "paintfield-core/module.h"
+#include "paintfield-core/extension.h"
 
 namespace PaintField
 {
@@ -35,4 +34,3 @@ public:
 
 }
 
-#endif // NAVIGATORMODULE_H

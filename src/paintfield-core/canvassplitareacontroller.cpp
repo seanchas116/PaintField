@@ -1,4 +1,4 @@
-#include "canvascontroller.h"
+#include "canvas.h"
 #include "canvasview.h"
 #include "canvastabwidget.h"
 #include "canvassplitwidget.h"

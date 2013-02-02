@@ -1,9 +1,9 @@
 #include <QtGui>
-#include "workspacecontroller.h"
+#include "workspace.h"
 #include "appcontroller.h"
 #include "workspacemanager.h"
 #include "canvasview.h"
-#include "canvascontroller.h"
+#include "canvas.h"
 
 #include "canvastabwidget.h"
 

@@ -1,5 +1,4 @@
-#ifndef MODULE_H
-#define MODULE_H
+#pragma once
 
 #include <QObject>
 #include <QIcon>
@@ -148,4 +147,3 @@ private:
 
 }
 
-#endif // MODULE_H

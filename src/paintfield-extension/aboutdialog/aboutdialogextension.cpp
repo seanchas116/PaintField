@@ -6,7 +6,7 @@
 
 #include "aboutdialog.h"
 
-#include "aboutdialogmodule.h"
+#include "aboutdialogextension.h"
 
 namespace PaintField {
 

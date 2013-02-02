@@ -1,8 +1,7 @@
-#ifndef BRUSHTOOLMODULE_H
-#define BRUSHTOOLMODULE_H
+#pragma once
 
 #include "paintfield-core/smartpointer.h"
-#include "paintfield-core/module.h"
+#include "paintfield-core/extension.h"
 
 namespace PaintField {
 
@@ -54,4 +53,3 @@ public:
 
 }
 
-#endif // BRUSHTOOLMODULE_H

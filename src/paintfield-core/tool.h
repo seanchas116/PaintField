@@ -8,7 +8,7 @@
 #include "document.h"
 #include "tabletevent.h"
 #include "canvasview.h"
-#include "canvascontroller.h"
+#include "canvas.h"
 #include "layerrenderer.h"
 
 class QGraphicsItem;

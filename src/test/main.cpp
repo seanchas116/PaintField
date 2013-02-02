@@ -5,7 +5,7 @@
 #include "testobject.h"
 
 
-#include "paintfield-core/canvascontroller.h"
+#include "paintfield-core/canvas.h"
 #include "paintfield-core/canvasview.h"
 #include "paintfield-core/drawutil.h"
 #include "paintfield-core/documentio.h"
@@ -32,7 +32,7 @@ void test_Surface()
 	QPixmap pixmap(400, 300);
 	
 	QPainter painter(&pixmap);
-	drawMLSurface(&painter, 0, 0, surface);
+	DrawUtil::drawMLSurface(&painter, 0, 0, surface);
 	
 	auto label = new QLabel;
 	label->setWindowTitle("test_Surface");
@@ -135,7 +135,7 @@ void test_VanishingScrollBar_vanishing()
 void test_NavigatorView()
 {
 	auto view = new NavigatorView;
-	applyMacSmallSize(view);
+	Util::applyMacSmallSize(view);
 	view->show();
 }
 

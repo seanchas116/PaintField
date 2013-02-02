@@ -2,8 +2,8 @@
 
 #include "paintfield-core/application.h"
 #include "paintfield-core/appcontroller.h"
-#include "paintfield-core/modulemanager.h"
-#include "paintfield-extension/extensionmodulefactory.h"
+#include "paintfield-core/extensionmanager.h"
+#include "paintfield-extension/builtinextensionfactory.h"
 
 #define QUOTE(x) #x
 #define DEFINE_STR(x) QUOTE(x)

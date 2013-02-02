@@ -1,7 +1,6 @@
-#ifndef MODULEMANAGER_H
-#define MODULEMANAGER_H
+#pragma once
 
-#include "module.h"
+#include "extension.h"
 
 namespace PaintField
 {
@@ -30,5 +29,3 @@ private:
 };
 
 }
-
-#endif // MODULEMANAGER_H

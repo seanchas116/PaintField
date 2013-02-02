@@ -1,6 +1,6 @@
 #include <QWidget>
 
-#include "module.h"
+#include "extension.h"
 
 namespace PaintField
 {

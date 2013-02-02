@@ -2,8 +2,8 @@
 #define FSLAYERUICONTROLLER_H
 
 #include <QObject>
-#include "paintfield-core/workspacecontroller.h"
-#include "paintfield-core/canvascontroller.h"
+#include "paintfield-core/workspace.h"
+#include "paintfield-core/canvas.h"
 
 namespace PaintField
 {

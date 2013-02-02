@@ -1,12 +1,12 @@
-#include "basictool/brush/brushtoolmodule.h"
-#include "basictool/move/layermovetoolmodule.h"
-#include "colorui/coloruimodule.h"
-#include "layerui/layeruimodule.h"
-#include "toolui/tooluimodule.h"
-#include "navigator/navigatormodule.h"
-#include "aboutdialog/aboutdialogmodule.h"
+#include "basictool/brush/brushtoolextension.h"
+#include "basictool/move/layermovetoolextension.h"
+#include "colorui/coloruiextension.h"
+#include "layerui/layeruiextension.h"
+#include "toolui/tooluiextension.h"
+#include "navigator/navigatorextension.h"
+#include "aboutdialog/aboutdialogextension.h"
 
-#include "extensionmodulefactory.h"
+#include "builtinextensionfactory.h"
 
 namespace PaintField
 {

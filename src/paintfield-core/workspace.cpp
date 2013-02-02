@@ -5,11 +5,11 @@
 #include "appcontroller.h"
 #include "toolmanager.h"
 #include "palettemanager.h"
-#include "module.h"
-#include "modulemanager.h"
-#include "canvascontroller.h"
+#include "extension.h"
+#include "extensionmanager.h"
+#include "canvas.h"
 
-#include "workspacecontroller.h"
+#include "workspace.h"
 
 namespace PaintField
 {

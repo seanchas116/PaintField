@@ -1,7 +1,5 @@
-#ifndef EXTENSIONMODULEFACTORY_H
-#define EXTENSIONMODULEFACTORY_H
-
-#include "paintfield-core/module.h"
+#pragma once
+#include "paintfield-core/extension.h"
 
 namespace PaintField
 {
@@ -17,5 +15,3 @@ public:
 };
 
 }
-
-#endif // EXTENSIONMODULEFACTORY_H

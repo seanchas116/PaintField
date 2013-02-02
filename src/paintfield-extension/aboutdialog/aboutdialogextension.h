@@ -1,7 +1,6 @@
-#ifndef PAINTFIELD_ABOUTDIALOGMODULE_H
-#define PAINTFIELD_ABOUTDIALOGMODULE_H
+#pragma once
 
-#include "paintfield-core/module.h"
+#include "paintfield-core/extension.h"
 
 namespace PaintField {
 
@@ -35,5 +34,3 @@ public:
 };
 
 } // namespace PaintField
-
-#endif // PAINTFIELD_ABOUTDIALOGMODULE_H

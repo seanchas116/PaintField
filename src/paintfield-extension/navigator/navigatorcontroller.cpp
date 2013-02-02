@@ -1,4 +1,4 @@
-#include "paintfield-core/canvascontroller.h"
+#include "paintfield-core/canvas.h"
 #include "paintfield-core/canvasview.h"
 #include "navigatorview.h"
 

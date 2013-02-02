@@ -22,7 +22,6 @@ LIBS += -lfreeimage -lz -lmalachite -lminizip -lqjson
 
 # Input
 HEADERS += \
-           canvascontroller.h \
            document.h \
            documentio.h \
            drawutil.h \
@@ -31,8 +30,6 @@ HEADERS += \
            layeredit.h \
            layermodel.h \
            layerrenderer.h \
-           module.h \
-           modulemanager.h \
            palettemanager.h \
            randomstring.h \
            tabletevent.h \
@@ -41,7 +38,6 @@ HEADERS += \
            tool.h \
            toolmanager.h \
            util.h \
-           workspacecontroller.h \
            workspacemanager.h \
            workspaceview.h \
            dialogs/exportdialog.h \
@@ -85,10 +81,13 @@ HEADERS += \
     abstractcanvasviewportcontroller.h \
     canvasviewportcontrollersoftware.h \
     canvasviewportcontrollergl.h \
-    scopedtimer.h
+    scopedtimer.h \
+    canvas.h \
+    workspace.h \
+    extension.h \
+    extensionmanager.h
 FORMS += dialogs/exportdialog.ui dialogs/newdocumentdialog.ui
 SOURCES += \
-           canvascontroller.cpp \
            document.cpp \
            documentio.cpp \
            drawutil.cpp \
@@ -96,14 +95,11 @@ SOURCES += \
            layeredit.cpp \
            layermodel.cpp \
            layerrenderer.cpp \
-           module.cpp \
-           modulemanager.cpp \
            palettemanager.cpp \
            randomstring.cpp \
            thumbnail.cpp \
            toolmanager.cpp \
            util.cpp \
-           workspacecontroller.cpp \
            workspacemanager.cpp \
            workspaceview.cpp \
            dialogs/exportdialog.cpp \
@@ -142,4 +138,8 @@ SOURCES += \
     workspacetabwidget.cpp \
     abstractcanvasviewportcontroller.cpp \
     canvasviewportcontrollersoftware.cpp \
-    canvasviewportcontrollergl.cpp
+    canvasviewportcontrollergl.cpp \
+    canvas.cpp \
+    workspace.cpp \
+    extension.cpp \
+    extensionmanager.cpp

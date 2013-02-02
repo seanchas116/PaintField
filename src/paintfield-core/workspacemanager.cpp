@@ -1,7 +1,7 @@
 #include <QDesktopWidget>
 #include "application.h"
 #include "appcontroller.h"
-#include "modulemanager.h"
+#include "extensionmanager.h"
 #include "util.h"
 #include "workspaceview.h"
 

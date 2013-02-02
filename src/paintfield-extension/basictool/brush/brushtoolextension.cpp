@@ -1,5 +1,5 @@
 #include "paintfield-core/appcontroller.h"
-#include "paintfield-core/workspacecontroller.h"
+#include "paintfield-core/workspace.h"
 #include "paintfield-core/settingsmanager.h"
 #include "paintfield-core/widgets/simplebutton.h"
 #include "paintfield-core/palettemanager.h"
@@ -13,7 +13,7 @@
 #include "brushstrokerpen.h"
 #include "brushstrokersimplebrush.h"
 
-#include "brushtoolmodule.h"
+#include "brushtoolextension.h"
 
 namespace PaintField {
 

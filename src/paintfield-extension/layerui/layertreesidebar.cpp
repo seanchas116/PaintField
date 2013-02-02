@@ -6,7 +6,7 @@
 #include "paintfield-core/widgets/doubleslider.h"
 #include "paintfield-core/widgets/simplebutton.h"
 #include "paintfield-core/appcontroller.h"
-#include "paintfield-core/workspacecontroller.h"
+#include "paintfield-core/workspace.h"
 #include "paintfield-core/document.h"
 
 #include "layeruicontroller.h"

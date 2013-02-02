@@ -4,7 +4,7 @@
 
 #include "layermovetool.h"
 
-#include "layermovetoolmodule.h"
+#include "layermovetoolextension.h"
 
 namespace PaintField
 {

@@ -1,8 +1,7 @@
-#ifndef LAYERUIMODULE_H
-#define LAYERUIMODULE_H
+#pragma once
 
 #include "paintfield-core/smartpointer.h"
-#include "paintfield-core/module.h"
+#include "paintfield-core/extension.h"
 
 namespace PaintField
 {
@@ -38,5 +37,3 @@ private:
 };
 
 }
-
-#endif // LAYERUIMODULE_H

@@ -1,8 +1,8 @@
 #include <QtGui>
 #include "widgets/docktabmotherwidget.h"
-#include "canvascontroller.h"
+#include "canvas.h"
 #include "canvassplitareacontroller.h"
-#include "workspacecontroller.h"
+#include "workspace.h"
 #include "appcontroller.h"
 #include "settingsmanager.h"
 

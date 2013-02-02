@@ -2,7 +2,7 @@
 #define WORKSPACEMANAGER_H
 
 #include <QObject>
-#include "workspacecontroller.h"
+#include "workspace.h"
 
 namespace PaintField
 {

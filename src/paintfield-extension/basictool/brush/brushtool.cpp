@@ -2,8 +2,8 @@
 #include <Malachite/SurfacePainter>
 
 #include "paintfield-core/layeredit.h"
-#include "paintfield-core/canvascontroller.h"
-#include "paintfield-core/workspacecontroller.h"
+#include "paintfield-core/canvas.h"
+#include "paintfield-core/workspace.h"
 #include "paintfield-core/palettemanager.h"
 #include "paintfield-core/tabletevent.h"
 #include "paintfield-core/widgets/simplebutton.h"

@@ -24,20 +24,13 @@ LIBS += -lpaintfield-core
 # Input
 HEADERS += \
            colorui/colorsidebar.h \
-           colorui/coloruimodule.h \
            layerui/layermodelview.h \
            layerui/layermodelviewdelegate.h \
            layerui/layertreesidebar.h \
-           layerui/layeruimodule.h \
-           toolui/tooluimodule.h \
            basictool/brush/brushtool.h \
-           basictool/brush/brushtoolmodule.h \
            basictool/move/layermovetool.h \
-    basictool/move/layermovetoolmodule.h \
-    extensionmodulefactory.h \
     navigator/navigatorview.h \
     navigator/navigatorcontroller.h \
-    navigator/navigatormodule.h \
     layerui/layeruicontroller.h \
     basictool/brush/brushlibrarymodel.h \
     basictool/brush/brushlibrarycontroller.h \
@@ -51,24 +44,24 @@ HEADERS += \
     basictool/brush/brushsidebar.h \
     basictool/brush/brushrasterizer.h \
     basictool/brush/brushstrokersimplebrush.h \
-    aboutdialog/aboutdialogmodule.h \
-    aboutdialog/aboutdialog.h
+    aboutdialog/aboutdialog.h \
+    aboutdialog/aboutdialogextension.h \
+    basictool/brush/brushtoolextension.h \
+    basictool/move/layermovetoolextension.h \
+    colorui/coloruiextension.h \
+    layerui/layeruiextension.h \
+    navigator/navigatorextension.h \
+    toolui/tooluiextension.h \
+    builtinextensionfactory.h
 SOURCES += \
            colorui/colorsidebar.cpp \
-           colorui/coloruimodule.cpp \
            layerui/layermodelview.cpp \
            layerui/layermodelviewdelegate.cpp \
            layerui/layertreesidebar.cpp \
-           layerui/layeruimodule.cpp \
-           toolui/tooluimodule.cpp \
            basictool/brush/brushtool.cpp \
-           basictool/brush/brushtoolmodule.cpp \
            basictool/move/layermovetool.cpp \
-    basictool/move/layermovetoolmodule.cpp \
-    extensionmodulefactory.cpp \
     navigator/navigatorview.cpp \
     navigator/navigatorcontroller.cpp \
-    navigator/navigatormodule.cpp \
     layerui/layeruicontroller.cpp \
     basictool/brush/brushlibrarymodel.cpp \
     basictool/brush/brushlibrarycontroller.cpp \
@@ -82,8 +75,15 @@ SOURCES += \
     basictool/brush/brushsidebar.cpp \
     basictool/brush/brushrasterizer.cpp \
     basictool/brush/brushstrokersimplebrush.cpp \
-    aboutdialog/aboutdialogmodule.cpp \
-    aboutdialog/aboutdialog.cpp
+    aboutdialog/aboutdialog.cpp \
+    builtinextensionfactory.cpp \
+    navigator/navigatorextension.cpp \
+    toolui/tooluiextension.cpp \
+    layerui/layeruiextension.cpp \
+    colorui/coloruiextension.cpp \
+    basictool/move/layermovetoolextension.cpp \
+    basictool/brush/brushtoolextension.cpp \
+    aboutdialog/aboutdialogextension.cpp
 
 RESOURCES += \
     resources/resource-paintfield-extension.qrc

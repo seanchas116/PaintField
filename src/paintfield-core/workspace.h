@@ -1,10 +1,9 @@
-#ifndef WORKSPACECONTROLLER_H
-#define WORKSPACECONTROLLER_H
+#pragma once
 
 #include <QObject>
 #include <QPointer>
 
-#include "module.h"
+#include "extension.h"
 #include "global.h"
 
 namespace PaintField
@@ -121,4 +120,3 @@ private:
 
 }
 
-#endif // WORKSPACECONTROLLER_H

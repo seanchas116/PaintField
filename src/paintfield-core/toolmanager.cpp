@@ -1,7 +1,7 @@
 #include <QtGui>
 
 #include "appcontroller.h"
-#include "modulemanager.h"
+#include "extensionmanager.h"
 #include "util.h"
 
 #include "toolmanager.h"

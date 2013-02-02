@@ -1,7 +1,6 @@
-#ifndef LAYERMOVETOOLMODULE_H
-#define LAYERMOVETOOLMODULE_H
+#pragma once
 
-#include "paintfield-core/module.h"
+#include "paintfield-core/extension.h"
 
 namespace PaintField
 {
@@ -38,4 +37,3 @@ public:
 
 }
 
-#endif // LAYERMOVETOOLMODULE_H
