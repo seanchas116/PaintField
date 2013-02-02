@@ -83,12 +83,12 @@ void BrushToolModuleFactory::initialize(AppController *app)
 		QString text = QObject::tr("Brush");
 		QIcon icon = SimpleButton::createSimpleIconSet(":/icons/24x24/brush.svg", QSize(24,24));
 		QStringList supportedTypes = { "raster" };
-		app->settingsManager()->declareTool(_brushToolName, ToolDeclaration(text, icon, supportedTypes));
+		app->settingsManager()->declareTool(_brushToolName, ToolInfo(text, icon, supportedTypes));
 	}
 	
 	{
-		app->settingsManager()->declareSideBar(_brushLibrarySidebarName, SidebarDeclaration(tr("Brush Library")));
-		app->settingsManager()->declareSideBar(_brushSideBarName, SidebarDeclaration(tr("Brush")));
+		app->settingsManager()->declareSideBar(_brushLibrarySidebarName, SideBarInfo(tr("Brush Library")));
+		app->settingsManager()->declareSideBar(_brushSideBarName, SideBarInfo(tr("Brush")));
 	}
 }
 

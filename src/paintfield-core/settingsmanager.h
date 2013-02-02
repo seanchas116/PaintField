@@ -5,52 +5,47 @@
 #include <QIcon>
 #include <QHash>
 #include <QKeySequence>
+#include <QVariant>
 
 namespace PaintField {
 
-struct ToolDeclaration
+struct ToolInfo
 {
-	ToolDeclaration() {}
-	ToolDeclaration(const QString &text, const QIcon &icon, const QStringList &supportedLayerTypes) : text(text), icon(icon), supportedLayerTypes(supportedLayerTypes) {}
+	ToolInfo() {}
+	ToolInfo(const QString &text, const QIcon &icon, const QStringList &supportedLayerTypes) : text(text), icon(icon), supportedLayerTypes(supportedLayerTypes) {}
 	QString text;
 	QIcon icon;
 	QStringList supportedLayerTypes;
 };
-typedef QHash<QString, ToolDeclaration> ToolDeclarationHash;
 
-struct ActionDeclaration
+struct ActionInfo
 {
-	ActionDeclaration() {}
-	ActionDeclaration(const QString &text, const QKeySequence &defaultShortcut = QKeySequence()) : text(text), shortcut(defaultShortcut) {}
+	ActionInfo() {}
+	ActionInfo(const QString &text, const QKeySequence &defaultShortcut = QKeySequence()) : text(text), shortcut(defaultShortcut) {}
 	QString text;
 	QKeySequence shortcut;
 };
-typedef QHash<QString, ActionDeclaration> ActionDeclarationHash;
 
-struct SidebarDeclaration
+struct SideBarInfo
 {
-	SidebarDeclaration() {}
-	SidebarDeclaration(const QString &text) : text(text) {}
-	QString text;
-};
-typedef QHash<QString, SidebarDeclaration> SideBarDeclarationHash;
-
-struct ToolbarDeclaration
-{
-	ToolbarDeclaration() {}
-	ToolbarDeclaration(const QString &text) : text(text) {}
-	QString text;
-};
-typedef QHash<QString, ToolbarDeclaration> ToolBarDeclarationHash;
-
-struct MenuDeclaration
-{
-	MenuDeclaration() {}
-	MenuDeclaration(const QString &text) : text(text) {}
+	SideBarInfo() {}
+	SideBarInfo(const QString &text) : text(text) {}
 	QString text;
 };
 
-typedef QHash<QString, MenuDeclaration> MenuDeclarationHash;
+struct ToolBarInfo
+{
+	ToolBarInfo() {}
+	ToolBarInfo(const QString &text) : text(text) {}
+	QString text;
+};
+
+struct MenuInfo
+{
+	MenuInfo() {}
+	MenuInfo(const QString &text) : text(text) {}
+	QString text;
+};
 
 
 
@@ -64,40 +59,32 @@ public:
 	void loadBuiltinSettings();
 	void loadUserSettings();
 	
-	void loadMenuBarOrderFromJson(const QString &path);
-	void loadWorkspaceItemOrderFromJson(const QString &path);
-	void loadAndAddKeyBindingsFromJson(const QString &path);
+	void loadSettingsFromDir(const QString &dirPath);
+	void loadSettingsFromJsonFile(const QString &path);
 	
-	void setMenuBarOrder(const QVariant &order);
-	QVariant menuBarOrder() const;
+	QVariantMap &settings();
+	void addSettings(const QVariantMap &settings);
 	
-	void setWorkspaceItemOrder(const QVariant &order);
-	QVariant workspaceItemOrder() const;
-	
-	void declareTool(const QString &name, const ToolDeclaration &info);
-	void declareAction(const QString &name, const ActionDeclaration &info);
-	void declareSideBar(const QString &name, const SidebarDeclaration &info);
-	void declareToolbar(const QString &name, const ToolbarDeclaration &info);
-	void declareMenu(const QString &id, const MenuDeclaration &info);
+	void declareTool(const QString &name, const ToolInfo &info);
+	void declareAction(const QString &name, const ActionInfo &info);
+	void declareSideBar(const QString &name, const SideBarInfo &info);
+	void declareToolbar(const QString &name, const ToolBarInfo &info);
+	void declareMenu(const QString &id, const MenuInfo &info);
 	
 	void declareTool(const QString &name, const QString &text, const QIcon &icon, const QStringList &supportedLayerTypes);
 	void declareAction(const QString &name, const QString &text, const QKeySequence &defaultShortcut = QKeySequence());
 	
-	ToolDeclarationHash toolDeclarationHash() const;
-	ActionDeclarationHash actionDeclarationHash() const;
-	SideBarDeclarationHash sideBarDeclarationHash() const;
-	ToolBarDeclarationHash toolBarDeclarationHash() const;
-	MenuDeclarationHash menuDeclarationHash() const;
+	QHash<QString, ToolInfo> toolInfoHash() const;
+	QHash<QString, ActionInfo> actionInfoHash() const;
+	QHash<QString, SideBarInfo> sideBarInfoHash() const;
+	QHash<QString, ToolBarInfo> toolBarInfoHash() const;
+	QHash<QString, MenuInfo> menuInfoHash() const;
 	
 	QStringList toolNames() const;
 	QStringList actionNames() const;
 	QStringList sidebarNames() const;
 	QStringList toolbarNames() const;
 	QStringList menuNames() const;
-	
-	QHash<QString, QKeySequence> keyBindingHash() const;
-	void addKeyBindingHash(const QHash<QString, QKeySequence> &hash);
-	void addKeyBinding(const QString &name, const QKeySequence &shortcut);
 	
 	QString builtinDataDir() const;
 	QString userDataDir() const;

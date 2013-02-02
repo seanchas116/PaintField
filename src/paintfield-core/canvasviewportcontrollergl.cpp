@@ -1,24 +1,17 @@
 #include <Malachite/Surface>
 #include <Malachite/Vec2D>
 #include <QDebug>
+#include "drawutil.h"
+
 #include "canvasviewportcontrollergl.h"
 
 using namespace Malachite;
 
 namespace PaintField {
 
-struct vec2
-{
-	vec2() {}
-	vec2(float x, float y) : x(x), y(y) {}
-	vec2(const vec2 &other) = default;
-	vec2(const Vec2D &p) : x(p.x()), y(p.y()) {}
-	float x, y;
-};
-
 struct CanvasViewportGL::Data
 {
-	GLuint texture = 0;
+	GLuint texture = 0, pbo = 0;
 	
 	QSize sceneSize;
 	Vec2D textureSizeInv;
@@ -185,9 +178,36 @@ void CanvasViewportGL::updateTile(const QPoint &tileKey, const Malachite::Image 
 	{
 		QPoint totalOffset = tileKey * Surface::TileSize + offset;
 		
-		glTexSubImage2D(GL_TEXTURE_2D, 0, totalOffset.x(), totalOffset.y(), image.width(), image.height(), GL_BGRA, GL_FLOAT, image.constBits());
+		QSize size = image.size();
+		int pixelCount = size.width() * size.height();
 		
-		d->repaintRect(QRect(totalOffset, image.size()));
+		QScopedArrayPointer<BgraPremultU8> data(new BgraPremultU8[pixelCount]);
+		copyColorFast(pixelCount, data.data(), image.constBits());
+		
+		auto buf = (uint8_t *)glMapBuffer(GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY);
+		if (buf)
+		{
+			int count = size.width() * 4;
+			
+			auto p = data.data();
+			p += count * (size.height() - 1);
+			
+			memcpy(buf, p, count);
+			buf += count;
+			p -= count;
+			
+			glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
+		}
+		
+		//glPixelStorei(GL_UNPACK_ROW_LENGTH, );
+		
+		QPoint rasterOffset = totalOffset + d->transformToView.delta().toQPoint();
+		rasterOffset.ry() = height() - rasterOffset.y() - Surface::TileSize;
+		
+		glWindowPos2i(rasterOffset.x(), rasterOffset.y());
+		glDrawPixels(size.width(), size.height(), GL_BGRA, GL_UNSIGNED_BYTE, 0);
+		//glTexSubImage2D(GL_TEXTURE_2D, 0, totalOffset.x(), totalOffset.y(), size.width(), size.height(), GL_BGRA, GL_UNSIGNED_BYTE, 0);
+		//d->repaintRect(QRect(totalOffset, size));
 	}
 }
 
@@ -195,6 +215,7 @@ void CanvasViewportGL::beforeUpdateTile()
 {
 	makeCurrent();
 	glBindTexture(GL_TEXTURE_2D, d->texture);
+	glBindBuffer(GL_PIXEL_UNPACK_BUFFER, d->pbo);
 }
 
 void CanvasViewportGL::afterUpdateTile()
@@ -206,6 +227,12 @@ void CanvasViewportGL::afterUpdateTile()
 void CanvasViewportGL::initializeGL()
 {
 	glEnable ( GL_TEXTURE_2D );
+	glEnable ( GL_PIXEL_UNPACK_BUFFER );
+	
+	glGenBuffers(1, &d->pbo);
+	glBindBuffer(GL_PIXEL_UNPACK_BUFFER, d->pbo);
+	glBufferData(GL_PIXEL_UNPACK_BUFFER, Surface::TileSize * Surface::TileSize * 4, 0, GL_DYNAMIC_DRAW);
+	glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 	
 	emit ready();
 }

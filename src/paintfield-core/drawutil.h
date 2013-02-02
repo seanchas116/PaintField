@@ -6,6 +6,8 @@
 
 namespace PaintField {
 
+void copyColorFast(int count, Malachite::BgraPremultU8 *dst, const Malachite::Pixel *src);
+
 void drawMLSurface(QPainter *painter, const QPoint &point, const Malachite::Surface &surface);
 void drawMLImage(QPainter *painter, const QPoint &point, const Malachite::Image &image);
 

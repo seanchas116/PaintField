@@ -1,74 +1,79 @@
-[
-	{
-		"menu": "paintfield.file",
-		"children":
-		[
-			"paintfield.file.new",
-			"paintfield.file.newFromImageFile",
-			"paintfield.file.open",
-			"",
-			"paintfield.file.newCanvasIntoDocument",
-			"",
-			"paintfield.file.close",
-			"paintfield.file.save",
-			"paintfield.file.saveAs",
-			"",
-			"paintfield.file.export",
-			"",
-			"paintfield.file.quit"
-		]
-	},
-	{
-		"menu": "paintfield.edit",
-		"children":
-		[
-			"paintfield.edit.undo",
-			"paintfield.edit.redo",
-			"",
-			"paintfield.edit.cut",
-			"paintfield.edit.copy",
-			"paintfield.edit.paste",
-			"paintfield.edit.delete",
-			"",
-			"paintfield.edit.selectAll"
-		]
-	},
-	{
-		"menu": "paintfield.layer",
-		"children":
-		[
-			"paintfield.layer.newRaster",
-			"paintfield.layer.newGroup",
-			"paintfield.layer.import",
-			"",
-			"paintfield.layer.merge"
-		]
-	},
-	{
-		"menu": "paintfield.view",
-		"children":
-		[
-			"paintfield.view.newWorkspace",
-			"",
-			"paintfield.view.splitVertically",
-			"paintfield.view.splitHorizontally",
-			"paintfield.view.closeCurrentSplit"
-		]
-	},
-	{
-		"menu": "paintfield.window",
-		"children":
-		[
-			"paintfield.window.minimize",
-			"paintfield.window.zoom"
-		]
-	},
-	{
-		"menu": "paintfield.help",
-		"children":
-		[
-			"paintfield.help.about",
-			"paintfield.help.aboutQt"
-		]
-	}
-]
+{
+	"menubar-order":
+	[
+		{
+			"menu": "paintfield.file",
+			"children":
+			[
+				"paintfield.file.new",
+				"paintfield.file.newFromImageFile",
+				"paintfield.file.open",
+				"",
+				"paintfield.file.newCanvasIntoDocument",
+				"",
+				"paintfield.file.close",
+				"paintfield.file.save",
+				"paintfield.file.saveAs",
+				"",
+				"paintfield.file.export",
+				"",
+				"paintfield.file.quit"
+			]
+		},
+		{
+			"menu": "paintfield.edit",
+			"children":
+			[
+				"paintfield.edit.undo",
+				"paintfield.edit.redo",
+				"",
+				"paintfield.edit.cut",
+				"paintfield.edit.copy",
+				"paintfield.edit.paste",
+				"paintfield.edit.delete",
+				"",
+				"paintfield.edit.selectAll"
+			]
+		},
+		{
+			"menu": "paintfield.layer",
+			"children":
+			[
+				"paintfield.layer.newRaster",
+				"paintfield.layer.newGroup",
+				"paintfield.layer.import",
+				"",
+				"paintfield.layer.merge"
+			]
+		},
+		{
+			"menu": "paintfield.view",
+			"children":
+			[
+				"paintfield.view.newWorkspace",
+				"",
+				"paintfield.view.splitVertically",
+				"paintfield.view.splitHorizontally",
+				"paintfield.view.closeCurrentSplit"
+			]
+		},
+		{
+			"menu": "paintfield.window",
+			"children":
+			[
+				"paintfield.window.minimize",
+				"paintfield.window.zoom"
+			]
+		},
+		{
+			"menu": "paintfield.help",
+			"children":
+			[
+				"paintfield.help.about",
+				"paintfield.help.aboutQt"
+			]
+		}
+	]
+}
+
+

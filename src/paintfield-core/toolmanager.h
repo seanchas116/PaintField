@@ -35,7 +35,7 @@ private slots:
 	
 private:
 	
-	void createActions(const ToolDeclarationHash &infoHash);
+	void createActions(const QHash<QString, ToolInfo> &infoHash);
 	
 	QString _currentTool;
 	QHash<QAction *, QString> _actionHash;

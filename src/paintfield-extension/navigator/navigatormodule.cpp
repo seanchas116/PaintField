@@ -19,7 +19,7 @@ NavigatorModule::NavigatorModule(Canvas *canvas, QObject *parent) :
 
 void NavigatorModuleFactory::initialize(AppController *app)
 {
-	app->settingsManager()->declareSideBar(_navigatorSidebarName, SidebarDeclaration(tr("Navigator")));
+	app->settingsManager()->declareSideBar(_navigatorSidebarName, SideBarInfo(tr("Navigator")));
 }
 
 CanvasModuleList NavigatorModuleFactory::createCanvasModules(Canvas *canvas, QObject *parent)

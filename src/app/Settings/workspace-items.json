@@ -1,26 +1,29 @@
 {
-    "sidebars":
-    {
-        "left":
-        [
-            [
-                ["paintfield.sidebar.navigator"],
-                ["paintfield.sidebar.layerTree"]
-            ]
-        ],
-        "right":
-        [
-            [
-                
-                ["paintfield.sidebar.color"],
-                ["paintfield.sidebar.brush"],
-                ["paintfield.sidebar.brushLibrary"]
-            ]
-        ]
-    },
-    
-    "toolbars":
-    {
-        "top": ["paintfield.toolbar.tool"]
-    }
+	"workspace-item-order":
+	{
+		"sidebars":
+		{
+			"left":
+			[
+				[
+					["paintfield.sidebar.navigator"],
+					["paintfield.sidebar.layerTree"]
+				]
+			],
+			"right":
+			[
+				[
+					
+					["paintfield.sidebar.color"],
+					["paintfield.sidebar.brush"],
+					["paintfield.sidebar.brushLibrary"]
+				]
+			]
+		},
+		
+		"toolbars":
+		{
+			"top": ["paintfield.toolbar.tool"]
+		}
+	}
 }

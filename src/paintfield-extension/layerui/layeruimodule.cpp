@@ -43,7 +43,7 @@ void LayerUIModuleFactory::initialize(AppController *app)
 	app->settingsManager()->declareAction("paintfield.layer.import", tr("Import..."));
 	app->settingsManager()->declareAction("paintfield.layer.merge", tr("Merge"));
 	
-	app->settingsManager()->declareSideBar(_layerTreeSidebarName, SidebarDeclaration(tr("Layers")));
+	app->settingsManager()->declareSideBar(_layerTreeSidebarName, SideBarInfo(tr("Layers")));
 }
 
 }

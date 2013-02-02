@@ -44,13 +44,13 @@ bool WorkspaceMotherWidget::tabIsInsertable(DockTabWidget *src, int srcIndex)
 namespace MenuArranger
 {
 
-QMenu *createMenu(const ActionDeclarationHash &actionDeclarations, const MenuDeclarationHash &menuDeclarations, const QVariantMap &order);
-QMenuBar *createMenuBar(const ActionDeclarationHash &actionDeclarations, const MenuDeclarationHash &menuDeclarations, const QVariant &order);
+QMenu *createMenu(const QHash<QString, ActionInfo> &actionDeclarations, const QHash<QString, MenuInfo> &menuDeclarations, const QVariantMap &order);
+QMenuBar *createMenuBar(const QHash<QString, ActionInfo> &actionDeclarations, const QHash<QString, MenuInfo> &menuDeclarations, const QVariant &order);
 	
 void associateMenuWithActions(QMenu *menu, const QActionList &actions);
 void associateMenuBarWithActions(QMenuBar *menuBar, const QActionList &actions);
 
-QMenu *createMenu(const ActionDeclarationHash &actionDeclarations, const MenuDeclarationHash &menuDeclarations, const QVariantMap &order)
+QMenu *createMenu(const QHash<QString, ActionInfo> &actionDeclarations, const QHash<QString, MenuInfo> &menuDeclarations, const QVariantMap &order)
 {
 	QString menuId = order["menu"].toString();
 	if (menuId.isEmpty())
@@ -77,7 +77,7 @@ QMenu *createMenu(const ActionDeclarationHash &actionDeclarations, const MenuDec
 					menu->addSeparator();
 				else
 				{
-					ActionDeclaration actionInfo = actionDeclarations.value(id);
+					ActionInfo actionInfo = actionDeclarations.value(id);
 					
 					if (actionInfo.text.isEmpty())
 						actionInfo.text = id;
@@ -105,7 +105,7 @@ QMenu *createMenu(const ActionDeclarationHash &actionDeclarations, const MenuDec
 	return menu;
 }
 
-QMenuBar *createMenuBar(const ActionDeclarationHash &actionDeclarations, const MenuDeclarationHash &menuDeclarations, const QVariant &order)
+QMenuBar *createMenuBar(const QHash<QString, ActionInfo> &actionDeclarations, const QHash<QString, MenuInfo> &menuDeclarations, const QVariant &order)
 {
 	auto menuBar = new QMenuBar();
 	
@@ -253,15 +253,15 @@ WorkspaceView::WorkspaceView(Workspace *workspace, QWidget *parent) :
 	connect(this, SIGNAL(closeRequested()), workspace, SLOT(tryClose()));
 	
 	{
-		QVariantMap workspaceItemOrderMap = appController()->settingsManager()->workspaceItemOrder().toMap();
+		QVariantMap workspaceItemOrderMap = appController()->settingsManager()->settings()["workspace-item-order"].toMap();
 		
-		createSideBarFrames(appController()->settingsManager()->sideBarDeclarationHash(),
+		createSideBarFrames(appController()->settingsManager()->sideBarInfoHash(),
 		                    workspaceItemOrderMap["sidebars"]);
-		createToolBars(appController()->settingsManager()->toolBarDeclarationHash(),
+		createToolBars(appController()->settingsManager()->toolBarInfoHash(),
 		               workspaceItemOrderMap["toolbars"]);
-		createMenuBar(appController()->settingsManager()->actionDeclarationHash(),
-		              appController()->settingsManager()->menuDeclarationHash(),
-		              appController()->settingsManager()->menuBarOrder());
+		createMenuBar(appController()->settingsManager()->actionInfoHash(),
+		              appController()->settingsManager()->menuInfoHash(),
+		              appController()->settingsManager()->settings()["menubar-order"]);
 	}
 	
 	connect(workspace, SIGNAL(shouldBeDeleted(Workspace*)), this, SLOT(deleteLater()));
@@ -274,7 +274,7 @@ WorkspaceView::WorkspaceView(Workspace *workspace, QWidget *parent) :
 	updateMenuBar();
 }
 
-void WorkspaceView::createSideBarFrames(const SideBarDeclarationHash &sidebarDeclarations, const QVariant &order)
+void WorkspaceView::createSideBarFrames(const QHash<QString, SideBarInfo> &sideBarInfos, const QVariant &order)
 {
 	auto sideBarSplitterDirFromString = [](const QString &str)->DockTabMotherWidget::Direction
 	{
@@ -296,18 +296,18 @@ void WorkspaceView::createSideBarFrames(const SideBarDeclarationHash &sidebarDec
 	{
 		DockTabMotherWidget::Direction splitterDir = sideBarSplitterDirFromString(iter.key());
 		if (splitterDir != DockTabMotherWidget::NoDirection)
-			createSideBarFramesInArea(splitterDir, sidebarDeclarations, iter.value());
+			createSideBarFramesInArea(splitterDir, sideBarInfos, iter.value());
 	}
 }
 
-void WorkspaceView::createSideBarFramesInArea(DockTabMotherWidget::Direction splitterDir, const SideBarDeclarationHash &sidebarDeclarations, const QVariant &areaOrder)
+void WorkspaceView::createSideBarFramesInArea(DockTabMotherWidget::Direction splitterDir, const QHash<QString, SideBarInfo> &sidebarDeclarations, const QVariant &areaOrder)
 {
 	int i = 0;
 	for (const QVariant &splitterOrder : areaOrder.toList())
 		createSideBarFramesInSplitter(splitterDir, i++, sidebarDeclarations, splitterOrder.toList());
 }
 
-void WorkspaceView::createSideBarFramesInSplitter(DockTabMotherWidget::Direction splitterDir, int splitterIndex, const SideBarDeclarationHash &sidebarDeclarations, const QVariant &splitterOrder)
+void WorkspaceView::createSideBarFramesInSplitter(DockTabMotherWidget::Direction splitterDir, int splitterIndex, const QHash<QString, SideBarInfo> &sidebarDeclarations, const QVariant &splitterOrder)
 {
 	for (const QVariant &tabWidgetOrder : splitterOrder.toList())
 	{
@@ -329,7 +329,7 @@ void WorkspaceView::createSideBarFramesInSplitter(DockTabMotherWidget::Direction
 	}
 }
 
-void WorkspaceView::createToolBars(const ToolBarDeclarationHash &toolBarDeclarations, const QVariant &order)
+void WorkspaceView::createToolBars(const QHash<QString, ToolBarInfo> &toolBarInfos, const QVariant &order)
 {
 	auto toolBarAreaFromString = [](const QString &str)->Qt::ToolBarArea
 	{
@@ -352,12 +352,12 @@ void WorkspaceView::createToolBars(const ToolBarDeclarationHash &toolBarDeclarat
 		Qt::ToolBarArea area = toolBarAreaFromString(iter.key());
 		if (area != Qt::NoToolBarArea)
 		{
-			createToolBarsInArea(area, toolBarDeclarations, iter->toList());
+			createToolBarsInArea(area, toolBarInfos, iter->toList());
 		}
 	}
 }
 
-void WorkspaceView::createToolBarsInArea(Qt::ToolBarArea area, const ToolBarDeclarationHash &toolBarDeclarations, const QVariant &areaOrder)
+void WorkspaceView::createToolBarsInArea(Qt::ToolBarArea area, const QHash<QString, ToolBarInfo> &toolBarDeclarations, const QVariant &areaOrder)
 {
 	for (const QString &toolBarName : areaOrder.toStringList())
 	{
@@ -375,9 +375,9 @@ void WorkspaceView::createToolBarsInArea(Qt::ToolBarArea area, const ToolBarDecl
 	}
 }
 
-void WorkspaceView::createMenuBar(const ActionDeclarationHash &actionDeclarations, const MenuDeclarationHash &menuDeclaratioons, const QVariant &order)
+void WorkspaceView::createMenuBar(const QHash<QString, ActionInfo> &actionInfos, const QHash<QString, MenuInfo> &menuInfos, const QVariant &order)
 {
-	setMenuBar(MenuArranger::createMenuBar(actionDeclarations, menuDeclaratioons, order));
+	setMenuBar(MenuArranger::createMenuBar(actionInfos, menuInfos, order));
 }
 
 void WorkspaceView::setSidebar(const QString &id, QWidget *sidebar)

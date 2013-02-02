@@ -137,11 +137,11 @@ CanvasView::CanvasView(Canvas *canvas, QWidget *parent) :
 	
 	// setup key bindings
 	{
-		auto keyBindingHash = appController()->settingsManager()->keyBindingHash();
+		auto keyBindingHash = appController()->settingsManager()->settings()[".key-bindings"].toMap();
 		
-		d->translationKeys = keyBindingHash["paintfield.canvas.dragTranslation"];
-		d->scaleKeys = keyBindingHash["paintfield.canvas.dragScale"];
-		d->rotationKeys = keyBindingHash["paintfield.canvas.dragRotation"];
+		d->translationKeys = keyBindingHash["paintfield.canvas.dragTranslation"].toString();
+		d->scaleKeys = keyBindingHash["paintfield.canvas.dragScale"].toString();
+		d->rotationKeys = keyBindingHash["paintfield.canvas.dragRotation"].toString();
 	}
 	
 	// set widget properties

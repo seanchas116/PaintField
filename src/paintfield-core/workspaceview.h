@@ -98,9 +98,9 @@ class WorkspaceView : public QMainWindow
 public:
 	explicit WorkspaceView(Workspace *workspace, QWidget *parent = 0);
 	
-	void createSideBarFrames(const SideBarDeclarationHash &sidebarDeclarations, const QVariant &order);
-	void createToolBars(const ToolBarDeclarationHash &toolBarDeclarations, const QVariant &order);
-	void createMenuBar(const ActionDeclarationHash &actionDeclarations, const MenuDeclarationHash &menuDeclarations,  const QVariant &order);
+	void createSideBarFrames(const QHash<QString, SideBarInfo> &sideBarInfos, const QVariant &order);
+	void createToolBars(const QHash<QString, ToolBarInfo> &toolBarInfos, const QVariant &order);
+	void createMenuBar(const QHash<QString, ActionInfo> &actionInfos, const QHash<QString, MenuInfo> &menuInfos,  const QVariant &order);
 	
 	void setSidebar(const QString &id, QWidget *sidebar);
 	QToolBar *toolBar(const QString &id);
@@ -126,9 +126,9 @@ private slots:
 	
 private:
 	
-	void createSideBarFramesInArea(DockTabMotherWidget::Direction splitterDir, const SideBarDeclarationHash &sidebarDeclarations, const QVariant &areaOrder);
-	void createSideBarFramesInSplitter(DockTabMotherWidget::Direction splitterDir, int splitterIndex, const SideBarDeclarationHash &sidebarDeclarations, const QVariant &splitterOrder);
-	void createToolBarsInArea(Qt::ToolBarArea area, const ToolBarDeclarationHash &toolBarDeclarations, const QVariant &areaOrder);
+	void createSideBarFramesInArea(DockTabMotherWidget::Direction splitterDir, const QHash<QString, SideBarInfo> &sidebarDeclarations, const QVariant &areaOrder);
+	void createSideBarFramesInSplitter(DockTabMotherWidget::Direction splitterDir, int splitterIndex, const QHash<QString, SideBarInfo> &sidebarDeclarations, const QVariant &splitterOrder);
+	void createToolBarsInArea(Qt::ToolBarArea area, const QHash<QString, ToolBarInfo> &toolBarDeclarations, const QVariant &areaOrder);
 	
 	void updateWorkspaceItems();
 	void updateWorkspaceItemsForCanvas(Canvas *canvas);
