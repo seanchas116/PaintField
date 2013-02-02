@@ -7,6 +7,9 @@
 namespace PaintField
 {
 
+namespace Util
+{
+
 QAction *createAction(const QString &id, QObject *parent)
 {
 	auto action = new QAction(parent);
@@ -126,6 +129,8 @@ void setExpandTreeViewRecursive(QTreeView *view, const QModelIndex &index, bool 
 	
 	for (int i = 0; i < rowCount; ++i)
 		setExpandTreeViewRecursive(view, view->model()->index(i, 0, index), expanded);
+}
+
 }
 
 }

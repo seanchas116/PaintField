@@ -18,7 +18,7 @@ public:
 	
 	QString resolve(const QString &name)
 	{
-		QString newName = unduplicatedName(_existingNames, name);
+		QString newName = Util::unduplicatedName(_existingNames, name);
 		_existingNames << newName;
 		return newName;
 	}

@@ -5,65 +5,68 @@
 namespace PaintField
 {
 
-Module::~Module()
+Extension::~Extension()
 {
 	for (auto sideBar : _sideBars)
 		sideBar->deleteLater();
 }
 
-void Module::addSideBar(const QString &name, QWidget *sideBar)
+void Extension::addSideBar(const QString &id, QWidget *sideBar)
 {
 	Q_CHECK_PTR(sideBar);
 	
-	if (_sideBars.contains(name) && _sideBars.value(name) == sideBar)
+	if (_sideBars.contains(id) && _sideBars.value(id) == sideBar)
 	{
 		sideBar->deleteLater();
 		return;
 	}
 	
-	_sideBars.insert(name, sideBar);
+	_sideBars.insert(id, sideBar);
 }
 
-Tool *Module::createTool(const QString &, Canvas *)
+Tool *Extension::createTool(const QString &, Canvas *)
 {
 	return 0;
 }
 
-void Module::updateToolBar(QToolBar *, const QString &)
+void Extension::updateToolBar(QToolBar *, const QString &)
 {
 }
 
-AppModuleList ModuleFactory::createAppModules(AppController *, QObject *)
+AppExtensionList ExtensionFactory::createAppExtensions(AppController *, QObject *)
 {
-	return AppModuleList();
+	return AppExtensionList();
 }
 
-WorkspaceModuleList ModuleFactory::createWorkspaceModules(Workspace *, QObject *)
+WorkspaceExtensionList ExtensionFactory::createWorkspaceExtensions(Workspace *, QObject *)
 {
-	return WorkspaceModuleList();
+	return WorkspaceExtensionList();
 }
 
-CanvasModuleList ModuleFactory::createCanvasModules(Canvas *, QObject *)
+CanvasExtensionList ExtensionFactory::createCanvasExtensions(Canvas *, QObject *)
 {
-	return CanvasModuleList();
+	return CanvasExtensionList();
 }
 
-Tool *createTool(const AppModuleList &appModules, const WorkspaceModuleList &workspaceModules, const CanvasModuleList &canvasModules, const QString &name, Canvas *canvas)
+namespace ExtensionUtil
+{
+
+Tool *createTool(const AppExtensionList &appModules, const WorkspaceExtensionList &workspaceExtensions, const CanvasExtensionList &canvasModules, const QString &name, Canvas *canvas)
 {
 	Tool *tool;
-	for (Module *module : appModules)
+	for (Extension *module : appModules)
 	{
 		tool = module->createTool(name, canvas);
 		if (tool)
 			return tool;
 	}
-	for (Module *module : workspaceModules)
+	for (Extension *module : workspaceExtensions)
 	{
 		tool = module->createTool(name, canvas);
 		if (tool)
 			return tool;
 	}
-	for (Module *module : canvasModules)
+	for (Extension *module : canvasModules)
 	{
 		tool = module->createTool(name, canvas);
 		if (tool)
@@ -72,17 +75,17 @@ Tool *createTool(const AppModuleList &appModules, const WorkspaceModuleList &wor
 	return 0;
 }
 
-QWidget *sideBarForWorkspace(const AppModuleList &appModules, const WorkspaceModuleList &workspaceModules, const QString &name)
+QWidget *sideBarForWorkspace(const AppExtensionList &appExtensions, const WorkspaceExtensionList &workspaceExtensions, const QString &name)
 {
 	QWidget *sidebar;
 	
-	for (Module *module : appModules)
+	for (Extension *module : appExtensions)
 	{
 		sidebar = module->sideBar(name);
 		if (sidebar)
 			return sidebar;
 	}
-	for (Module *module : workspaceModules)
+	for (Extension *module : workspaceExtensions)
 	{
 		sidebar = module->sideBar(name);
 		if (sidebar)
@@ -91,11 +94,11 @@ QWidget *sideBarForWorkspace(const AppModuleList &appModules, const WorkspaceMod
 	return 0;
 }
 
-QWidget *sideBarForCanvas(const CanvasModuleList &canvasModules, const QString &name)
+QWidget *sideBarForCanvas(const CanvasExtensionList &canvasExtensions, const QString &name)
 {
 	QWidget *sidebar;
 	
-	for (Module *module : canvasModules)
+	for (Extension *module : canvasExtensions)
 	{
 		sidebar = module->sideBar(name);
 		if (sidebar)
@@ -104,16 +107,18 @@ QWidget *sideBarForCanvas(const CanvasModuleList &canvasModules, const QString &
 	return 0;
 }
 
-void updateToolBar(const AppModuleList &appModules, const WorkspaceModuleList &workspaceModules, const CanvasModuleList &canvasModules, QToolBar *toolBar, const QString &name)
+void updateToolBar(const AppExtensionList &appExtensions, const WorkspaceExtensionList &workspaceExtensions, const CanvasExtensionList &canvasExtensions, QToolBar *toolBar, const QString &name)
 {
-	for (Module *module : appModules)
+	for (Extension *module : appExtensions)
 		module->updateToolBar(toolBar, name);
 	
-	for (Module *module : workspaceModules)
+	for (Extension *module : workspaceExtensions)
 		module->updateToolBar(toolBar, name);
 	
-	for (Module *module : canvasModules)
+	for (Extension *module : canvasExtensions)
 		module->updateToolBar(toolBar, name);
+}
+
 }
 
 }

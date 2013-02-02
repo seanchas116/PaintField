@@ -11,16 +11,16 @@
 namespace PaintField
 {
 
-ExtensionModuleFactory::ExtensionModuleFactory(QObject *parent) :
-    ModuleFactory(parent)
+BuiltInExtensionFactory::BuiltInExtensionFactory(QObject *parent) :
+    ExtensionFactory(parent)
 {
-	addSubModuleFactory(new BrushToolModuleFactory(this));
-	addSubModuleFactory(new LayerMoveToolModuleFactory(this));
-	addSubModuleFactory(new ColorUIModuleFactory(this));
-	addSubModuleFactory(new LayerUIModuleFactory(this));
-	addSubModuleFactory(new ToolUIModuleFactory(this));
-	addSubModuleFactory(new NavigatorModuleFactory(this));
-	addSubModuleFactory(new AboutDialogModuleFactory(this));
+	addSubExtensionFactory(new BrushToolExtensionFactory(this));
+	addSubExtensionFactory(new LayerMoveToolExtensionFactory(this));
+	addSubExtensionFactory(new ColorUIExtensionFactory(this));
+	addSubExtensionFactory(new LayerUIExtensionFactory(this));
+	addSubExtensionFactory(new ToolUIExtensionFactory(this));
+	addSubExtensionFactory(new NavigatorExtensionFactory(this));
+	addSubExtensionFactory(new AboutDialogExtensionFactory(this));
 }
 
 }

@@ -9,29 +9,29 @@ namespace PaintField
 
 class ColorSidebar;
 
-class ColorUIModule : public WorkspaceModule
+class ColorUIExtension : public WorkspaceExtension
 {
 	Q_OBJECT
 public:
-	ColorUIModule(Workspace *workspace, QObject *parent);
+	ColorUIExtension(Workspace *workspace, QObject *parent);
 	
 signals:
 	
 public slots:
 };
 
-class ColorUIModuleFactory : public ModuleFactory
+class ColorUIExtensionFactory : public ExtensionFactory
 {
 	Q_OBJECT
 public:
 	
-	ColorUIModuleFactory(QObject *parent = 0) : ModuleFactory(parent) {}
+	ColorUIExtensionFactory(QObject *parent = 0) : ExtensionFactory(parent) {}
 	
 	void initialize(AppController *app) override;
 	
-	QList<WorkspaceModule *> createWorkspaceModules(Workspace *workspace, QObject *parent) override
+	QList<WorkspaceExtension *> createWorkspaceExtensions(Workspace *workspace, QObject *parent) override
 	{
-		return { new ColorUIModule(workspace, parent) };
+		return { new ColorUIExtension(workspace, parent) };
 	}
 };
 

@@ -6,19 +6,19 @@
 namespace PaintField
 {
 
-class ModuleManager : public QObject
+class ExtensionManager : public QObject
 {
 	Q_OBJECT
 public:
-	explicit ModuleManager(QObject *parent = 0);
+	explicit ExtensionManager(QObject *parent = 0);
 	
-	void addModuleFactory(ModuleFactory *factory);
+	void addExtensionFactory(ExtensionFactory *factory);
 	
 	void initialize(AppController *app);
 	
-	QList<AppModule *> createAppModules(AppController *app, QObject *parent);
-	QList<WorkspaceModule *> createWorkspaceModules(Workspace *workspace, QObject *parent);
-	QList<CanvasModule *> createCanvasModules(Canvas *canvas, QObject *parent);
+	QList<AppExtension *> createAppExtensions(AppController *app, QObject *parent);
+	QList<WorkspaceExtension *> createWorkspaceExtensions(Workspace *workspace, QObject *parent);
+	QList<CanvasExtension *> createCanvasExtensions(Canvas *canvas, QObject *parent);
 	
 signals:
 	
@@ -26,7 +26,7 @@ public slots:
 	
 private:
 	
-	QList<ModuleFactory *> _factories;
+	QList<ExtensionFactory *> _factories;
 };
 
 }

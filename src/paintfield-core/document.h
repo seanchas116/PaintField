@@ -42,13 +42,33 @@ public:
 	bool isNew() const;
 	
 	/**
-	 * @return The full path
+	 * @return The full file path
 	 */
 	QString filePath() const;
+	
+	/**
+	 * @return The last section of the file path if the document is saved, otherwise the temporary name
+	 */
 	QString fileName() const;
+	
+	/**
+	 * @return The temporary name, like "Untitled"
+	 */
 	QString tempName() const;
-	int tileXCount() const { return width() / Malachite::Surface::TileSize + 1; }
-	int tileYCount() const { return height() / Malachite::Surface::TileSize + 1; }
+	
+	/**
+	 * @return ceil( width / Surface tile size )
+	 */
+	int tileXCount() const;
+	
+	/**
+	 * @return ceil( height / Surface tile size )
+	 */
+	int tileYCount() const;
+	
+	/**
+	 * @return { (0, 0), (0, 1), ... , (tileXCount(), tileYCount()) }
+	 */
 	QPointSet tileKeys() const;
 	
 	QUndoStack *undoStack();

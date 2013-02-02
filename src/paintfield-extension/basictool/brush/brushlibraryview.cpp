@@ -20,7 +20,7 @@ BrushLibraryView::BrushLibraryView(BrushLibraryModel *model, QItemSelectionModel
 		treeView->setSelectionModel(selectionModel);
 		treeView->setSelectionMode(QAbstractItemView::SingleSelection);
 		
-		setExpandTreeViewRecursive(treeView, QModelIndex(), true);
+		Util::setExpandTreeViewRecursive(treeView, QModelIndex(), true);
 		
 		auto defaultPresetIndex = model->findIndex({"Built-in", "Simple Brush", "Simple Brush"});
 		selectionModel->setCurrentIndex(defaultPresetIndex, QItemSelectionModel::SelectCurrent);

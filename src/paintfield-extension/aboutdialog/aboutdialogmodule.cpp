@@ -13,8 +13,8 @@ namespace PaintField {
 static const QString _aboutActionName = "paintfield.help.about";
 static const QString _aboutQtActionName = "paintfield.help.aboutQt";
 
-AboutDialogModule::AboutDialogModule(Workspace *workspace, QObject *parent) :
-    WorkspaceModule(workspace, parent)
+AboutDialogExtension::AboutDialogExtension(Workspace *workspace, QObject *parent) :
+    WorkspaceExtension(workspace, parent)
 {
 	{ // About PaintField
 		auto action = new QAction(this);
@@ -33,13 +33,13 @@ AboutDialogModule::AboutDialogModule(Workspace *workspace, QObject *parent) :
 	}
 }
 
-void AboutDialogModule::showAboutDialog()
+void AboutDialogExtension::showAboutDialog()
 {
 	AboutDialog dialog;
 	dialog.exec();
 }
 
-void AboutDialogModuleFactory::initialize(AppController *appController)
+void AboutDialogExtensionFactory::initialize(AppController *appController)
 {
 	appController->settingsManager()->declareAction(_aboutActionName, tr("About PaintField"));
 	appController->settingsManager()->declareAction(_aboutQtActionName, tr("About Qt"));

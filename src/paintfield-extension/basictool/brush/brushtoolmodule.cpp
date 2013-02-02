@@ -21,8 +21,8 @@ const QString _brushToolName("paintfield.tool.brush");
 const QString _brushLibrarySidebarName("paintfield.sidebar.brushLibrary");
 const QString _brushSideBarName("paintfield.sidebar.brush");
 
-BrushToolModule::BrushToolModule(Workspace *workspace, QObject *parent) :
-    WorkspaceModule(workspace, parent),
+BrushToolExtension::BrushToolExtension(Workspace *workspace, QObject *parent) :
+    WorkspaceExtension(workspace, parent),
     _presetManager(new BrushPresetManager(this)),
     _strokerFactoryManager(new BrushStrokerFactoryManager(this)),
     _preferencesManager(new BrushPreferencesManager(this))
@@ -48,7 +48,7 @@ BrushToolModule::BrushToolModule(Workspace *workspace, QObject *parent) :
 	}
 }
 
-Tool *BrushToolModule::createTool(const QString &name, Canvas *parent)
+Tool *BrushToolExtension::createTool(const QString &name, Canvas *parent)
 {
 	if (name == _brushToolName)
 	{
@@ -71,13 +71,13 @@ Tool *BrushToolModule::createTool(const QString &name, Canvas *parent)
 	return 0;
 }
 
-void BrushToolModule::onStrokerChanged(const QString &name)
+void BrushToolExtension::onStrokerChanged(const QString &name)
 {
 	PAINTFIELD_DEBUG << "stroker changed";
 	emit strokerFactoryChanged(_strokerFactoryManager->factory(name));
 }
 
-void BrushToolModuleFactory::initialize(AppController *app)
+void BrushToolExtensionFactory::initialize(AppController *app)
 {
 	{
 		QString text = QObject::tr("Brush");

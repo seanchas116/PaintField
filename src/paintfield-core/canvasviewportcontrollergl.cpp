@@ -182,7 +182,7 @@ void CanvasViewportGL::updateTile(const QPoint &tileKey, const Malachite::Image 
 		int pixelCount = size.width() * size.height();
 		
 		QScopedArrayPointer<BgraPremultU8> data(new BgraPremultU8[pixelCount]);
-		copyColorFast(pixelCount, data.data(), image.constBits());
+		DrawUtil::copyColorFast(pixelCount, data.data(), image.constBits());
 		
 		auto buf = (uint8_t *)glMapBuffer(GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY);
 		if (buf)

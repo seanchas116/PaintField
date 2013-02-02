@@ -12,7 +12,7 @@ namespace PaintField
 
 class Canvas;
 class WorkspaceView;
-class WorkspaceModule;
+class WorkspaceExtension;
 class ToolManager;
 class PaletteManager;
 class CanvasSplitAreaController;
@@ -30,14 +30,14 @@ public:
 	void setView(WorkspaceView *view);
 	WorkspaceView *view();
 	
-	void addModules(const WorkspaceModuleList &modules);
-	WorkspaceModuleList modules();
+	void addExtensions(const WorkspaceExtensionList &extensions);
+	WorkspaceExtensionList extensions();
 	
 	void addActions(const QActionList &actions);
 	QActionList actions();
 	
-	void addNullCanvasModules(const CanvasModuleList &modules);
-	CanvasModuleList nullCanvasModules();
+	void addNullCanvasExtensions(const CanvasExtensionList &extensions);
+	CanvasExtensionList nullCanvasExtensions();
 	
 	void addNullCanvasActions(const QActionList &actions);
 	QActionList nullCanvasActions();
@@ -62,7 +62,7 @@ public:
 	Canvas *currentCanvas();
 	
 	QActionList currentCanvasActions();
-	CanvasModuleList currentCanvasModules();
+	CanvasExtensionList currentCanvasModules();
 	
 signals:
 	

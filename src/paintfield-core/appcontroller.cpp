@@ -18,10 +18,10 @@ struct AppController::Data
 	Application *app = 0;
 	
 	WorkspaceManager *workspaceManager = 0;
-	ModuleManager *moduleManager = 0;
+	ExtensionManager *extensionManager = 0;
 	SettingsManager *settingsManager = 0;
 	
-	QList<AppModule *> modules;
+	QList<AppExtension *> extensions;
 	QList<QAction *> actions;
 };
 
@@ -31,7 +31,7 @@ AppController::AppController(Application *app, QObject *parent) :
 {
 	d->app = app;
 	d->workspaceManager = new WorkspaceManager(this);
-	d->moduleManager = new ModuleManager(this);
+	d->extensionManager = new ExtensionManager(this);
 	d->settingsManager = new SettingsManager(this);
 	
 	_instance = this;
@@ -52,8 +52,8 @@ void AppController::begin()
 	d->settingsManager->loadBuiltinSettings();
 	d->settingsManager->loadUserSettings();
 	
-	moduleManager()->initialize(this);
-	addModules(moduleManager()->createAppModules(this, this));
+	extensionManager()->initialize(this);
+	addExtensions(extensionManager()->createAppExtensions(this, this));
 	
 	workspaceManager()->newWorkspace();
 }
@@ -63,9 +63,9 @@ WorkspaceManager *AppController::workspaceManager()
 	return d->workspaceManager;
 }
 
-ModuleManager *AppController::moduleManager()
+ExtensionManager *AppController::extensionManager()
 {
-	return d->moduleManager;
+	return d->extensionManager;
 }
 
 SettingsManager *AppController::settingsManager()
@@ -73,22 +73,17 @@ SettingsManager *AppController::settingsManager()
 	return d->settingsManager;
 }
 
-void AppController::addModuleFactory(ModuleFactory *factory)
+void AppController::addExtensions(const AppExtensionList &extensions)
 {
-	d->moduleManager->addModuleFactory(factory);
-}
-
-void AppController::addModules(const AppModuleList &modules)
-{
-	for (AppModule *module : modules)
-		addActions(module->actions());
+	for (AppExtension *extension : extensions)
+		addActions(extension->actions());
 	
-	d->modules += modules;
+	d->extensions += extensions;
 }
 
-QList<AppModule *> AppController::modules()
+QList<AppExtension *> AppController::extensions()
 {
-	return d->modules;
+	return d->extensions;
 }
 
 void AppController::addActions(const QList<QAction *> &actions)
@@ -121,17 +116,12 @@ QString AppController::unduplicatedTempName(const QString &name)
 		}
 	}
 	
-	return unduplicatedName(existingTempNames, name);
+	return Util::unduplicatedName(existingTempNames, name);
 }
 
 Application *AppController::app()
 {
 	return d->app;
-}
-
-void AppController::handleMessage(const QString &message)
-{
-	qDebug() << "message:" << message;
 }
 
 void AppController::minimizeCurrentWindow()
@@ -229,10 +219,10 @@ void AppController::declareMenus()
 
 void AppController::createActions()
 {
-	d->actions << createAction("paintfield.file.quit", d->workspaceManager, SLOT(tryCloseAll()));
-	d->actions << createAction("paintfield.window.minimize", this, SLOT(minimizeCurrentWindow()));
-	d->actions << createAction("paintfield.window.zoom", this, SLOT(zoomCurrentWindow()));
-	d->actions << createAction("paintfield.view.newWorkspace", d->workspaceManager, SLOT(newWorkspace()));
+	d->actions << Util::createAction("paintfield.file.quit", d->workspaceManager, SLOT(tryCloseAll()));
+	d->actions << Util::createAction("paintfield.window.minimize", this, SLOT(minimizeCurrentWindow()));
+	d->actions << Util::createAction("paintfield.window.zoom", this, SLOT(zoomCurrentWindow()));
+	d->actions << Util::createAction("paintfield.view.newWorkspace", d->workspaceManager, SLOT(newWorkspace()));
 }
 
 

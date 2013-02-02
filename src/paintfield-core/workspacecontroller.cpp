@@ -23,10 +23,10 @@ struct Workspace::Data
 	PaletteManager *paletteManager = 0;
 	
 	QActionList actions;
-	WorkspaceModuleList modules;
+	WorkspaceExtensionList extensions;
 	
 	QActionList nullCanvasActions;
-	CanvasModuleList nullCanvasModules;
+	CanvasExtensionList nullCanvasModules;
 	
 	WorkspaceView *view = 0;
 };
@@ -39,16 +39,16 @@ Workspace::Workspace(QObject *parent) :
 	d->toolManager = new ToolManager(this);
 	d->paletteManager = new PaletteManager(this);
 	
-	d->actions << createAction("paintfield.view.splitVertically", this, SIGNAL(splitVerticallyRequested()));
-	d->actions << createAction("paintfield.view.splitHorizontally", this, SIGNAL(splitHorizontallyRequested()));
-	d->actions << createAction("paintfield.view.closeCurrentSplit", this, SIGNAL(closeCurrentSplitRequested()));
+	d->actions << Util::createAction("paintfield.view.splitVertically", this, SIGNAL(splitVerticallyRequested()));
+	d->actions << Util::createAction("paintfield.view.splitHorizontally", this, SIGNAL(splitHorizontallyRequested()));
+	d->actions << Util::createAction("paintfield.view.closeCurrentSplit", this, SIGNAL(closeCurrentSplitRequested()));
 	
-	d->actions << createAction("paintfield.file.new", this, SLOT(newCanvas()));
-	d->actions << createAction("paintfield.file.open", this, SLOT(openCanvas()));
-	d->actions << createAction("paintfield.file.newFromImageFile", this, SLOT(newCanvasFromImageFile()));
+	d->actions << Util::createAction("paintfield.file.new", this, SLOT(newCanvas()));
+	d->actions << Util::createAction("paintfield.file.open", this, SLOT(openCanvas()));
+	d->actions << Util::createAction("paintfield.file.newFromImageFile", this, SLOT(newCanvasFromImageFile()));
 	
-	addModules(appController()->moduleManager()->createWorkspaceModules(this, this));
-	addNullCanvasModules(appController()->moduleManager()->createCanvasModules(0, this));
+	addExtensions(appController()->extensionManager()->createWorkspaceExtensions(this, this));
+	addNullCanvasExtensions(appController()->extensionManager()->createCanvasExtensions(0, this));
 }
 
 Workspace::~Workspace()
@@ -76,17 +76,17 @@ WorkspaceView *Workspace::view()
 	return d->view;
 }
 
-void Workspace::addModules(const QList<WorkspaceModule *> &modules)
+void Workspace::addExtensions(const QList<WorkspaceExtension *> &extensions)
 {
-	for (auto module : modules)
-		addActions(module->actions());
+	for (auto extension : extensions)
+		addActions(extension->actions());
 	
-	d->modules += modules;
+	d->extensions += extensions;
 }
 
-WorkspaceModuleList Workspace::modules()
+WorkspaceExtensionList Workspace::extensions()
 {
-	return d->modules;
+	return d->extensions;
 }
 
 void Workspace::addActions(const QActionList &actions)
@@ -99,15 +99,15 @@ QActionList Workspace::actions()
 	return d->actions;
 }
 
-void Workspace::addNullCanvasModules(const CanvasModuleList &modules)
+void Workspace::addNullCanvasExtensions(const CanvasExtensionList &extensions)
 {
-	for (auto module : modules)
-		addNullCanvasActions(module->actions());
+	for (auto extension : extensions)
+		addNullCanvasActions(extension->actions());
 	
-	d->nullCanvasModules += modules;
+	d->nullCanvasModules += extensions;
 }
 
-CanvasModuleList Workspace::nullCanvasModules()
+CanvasExtensionList Workspace::nullCanvasExtensions()
 {
 	return d->nullCanvasModules;
 }
@@ -251,9 +251,9 @@ QActionList Workspace::currentCanvasActions()
 	return d->currentCanvas ? d->currentCanvas->actions() : d->nullCanvasActions;
 }
 
-CanvasModuleList Workspace::currentCanvasModules()
+CanvasExtensionList Workspace::currentCanvasModules()
 {
-	return d->currentCanvas ? d->currentCanvas->modules() : d->nullCanvasModules;
+	return d->currentCanvas ? d->currentCanvas->extensions() : d->nullCanvasModules;
 }
 
 }

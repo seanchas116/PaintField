@@ -6,11 +6,11 @@
 namespace PaintField
 {
 
-class LayerMoveToolModule : public AppModule
+class LayerMoveToolExtension : public AppExtension
 {
 	Q_OBJECT
 public:
-	LayerMoveToolModule(AppController *app, QObject *parent) : AppModule(app, parent) {}
+	LayerMoveToolExtension(AppController *app, QObject *parent) : AppExtension(app, parent) {}
 	
 	Tool *createTool(const QString &name, Canvas *canvas) override;
 	
@@ -20,19 +20,19 @@ public slots:
 	
 };
 
-class LayerMoveToolModuleFactory : public ModuleFactory
+class LayerMoveToolExtensionFactory : public ExtensionFactory
 {
 	Q_OBJECT
 	
 public:
 	
-	LayerMoveToolModuleFactory(QObject *parent = 0) : ModuleFactory(parent) {}
+	LayerMoveToolExtensionFactory(QObject *parent = 0) : ExtensionFactory(parent) {}
 	
 	void initialize(AppController *app) override;
 	
-	AppModuleList createAppModules(AppController *app, QObject *parent) override
+	AppExtensionList createAppExtensions(AppController *app, QObject *parent) override
 	{
-		return { new LayerMoveToolModule(app, parent) };
+		return { new LayerMoveToolExtension(app, parent) };
 	}
 };
 

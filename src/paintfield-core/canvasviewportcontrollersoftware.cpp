@@ -99,7 +99,7 @@ void CanvasViewportControllerSoftware::updateTile(const QPoint &tileKey, const I
 	{
 		QPainter painter(d->view->pixmap());
 		painter.setCompositionMode(QPainter::CompositionMode_Source);
-		drawMLImageFast(&painter, tilePos + offset, image);
+		DrawUtil::drawMLImageFast(&painter, tilePos + offset, image);
 	}
 	
 	QRect mappedRect = d->view->transform().mapRect(QRectF(tilePos + offset, image.size())).toAlignedRect();

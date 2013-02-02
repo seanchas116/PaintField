@@ -122,7 +122,7 @@ void associateMenuWithActions(QMenu *menu, const QActionList &actions)
 		WorkspaceMenuAction *menuAction = qobject_cast<WorkspaceMenuAction *>(action);
 		if (menuAction)
 		{
-			QAction *foundAction = findQObjectReverse(actions, menuAction->objectName());
+			QAction *foundAction = Util::findQObjectReverse(actions, menuAction->objectName());
 			menuAction->setBackendAction(foundAction);
 		}
 		else
@@ -382,7 +382,7 @@ void WorkspaceView::createMenuBar(const QHash<QString, ActionInfo> &actionInfos,
 
 void WorkspaceView::setSidebar(const QString &id, QWidget *sidebar)
 {
-	applyMacSmallSize(sidebar);
+	Util::applyMacSmallSize(sidebar);
 	for (SideBarFrame *frame : d->sideBarFrames)
 	{
 		if (frame->objectName() == id)
@@ -453,7 +453,7 @@ void WorkspaceView::updateWorkspaceItems()
 {
 	for (const QString &name : appController()->settingsManager()->sidebarNames())
 	{
-		QWidget *sidebar = sideBarForWorkspace(appController()->modules(), workspace()->modules(), name);
+		QWidget *sidebar = ExtensionUtil::sideBarForWorkspace(appController()->extensions(), workspace()->extensions(), name);
 		if (sidebar)
 			setSidebar(name, sidebar);
 	}
@@ -462,7 +462,7 @@ void WorkspaceView::updateWorkspaceItems()
 	{
 		QToolBar *toolBar = this->toolBar(name);
 		if (toolBar)
-			updateToolBar(appController()->modules(), workspace()->modules(), workspace()->currentCanvasModules(), toolBar, name);
+			ExtensionUtil::updateToolBar(appController()->extensions(), workspace()->extensions(), workspace()->currentCanvasModules(), toolBar, name);
 	}
 }
 
@@ -472,7 +472,7 @@ void WorkspaceView::updateWorkspaceItemsForCanvas(Canvas *canvas)
 	
 	for (const QString &name : appController()->settingsManager()->sidebarNames())
 	{
-		QWidget *sidebar = sideBarForCanvas(workspace()->currentCanvasModules(), name);
+		QWidget *sidebar = ExtensionUtil::sideBarForCanvas(workspace()->currentCanvasModules(), name);
 		if (sidebar)
 			setSidebar(name, sidebar);
 	}
@@ -481,7 +481,7 @@ void WorkspaceView::updateWorkspaceItemsForCanvas(Canvas *canvas)
 	{
 		QToolBar *toolBar = this->toolBar(name);
 		if (toolBar)
-			updateToolBar(AppModuleList(), WorkspaceModuleList(), workspace()->currentCanvasModules(), toolBar, name);
+			ExtensionUtil::updateToolBar(AppExtensionList(), WorkspaceExtensionList(), workspace()->currentCanvasModules(), toolBar, name);
 	}
 }
 

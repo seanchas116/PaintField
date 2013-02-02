@@ -5,11 +5,11 @@
 
 namespace PaintField {
 
-class AboutDialogModule : public WorkspaceModule
+class AboutDialogExtension : public WorkspaceExtension
 {
 	Q_OBJECT
 public:
-	explicit AboutDialogModule(Workspace *workspace, QObject *parent = 0);
+	explicit AboutDialogExtension(Workspace *workspace, QObject *parent = 0);
 	
 signals:
 	
@@ -20,17 +20,17 @@ private slots:
 	void showAboutDialog();
 };
 
-class AboutDialogModuleFactory : public ModuleFactory
+class AboutDialogExtensionFactory : public ExtensionFactory
 {
 	Q_OBJECT
 public:
 	
-	AboutDialogModuleFactory(QObject *parent = 0) : ModuleFactory(parent) {}
+	AboutDialogExtensionFactory(QObject *parent = 0) : ExtensionFactory(parent) {}
 	
 	void initialize(AppController *app) override;
-	QList<WorkspaceModule *> createWorkspaceModules(Workspace *workspace, QObject *parent) override
+	QList<WorkspaceExtension *> createWorkspaceExtensions(Workspace *workspace, QObject *parent) override
 	{
-		return { new AboutDialogModule(workspace, parent) };
+		return { new AboutDialogExtension(workspace, parent) };
 	}
 };
 

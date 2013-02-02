@@ -12,14 +12,18 @@ LayerUIController::LayerUIController(Canvas *parent) :
     QObject(parent),
     _canvas(parent)
 {
-	_importAction = createAction("paintfield.layer.import", this, SLOT(importLayer()));
+	_importAction = Util::createAction("paintfield.layer.import", this, SLOT(importLayer()));
 	_importAction->setText(tr("Import..."));
-	_newRasterAction = createAction("paintfield.layer.newRaster", this, SLOT(newRasterLayer()));
+	
+	_newRasterAction = Util::createAction("paintfield.layer.newRaster", this, SLOT(newRasterLayer()));
 	_newRasterAction->setText(tr("New Layer"));
-	_newGroupAction = createAction("paintfield.layer.newGroup", this, SLOT(newGroupLayer()));
+	
+	_newGroupAction = Util::createAction("paintfield.layer.newGroup", this, SLOT(newGroupLayer()));
 	_newGroupAction->setText(tr("New Group"));
+	
 	//_actionsForLayers << actionManager->addAction("paintfield.layer.remove", this, SLOT(removeLayers()));
-	_mergeAction = createAction("paintfield.layer.merge", this, SLOT(mergeLayers()));
+	
+	_mergeAction = Util::createAction("paintfield.layer.merge", this, SLOT(mergeLayers()));
 	_mergeAction->setText(tr("Merge"));
 }
 

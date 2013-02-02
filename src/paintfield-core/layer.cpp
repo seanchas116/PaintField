@@ -258,7 +258,7 @@ void Layer::updateThumbnail(const QSize &size)
 	QPixmap pixmap(size);
 	pixmap.fill(Qt::transparent);
 	QPainter painter(&pixmap);
-	drawMLSurface(&painter, 0, 0, surface());
+	DrawUtil::drawMLSurface(&painter, 0, 0, surface());
 	
 	_thumbnail = Thumbnail::createThumbnail(pixmap);
 }

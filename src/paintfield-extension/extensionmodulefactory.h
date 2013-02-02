@@ -6,13 +6,13 @@
 namespace PaintField
 {
 
-class ExtensionModuleFactory : public ModuleFactory
+class BuiltInExtensionFactory : public ExtensionFactory
 {
 	Q_OBJECT
 	
 public:
 	
-	ExtensionModuleFactory(QObject *parent = 0);
+	BuiltInExtensionFactory(QObject *parent = 0);
 	void initialize(AppController *app) { Q_UNUSED(app) }
 };
 

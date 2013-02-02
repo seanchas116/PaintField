@@ -84,7 +84,7 @@ void SettingsManager::loadSettingsFromDir(const QString &dirPath)
 
 void SettingsManager::loadSettingsFromJsonFile(const QString &path)
 {
-	addSettings(loadJsonFromFile(path).toMap());
+	addSettings(Util::loadJsonFromFile(path).toMap());
 }
 
 QVariantMap &SettingsManager::settings()

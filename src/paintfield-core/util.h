@@ -14,6 +14,9 @@ typedef QList<QAction *> QActionList;
 namespace PaintField
 {
 
+namespace Util
+{
+
 /**
  * Creates an action.
  * @param id The object name
@@ -106,6 +109,7 @@ void maximizeWindowSize(QWidget *widget);
 
 void setExpandTreeViewRecursive(QTreeView *view, const QModelIndex &index, bool expanded);
 
+}
 }
 
 #endif // UTIL_H

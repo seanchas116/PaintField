@@ -183,7 +183,7 @@ public:
 	 * @param name A base name (eg "Layer")
 	 * @return The unduplicated child name
 	 */
-	QString unduplicatedChildName(const QString &name) const { return unduplicatedName(childNames(), name); }
+	QString unduplicatedChildName(const QString &name) const { return Util::unduplicatedName(childNames(), name); }
 	
 	QStringList childNames() const;
 	

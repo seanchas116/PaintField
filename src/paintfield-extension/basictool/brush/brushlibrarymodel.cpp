@@ -32,7 +32,7 @@ QVariant  BrushLibraryModel::data(const QModelIndex &index, int role) const
 
 QVariantMap BrushLibraryModel::loadPreset(const QModelIndex &index)
 {
-	return loadJsonFromFile(pathFromIndex(index)).toMap();
+	return Util::loadJsonFromFile(pathFromIndex(index)).toMap();
 }
 
 bool BrushLibraryModel::savePreset(const QModelIndex &parent, const QString &name, const QVariantMap &data)
@@ -41,7 +41,7 @@ bool BrushLibraryModel::savePreset(const QModelIndex &parent, const QString &nam
 	if (parentItem->type() != LibraryItemType::Dir)
 		return false;
 	
-	return saveJsonToFile(QDir(pathFromItem(parentItem)).filePath(name), data);
+	return Util::saveJsonToFile(QDir(pathFromItem(parentItem)).filePath(name), data);
 }
 
 }

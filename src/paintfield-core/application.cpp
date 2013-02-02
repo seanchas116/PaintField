@@ -22,6 +22,8 @@ Application::Application(int &argc, char **argv) :
 	
 	connect(filter, SIGNAL(fileOpenRequested(QString)), this, SIGNAL(fileOpenRequested(QString)));
 	
+	connect(this, SIGNAL(messageReceived(QString)), this, SIGNAL(fileOpenRequested(QString)));
+	
 	installEventFilter(filter);
 }
 

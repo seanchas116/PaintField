@@ -8,52 +8,52 @@
 namespace PaintField
 {
 
-ModuleManager::ModuleManager(QObject *parent) :
+ExtensionManager::ExtensionManager(QObject *parent) :
 	QObject(parent)
 {
 }
 
-void ModuleManager::addModuleFactory(ModuleFactory *factory)
+void ExtensionManager::addExtensionFactory(ExtensionFactory *factory)
 {
 	_factories << factory;
 	
-	for (auto subFactory : factory->subModuleFactories())
-		addModuleFactory(subFactory);
+	for (auto subFactory : factory->subExtensionFactories())
+		addExtensionFactory(subFactory);
 }
 
-void ModuleManager::initialize(AppController *app)
+void ExtensionManager::initialize(AppController *app)
 {
 	for (auto factory : _factories)
 		factory->initialize(app);
 }
 
-QList<AppModule *> ModuleManager::createAppModules(AppController *app, QObject *parent)
+QList<AppExtension *> ExtensionManager::createAppExtensions(AppController *app, QObject *parent)
 {
-	QList<AppModule *> modules;
+	QList<AppExtension *> modules;
 	
-	for (ModuleFactory *factory : _factories)
-		modules += factory->createAppModules(app, parent);
+	for (ExtensionFactory *factory : _factories)
+		modules += factory->createAppExtensions(app, parent);
 	
 	return modules;
 }
 
-QList<WorkspaceModule  *> ModuleManager::createWorkspaceModules(Workspace *workspace, QObject *parent)
+QList<WorkspaceExtension  *> ExtensionManager::createWorkspaceExtensions(Workspace *workspace, QObject *parent)
 {
-	QList<WorkspaceModule *> modules;
+	QList<WorkspaceExtension *> modules;
 	
-	for (ModuleFactory *factory : _factories)
-		modules += factory->createWorkspaceModules(workspace, parent);
+	for (ExtensionFactory *factory : _factories)
+		modules += factory->createWorkspaceExtensions(workspace, parent);
 	
 	
 	return modules;
 }
 
-QList<CanvasModule *> ModuleManager::createCanvasModules(Canvas *canvas, QObject *parent)
+QList<CanvasExtension *> ExtensionManager::createCanvasExtensions(Canvas *canvas, QObject *parent)
 {
-	QList<CanvasModule *> modules;
+	QList<CanvasExtension *> modules;
 	
-	for (ModuleFactory *factory : _factories)
-		modules += factory->createCanvasModules(canvas, parent);
+	for (ExtensionFactory *factory : _factories)
+		modules += factory->createCanvasExtensions(canvas, parent);
 	
 	return modules;
 }

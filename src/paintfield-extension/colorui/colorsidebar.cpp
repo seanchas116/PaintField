@@ -83,21 +83,21 @@ ColorSliderPanel::ColorSliderPanel(QWidget *parent) :
 	
 	for (int i = 0; i < 3; ++i)
 	{
- 		connectMutual(rgbSliders.at(i), SIGNAL(colorChanged(Malachite::Color)), this, SLOT(setColor(Malachite::Color)));
-		connectMutual(rgbSliders.at(i), SIGNAL(valueChanged(double)), rgbSpins.at(i), SLOT(setValue(double)));
+ 		Util::connectMutual(rgbSliders.at(i), SIGNAL(colorChanged(Malachite::Color)), this, SLOT(setColor(Malachite::Color)));
+		Util::connectMutual(rgbSliders.at(i), SIGNAL(valueChanged(double)), rgbSpins.at(i), SLOT(setValue(double)));
 		rgbSpins.at(i)->setValue(rgbSliders.at(i)->value());
 	}
 	
 	for (int i = 0; i < 3; ++i)
 	{
-		connectMutual(hsvSliders.at(i), SIGNAL(colorChanged(Malachite::Color)), this, SLOT(setColor(Malachite::Color)));
-		connectMutual(hsvSliders.at(i), SIGNAL(valueChanged(double)), hsvSpins.at(i), SLOT(setValue(double)));
+		Util::connectMutual(hsvSliders.at(i), SIGNAL(colorChanged(Malachite::Color)), this, SLOT(setColor(Malachite::Color)));
+		Util::connectMutual(hsvSliders.at(i), SIGNAL(valueChanged(double)), hsvSpins.at(i), SLOT(setValue(double)));
 		hsvSpins.at(i)->setValue(hsvSliders.at(i)->value());
 	}
 	
 	for (int i = 0; i < 3; ++i)
 	{
-		connectMutual(rgb8Sliders.at(i), SIGNAL(colorChanged(Malachite::Color)), this, SLOT(setColor(Malachite::Color)));
+		Util::connectMutual(rgb8Sliders.at(i), SIGNAL(colorChanged(Malachite::Color)), this, SLOT(setColor(Malachite::Color)));
 		connect(rgb8Sliders.at(i), SIGNAL(value8BitChanged(int)), rgb8Spins.at(i), SLOT(setValue(int)));
 		connect(rgb8Spins.at(i), SIGNAL(valueChanged(int)), rgb8Sliders.at(i), SLOT(setValue8Bit(int)));
 		rgb8Spins.at(i)->setValue(rgb8Sliders.at(i)->value8Bit());

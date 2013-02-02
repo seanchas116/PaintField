@@ -9,7 +9,7 @@ namespace PaintField {
 class TabletInputData;
 class BrushStroker;
 class BrushStrokerFactory;
-class BrushToolModule;
+class BrushToolExtension;
 
 class BrushTool : public Tool
 {

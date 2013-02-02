@@ -12,11 +12,11 @@ class BrushStrokerFactory;
 class BrushStrokerFactoryManager;
 class BrushPreferencesManager;
 
-class BrushToolModule : public WorkspaceModule
+class BrushToolExtension : public WorkspaceExtension
 {
 	Q_OBJECT
 public:
-	BrushToolModule(Workspace *workspace, QObject *parent);
+	BrushToolExtension(Workspace *workspace, QObject *parent);
 	
 	BrushPresetManager *presetManager() { return _presetManager; }
 	BrushStrokerFactoryManager *sourceFactoryManager() { return _strokerFactoryManager; }
@@ -38,17 +38,17 @@ private:
 	BrushPreferencesManager *_preferencesManager = 0;
 };
 
-class BrushToolModuleFactory : public ModuleFactory
+class BrushToolExtensionFactory : public ExtensionFactory
 {
 public:
 	
-	explicit BrushToolModuleFactory(QObject *parent = 0) : ModuleFactory(parent) {}
+	explicit BrushToolExtensionFactory(QObject *parent = 0) : ExtensionFactory(parent) {}
 	
 	void initialize(AppController *app) override;
 	
-	WorkspaceModuleList createWorkspaceModules(Workspace *workspace, QObject *parent) override
+	WorkspaceExtensionList createWorkspaceExtensions(Workspace *workspace, QObject *parent) override
 	{
-		return { new BrushToolModule(workspace, parent) };
+		return { new BrushToolExtension(workspace, parent) };
 	}
 };
 

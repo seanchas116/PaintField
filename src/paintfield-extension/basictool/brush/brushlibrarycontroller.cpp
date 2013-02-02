@@ -63,7 +63,7 @@ void BrushLibraryController::onSaveRequested()
 	                                             tr("Save Preset"),
 	                                             dir.filePath(_presetManager->metadata().title()),
 	                                             tr("Preset File (*.json)"));
-	saveJsonToFile(filePath, _presetManager->preset());
+	Util::saveJsonToFile(filePath, _presetManager->preset());
 }
 
 void BrushLibraryController::onReloadRequested()

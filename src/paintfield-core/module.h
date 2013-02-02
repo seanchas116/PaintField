@@ -20,18 +20,18 @@ class Canvas;
 class CanvasView;
 class Tool;
 
-class Module : public QObject
+class Extension : public QObject
 {
 	Q_OBJECT
 public:
 	
-	explicit Module(QObject *parent = 0) : QObject(parent) {}
+	explicit Extension(QObject *parent = 0) : QObject(parent) {}
 	
-	~Module();
+	~Extension();
 	
 	/**
-	 * Creates a Tool, which is installed in CanvasView and delegates editing.
-	 * This function is called when a new canvas is added or the current tool is changed for each canvas.
+	 * Creates a Tool, which is installed in Canvas and delegates editing.
+	 * This function is called when a new canvas is added or the current tool is changed in each canvas.
 	 * @param name declared name of the tool
 	 * @param canvas
 	 * @return 
@@ -40,6 +40,7 @@ public:
 	
 	/**
 	 * Updates a toolbar.
+	 * This function is called when a new canvas is added or the current canvas is changed in a workspace.
 	 * @param toolBar
 	 * @param name
 	 */
@@ -47,11 +48,21 @@ public:
 	
 	QActionList actions() { return _actions; }
 	
+	/**
+	 * Adds an action which is used in the menubar.
+	 * @param action
+	 */
 	void addAction(QAction *action) { _actions << action; }
 	
 	QHash<QString, QWidget *> sideBars() { return _sideBars; }
-	QWidget *sideBar(const QString &name) { return _sideBars.value(name, 0); }
-	void addSideBar(const QString &name, QWidget *sideBar);
+	
+	/**
+	 * Adds an side bar which is used in the workspace view.
+	 * @param name
+	 * @return 
+	 */
+	QWidget *sideBar(const QString &id) { return _sideBars.value(id, 0); }
+	void addSideBar(const QString &id, QWidget *sideBar);
 	
 private:
 	
@@ -59,12 +70,12 @@ private:
 	QHash<QString, QWidget *> _sideBars;
 };
 
-class CanvasModule : public Module
+class CanvasExtension : public Extension
 {
 	Q_OBJECT
 public:
 	
-	CanvasModule(Canvas *canvas, QObject *parent) : Module(parent), _canvas(canvas) {}
+	CanvasExtension(Canvas *canvas, QObject *parent) : Extension(parent), _canvas(canvas) {}
 	
 	Canvas *canvas() { return _canvas; }
 	
@@ -72,14 +83,14 @@ private:
 	
 	Canvas *_canvas = 0;
 };
-typedef QList<CanvasModule *> CanvasModuleList;
+typedef QList<CanvasExtension *> CanvasExtensionList;
 
-class WorkspaceModule : public Module
+class WorkspaceExtension : public Extension
 {
 	Q_OBJECT
 public:
 	
-	WorkspaceModule(Workspace *workspace, QObject *parent) : Module(parent), _workspace(workspace) {}
+	WorkspaceExtension(Workspace *workspace, QObject *parent) : Extension(parent), _workspace(workspace) {}
 	
 	Workspace *workspace() { return _workspace; }
 	
@@ -87,47 +98,52 @@ private:
 	
 	Workspace *_workspace;
 };
-typedef QList<WorkspaceModule *> WorkspaceModuleList;
+typedef QList<WorkspaceExtension *> WorkspaceExtensionList;
 
-class AppModule : public Module
+class AppExtension : public Extension
 {
 	Q_OBJECT
 public:
 	
-	explicit AppModule(AppController *app, QObject *parent) : Module(parent), _app(app) {}
+	explicit AppExtension(AppController *app, QObject *parent) : Extension(parent), _app(app) {}
 	AppController *app() { return _app; }
 	
 private:
 	
 	AppController *_app;
 };
-typedef QList<AppModule *> AppModuleList;
+typedef QList<AppExtension *> AppExtensionList;
 
-Tool *createTool(const AppModuleList &appModules, const WorkspaceModuleList &workspaceModules, const CanvasModuleList &canvasModules, const QString &name, Canvas *canvas);
-QWidget *sideBarForWorkspace(const AppModuleList &appModules, const WorkspaceModuleList &workspaceModules, const QString &name);
-QWidget *sideBarForCanvas(const CanvasModuleList &canvasModules, const QString &name);
-void updateToolBar(const AppModuleList &appModules, const WorkspaceModuleList &workspaceModules, const CanvasModuleList &canvasModules, QToolBar *toolBar, const QString &name);
+namespace ExtensionUtil
+{
 
-class ModuleFactory : public QObject
+Tool *createTool(const AppExtensionList &appExtensions, const WorkspaceExtensionList &workspaceExtensions, const CanvasExtensionList &canvasModules, const QString &name, Canvas *canvas);
+QWidget *sideBarForWorkspace(const AppExtensionList &appExtensions, const WorkspaceExtensionList &workspaceExtensions, const QString &name);
+QWidget *sideBarForCanvas(const CanvasExtensionList &canvasExtensions, const QString &name);
+void updateToolBar(const AppExtensionList &appExtensions, const WorkspaceExtensionList &workspaceExtensions, const CanvasExtensionList &canvasExtensions, QToolBar *toolBar, const QString &name);
+
+}
+
+class ExtensionFactory : public QObject
 {
 	Q_OBJECT
 	
 public:
 	
-	explicit ModuleFactory(QObject *parent = 0) : QObject(parent) {}
+	explicit ExtensionFactory(QObject *parent = 0) : QObject(parent) {}
 	
 	virtual void initialize(AppController *app) = 0;
 	
-	virtual AppModuleList createAppModules(AppController *app, QObject *parent);
-	virtual WorkspaceModuleList createWorkspaceModules(Workspace *workspace, QObject *parent);
-	virtual CanvasModuleList createCanvasModules(Canvas *canvas, QObject *parent);
+	virtual AppExtensionList createAppExtensions(AppController *app, QObject *parent);
+	virtual WorkspaceExtensionList createWorkspaceExtensions(Workspace *workspace, QObject *parent);
+	virtual CanvasExtensionList createCanvasExtensions(Canvas *canvas, QObject *parent);
 	
-	QList<ModuleFactory *> subModuleFactories() { return _subModuleFactories; }
-	void addSubModuleFactory(ModuleFactory *factory) { _subModuleFactories << factory; }
+	QList<ExtensionFactory *> subExtensionFactories() { return _subExtensionFactories; }
+	void addSubExtensionFactory(ExtensionFactory *factory) { _subExtensionFactories << factory; }
 	
 private:
 	
-	QList<ModuleFactory *> _subModuleFactories;
+	QList<ExtensionFactory *> _subExtensionFactories;
 };
 
 }

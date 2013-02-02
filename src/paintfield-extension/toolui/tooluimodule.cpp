@@ -9,12 +9,12 @@ namespace PaintField
 
 static const QString _toolToolbarName = "paintfield.toolbar.tool";
 
-ToolUIModule::ToolUIModule(Workspace *workspace, QObject *parent) :
-	WorkspaceModule(workspace, parent)
+ToolUIExtension::ToolUIExtension(Workspace *workspace, QObject *parent) :
+	WorkspaceExtension(workspace, parent)
 {
 }
 
-void ToolUIModule::updateToolBar(QToolBar *toolBar, const QString &name)
+void ToolUIExtension::updateToolBar(QToolBar *toolBar, const QString &name)
 {
 	if (name == _toolToolbarName)
 	{
@@ -23,7 +23,7 @@ void ToolUIModule::updateToolBar(QToolBar *toolBar, const QString &name)
 	}
 }
 
-void ToolUIModuleFactory::initialize(AppController *app)
+void ToolUIExtensionFactory::initialize(AppController *app)
 {
 	app->settingsManager()->declareToolbar(_toolToolbarName, ToolBarInfo(QObject::tr("Tools")));
 	//app->declareSidebar(_toolSettingSidebarName, SidebarInfo(tr("Tool Settings")));

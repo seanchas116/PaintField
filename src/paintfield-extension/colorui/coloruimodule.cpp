@@ -12,8 +12,8 @@ namespace PaintField
 
 const QString _colorSidebarName = "paintfield.sidebar.color";
 
-ColorUIModule::ColorUIModule(Workspace *workspace, QObject *parent) :
-    WorkspaceModule(workspace, parent)
+ColorUIExtension::ColorUIExtension(Workspace *workspace, QObject *parent) :
+    WorkspaceExtension(workspace, parent)
 {
 	auto sideBar = new ColorSidebar;
 	addSideBar(_colorSidebarName, sideBar);
@@ -31,7 +31,7 @@ ColorUIModule::ColorUIModule(Workspace *workspace, QObject *parent) :
 		sideBar->setColor(i, paletteManager->color(i));
 }
 
-void ColorUIModuleFactory::initialize(AppController *app)
+void ColorUIExtensionFactory::initialize(AppController *app)
 {
 	app->settingsManager()->declareSideBar(_colorSidebarName, SideBarInfo(QObject::tr("Color")));
 }

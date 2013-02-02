@@ -12,11 +12,14 @@ namespace PaintField
 class Application;
 class PaletteManager;
 class WorkspaceManager;
-class ModuleManager;
+class ExtensionManager;
 class SettingsManager;
-class AppModule;
-class ModuleFactory;
+class AppExtension;
+class ExtensionFactory;
 
+/**
+ * AppController is an singleton class that manages application-wide classes.
+ */
 class AppController : public QObject
 {
 	Q_OBJECT
@@ -27,33 +30,26 @@ public:
 	
 	void begin();
 	
-	/**
-	 * @return The workspace manager
-	 */
 	WorkspaceManager *workspaceManager();
-	
-	ModuleManager *moduleManager();
-	
+	ExtensionManager *extensionManager();
 	SettingsManager *settingsManager();
 	
-	void addModuleFactory(ModuleFactory *factory);
-	
-	void addModules(const QList<AppModule *> &modules);
-	QList<AppModule *> modules();
+	void addExtensions(const QList<AppExtension *> &extensions);
+	QList<AppExtension *> extensions();
 	
 	void addActions(const QList<QAction *> &actions);
 	QList<QAction *> actions();
 	
+	/**
+	 * @return Unduplicated temporary name for a new file (e.g. "Untitled 1" or "Untitled 2")
+	 */
 	QString unduplicatedNewFileTempName();
-	QString unduplicatedTempName(const QString &name);
 	
 	Application *app();
 	
 	static AppController *instance() { return _instance; }
 	
 public slots:
-	
-	void handleMessage(const QString &message);
 	
 	void minimizeCurrentWindow();
 	void zoomCurrentWindow();
@@ -66,6 +62,8 @@ private:
 	
 	void declareMenus();
 	void createActions();
+	
+	QString unduplicatedTempName(const QString &name);
 	
 	class Data;
 	Data *d;

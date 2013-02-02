@@ -8,6 +8,9 @@
 namespace PaintField
 {
 
+namespace DrawUtil
+{
+
 using namespace Malachite;
 
 // assumes both dst and src are 16bit aligned
@@ -110,6 +113,8 @@ void drawMLImageFast(QPainter *painter, const QPoint &point, const Image &image,
 	
 	QImage qimage(reinterpret_cast<uint8_t *>(buffer.data()), copyRect.width(), copyRect.height(), QImage::Format_ARGB32_Premultiplied);
 	painter->drawImage(point + copyRect.topLeft(), qimage, rect.translated(-copyRect.topLeft()));
+}
+
 }
 
 }

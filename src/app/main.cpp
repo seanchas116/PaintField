@@ -2,6 +2,7 @@
 
 #include "paintfield-core/application.h"
 #include "paintfield-core/appcontroller.h"
+#include "paintfield-core/modulemanager.h"
 #include "paintfield-extension/extensionmodulefactory.h"
 
 #define QUOTE(x) #x
@@ -27,10 +28,7 @@ int main(int argc, char *argv[])
 	QTextCodec::setCodecForCStrings(QTextCodec::codecForLocale());
 	
 	AppController appCon(&a);
-	
-	QObject::connect(&a, SIGNAL(messageReceived(QString)), &appCon, SLOT(handleMessage(QString)));
-	appCon.addModuleFactory(new ExtensionModuleFactory);
-	
+	appCon.extensionManager()->addExtensionFactory(new BuiltInExtensionFactory);
 	appCon.begin();
 	
 	return a.exec();

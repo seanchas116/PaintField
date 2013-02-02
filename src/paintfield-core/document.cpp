@@ -12,6 +12,7 @@ struct Document::Data
 {
 	QSize size;
 	QPointSet tileKeys;
+	int tileXCount, tileYCount;
 	QString filePath;
 	QString tempName;	// like "untitled"
 	bool modified = false;
@@ -28,6 +29,8 @@ Document::Document(const QString &tempName, const QSize &size, const LayerList &
 	d->tempName = tempName;
 	d->undoStack = new QUndoStack(this);
 	d->layerModel = new LayerModel(layers, this);
+	d->tileXCount = ceil(double(size.width()) / double(Surface::TileSize));
+	d->tileXCount = ceil(double(size.height()) / double(Surface::TileSize));
 	d->tileKeys = Surface::keysForRect(QRect(QPoint(), size));
 	
 	connect(d->undoStack, SIGNAL(indexChanged(int)), this, SLOT(onUndoneOrRedone()));
@@ -66,6 +69,16 @@ QString Document::fileName() const
 QString Document::tempName() const
 {
 	return d->tempName;
+}
+
+int Document::tileXCount() const
+{
+	return d->tileXCount;
+}
+
+int Document::tileYCount() const
+{
+	return d->tileYCount;
 }
 
 QPointSet Document::tileKeys() const

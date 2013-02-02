@@ -34,7 +34,7 @@ struct Canvas::Data
 	
 	CanvasView *view = 0;
 	QActionList actions;
-	CanvasModuleList modules;
+	CanvasExtensionList extensions;
 	
 	double scale = 1, rotation = 0;
 	QPoint translation;
@@ -77,11 +77,11 @@ void Canvas::commonInit()
 	
 	// create actions
 	
-	d->actions << createAction("paintfield.file.save", this, SLOT(saveCanvas()));
-	d->actions << createAction("paintfield.file.saveAs", this, SLOT(saveAsCanvas()));
-	d->actions << createAction("paintfield.file.close", this, SLOT(closeCanvas()));
-	d->actions << createAction("paintfield.file.newCanvasIntoDocument", this, SLOT(newCanvasIntoDocument()));
-	d->actions << createAction("paintfield.file.export", this, SLOT(exportCanvas()));
+	d->actions << Util::createAction("paintfield.file.save", this, SLOT(saveCanvas()));
+	d->actions << Util::createAction("paintfield.file.saveAs", this, SLOT(saveAsCanvas()));
+	d->actions << Util::createAction("paintfield.file.close", this, SLOT(closeCanvas()));
+	d->actions << Util::createAction("paintfield.file.newCanvasIntoDocument", this, SLOT(newCanvasIntoDocument()));
+	d->actions << Util::createAction("paintfield.file.export", this, SLOT(exportCanvas()));
 	
 	auto undoAction  = d->document->undoStack()->createUndoAction(this);
 	undoAction->setObjectName("paintfield.edit.undo");
@@ -91,7 +91,7 @@ void Canvas::commonInit()
 	redoAction->setObjectName("paintfield.edit.redo");
 	d->actions << redoAction;
 	
-	addModules(appController()->moduleManager()->createCanvasModules(this, this));
+	addExtensions(appController()->extensionManager()->createCanvasExtensions(this, this));
 	
 	setWorkspace(d->workspace);
 }
@@ -194,9 +194,9 @@ QActionList Canvas::actions()
 	return d->actions;
 }
 
-CanvasModuleList Canvas::modules()
+CanvasExtensionList Canvas::extensions()
 {
-	return d->modules;
+	return d->extensions;
 }
 
 void Canvas::setView(CanvasView *view)
@@ -209,11 +209,11 @@ CanvasView *Canvas::view()
 	return d->view;
 }
 
-void Canvas::addModules(const CanvasModuleList &modules)
+void Canvas::addExtensions(const CanvasExtensionList &extensions)
 {
-	for (CanvasModule *module : modules)
-		addActions(module->actions());
-	d->modules += modules;
+	for (CanvasExtension *extension : extensions)
+		addActions(extension->actions());
+	d->extensions += extensions;
 }
 
 void Canvas::onSetCurrent()
@@ -228,7 +228,7 @@ Tool *Canvas::tool()
 
 void Canvas::onToolChanged(const QString &name)
 {
-	auto tool = createTool(appController()->modules(), workspace()->modules(), modules(), name, this);
+	auto tool = ExtensionUtil::createTool(appController()->extensions(), workspace()->extensions(), extensions(), name, this);
 	d->tool.reset(tool);
 	emit toolChanged(tool);
 }

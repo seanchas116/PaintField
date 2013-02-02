@@ -10,26 +10,26 @@ namespace PaintField
 class LayerUIController;
 class LayerTreeSidebar;
 
-class LayerUIModule : public CanvasModule
+class LayerUIExtension : public CanvasExtension
 {
 	Q_OBJECT
 public:
-	LayerUIModule(Canvas *canvas, QObject *parent);
+	LayerUIExtension(Canvas *canvas, QObject *parent);
 	
 };
 
-class LayerUIModuleFactory : public ModuleFactory
+class LayerUIExtensionFactory : public ExtensionFactory
 {
 	Q_OBJECT
 public:
 	
-	LayerUIModuleFactory(QObject *parent = 0) : ModuleFactory(parent) {}
+	LayerUIExtensionFactory(QObject *parent = 0) : ExtensionFactory(parent) {}
 	
 	void initialize(AppController *app) override;
 	
-	CanvasModuleList createCanvasModules(Canvas *canvas, QObject *parent) override
+	CanvasExtensionList createCanvasExtensions(Canvas *canvas, QObject *parent) override
 	{
-		return { new LayerUIModule(canvas, parent) };
+		return { new LayerUIExtension(canvas, parent) };
 	}
 
 private:

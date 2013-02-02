@@ -10,11 +10,11 @@ namespace PaintField
 class NavigatorController;
 class NavigatorView;
 
-class NavigatorModule : public CanvasModule
+class NavigatorExtension : public CanvasExtension
 {
 	Q_OBJECT
 public:
-	NavigatorModule(Canvas *canvas, QObject *parent);
+	NavigatorExtension(Canvas *canvas, QObject *parent);
 	
 signals:
 	
@@ -22,15 +22,15 @@ public slots:
 	
 };
 
-class NavigatorModuleFactory : public ModuleFactory
+class NavigatorExtensionFactory : public ExtensionFactory
 {
 	Q_OBJECT
 public:
-	NavigatorModuleFactory(QObject *parent = 0) : ModuleFactory(parent) {}
+	NavigatorExtensionFactory(QObject *parent = 0) : ExtensionFactory(parent) {}
 	
 	void initialize(AppController *app) override;
 	
-	CanvasModuleList createCanvasModules(Canvas *canvas, QObject *parent);
+	CanvasExtensionList createCanvasExtensions(Canvas *canvas, QObject *parent);
 };
 
 }

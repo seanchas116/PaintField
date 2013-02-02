@@ -71,7 +71,7 @@ void WorkspaceManager::addWorkspace(Workspace *workspace)
 	
 	auto view = new WorkspaceView(workspace);
 	
-	maximizeWindowSize(view);
+	Util::maximizeWindowSize(view);
 	
 	view->show();
 	

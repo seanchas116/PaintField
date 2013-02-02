@@ -13,8 +13,8 @@ namespace PaintField
 
 const QString _layerTreeSidebarName = "paintfield.sidebar.layerTree";
 
-LayerUIModule::LayerUIModule(Canvas *canvas, QObject *parent) :
-    CanvasModule(canvas, parent)
+LayerUIExtension::LayerUIExtension(Canvas *canvas, QObject *parent) :
+    CanvasExtension(canvas, parent)
 {
 	LayerUIController *layerUIController;
 	if (canvas)
@@ -34,7 +34,7 @@ LayerUIModule::LayerUIModule(Canvas *canvas, QObject *parent) :
 	}
 }
 
-void LayerUIModuleFactory::initialize(AppController *app)
+void LayerUIExtensionFactory::initialize(AppController *app)
 {
 	app->settingsManager()->declareMenu("paintfield.layer", tr("Layer"));
 	

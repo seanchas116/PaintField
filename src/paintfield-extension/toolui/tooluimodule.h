@@ -6,26 +6,26 @@
 namespace PaintField
 {
 
-class ToolUIModule : public WorkspaceModule
+class ToolUIExtension : public WorkspaceExtension
 {
 	Q_OBJECT
 public:
-	explicit ToolUIModule(Workspace *workspace, QObject *parent);
+	explicit ToolUIExtension(Workspace *workspace, QObject *parent);
 	
 	void updateToolBar(QToolBar *toolBar, const QString &name) override;
 };
 
-class ToolUIModuleFactory : public ModuleFactory
+class ToolUIExtensionFactory : public ExtensionFactory
 {
 	Q_OBJECT
 public:
 	
-	ToolUIModuleFactory(QObject *parent = 0) : ModuleFactory(parent) {}
+	ToolUIExtensionFactory(QObject *parent = 0) : ExtensionFactory(parent) {}
 	
 	void initialize(AppController *app) override;
-	QList<WorkspaceModule *> createWorkspaceModules(Workspace *workspace, QObject *parent) override
+	QList<WorkspaceExtension *> createWorkspaceExtensions(Workspace *workspace, QObject *parent) override
 	{
-		return { new ToolUIModule(workspace, parent) };
+		return { new ToolUIExtension(workspace, parent) };
 	}
 };
 
