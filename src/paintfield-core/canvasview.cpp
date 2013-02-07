@@ -208,7 +208,7 @@ void CanvasView::updateTransforms()
 	QPoint viewOffset = viewCenter() + d->nav.translation;
 	
 	auto transform = Affine2D::fromTranslation(Vec2D(viewOffset)) *
-	                 Affine2D::fromRotation(d->nav.rotation) *
+	                 Affine2D::fromRotationDegrees(d->nav.rotation) *
 	                 Affine2D::fromScale(d->nav.scale) *
 	                 Affine2D::fromTranslation(Vec2D(-sceneOffset));
 	

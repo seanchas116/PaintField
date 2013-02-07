@@ -73,7 +73,7 @@ ColorSliderPanel::ColorSliderPanel(QWidget *parent) :
 	rgbSliders << new ColorSlider(Color::Green, 1000);
 	rgbSliders << new ColorSlider(Color::Blue, 1000);
 	
-	hsvSliders << new ColorSlider(Color::Hue, 3600);
+	hsvSliders << new ColorSlider(Color::Hue, 1000);
 	hsvSliders << new ColorSlider(Color::Saturation, 1000);
 	hsvSliders << new ColorSlider(Color::Value, 1000);
 	
@@ -88,7 +88,17 @@ ColorSliderPanel::ColorSliderPanel(QWidget *parent) :
 		rgbSpins.at(i)->setValue(rgbSliders.at(i)->value());
 	}
 	
-	for (int i = 0; i < 3; ++i)
+	{
+		auto normalizedToDegrees = [](double x) { return x * 360.0; };
+		auto degreesToNormalized = [](double x) { return x * (1.0 / 360.0); };
+		
+		auto signalConverter = SignalConverter::fromDoubleFunc(normalizedToDegrees, degreesToNormalized, this);
+		signalConverter->connectChannelADouble(hsvSliders.at(0), SIGNAL(valueChanged(double)), SLOT(setValue(double)));
+		signalConverter->connectChannelBDouble(hsvSpins.at(0), SIGNAL(valueChanged(double)), SLOT(setValue(double)));
+		Util::connectMutual(hsvSliders.at(0), SIGNAL(colorChanged(Malachite::Color)), this, SLOT(setColor(Malachite::Color)));
+	}
+	
+	for (int i = 1; i < 3; ++i)
 	{
 		Util::connectMutual(hsvSliders.at(i), SIGNAL(colorChanged(Malachite::Color)), this, SLOT(setColor(Malachite::Color)));
 		Util::connectMutual(hsvSliders.at(i), SIGNAL(valueChanged(double)), hsvSpins.at(i), SLOT(setValue(double)));

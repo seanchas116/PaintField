@@ -104,10 +104,9 @@ void ColorSlider::mouseMoveEvent(QMouseEvent *event)
 	double x = (double)(event->x() - BarMargin) / (double)barSize().width();
 	x = qBound(0.0, x, 1.0);
 	
-	
 	Color color = _color;
 	
-	color.setNormalizedComponent(_component, Malachite::align(x, 1.0 / (double)_stepCount));
+	color.setComponent(_component, Malachite::align(x, 1.0 / (double)_stepCount));
 	setColor(color);
 }
 
@@ -125,7 +124,7 @@ void ColorSlider::paintEvent(QPaintEvent *)
 	
 	QRect rect(-2, BarMargin - 1, 4, BarHeight + 2);
 	
-	double value = _color.intervaledComponent(_component);
+	double value = _color.component(_component);
 	
 	painter.setPen(Qt::black);
 	painter.setBrush(Qt::white);
@@ -148,12 +147,14 @@ void ColorSlider::updateImage()
 	int width = _image.width();
 	int height = _image.height();
 	
+	double rwidth = 1.0 / width;
+	
 	for (int x = 0; x < width; ++x)
 	{
-		double value = ((double)x + 0.5) / (double)width;
+		double value = (x + 0.5) * rwidth;
 		
 		Color color = _color;
-		color.setNormalizedComponent(_component, value);
+		color.setComponent(_component, value);
 		
 		for (int y = 0; y < height; ++y)
 			_image.setPixel(x, y, color.toQRgbPremult());

@@ -100,7 +100,7 @@ static void drawScanlineInTile(Image *tileImage, const QPoint &offset, const Bru
 {
 	QPoint pos = scanline.pos - offset;
 	
-	Q_ASSERT(0 <= pos.y() && pos.y() < Surface::TileSize);
+	Q_ASSERT(0 <= pos.y() && pos.y() < Surface::tileWidth());
 	
 	int count = scanline.count;
 	bool isSolid = count < 0;
