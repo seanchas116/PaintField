@@ -67,7 +67,6 @@ HEADERS += \
     signalconverter.h \
     callbackanimation.h \
     librarymodel.h \
-    list.h \
     widgets/navigatablearea.h \
     keytracker.h \
     dialogs/filedialog.h \

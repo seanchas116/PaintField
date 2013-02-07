@@ -176,7 +176,7 @@ void CanvasViewportGL::updateTile(const QPoint &tileKey, const Malachite::Image 
 {
 	if (d->texture)
 	{
-		QPoint totalOffset = tileKey * Surface::TileSize + offset;
+		QPoint totalOffset = tileKey * Surface::tileWidth() + offset;
 		
 		QSize size = image.size();
 		int pixelCount = size.width() * size.height();
@@ -202,7 +202,7 @@ void CanvasViewportGL::updateTile(const QPoint &tileKey, const Malachite::Image 
 		//glPixelStorei(GL_UNPACK_ROW_LENGTH, );
 		
 		QPoint rasterOffset = totalOffset + d->transformToView.delta().toQPoint();
-		rasterOffset.ry() = height() - rasterOffset.y() - Surface::TileSize;
+		rasterOffset.ry() = height() - rasterOffset.y() - Surface::tileWidth();
 		
 		glWindowPos2i(rasterOffset.x(), rasterOffset.y());
 		glDrawPixels(size.width(), size.height(), GL_BGRA, GL_UNSIGNED_BYTE, 0);
@@ -231,7 +231,7 @@ void CanvasViewportGL::initializeGL()
 	
 	glGenBuffers(1, &d->pbo);
 	glBindBuffer(GL_PIXEL_UNPACK_BUFFER, d->pbo);
-	glBufferData(GL_PIXEL_UNPACK_BUFFER, Surface::TileSize * Surface::TileSize * 4, 0, GL_DYNAMIC_DRAW);
+	glBufferData(GL_PIXEL_UNPACK_BUFFER, Surface::tileWidth() * Surface::tileWidth() * 4, 0, GL_DYNAMIC_DRAW);
 	glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 	
 	emit ready();

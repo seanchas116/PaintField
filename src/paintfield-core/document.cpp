@@ -29,9 +29,9 @@ Document::Document(const QString &tempName, const QSize &size, const LayerList &
 	d->tempName = tempName;
 	d->undoStack = new QUndoStack(this);
 	d->layerModel = new LayerModel(layers, this);
-	d->tileXCount = ceil(double(size.width()) / double(Surface::TileSize));
-	d->tileXCount = ceil(double(size.height()) / double(Surface::TileSize));
-	d->tileKeys = Surface::keysForRect(QRect(QPoint(), size));
+	d->tileXCount = ceil(double(size.width()) / double(Surface::tileWidth()));
+	d->tileXCount = ceil(double(size.height()) / double(Surface::tileWidth()));
+	d->tileKeys = Surface::rectToKeys(QRect(QPoint(), size));
 	
 	connect(d->undoStack, SIGNAL(indexChanged(int)), this, SLOT(onUndoneOrRedone()));
 }

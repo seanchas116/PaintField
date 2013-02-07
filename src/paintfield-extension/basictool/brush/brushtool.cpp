@@ -28,7 +28,7 @@ BrushTool::~BrushTool() {}
 void BrushTool::drawLayer(SurfacePainter *painter, const Layer *layer)
 {
 	Q_UNUSED(layer)
-	painter->drawTransformedSurface(QPoint(), _surface);
+	painter->drawPreTransformedSurface(QPoint(), _surface);
 }
 
 void BrushTool::drawCustomCursor(QPainter *painter, const Vec2D &pos)

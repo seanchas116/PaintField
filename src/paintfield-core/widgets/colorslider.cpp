@@ -106,6 +106,7 @@ void ColorSlider::mouseMoveEvent(QMouseEvent *event)
 	
 	
 	Color color = _color;
+	
 	color.setNormalizedComponent(_component, Malachite::align(x, 1.0 / (double)_stepCount));
 	setColor(color);
 }

@@ -280,7 +280,7 @@ void CanvasView::updateTiles(const QPointSet &keys, const QHash<QPoint, QRect> &
 		}
 		else
 		{
-			rect = QRect(0, 0, Surface::TileSize, Surface::TileSize);
+			rect = QRect(0, 0, Surface::tileWidth(), Surface::tileWidth());
 		}
 		
 		Image image(rect.size());
@@ -289,7 +289,7 @@ void CanvasView::updateTiles(const QPointSet &keys, const QHash<QPoint, QRect> &
 		if (surface.contains(key))
 		{
 			Painter painter(&image);
-			painter.drawTransformedImage(-rect.topLeft(), surface.tileForKey(key));
+			painter.drawPreTransformedImage(-rect.topLeft(), surface.tile(key));
 		}
 		
 		d->viewportController->updateTile(key, image, rect.topLeft());

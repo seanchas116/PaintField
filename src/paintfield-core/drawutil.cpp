@@ -69,7 +69,7 @@ void copyColorFast(int count, BgraPremultU8 *dst, const Pixel *src)
 void drawMLSurface(QPainter *painter, const QPoint &point, const Surface &surface)
 {
 	for (const QPoint &key : surface.keys())
-		drawMLImage(painter, point + key * Surface::TileSize, surface.tileForKey(key));
+		drawMLImage(painter, point + key * Surface::tileWidth(), surface.tile(key));
 }
 
 void drawMLImage(QPainter *painter, const QPoint &point, const Image &image)

@@ -90,12 +90,8 @@ QRect BrushStrokerSimpleBrush::drawDab(const Vec2D &pos, double pressure)
 	
 	BrushRasterizerFast ras(pos, radiusBase() * pressure, 2);
 	
-	SurfaceEditor editor(surface());
-	
 	while (ras.hasNextScanline())
-	{
-		drawScanline(ras.nextScanline(), &editor);
-	}
+		drawScanline(ras.nextScanline(), surface());
 	
 	return ras.boundingRect();
 }
@@ -111,7 +107,7 @@ static void drawScanlineInTile(Image *tileImage, const QPoint &offset, const Bru
 	if (isSolid)
 		count = -count;
 	
-	Interval interval = Interval(0, Surface::TileSize) & Interval(pos.x(), count);
+	Interval interval = Interval(0, Surface::tileWidth()) & Interval(pos.x(), count);
 	
 	if (interval.isValid())
 	{
@@ -129,11 +125,11 @@ static void drawScanlineInTile(Image *tileImage, const QPoint &offset, const Bru
 	}
 }
 
-void BrushStrokerSimpleBrush::drawScanline(const BrushScanline &scanline, SurfaceEditor *surfaceEditor)
+void BrushStrokerSimpleBrush::drawScanline(const BrushScanline &scanline, Surface *surface)
 {
-	int tileY = IntDivision(scanline.pos.y(), Surface::TileSize).quot();
-	int tileStart = IntDivision(scanline.pos.x(), Surface::TileSize).quot();
-	int tileEnd = IntDivision(scanline.pos.x() + scanline.count - 1, Surface::TileSize).quot();
+	int tileY = IntDivision(scanline.pos.y(), Surface::tileWidth()).quot();
+	int tileStart = IntDivision(scanline.pos.x(), Surface::tileWidth()).quot();
+	int tileEnd = IntDivision(scanline.pos.x() + scanline.count - 1, Surface::tileWidth()).quot();
 	
 	auto blendOp = BlendMode(BlendMode::SourceOver).op();
 	
@@ -141,12 +137,12 @@ void BrushStrokerSimpleBrush::drawScanline(const BrushScanline &scanline, Surfac
 	{
 		QPoint key(tileX, tileY);
 		
-		auto tile = getTile(key, surfaceEditor);
-		drawScanlineInTile(tile, key * Surface::TileSize, scanline, pixel(), blendOp);
+		auto tile = getTile(key, surface);
+		drawScanlineInTile(tile, key * Surface::tileWidth(), scanline, pixel(), blendOp);
 	}
 }
 
-Image *BrushStrokerSimpleBrush::getTile(const QPoint &key, SurfaceEditor *editor)
+Image *BrushStrokerSimpleBrush::getTile(const QPoint &key, Surface *surface)
 {
 	if (_lastTile && _lastKey == key)
 	{
@@ -155,7 +151,7 @@ Image *BrushStrokerSimpleBrush::getTile(const QPoint &key, SurfaceEditor *editor
 	else
 	{
 		_lastKey = key;
-		_lastTile = editor->tileRefForKey(key);
+		_lastTile = &surface->tileRef(key);
 		return _lastTile;
 	}
 }

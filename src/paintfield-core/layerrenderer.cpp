@@ -58,7 +58,7 @@ void LayerRenderer::drawLayer(SurfacePainter *painter, const Layer *layer)
 		default:
 			break;
 	}
-	painter->drawTransformedSurface(QPoint(), surface);
+	painter->drawPreTransformedSurface(QPoint(), surface);
 }
 
 void LayerRenderer::renderLayers(SurfacePainter *painter, const LayerConstList &layers)

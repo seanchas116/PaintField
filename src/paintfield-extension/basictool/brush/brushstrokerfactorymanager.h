@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include <QVariant>
-#include "paintfield-core/list.h"
+#include <Malachite/List>
 
 namespace Malachite
 {
@@ -34,7 +34,7 @@ public slots:
 	
 private:
 	
-	List<BrushStrokerFactory *> _factories;
+	Malachite::List<BrushStrokerFactory *> _factories;
 };
 
 } // namespace PaintField

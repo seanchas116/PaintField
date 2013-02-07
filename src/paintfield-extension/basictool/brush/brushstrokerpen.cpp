@@ -96,10 +96,7 @@ void BrushStrokerPen::drawInterval(const Polygon &polygon, const TabletInputData
 
 void BrushStrokerPen::drawShape(const FixedMultiPolygon &shape)
 {
-	Surface drawSurface = originalSurface();
-	SurfaceEditor drawSurfaceEditor(&drawSurface);
-	
-	QPointSet keys = Surface::keysForRect(shape.boundingRect().toAlignedRect());
+	QPointSet keys = Surface::rectToKeys(shape.boundingRect().toAlignedRect());
 	
 	QHash<QPoint, QRect> keysWithRects;
 	
@@ -109,24 +106,22 @@ void BrushStrokerPen::drawShape(const FixedMultiPolygon &shape)
 		
 		if (dividedShape.size())
 		{
-			dividedShape.translate(key * -Surface::TileSize);
+			dividedShape.translate(key * -Surface::tileWidth());
 			
 			QRect dividedBoundingRect = dividedShape.boundingRect().toAlignedRect();
 			
 			FixedMultiPolygon drawShape = _drawnShapes[key] | dividedShape;
 			_drawnShapes[key] = drawShape;
 			
-			Painter painter(drawSurfaceEditor.tileRefForKey(key));
+			Painter painter(&surface()->tileRef(key));
 			painter.setPixel(pixel());
 			painter.setBlendMode(_settings.blendMode);
-			painter.drawTransformedPolygons(drawShape);
+			painter.drawPreTransformedPolygons(drawShape);
 			
 			keysWithRects.insert(key, dividedBoundingRect);
 		}
 	}
 	
-	SurfaceEditor editor(surface());
-	editor.replace(drawSurface, keysWithRects.keys().toSet());
 	addEditedKeys(keysWithRects);
 }
 

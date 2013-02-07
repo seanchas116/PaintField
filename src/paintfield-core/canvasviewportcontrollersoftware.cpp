@@ -94,7 +94,7 @@ void CanvasViewportControllerSoftware::setTransform(const Affine2D &transform)
 
 void CanvasViewportControllerSoftware::updateTile(const QPoint &tileKey, const Image &image, const QPoint &offset)
 {
-	QPoint tilePos = tileKey * Surface::TileSize;
+	QPoint tilePos = tileKey * Surface::tileWidth();
 	
 	{
 		QPainter painter(d->view->pixmap());

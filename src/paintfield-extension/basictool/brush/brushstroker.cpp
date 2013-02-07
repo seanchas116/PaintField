@@ -67,11 +67,11 @@ void BrushStroker::addEditedKey(const QPoint &key, const QRect &rect)
 
 void BrushStroker::addEditedRect(const QRect &rect)
 {
-	auto keys = Surface::keysForRect(rect);
+	auto keys = Surface::rectToKeys(rect);
 	
 	for (auto key : keys)
 	{
-		auto keyRect = rect.translated(-key * Surface::TileSize) & Surface::keyToRect(0, 0);
+		auto keyRect = rect.translated(-key * Surface::tileWidth()) & Surface::keyToRect(0, 0);
 		addEditedKey(key, keyRect);
 	}
 }

@@ -242,7 +242,7 @@ bool DocumentIO::saveLayerRecursive(const Layer *parent, DocumentDatabase *datab
 			else
 				return false;
 		}
-		else if (layer->type() == Layer::TypeRaster && !layer->surface().isNull())
+		else if (layer->type() == Layer::TypeRaster && !layer->surface().isEmpty())
 		{
 			layerData["source"] = database->addSurface(layer->surface());
 		}
@@ -339,10 +339,8 @@ Malachite::Surface DocumentDatabase::loadSurface(const QString &path)
 	
 	Surface surface;
 	
-	if (tileSize.width() == Surface::TileSize && tileSize.height() == Surface::TileSize)
+	if (tileSize.width() == Surface::tileWidth() && tileSize.height() == Surface::tileWidth())
 	{
-		SurfaceEditor editor(&surface);
-		
 		for (const QVariant &tileData : tileList)
 		{
 			QPoint key;
@@ -352,7 +350,7 @@ Malachite::Surface DocumentDatabase::loadSurface(const QString &path)
 				continue;
 			
 			if (!surface.contains(key))
-				editor.replaceTile(key, new Image(tile));
+				surface.tileRef(key) = tile;
 		}
 	}
 	else
@@ -386,14 +384,14 @@ QString DocumentDatabase::addSurface(const Malachite::Surface &surface)
 		QVariantMap tileData;
 		tileData["x"] = key.x();
 		tileData["y"] = key.y();
-		tileData["source"] = addTile(surface.tileForKey(key));
+		tileData["source"] = addTile(surface.tile(key));
 		
 		tiles << tileData;
 	}
 	
 	QVariantMap surfaceData;
-	surfaceData["tileWidth"] = Surface::TileSize;
-	surfaceData["tileHeight"] = Surface::TileSize;
+	surfaceData["tileWidth"] = Surface::tileWidth();
+	surfaceData["tileHeight"] = Surface::tileWidth();
 	surfaceData["tiles"] = tiles;
 	
 	QString path = "data/surfaces/" + QString::number(_surfaceCount) + ".surface";

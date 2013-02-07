@@ -7,6 +7,8 @@
 
 namespace PaintField {
 
+using namespace Malachite;
+
 BrushStrokerFactoryManager::BrushStrokerFactoryManager(QObject *parent) :
     QObject(parent)
 {

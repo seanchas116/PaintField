@@ -32,7 +32,7 @@ void FSLayerMoveEdit::redo(Layer *layer)
 	Q_ASSERT(rasterLayer);
 	Surface surface;
 	Painter painter(&surface);
-	painter.drawTransformedSurface(_offset, rasterLayer->surface());
+	painter.drawPreTransformedSurface(_offset, rasterLayer->surface());
 	painter.end();
 	
 	rasterLayer->setSurface(surface);
@@ -44,7 +44,7 @@ void FSLayerMoveEdit::undo(Layer *layer)
 	Q_ASSERT(rasterLayer);
 	Surface surface;
 	Painter painter(&surface);
-	painter.drawTransformedSurface(-_offset, rasterLayer->surface());
+	painter.drawPreTransformedSurface(-_offset, rasterLayer->surface());
 	rasterLayer->setSurface(surface);
 }
 
@@ -68,7 +68,7 @@ void LayerMoveTool::tabletMoveEvent(CanvasTabletEvent *event)
 	
 	for (const QPoint &key : _layer->surface().keys())
 	{
-		keys |= Surface::keysForRect(Surface::keyToRect(key).translated(_offset));
+		keys |= Surface::rectToKeys(Surface::keyToRect(key).translated(_offset));
 	}
 	
 	requestUpdate(keys | _lastKeys);
