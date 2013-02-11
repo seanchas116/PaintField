@@ -45,7 +45,7 @@ public:
 	QWidget *view() override;
 	
 	void setDocumentSize(const QSize &size) override;
-	void setTransform(const Malachite::Affine2D &transform) override;
+	void setTransform(const Malachite::Affine2D &transform, bool hasTranslation, bool hasScaling, bool hasRotation) override;
 	void updateTile(const QPoint &tileKey, const Malachite::Image &image, const QPoint &offset) override;
 	void beforeUpdateTile();
 	void afterUpdateTile();

@@ -292,7 +292,7 @@ void CanvasViewportControllerGL::setDocumentSize(const QSize &size)
 	d->view->setDocumentSize(size);
 }
 
-void CanvasViewportControllerGL::setTransform(const Affine2D &transform)
+void CanvasViewportControllerGL::setTransform(const Affine2D &transform, bool, bool, bool)
 {
 	d->view->setTransform(transform);
 }

@@ -1,6 +1,7 @@
 #include <QPainter>
 #include <Malachite/Image>
 #include <Malachite/Surface>
+#include <QPaintEvent>
 #include "drawutil.h"
 
 #include "canvasviewportcontrollersoftware.h"
@@ -11,15 +12,37 @@ namespace PaintField {
 
 struct CanvasViewportSoftware::Data
 {
-	QTransform transform;
+	QTransform transformFromScene, transformToScene;
+	bool transformTranslatingOnly = true;
+	
+	SurfaceU8 surface;
+	QSize size;
+	
 	QPixmap pixmap;
+	QPointSet keysUnpastedToPixmap;
+	
+	QRect partialUpdateSceneRect;
+	bool partialUpdateBorder = false;
+	
+	void pasteUnpastedTilesToPixmap()
+	{
+		QPainter pixmapPainter(&pixmap);
+		pixmapPainter.setCompositionMode(QPainter::CompositionMode_Source);
+		
+		for (auto key : keysUnpastedToPixmap)
+		{
+			QPoint pos = key * Surface::tileWidth();
+			pixmapPainter.drawImage(pos, surface.tile(key).wrapInQImage());
+		}
+		
+		keysUnpastedToPixmap.clear();
+	}
 };
 
 CanvasViewportSoftware::CanvasViewportSoftware(QWidget *parent) :
     QWidget(parent),
     d(new Data)
 {
-	
 }
 
 CanvasViewportSoftware::~CanvasViewportSoftware()
@@ -30,33 +53,63 @@ CanvasViewportSoftware::~CanvasViewportSoftware()
 void CanvasViewportSoftware::setDocumentSize(const QSize &size)
 {
 	d->pixmap = QPixmap(size);
+	d->size = size;
 }
 
-void CanvasViewportSoftware::setTransform(const Affine2D &transform)
+void CanvasViewportSoftware::setTransform(const Affine2D &transform, bool isTranslatingOnly)
 {
-	d->transform = transform.toQTransform();
-	PAINTFIELD_DEBUG << d->transform;
+	d->transformFromScene = transform.toQTransform();
+	d->transformToScene = transform.inverted().toQTransform();
+	d->transformTranslatingOnly = isTranslatingOnly;
 }
 
-QTransform CanvasViewportSoftware::transform() const
+void CanvasViewportSoftware::pasteImage(const QPoint &tileKey, const Image &image, const QPoint &offset)
 {
-	return d->transform;
-}
-
-QPixmap *CanvasViewportSoftware::pixmap()
-{
-	return &d->pixmap;
+	QPoint pos = tileKey * Surface::tileWidth() + offset;
+	
+	ImageU8 imageU8 = image.toImageU8();
+	
+	d->surface.tileRef(tileKey).paste(imageU8, offset);
+	d->keysUnpastedToPixmap << tileKey;
+	
+	QRect viewRect = d->transformFromScene.mapRect(QRectF(pos, imageU8.size())).toAlignedRect();
+	
+	d->partialUpdateSceneRect |= viewRect;
+	
+	int tileRight = (d->size.width() - 1) / Surface::tileWidth();
+	int tileBottom = (d->size.height() - 1) / Surface::tileWidth();
+	
+	d->partialUpdateBorder |= (tileKey.x() <= 0 || tileKey.x() >= tileRight || tileKey.y() <= 0 || tileKey.y() >= tileBottom);
+	
+	repaint(viewRect);
 }
 
 void CanvasViewportSoftware::paintEvent(QPaintEvent *)
 {
 	QPainter painter(this);
+	painter.setTransform(d->transformFromScene);
+	//painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
 	
-	painter.setRenderHint(QPainter::Antialiasing);
-	painter.setRenderHint(QPainter::SmoothPixmapTransform);
-	
-	painter.setTransform(d->transform);
-	painter.drawPixmap(0, 0, d->pixmap);
+	if (!d->partialUpdateSceneRect.isEmpty())
+	{
+		if (d->partialUpdateBorder)
+			painter.setClipRect(QRect(QPoint(), d->size));
+		
+		QRect requiredSceneRect = d->transformToScene.mapRect(QRectF(d->partialUpdateSceneRect)).toAlignedRect();
+		requiredSceneRect.adjust(-1, -1, 1, 1);
+		
+		auto image = d->surface.crop<ImageU8>(requiredSceneRect);
+		painter.drawImage(requiredSceneRect.topLeft(), image.wrapInQImage());
+		
+		d->partialUpdateSceneRect = QRect();
+		d->partialUpdateBorder = false;
+	}
+	else
+	{
+		d->pasteUnpastedTilesToPixmap();
+		
+		painter.drawPixmap(QPoint(), d->pixmap);
+	}
 }
 
 struct CanvasViewportControllerSoftware::Data
@@ -87,24 +140,15 @@ void CanvasViewportControllerSoftware::setDocumentSize(const QSize &size)
 	d->view->setDocumentSize(size);
 }
 
-void CanvasViewportControllerSoftware::setTransform(const Affine2D &transform)
+void CanvasViewportControllerSoftware::setTransform(const Affine2D &transform, bool hasTranslation, bool hasScaling, bool hasRotation)
 {
-	d->view->setTransform(transform);
+	Q_UNUSED(hasTranslation);
+	d->view->setTransform(transform, !hasScaling && !hasRotation);
 }
 
 void CanvasViewportControllerSoftware::updateTile(const QPoint &tileKey, const Image &image, const QPoint &offset)
 {
-	QPoint tilePos = tileKey * Surface::tileWidth();
-	
-	{
-		QPainter painter(d->view->pixmap());
-		painter.setCompositionMode(QPainter::CompositionMode_Source);
-		DrawUtil::drawMLImageFast(&painter, tilePos + offset, image);
-	}
-	
-	QRect mappedRect = d->view->transform().mapRect(QRectF(tilePos + offset, image.size())).toAlignedRect();
-	PAINTFIELD_DEBUG << "repainting" << mappedRect;
-	d->view->repaint(mappedRect);
+	d->view->pasteImage(tileKey, image, offset);
 }
 
 void CanvasViewportControllerSoftware::update()

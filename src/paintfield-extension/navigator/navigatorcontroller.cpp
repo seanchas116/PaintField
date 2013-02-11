@@ -14,10 +14,10 @@ NavigatorController::NavigatorController(Canvas *canvas, QObject *parent) :
 	
 	if (canvas)
 	{
-		connect(navigatorView, SIGNAL(scaleChanged(double)), canvas, SLOT(setViewScale(double)));
+		connect(navigatorView, SIGNAL(scaleChanged(double)), canvas, SLOT(setScale(double)));
 		connect(canvas, SIGNAL(scaleChanged(double)), navigatorView, SLOT(setScale(double)));
 		
-		connect(navigatorView, SIGNAL(rotationChanged(double)), canvas, SLOT(setViewRotation(double)));
+		connect(navigatorView, SIGNAL(rotationChanged(double)), canvas, SLOT(setRotation(double)));
 		connect(canvas, SIGNAL(rotationChanged(double)), navigatorView, SLOT(setRotation(double)));
 		
 		connect(navigatorView, SIGNAL(translationChanged(QPoint)), canvas, SLOT(setTranslation(QPoint)));

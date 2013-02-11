@@ -214,7 +214,7 @@ void CanvasView::updateTransforms()
 	
 	d->transformFromScene = transform;
 	d->transformToScene = transform.inverted();
-	d->viewportController->setTransform(transform);
+	d->viewportController->setTransform(transform, d->nav.translation != QPoint(), d->nav.scale != 1.0, d->nav.rotation != 0);
 	
 	update();
 }
@@ -677,7 +677,7 @@ void CanvasView::beginDragTranslation(const QPoint &pos)
 
 void CanvasView::continueDragTranslation(const QPoint &pos)
 {
-	setTranslation(d->backupNav.translation + (pos - d->navigationOrigin));
+	d->canvas->setTranslation(d->backupNav.translation + (pos - d->navigationOrigin));
 }
 
 void CanvasView::endDragTranslation()
@@ -708,8 +708,8 @@ void CanvasView::continueDragScaling(const QPoint &pos)
 	
 	auto translation = (d->backupNav.translation - navigationOffset) * scaleRatio + navigationOffset;
 	
-	setScale(scale);
-	setTranslation(translation);
+	d->canvas->setScale(scale);
+	d->canvas->setTranslation(translation);
 }
 
 void CanvasView::endDragScaling()
@@ -745,8 +745,8 @@ void CanvasView::continueDragRotation(const QPoint &pos)
 		
 		auto translation = (d->backupNav.translation - navigationOffset) * transform + navigationOffset;
 		
-		setRotation(rotation);
-		setTranslation(translation);
+		d->canvas->setRotation(rotation);
+		d->canvas->setTranslation(translation);
 	}
 }
 
