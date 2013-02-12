@@ -67,7 +67,6 @@ HEADERS += \
     signalconverter.h \
     callbackanimation.h \
     librarymodel.h \
-    widgets/navigatablearea.h \
     keytracker.h \
     dialogs/filedialog.h \
     canvastabwidget.h \
@@ -77,13 +76,11 @@ HEADERS += \
     tabletpointerdata.h \
     settingsmanager.h \
     workspacetabwidget.h \
-    abstractcanvasviewportcontroller.h \
     scopedtimer.h \
     canvas.h \
     workspace.h \
     extension.h \
     extensionmanager.h \
-    widgets/vanishingscrollarea.h \
     canvasviewportinterface.h \
     canvasviewportgl.h \
     canvasviewportsoftware.h
@@ -128,7 +125,6 @@ SOURCES += \
     signalconverter.cpp \
     callbackanimation.cpp \
     librarymodel.cpp \
-    widgets/navigatablearea.cpp \
     keytracker.cpp \
     dialogs/filedialog.cpp \
     canvastabwidget.cpp \
@@ -137,11 +133,9 @@ SOURCES += \
     widgets/memorizablesplitter.cpp \
     settingsmanager.cpp \
     workspacetabwidget.cpp \
-    abstractcanvasviewportcontroller.cpp \
     canvas.cpp \
     workspace.cpp \
     extension.cpp \
     extensionmanager.cpp \
-    widgets/vanishingscrollarea.cpp \
     canvasviewportgl.cpp \
     canvasviewportsoftware.cpp

@@ -12,7 +12,6 @@
 #include "keytracker.h"
 #include "widgets/vanishingscrollbar.h"
 
-#include "abstractcanvasviewportcontroller.h"
 #include "canvasviewportsoftware.h"
 
 #include "canvasview.h"
