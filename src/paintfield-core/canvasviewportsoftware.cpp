@@ -1,10 +1,12 @@
 #include <QPainter>
 #include <Malachite/Image>
 #include <Malachite/Surface>
+#include <Malachite/Affine2D>
 #include <QPaintEvent>
 #include "drawutil.h"
+#include "widgets/vanishingscrollbar.h"
 
-#include "canvasviewportcontrollersoftware.h"
+#include "canvasviewportsoftware.h"
 
 using namespace Malachite;
 
@@ -37,17 +39,42 @@ struct CanvasViewportSoftware::Data
 		
 		keysUnpastedToPixmap.clear();
 	}
+	
+	QHash<int, VanishingScrollBar *> scrollBars;
 };
 
 CanvasViewportSoftware::CanvasViewportSoftware(QWidget *parent) :
     QWidget(parent),
     d(new Data)
 {
+	d->scrollBars[Qt::Horizontal] = new VanishingScrollBar(Qt::Horizontal, this);
+	d->scrollBars[Qt::Vertical] = new VanishingScrollBar(Qt::Vertical, this);
+	
+	connect(d->scrollBars[Qt::Horizontal], SIGNAL(valueChanged(int)), this, SIGNAL(scrollBarXChanged(int)));
+	connect(d->scrollBars[Qt::Vertical], SIGNAL(valueChanged(int)), this, SIGNAL(scrollBarYChanged(int)));
 }
 
 CanvasViewportSoftware::~CanvasViewportSoftware()
 {
 	delete d;
+}
+
+void CanvasViewportSoftware::setScrollBarValue(Qt::Orientation orientation, int value)
+{
+	Q_ASSERT(d->scrollBars.contains(orientation));
+	d->scrollBars[orientation]->setValue(value);
+}
+
+void CanvasViewportSoftware::setScrollBarRange(Qt::Orientation orientation, int max, int min)
+{
+	Q_ASSERT(d->scrollBars.contains(orientation));
+	d->scrollBars[orientation]->setRange(max, min);
+}
+
+void CanvasViewportSoftware::setScrollBarPageStep(Qt::Orientation orientation, int value)
+{
+	Q_ASSERT(d->scrollBars.contains(orientation));
+	d->scrollBars[orientation]->setPageStep(value);
 }
 
 void CanvasViewportSoftware::setDocumentSize(const QSize &size)
@@ -56,14 +83,14 @@ void CanvasViewportSoftware::setDocumentSize(const QSize &size)
 	d->size = size;
 }
 
-void CanvasViewportSoftware::setTransform(const Affine2D &transform, bool isTranslatingOnly)
+void CanvasViewportSoftware::setTransform(const Malachite::Affine2D &transform, bool hasTranslation, bool hasScaling, bool hasRotation)
 {
 	d->transformFromScene = transform.toQTransform();
 	d->transformToScene = transform.inverted().toQTransform();
-	d->transformTranslatingOnly = isTranslatingOnly;
+	d->transformTranslatingOnly = !hasScaling && !hasRotation;
 }
 
-void CanvasViewportSoftware::pasteImage(const QPoint &tileKey, const Image &image, const QPoint &offset)
+void CanvasViewportSoftware::updateTile(const QPoint &tileKey, const Image &image, const QPoint &offset)
 {
 	QPoint pos = tileKey * Surface::tileWidth() + offset;
 	
@@ -112,48 +139,18 @@ void CanvasViewportSoftware::paintEvent(QPaintEvent *)
 	}
 }
 
-struct CanvasViewportControllerSoftware::Data
+void CanvasViewportSoftware::resizeEvent(QResizeEvent *)
 {
-	CanvasViewportSoftware *view;
-};
-
-CanvasViewportControllerSoftware::CanvasViewportControllerSoftware(QObject *parent) :
-    AbstractCanvasViewportController(parent),
-    d(new Data)
-{
-	d->view = new CanvasViewportSoftware();
-	emit ready();
-}
-
-CanvasViewportControllerSoftware::~CanvasViewportControllerSoftware()
-{
-	delete d;
-}
-
-QWidget *CanvasViewportControllerSoftware::view()
-{
-	return d->view;
-}
-
-void CanvasViewportControllerSoftware::setDocumentSize(const QSize &size)
-{
-	d->view->setDocumentSize(size);
-}
-
-void CanvasViewportControllerSoftware::setTransform(const Affine2D &transform, bool hasTranslation, bool hasScaling, bool hasRotation)
-{
-	Q_UNUSED(hasTranslation);
-	d->view->setTransform(transform, !hasScaling && !hasRotation);
-}
-
-void CanvasViewportControllerSoftware::updateTile(const QPoint &tileKey, const Image &image, const QPoint &offset)
-{
-	d->view->pasteImage(tileKey, image, offset);
-}
-
-void CanvasViewportControllerSoftware::update()
-{
+	int barWidthX = d->scrollBars[Qt::Horizontal]->totalBarWidth();
+	int barWidthY = d->scrollBars[Qt::Vertical]->totalBarWidth();
 	
+	auto widgetRect = QRect(QPoint(), geometry().size());
+	
+	auto scrollBarXRect = widgetRect.adjusted(0, widgetRect.height() - barWidthY, -barWidthX, 0);
+	auto scrollBarYRect = widgetRect.adjusted(widgetRect.width() - barWidthX, 0, 0, -barWidthY);
+	
+	d->scrollBars[Qt::Horizontal]->setGeometry(scrollBarXRect);
+	d->scrollBars[Qt::Vertical]->setGeometry(scrollBarYRect);
 }
 
 }

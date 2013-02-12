@@ -58,6 +58,7 @@ protected:
 	void customTabletEvent(WidgetTabletEvent *event);
 	void enterEvent(QEvent *);
 	void leaveEvent(QEvent *);
+	void wheelEvent(QWheelEvent *event);
 	void resizeEvent(QResizeEvent *);
 	
 	bool event(QEvent *event);
@@ -72,6 +73,11 @@ private slots:
 	void onTabletActiveChanged(bool active);
 	
 	void onViewportReady();
+	
+	void onScrollBarXChanged(int x);
+	void onScrollBarYChanged(int y);
+	void updateScrollBarRange();
+	void updateScrollBarValue();
 	
 private:
 	

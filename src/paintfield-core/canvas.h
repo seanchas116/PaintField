@@ -183,6 +183,9 @@ public slots:
 	void setScale(double scale);
 	void setRotation(double rotation);
 	void setTranslation(const QPoint &translation);
+	void setTranslation(int x, int y) { setTranslation(QPoint(x, y)); }
+	void setTranslationX(int x) { setTranslation(x, translation().y()); }
+	void setTranslationY(int y) { setTranslation(translation().x(), y); }
 	
 private slots:
 	

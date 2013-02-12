@@ -1,9 +1,10 @@
 #include <Malachite/Surface>
 #include <Malachite/Vec2D>
+#include <Malachite/Affine2D>
 #include <QDebug>
 #include "drawutil.h"
 
-#include "canvasviewportcontrollergl.h"
+#include "canvasviewportgl.h"
 
 using namespace Malachite;
 
@@ -95,8 +96,8 @@ struct CanvasViewportGL::Data
 	}
 };
 
-CanvasViewportGL::CanvasViewportGL(const QGLFormat &format, QWidget *parent) :
-    QGLWidget(format, parent),
+CanvasViewportGL::CanvasViewportGL(QWidget *parent) :
+    QGLWidget(parent),
     d(new Data)
 {
 	
@@ -105,6 +106,21 @@ CanvasViewportGL::CanvasViewportGL(const QGLFormat &format, QWidget *parent) :
 CanvasViewportGL::~CanvasViewportGL()
 {
 	delete d;
+}
+
+void CanvasViewportGL::setScrollBarValue(Qt::Orientation, int)
+{
+	
+}
+
+void CanvasViewportGL::setScrollBarRange(Qt::Orientation, int, int)
+{
+	
+}
+
+void CanvasViewportGL::setScrollBarPageStep(Qt::Orientation, int)
+{
+	
 }
 
 static int powerOf2Bound(int x)
@@ -256,65 +272,6 @@ void CanvasViewportGL::paintGL()
 	glBindTexture(GL_TEXTURE_2D, d->texture);
 	
 	d->drawWhole();
-}
-
-struct CanvasViewportControllerGL::Data
-{
-	CanvasViewportGL *view;
-};
-
-CanvasViewportControllerGL::CanvasViewportControllerGL(QObject *parent) :
-    AbstractCanvasViewportController(parent),
-    d(new Data)
-{
-	
-	QGLFormat format;
-	format.setDepth(false);
-	format.setDoubleBuffer(false);
-	format.setStencil(false);
-	
-	d->view = new CanvasViewportGL(format);
-	connect(d->view, SIGNAL(ready()), this, SIGNAL(ready()));
-}
-
-CanvasViewportControllerGL::~CanvasViewportControllerGL()
-{
-	delete d;
-}
-
-QWidget *CanvasViewportControllerGL::view()
-{
-	return d->view;
-}
-
-void CanvasViewportControllerGL::setDocumentSize(const QSize &size)
-{
-	d->view->setDocumentSize(size);
-}
-
-void CanvasViewportControllerGL::setTransform(const Affine2D &transform, bool, bool, bool)
-{
-	d->view->setTransform(transform);
-}
-
-void CanvasViewportControllerGL::updateTile(const QPoint &tileKey, const Malachite::Image &image, const QPoint &offset)
-{
-	d->view->updateTile(tileKey, image, offset);
-}
-
-void CanvasViewportControllerGL::beforeUpdateTile()
-{
-	d->view->beforeUpdateTile();
-}
-
-void CanvasViewportControllerGL::afterUpdateTile()
-{
-	d->view->afterUpdateTile();
-}
-
-void CanvasViewportControllerGL::update()
-{
-	d->view->updateGL();
 }
 
 } // namespace PaintField

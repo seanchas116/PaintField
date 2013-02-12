@@ -10,10 +10,10 @@
 #include "appcontroller.h"
 #include "workspace.h"
 #include "keytracker.h"
+#include "widgets/vanishingscrollbar.h"
 
 #include "abstractcanvasviewportcontroller.h"
-#include "canvasviewportcontrollersoftware.h"
-#include "canvasviewportcontrollergl.h"
+#include "canvasviewportsoftware.h"
 
 #include "canvasview.h"
 
@@ -81,7 +81,10 @@ public:
 	
 	Affine2D transformToScene, transformFromScene;
 	
-	AbstractCanvasViewportController *viewportController = 0;
+	CanvasViewportInterface *viewport;
+	QWidget *viewportWidget;
+	
+	QPoint maxAbsTranslation;
 };
 
 CanvasView::CanvasView(Canvas *canvas, QWidget *parent) :
@@ -91,23 +94,30 @@ CanvasView::CanvasView(Canvas *canvas, QWidget *parent) :
 	d->canvas = canvas;
 	d->sceneSize = canvas->document()->size();
 	
-	d->viewportController = new CanvasViewportControllerSoftware(this);
 	
 	// setup viewport
 	{
+		auto viewport = new CanvasViewportSoftware(this);
+		d->viewport = viewport;
+		d->viewportWidget = viewport;
 		
-		if (d->viewportController->isReady())
+		if (viewport->isReady())
 			onViewportReady();
 		else
-			connect(d->viewportController, SIGNAL(ready()), this, SLOT(onViewportReady()));
+			connect(viewport, SIGNAL(ready()), this, SLOT(onViewportReady()));
 		
 		auto layout = new QVBoxLayout;
-		layout->addWidget(d->viewportController->view());
-		d->viewportController->view()->setMouseTracking(true);
+		layout->addWidget(viewport);
+		viewport->setMouseTracking(true);
 		layout->setContentsMargins(0, 0, 0 ,0);
 		setLayout(layout);
 		
 		d->viewCenter = QPoint(width() / 2, height() / 2);
+	}
+	
+	{
+		connect(d->viewportWidget, SIGNAL(scrollBarXChanged(int)), this, SLOT(onScrollBarXChanged(int)));
+		connect(d->viewportWidget, SIGNAL(scrollBarYChanged(int)), this, SLOT(onScrollBarYChanged(int)));
 	}
 	
 	// connect to canvas
@@ -214,7 +224,10 @@ void CanvasView::updateTransforms()
 	
 	d->transformFromScene = transform;
 	d->transformToScene = transform.inverted();
-	d->viewportController->setTransform(transform, d->nav.translation != QPoint(), d->nav.scale != 1.0, d->nav.rotation != 0);
+	d->viewport->setTransform(transform, d->nav.translation != QPoint(), d->nav.scale != 1.0, d->nav.rotation != 0);
+	
+	updateScrollBarRange();
+	updateScrollBarValue();
 	
 	update();
 }
@@ -259,7 +272,7 @@ void CanvasView::setTool(Tool *tool)
 
 void CanvasView::updateTiles(const QPointSet &keys, const QHash<QPoint, QRect> &rects)
 {
-	d->viewportController->beforeUpdateTile();
+	d->viewport->beforeUpdateTile();
 	
 	CanvasRenderer renderer;
 	renderer.setTool(d->tool);
@@ -292,10 +305,10 @@ void CanvasView::updateTiles(const QPointSet &keys, const QHash<QPoint, QRect> &
 			painter.drawPreTransformedImage(-rect.topLeft(), surface.tile(key));
 		}
 		
-		d->viewportController->updateTile(key, image, rect.topLeft());
+		d->viewport->updateTile(key, image, rect.topLeft());
 	}
 	
-	d->viewportController->afterUpdateTile();
+	d->viewport->afterUpdateTile();
 }
 
 void CanvasView::onClicked()
@@ -316,9 +329,38 @@ void CanvasView::onTabletActiveChanged(bool active)
 
 void CanvasView::onViewportReady()
 {
-	d->viewportController->setDocumentSize(d->sceneSize);
+	d->viewport->setDocumentSize(d->sceneSize);
 	updateTransforms();
 	updateTiles(layerModel()->document()->tileKeys());
+}
+
+void CanvasView::onScrollBarXChanged(int value)
+{
+	d->canvas->setTranslationX(d->maxAbsTranslation.x() - value);
+}
+
+void CanvasView::onScrollBarYChanged(int value)
+{
+	d->canvas->setTranslationY(d->maxAbsTranslation.y() - value);
+}
+
+void CanvasView::updateScrollBarRange()
+{
+	int radius = ceil(hypot(d->sceneSize.width(), d->sceneSize.height()) * d->nav.scale * 0.5);
+	
+	d->maxAbsTranslation = QPoint(radius + this->width(), radius + this->height());
+	
+	d->viewport->setScrollBarRange(Qt::Horizontal, 0, 2 * d->maxAbsTranslation.x());
+	d->viewport->setScrollBarRange(Qt::Vertical, 0, 2 * d->maxAbsTranslation.y());
+	
+	d->viewport->setScrollBarPageStep(Qt::Horizontal, this->width());
+	d->viewport->setScrollBarPageStep(Qt::Vertical, this->height());
+}
+
+void CanvasView::updateScrollBarValue()
+{
+	d->viewport->setScrollBarValue(Qt::Horizontal, d->maxAbsTranslation.x() - d->nav.translation.x());
+	d->viewport->setScrollBarValue(Qt::Vertical, d->maxAbsTranslation.y() - d->nav.translation.y());
 }
 
 void CanvasView::keyPressEvent(QKeyEvent *event)
@@ -487,6 +529,18 @@ void CanvasView::customTabletEvent(WidgetTabletEvent *event)
 	{
 		event->setAccepted(sendCanvasTabletEvent(event));
 	}
+}
+
+void CanvasView::wheelEvent(QWheelEvent *event)
+{
+	QPoint translation = d->canvas->translation();
+	
+	if (event->orientation() == Qt::Horizontal)
+		translation += QPoint(event->delta(), 0);
+	else
+		translation += QPoint(0, event->delta());
+	
+	d->canvas->setTranslation(translation);
 }
 
 void CanvasView::resizeEvent(QResizeEvent *)

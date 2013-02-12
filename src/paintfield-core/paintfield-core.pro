@@ -78,13 +78,15 @@ HEADERS += \
     settingsmanager.h \
     workspacetabwidget.h \
     abstractcanvasviewportcontroller.h \
-    canvasviewportcontrollersoftware.h \
-    canvasviewportcontrollergl.h \
     scopedtimer.h \
     canvas.h \
     workspace.h \
     extension.h \
-    extensionmanager.h
+    extensionmanager.h \
+    widgets/vanishingscrollarea.h \
+    canvasviewportinterface.h \
+    canvasviewportgl.h \
+    canvasviewportsoftware.h
 FORMS += dialogs/exportdialog.ui dialogs/newdocumentdialog.ui
 SOURCES += \
            document.cpp \
@@ -136,9 +138,10 @@ SOURCES += \
     settingsmanager.cpp \
     workspacetabwidget.cpp \
     abstractcanvasviewportcontroller.cpp \
-    canvasviewportcontrollersoftware.cpp \
-    canvasviewportcontrollergl.cpp \
     canvas.cpp \
     workspace.cpp \
     extension.cpp \
-    extensionmanager.cpp
+    extensionmanager.cpp \
+    widgets/vanishingscrollarea.cpp \
+    canvasviewportgl.cpp \
+    canvasviewportsoftware.cpp
