@@ -39,6 +39,8 @@ protected:
 	
 private:
 	
+	void repaintRects(const QList<QRect> &rects, bool considerBorder);
+	
 	class Data;
 	Data *d;
 };
