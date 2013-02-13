@@ -121,7 +121,7 @@ void CanvasViewportSoftware::updateAccurately()
 	d->accurateUpdateSceneRects = rects;
 	d->accurateUpdateConsiderBorder = true;
 	
-	update();
+	repaint();
 }
 
 void CanvasViewportSoftware::repaintRects(const QList<QRect> &rects, bool considerBorder)
@@ -177,7 +177,6 @@ void CanvasViewportSoftware::repaintRects(const QList<QRect> &rects, bool consid
 void CanvasViewportSoftware::paintEvent(QPaintEvent *)
 {
 	QPainter painter(this);
-	painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
 	
 	if (d->accurateUpdateSceneRects.isEmpty()) // rough update
 	{

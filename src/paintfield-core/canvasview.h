@@ -74,6 +74,8 @@ private slots:
 	
 	void onViewportReady();
 	
+	void onViewportAccurateUpdate();
+	
 	void onScrollBarXChanged(int x);
 	void onScrollBarYChanged(int y);
 	void updateScrollBarRange();

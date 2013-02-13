@@ -80,8 +80,10 @@ public:
 	
 	Affine2D transformToScene, transformFromScene;
 	
-	CanvasViewportInterface *viewport;
-	QWidget *viewportWidget;
+	CanvasViewportInterface *viewport = 0;
+	QWidget *viewportWidget = 0;
+	
+	QTimer *accurateUpdateTimer = 0;
 	
 	QPoint maxAbsTranslation;
 };
@@ -93,30 +95,37 @@ CanvasView::CanvasView(Canvas *canvas, QWidget *parent) :
 	d->canvas = canvas;
 	d->sceneSize = canvas->document()->size();
 	
-	
 	// setup viewport
 	{
 		auto viewport = new CanvasViewportSoftware(this);
 		d->viewport = viewport;
 		d->viewportWidget = viewport;
 		
+		{
+			auto layout = new QVBoxLayout;
+			layout->addWidget(viewport);
+			viewport->setMouseTracking(true);
+			layout->setContentsMargins(0, 0, 0 ,0);
+			setLayout(layout);
+		}
+		
+		d->viewCenter = QPoint(width() / 2, height() / 2);
+		
+		{
+			auto timer = new QTimer(this);
+			timer->setSingleShot(true);
+			timer->setInterval(500);
+			connect(timer, SIGNAL(timeout()), this, SLOT(onViewportAccurateUpdate()));
+			d->accurateUpdateTimer = timer;
+		}
+		
+		connect(d->viewportWidget, SIGNAL(scrollBarXChanged(int)), this, SLOT(onScrollBarXChanged(int)));
+		connect(d->viewportWidget, SIGNAL(scrollBarYChanged(int)), this, SLOT(onScrollBarYChanged(int)));
+		
 		if (viewport->isReady())
 			onViewportReady();
 		else
 			connect(viewport, SIGNAL(ready()), this, SLOT(onViewportReady()));
-		
-		auto layout = new QVBoxLayout;
-		layout->addWidget(viewport);
-		viewport->setMouseTracking(true);
-		layout->setContentsMargins(0, 0, 0 ,0);
-		setLayout(layout);
-		
-		d->viewCenter = QPoint(width() / 2, height() / 2);
-	}
-	
-	{
-		connect(d->viewportWidget, SIGNAL(scrollBarXChanged(int)), this, SLOT(onScrollBarXChanged(int)));
-		connect(d->viewportWidget, SIGNAL(scrollBarYChanged(int)), this, SLOT(onScrollBarYChanged(int)));
 	}
 	
 	// connect to canvas
@@ -228,6 +237,8 @@ void CanvasView::updateTransforms()
 	updateScrollBarRange();
 	updateScrollBarValue();
 	
+	d->accurateUpdateTimer->start();
+	
 	update();
 }
 
@@ -331,6 +342,12 @@ void CanvasView::onViewportReady()
 	d->viewport->setDocumentSize(d->sceneSize);
 	updateTransforms();
 	updateTiles(layerModel()->document()->tileKeys());
+}
+
+void CanvasView::onViewportAccurateUpdate()
+{
+	PAINTFIELD_DEBUG << "update accurately";
+	d->viewport->updateAccurately();
 }
 
 void CanvasView::onScrollBarXChanged(int value)
