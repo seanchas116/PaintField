@@ -113,12 +113,16 @@ void BrushStrokerPen::drawShape(const FixedMultiPolygon &shape)
 			FixedMultiPolygon drawShape = _drawnShapes[key] | dividedShape;
 			_drawnShapes[key] = drawShape;
 			
-			Painter painter(&surface()->tileRef(key));
+			auto tile = originalSurface().tile(key);
+			
+			Painter painter(&tile);
 			painter.setPixel(pixel());
 			painter.setBlendMode(_settings.blendMode);
 			painter.drawPreTransformedPolygons(drawShape);
 			
 			keysWithRects.insert(key, dividedBoundingRect);
+			
+			surface()->tileRef(key) = tile;
 		}
 	}
 	
