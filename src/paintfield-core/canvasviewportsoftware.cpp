@@ -19,11 +19,26 @@ struct CanvasViewportSoftware::Data
 	
 	SurfaceU8 surface;
 	QSize size;
+	QPointSet tileKeys;
 	
-	QList<QRect> partialUpdateSceneRects;
-	bool partialUpdateConsiderBorder = false;
+	QList<QRect> accurateUpdateSceneRects;
+	bool accurateUpdateConsiderBorder = false;
+	
+	QPixmap roughUpdatePixmap;
+	QPointSet roughUpdatePixelUnpaintedTiles;
 	
 	QHash<int, VanishingScrollBar *> scrollBars;
+	
+	void paintUnpaintedTilesToPixmap()
+	{
+		QPainter painter(&roughUpdatePixmap);
+		painter.setCompositionMode(QPainter::CompositionMode_Source);
+		
+		for (auto key : roughUpdatePixelUnpaintedTiles)
+		{
+			painter.drawImage( key * Surface::tileWidth(), surface.tileRef(key).wrapInQImage() );
+		}
+	}
 };
 
 CanvasViewportSoftware::CanvasViewportSoftware(QWidget *parent) :
@@ -63,6 +78,8 @@ void CanvasViewportSoftware::setScrollBarPageStep(Qt::Orientation orientation, i
 void CanvasViewportSoftware::setDocumentSize(const QSize &size)
 {
 	d->size = size;
+	d->tileKeys = Surface::rectToKeys(QRect(QPoint(), size));
+	d->roughUpdatePixmap = QPixmap(size);
 }
 
 void CanvasViewportSoftware::setTransform(const Malachite::Affine2D &transform, bool hasTranslation, bool hasScaling, bool hasRotation)
@@ -74,6 +91,8 @@ void CanvasViewportSoftware::setTransform(const Malachite::Affine2D &transform, 
 
 void CanvasViewportSoftware::updateTile(const QPoint &tileKey, const Image &image, const QPoint &offset)
 {
+	d->roughUpdatePixelUnpaintedTiles << tileKey;
+	
 	QPoint pos = tileKey * Surface::tileWidth() + offset;
 	
 	ImageU8 imageU8 = image.toImageU8();
@@ -82,29 +101,43 @@ void CanvasViewportSoftware::updateTile(const QPoint &tileKey, const Image &imag
 	
 	QRect viewRect = d->transformFromScene.mapRect(QRectF(pos, imageU8.size())).toAlignedRect();
 	
-	d->partialUpdateSceneRects << viewRect;
+	d->accurateUpdateSceneRects << viewRect;
 	
 	int tileRight = (d->size.width() - 1) / Surface::tileWidth();
 	int tileBottom = (d->size.height() - 1) / Surface::tileWidth();
 	
-	d->partialUpdateConsiderBorder |= (tileKey.x() <= 0 || tileKey.x() >= tileRight || tileKey.y() <= 0 || tileKey.y() >= tileBottom);
+	d->accurateUpdateConsiderBorder |= (tileKey.x() <= 0 || tileKey.x() >= tileRight || tileKey.y() <= 0 || tileKey.y() >= tileBottom);
 	
 	repaint(viewRect);
+}
+
+void CanvasViewportSoftware::updateAccurately()
+{
+	QList<QRect> rects;
+	
+	for (const QPoint &key : Surface::rectToKeys(QRect(QPoint(), d->size)))
+		rects << d->transformFromScene.mapRect( QRectF( Surface::keyToRect( key ) ) ).toAlignedRect();
+	
+	d->accurateUpdateSceneRects = rects;
+	d->accurateUpdateConsiderBorder = true;
+	
+	update();
 }
 
 void CanvasViewportSoftware::repaintRects(const QList<QRect> &rects, bool considerBorder)
 {
 	QPainter painter(this);
-	painter.setCompositionMode(QPainter::CompositionMode_Source);
+	if (!considerBorder)
+		painter.setCompositionMode(QPainter::CompositionMode_Source);
 	
 	for (const QRect &rect : rects)
 	{
 		QRect requiredSceneRect = d->transformToScene.mapRect(QRectF(rect)).toAlignedRect();
 		
-		auto image = d->surface.crop<ImageU8>( requiredSceneRect );
-		
 		if ( d->transformTranslatingOnly )
 		{
+			auto image = d->surface.crop<ImageU8>( requiredSceneRect );
+			
 			painter.setTransform( d->transformFromScene );
 			
 			if ( considerBorder )
@@ -114,6 +147,10 @@ void CanvasViewportSoftware::repaintRects(const QList<QRect> &rects, bool consid
 		}
 		else
 		{
+			requiredSceneRect.adjust(-1, -1, 1, 1);
+			
+			auto image = d->surface.crop<ImageU8>( requiredSceneRect );
+			
 			QImage viewImage( rect.size(), QImage::Format_ARGB32_Premultiplied );
 			viewImage.fill( 0 );
 			auto viewImageOffset = rect.topLeft();
@@ -142,75 +179,21 @@ void CanvasViewportSoftware::paintEvent(QPaintEvent *)
 	QPainter painter(this);
 	painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
 	
-	if (d->partialUpdateSceneRects.isEmpty())
+	if (d->accurateUpdateSceneRects.isEmpty()) // rough update
 	{
-		QList<QRect> rects;
+		painter.setCompositionMode(QPainter::CompositionMode_Source);
 		
-		for (const QPoint &key : Surface::rectToKeys(QRect(QPoint(), d->size)))
-			rects << d->transformFromScene.mapRect( QRectF( Surface::keyToRect( key ) ) ).toAlignedRect();
-		
-		repaintRects(rects, true);
-	}
-	else
-	{
-		repaintRects(d->partialUpdateSceneRects, d->partialUpdateConsiderBorder);
-		
-		d->partialUpdateConsiderBorder = false;
-		d->partialUpdateSceneRects.clear();
-	}
-	
-	/*
-	if (!d->partialUpdateSceneRect.isEmpty())
-	{
-		QRect requiredSceneRect = d->transformToScene.mapRect(QRectF(d->partialUpdateSceneRect)).toAlignedRect();
-		
-		auto image = d->surface.crop<ImageU8>( requiredSceneRect );
-		
-		if ( d->transformTranslatingOnly )
-		{
-			PAINTFIELD_DEBUG << "translation only";
-			
-			painter.setTransform( d->transformFromScene );
-			
-			if ( d->partialUpdateBorder )
-				painter.setClipRect( QRect( QPoint(), d->size ) );
-			
-			painter.drawImage( requiredSceneRect.topLeft(), image.wrapInQImage() );
-		}
-		else
-		{
-			QImage viewImage( d->partialUpdateSceneRect.size(), QImage::Format_ARGB32_Premultiplied );
-			viewImage.fill( 0 );
-			auto viewImageOffset = d->partialUpdateSceneRect.topLeft();
-			
-			{
-				QPainter imagePainter( &viewImage );
-				imagePainter.setRenderHint( QPainter::SmoothPixmapTransform, true );
-				imagePainter.setTransform( d->transformFromScene * QTransform::fromTranslate( -viewImageOffset.x(), -viewImageOffset.y() ) );
-				imagePainter.drawImage( requiredSceneRect.topLeft(), image.wrapInQImage() );
-			}
-			
-			if (d->partialUpdateBorder)
-			{
-				QPainterPath path;
-				path.addRect( QRect( QPoint(), d->size ) );
-				painter.setClipPath( path * d->transformFromScene );
-			}
-			
-			painter.drawImage( viewImageOffset, viewImage );
-		}
-		
-		d->partialUpdateSceneRect = QRect();
-		d->partialUpdateBorder = false;
-	}
-	else
-	{
 		painter.setTransform(d->transformFromScene);
+		d->paintUnpaintedTilesToPixmap();
+		painter.drawPixmap(QPoint(), d->roughUpdatePixmap);
+	}
+	else
+	{
+		repaintRects(d->accurateUpdateSceneRects, d->accurateUpdateConsiderBorder);
 		
-		d->pasteUnpastedTilesToPixmap();
-		
-		painter.drawPixmap(QPoint(), d->pixmap);
-	}*/
+		d->accurateUpdateConsiderBorder = false;
+		d->accurateUpdateSceneRects.clear();
+	}
 }
 
 void CanvasViewportSoftware::resizeEvent(QResizeEvent *)

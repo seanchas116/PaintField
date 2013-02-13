@@ -15,17 +15,18 @@ public:
 	explicit CanvasViewportSoftware(QWidget *parent = 0);
 	~CanvasViewportSoftware();
 	
-	void setScrollBarValue(Qt::Orientation orientation, int value);
-	void setScrollBarRange(Qt::Orientation orientation, int max, int min);
-	void setScrollBarPageStep(Qt::Orientation orientation, int value);
+	void setScrollBarValue(Qt::Orientation orientation, int value) override;
+	void setScrollBarRange(Qt::Orientation orientation, int max, int min) override;
+	void setScrollBarPageStep(Qt::Orientation orientation, int value) override;
 	
-	void setDocumentSize(const QSize &size);
+	void setDocumentSize(const QSize &size) override;
 	void setTransform(const Malachite::Affine2D &transform, bool hasTranslation, bool hasScaling, bool hasRotation) override;
-	void updateTile(const QPoint &tileKey, const Malachite::Image &image, const QPoint &offset);
-	void beforeUpdateTile() {}
-	void afterUpdateTile() {}
-	void update() {}
-	bool isReady() { return true; }
+	void updateTile(const QPoint &tileKey, const Malachite::Image &image, const QPoint &offset) override;
+	void updateAccurately() override;
+	void beforeUpdateTile() override {}
+	void afterUpdateTile() override {}
+	void update() override {}
+	bool isReady() override { return true; }
 	
 signals:
 	
