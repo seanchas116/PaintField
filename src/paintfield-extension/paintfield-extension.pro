@@ -24,7 +24,6 @@ LIBS += -lpaintfield-core
 # Input
 HEADERS += \
            colorui/colorsidebar.h \
-           layerui/layermodelview.h \
            layerui/layermodelviewdelegate.h \
            layerui/layertreesidebar.h \
            basictool/brush/brushtool.h \
@@ -55,7 +54,6 @@ HEADERS += \
     builtinextensionfactory.h
 SOURCES += \
            colorui/colorsidebar.cpp \
-           layerui/layermodelview.cpp \
            layerui/layermodelviewdelegate.cpp \
            layerui/layertreesidebar.cpp \
            basictool/brush/brushtool.cpp \

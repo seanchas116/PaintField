@@ -21,7 +21,6 @@ class Workspace;
 class Canvas;
 class LayerUIController;
 
-class LayerModelView;
 class DoubleSlider;
 class SimpleButton;
 
@@ -43,7 +42,6 @@ private slots:
 	
 	void updatePropertyView();
 	void setOpacityPercentage(double value);
-	void viewFocused();
 	
 private:
 	
@@ -55,7 +53,7 @@ private:
 	
 	// forms
 	
-	LayerModelView *_treeView = 0;
+	QTreeView *_treeView = 0;
 	
 	DoubleSlider *_opacitySlider = 0;
 	LooseSpinBox *_opacitySpinBox = 0;

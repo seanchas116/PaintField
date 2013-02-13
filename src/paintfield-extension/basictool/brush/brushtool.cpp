@@ -92,6 +92,8 @@ void BrushTool::beginStroke(const TabletInputData &data)
 	if (_layer->type() != Layer::TypeRaster)
 		return;
 	
+	layerModel()->startEditing();
+	
 	//PAINTFIELD_CALC_SCOPE_ELAPSED_TIME;
 	
 	_surface = _layer->surface();

@@ -141,9 +141,11 @@ signals:
 	
 	void tilesUpdated(const QPointSet &tileKeys);
 	void layerMetadataChanged(const QModelIndex &index);
+	void thumbnailsUpdated();
 	
 public slots:
 	
+	void startEditing();
 	void update();
 	void updateDirtyThumbnails();
 	
@@ -155,6 +157,8 @@ protected:
 	
 	void emitDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight) { emit dataChanged(topLeft, bottomRight); }
 	void enqueueTileUpdate(const QPointSet &tileKeys);
+	
+private slots:
 	
 private:
 	

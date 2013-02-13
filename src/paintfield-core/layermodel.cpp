@@ -36,6 +36,8 @@ struct LayerModel::Data
 	
 	bool skipNextUpdate = false;
 	QPointSet updatedTiles;
+	
+	QTimer *thumbnailUpdateTimer = 0;
 };
 
 LayerModel::LayerModel(const LayerList &layers, Document *parent) :
@@ -50,6 +52,15 @@ LayerModel::LayerModel(const LayerList &layers, Document *parent) :
 	
 	d->rootLayer->insertChildren(0, layers);
 	d->rootLayer->updateThumbnailRecursive(d->document->size());
+	
+	{
+		auto timer = new QTimer(this);
+		timer->setInterval(500);
+		timer->setSingleShot(true);
+		connect(timer, SIGNAL(timeout()), this, SLOT(updateDirtyThumbnails()));
+		
+		d->thumbnailUpdateTimer = timer;
+	}
 }
 
 LayerModel::~LayerModel()
@@ -508,6 +519,7 @@ const Layer *LayerModel::rootLayer() const
 void LayerModel::updateDirtyThumbnails()
 {
 	d->rootLayer->updateDirtyThumbnailRecursive(d->document->size());
+	emit thumbnailsUpdated();
 }
 
 int LayerModel::normalizeItemRole(int role) const
@@ -535,6 +547,11 @@ void LayerModel::enqueueTileUpdate(const QPointSet &tileKeys)
 	d->updatedTiles |= tileKeys;
 }
 
+void LayerModel::startEditing()
+{
+	d->thumbnailUpdateTimer->stop();
+}
+
 void LayerModel::update()
 {
 	if (d->skipNextUpdate)
@@ -542,8 +559,10 @@ void LayerModel::update()
 	else
 		emit tilesUpdated(d->updatedTiles);
 	
+	d->thumbnailUpdateTimer->start();
 	d->updatedTiles.clear();
 }
+
 
 }
 

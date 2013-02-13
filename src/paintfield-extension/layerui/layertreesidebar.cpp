@@ -11,7 +11,6 @@
 
 #include "layeruicontroller.h"
 #include "layermodelviewdelegate.h"
-#include "layermodelview.h"
 
 #include "layertreesidebar.h"
 
@@ -32,6 +31,8 @@ LayerTreeSidebar::LayerTreeSidebar(LayerUIController *layerUIController, QWidget
 		connect(_canvas->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(updatePropertyView()));
 		updatePropertyView();
 		_treeView->setSelectionModel(_canvas->selectionModel());
+		
+		connect(_canvas->document()->layerModel(), SIGNAL(thumbnailsUpdated()), _treeView, SLOT(update()));
 	}
 	else
 	{
@@ -56,21 +57,15 @@ void LayerTreeSidebar::setOpacityPercentage(double value)
 	_canvas->layerModel()->setData(_canvas->selectionModel()->currentIndex(), value / 100.0, PaintField::RoleOpacity);
 }
 
-void LayerTreeSidebar::viewFocused()
-{
-	_canvas->layerModel()->updateDirtyThumbnails();
-}
-
 void LayerTreeSidebar::createForms()
 {
-	_treeView = new LayerModelView();
+	_treeView = new QTreeView();
 	_treeView->setItemDelegate(new LayerModelViewDelegate(_layerUIController, this));
 	_treeView->setHeaderHidden(true);
 	_treeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
 	_treeView->setDragDropMode(QAbstractItemView::DragDrop);
 	_treeView->setDefaultDropAction(Qt::MoveAction);
 	_treeView->setDropIndicatorShown(true);
-	connect(_treeView, SIGNAL(windowFocused()), this, SLOT(viewFocused()));
 	
 	_opacitySlider = new DoubleSlider(Qt::Horizontal);
 	_opacitySlider->setMinimum(0);

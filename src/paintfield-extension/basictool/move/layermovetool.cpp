@@ -81,6 +81,7 @@ void LayerMoveTool::tabletPressEvent(CanvasTabletEvent *event)
 	_layer = currentLayer();
 	if (_layer && _layer->type() == Layer::TypeRaster)
 	{
+		layerModel()->startEditing();
 		_layerIsDragged = true;
 		addCustomDrawLayer(_layer);
 		_dragStartPoint = event->data.pos.toQPoint();
