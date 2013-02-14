@@ -1,4 +1,7 @@
 #pragma once
+
+#ifdef PAINTFIELD_CANVAS_GL
+
 #include <QGLWidget>
 #include "canvasviewportinterface.h"
 
@@ -43,4 +46,6 @@ private:
 };
 
 } // namespace PaintField
+
+#endif
 

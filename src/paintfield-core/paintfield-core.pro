@@ -18,7 +18,7 @@ mac {
 INCLUDEPATH += $$PWD $$PWD/../libs $$PWD/../libs/Malachite/include
 
 LIBS += -L$$OUT_PWD/../libs/Malachite/src -L$$OUT_PWD/../libs/Minizip
-LIBS += -lfreeimage -lz -lmalachite -lminizip -lqjson -framework ApplicationServices
+LIBS += -lfreeimage -lz -lmalachite -lminizip -lqjson
 
 # Input
 HEADERS += \

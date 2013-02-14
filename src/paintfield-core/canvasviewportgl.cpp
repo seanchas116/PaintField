@@ -1,3 +1,5 @@
+#ifdef PAINTFIELD_CANVAS_GL
+
 #include <Malachite/Surface>
 #include <Malachite/Vec2D>
 #include <Malachite/Affine2D>
@@ -275,3 +277,5 @@ void CanvasViewportGL::paintGL()
 }
 
 } // namespace PaintField
+
+#endif
