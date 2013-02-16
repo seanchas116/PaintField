@@ -1,13 +1,9 @@
-
-QT += core gui network opengl
-
 CONFIG(debug, debug|release) {
 	DEFINES += QT_DEBUG
 } else {
 	DEFINES += QT_NO_DEBUG
 #	DEFINES += QT_NO_DEBUG_STREAM
 }
-
 
 mac {
   QMAKE_LFLAGS_SONAME = -Wl,-install_name,$$OUT_PWD/
@@ -16,3 +12,4 @@ mac {
   QMAKE_OBJECTIVE_CFLAGS_X86_64 = $$QMAKE_CFLAGS_X86_64
   QMAKE_LFLAGS_X86_64 = $$QMAKE_CFLAGS_X86_64
 }
+
