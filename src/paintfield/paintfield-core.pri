@@ -21,24 +21,14 @@ INCLUDEPATH += $$PWD/.. $$PWD/../libs $$PWD/../libs/Malachite/include
 # note that the head of a result is always /
 defineReplace(relativePathFrom) {
 
-message($$1)
-message($$2)
-
 path_to = $$1
 path_from = $$2
 
 path_to_from = $$replace(path_to, ^$${path_from}, )
 
-message($$path_to_from)
-
 contains(path_to_from, ^$${path_to}$) {
-	message(from > to)
-	
 	path_to_from = $$replace(path_from, ^$$path_to, )
 	path_to_from = $$replace(path_to_from, [^/]+, ..)
-	
-} else {
-	message(to > from)
 }
 
 message($$path_to_from)

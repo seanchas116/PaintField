@@ -170,7 +170,7 @@ void BrushStrokerCustomBrush::drawDab(const TabletInputData &data)
 
 void BrushStrokerCustomBrush::loadSettings(const QVariantMap &settings)
 {
-	Q_UNUSED(setting)
+	Q_UNUSED(settings)
 }
 
 QVariantMap BrushSourceBrushFactory::defaultSettings() const
