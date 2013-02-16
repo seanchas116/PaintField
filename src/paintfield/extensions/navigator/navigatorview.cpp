@@ -1,5 +1,6 @@
 #include <QtGui>
 #include <Malachite/Division>
+#include <Malachite/Affine2D>
 #include "paintfield/core/widgets/simplebutton.h"
 #include "paintfield/core/widgets/doubleslider.h"
 #include "paintfield/core/widgets/loosespinbox.h"
@@ -7,11 +8,14 @@
 
 #include "navigatorview.h"
 
+using namespace Malachite;
+
 namespace PaintField {
 
 NavigatorView::NavigatorView(QWidget *parent) :
     QWidget(parent)
 {
+	connect(this, SIGNAL(translationChanged(QPoint)), this, SLOT(onTranslationChanged(QPoint)));
 	createWidgets();
 }
 
@@ -21,8 +25,14 @@ void NavigatorView::setScale(double scale)
 	
 	if (_scale != scale)
 	{
+		if (_currentMode != Scaling)
+			setOriginalValues();
+		
 		_scale = scale;
 		emit scaleChanged(scale);
+		
+		_translation = (Vec2D(_originalTranslation) * (scale / _originalScale)).toQPoint();
+		emit translationChanged(_translation);
 	}
 }
 
@@ -35,8 +45,14 @@ void NavigatorView::setRotation(double rotation)
 	
 	if (_rotationD != rotation)
 	{
+		if (_currentMode != Rotation)
+			setOriginalValues();
+		
 		_rotationD = rotation;
 		emit rotationChanged(rotation);
+		
+		_translation = (Affine2D::fromRotationDegrees(rotation - _originalRotation) * Vec2D(_originalTranslation)).toQPoint();
+		emit translationChanged(_translation);
 	}
 }
 
@@ -45,10 +61,9 @@ void NavigatorView::setTranslation(const QPoint &value)
 	if (_translation != value)
 	{
 		_translation = value;
+		_currentMode = Translation;
 		
 		emit translationChanged(value);
-		emit translationXChanged(value.x());
-		emit translationYChanged(value.y());
 	}
 }
 
@@ -59,6 +74,12 @@ void NavigatorView::setMirroringEnabled(bool enabled)
 		_mirrorOn = enabled;
 		emit mirroringEnabledChanged(enabled);
 	}
+}
+
+void NavigatorView::onTranslationChanged(const QPoint &translation)
+{
+	emit translationXChanged(translation.x());
+	emit translationYChanged(translation.y());
 }
 
 void NavigatorView::createWidgets()
@@ -282,6 +303,13 @@ QLayout *NavigatorView::createMiscUILayout()
 	layout->addStretch(1);
 	
 	return layout;
+}
+
+void NavigatorView::setOriginalValues()
+{
+	_originalTranslation = _translation;
+	_originalScale = _scale;
+	_originalRotation = _rotationD;
 }
 
 

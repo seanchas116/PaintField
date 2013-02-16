@@ -75,6 +75,8 @@ private slots:
 	void rotateLeft() { setRotationLevel(rotationLevel() - 1); }
 	void rotateRight() { setRotationLevel(rotationLevel() + 1); }
 	
+	void onTranslationChanged(const QPoint &translation);
+	
 private:
 	
 	double scaleMin() const { return exp2(_scaleLogMin); }
@@ -88,7 +90,9 @@ private:
 	
 	QLayout *createScaleRotationUILayout();
 	QLayout *createMiscUILayout();
-	void createWidgets(); 
+	void createWidgets();
+	
+	void setOriginalValues();
 	
 	double _scale = 1.0;
 	
@@ -107,7 +111,17 @@ private:
 	constexpr static int _spinBoxWidth = 50;
 	constexpr static int _scaleSliderResolution = 32;
 	
+	enum CurrentMode
+	{
+		Translation,
+		Scaling,
+		Rotation
+	};
+	
 	QPoint _originalTranslation;
+	double _originalRotation = 0, _originalScale = 1;
+	
+	CurrentMode _currentMode = Translation;
 };
 
 }
