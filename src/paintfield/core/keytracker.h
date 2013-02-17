@@ -16,14 +16,20 @@ public:
 	explicit KeyTracker(QObject *parent);
 	~KeyTracker();
 	
-	void pressKey(int key);
-	void releaseKey(int key);
-	
+	QSet<int> unmodifiedPressedKeys() const;
 	QSet<int> pressedKeys() const;
-	QSet<int> pressedKeysWithModifiers() const;
 	Qt::KeyboardModifiers modifiers() const;
 	
 	bool match(const QKeySequence &sequence) const;
+	
+public slots:
+	
+	void pressKey(int key);
+	void releaseKey(int key);
+	
+signals:
+	
+	void pressedKeysChanged(const QSet<int> &pressedKeys);
 	
 private:
 	

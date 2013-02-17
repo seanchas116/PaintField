@@ -47,6 +47,8 @@ void KeyTracker::pressKey(int key)
 		d->modifiers |= modifier;
 	else
 		d->keys << key;
+	
+	emit pressedKeysChanged(pressedKeys());
 }
 
 void KeyTracker::releaseKey(int key)
@@ -56,14 +58,16 @@ void KeyTracker::releaseKey(int key)
 		d->modifiers &= ~modifier;
 	else
 		d->keys.remove(key);
+	
+	emit pressedKeysChanged(pressedKeys());
 }
 
-QSet<int> KeyTracker::pressedKeys() const
+QSet<int> KeyTracker::unmodifiedPressedKeys() const
 {
 	return d->keys;
 }
 
-QSet<int> KeyTracker::pressedKeysWithModifiers() const
+QSet<int> KeyTracker::pressedKeys() const
 {
 	QSet<int> keys;
 	keys.reserve(d->keys.size());
@@ -81,7 +85,7 @@ Qt::KeyboardModifiers KeyTracker::modifiers() const
 
 bool KeyTracker::match(const QKeySequence &sequence) const
 {
-	auto keys = pressedKeysWithModifiers();
+	auto keys = pressedKeys();
 	return keys.size() == 1 && sequence.count() == 1 && *keys.begin() == sequence[0];
 }
 
