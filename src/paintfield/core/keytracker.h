@@ -1,30 +1,35 @@
-#ifndef PAINTFIELD_KEYTRACKER_H
-#define PAINTFIELD_KEYTRACKER_H
+#pragma once
 
-#include <QList>
+#include <QObject>
+#include <QSet>
 
 class QKeySequence;
 
 namespace PaintField {
 
-class KeyTracker
+class KeyTracker : public QObject
 {
+	Q_OBJECT
+	
 public:
 	
-	KeyTracker() {}
+	explicit KeyTracker(QObject *parent);
+	~KeyTracker();
 	
-	void keyPressed(int key);
-	void keyReleased(int key);
+	void pressKey(int key);
+	void releaseKey(int key);
 	
-	QList<int> pressedKeys() const { return _keys; }
+	QSet<int> pressedKeys() const;
+	QSet<int> pressedKeysWithModifiers() const;
+	Qt::KeyboardModifiers modifiers() const;
 	
 	bool match(const QKeySequence &sequence) const;
 	
 private:
 	
-	QList<int> _keys;
+	struct Data;
+	Data *d;
 };
 
 } // namespace PaintField
 
-#endif // PAINTFIELD_KEYTRACKER_H

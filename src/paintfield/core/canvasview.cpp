@@ -63,7 +63,7 @@ public:
 	Malachite::Vec2D customCursorPos;
 	bool tabletActive = false;
 	
-	KeyTracker keyTracker;
+	KeyTracker *keyTracker = 0;
 	
 	QCursor toolCursor;
 	
@@ -97,6 +97,8 @@ CanvasView::CanvasView(Canvas *canvas, QWidget *parent) :
 	d->nav.translation = canvas->translation();
 	d->nav.scale = canvas->scale();
 	d->nav.rotation = canvas->rotation();
+	
+	d->keyTracker = new KeyTracker(this);
 	
 	// setup viewport
 	{
@@ -388,7 +390,7 @@ void CanvasView::keyPressEvent(QKeyEvent *event)
 		d->tool->toolEvent(event);
 	
 	PAINTFIELD_DEBUG << "pressed:" << event->key() << "modifiers" << event->modifiers();
-	d->keyTracker.keyPressed(event->key());
+	d->keyTracker->pressKey(event->key());
 }
 
 void CanvasView::keyReleaseEvent(QKeyEvent *event)
@@ -397,7 +399,7 @@ void CanvasView::keyReleaseEvent(QKeyEvent *event)
 		d->tool->toolEvent(event);
 	
 	PAINTFIELD_DEBUG << "released:" << event->key() << "modifiers" << event->modifiers();
-	d->keyTracker.keyReleased(event->key());
+	d->keyTracker->releaseKey(event->key());
 }
 
 void CanvasView::enterEvent(QEvent *e)
@@ -692,17 +694,17 @@ void CanvasView::repaintDesignatedRect()
 
 bool CanvasView::tryBeginDragNavigation(const QPoint &pos)
 {
-	if (d->keyTracker.match(d->scaleKeys))
+	if (d->keyTracker->match(d->scaleKeys))
 	{
 		beginDragScaling(pos);
 		return true;
 	}
-	if (d->keyTracker.match(d->rotationKeys))
+	if (d->keyTracker->match(d->rotationKeys))
 	{
 		beginDragRotation(pos);
 		return true;
 	}
-	 if (d->keyTracker.match(d->translationKeys))
+	 if (d->keyTracker->match(d->translationKeys))
 	{
 		beginDragTranslation(pos);
 		return true;
