@@ -48,7 +48,8 @@ Canvas::Canvas(Document *document, Workspace *parent) :
 {
 	d->workspace = parent;
 	d->document = document;
-	d->documentRefCount = new int(0);
+	d->documentRefCount = new int;
+	*d->documentRefCount = 0;
 	
 	document->setParent(0);
 	
@@ -72,7 +73,7 @@ Canvas::Canvas(Canvas *other, Workspace *parent) :
 
 void Canvas::commonInit()
 {
-	(*d->documentRefCount)++;
+	*d->documentRefCount += 1;
 	
 	// create selection model
 	
@@ -97,12 +98,14 @@ void Canvas::commonInit()
 	
 	addExtensions(appController()->extensionManager()->createCanvasExtensions(this, this));
 	
-	setWorkspace(d->workspace);
+	// connect to workspace
+	connect(d->workspace->toolManager(), SIGNAL(currentToolChanged(QString)), this, SLOT(onToolChanged(QString)));
+	onToolChanged(d->workspace->toolManager()->currentTool());
 }
 
 Canvas::~Canvas()
 {
-	(*d->documentRefCount)--;
+	*d->documentRefCount -= 1;
 	
 	if (*d->documentRefCount == 0)
 	{
@@ -152,21 +155,6 @@ void Canvas::setTranslation(const QPoint &translation)
 	{
 		d->translation = translation;
 		emit translationChanged(translation);
-	}
-}
-
-void Canvas::setWorkspace(Workspace *workspace)
-{
-	if (d->workspace)
-		disconnect(d->workspace->toolManager(), 0, this, 0);
-	
-	setParent(workspace);
-	d->workspace = workspace;
-	
-	if (workspace)
-	{
-		connect(workspace->toolManager(), SIGNAL(currentToolChanged(QString)), this, SLOT(onToolChanged(QString)));
-		onToolChanged(workspace->toolManager()->currentTool());
 	}
 }
 
@@ -234,7 +222,7 @@ void Canvas::onToolChanged(const QString &name)
 	emit toolChanged(tool);
 }
 
-Canvas *Canvas::fromNew()
+Canvas *Canvas::fromNew(Workspace *workspace)
 {
 	NewDocumentDialog dialog;
 	if (dialog.exec() != QDialog::Accepted)
@@ -243,40 +231,40 @@ Canvas *Canvas::fromNew()
 	RasterLayer *layer = new RasterLayer(tr("Untitled Layer"));
 	
 	Document *document = new Document(appController()->unduplicatedNewFileTempName(), dialog.documentSize(), {layer});
-	return new Canvas(document);
+	return new Canvas(document, workspace);
 }
 
-Canvas *Canvas::fromOpen()
+Canvas *Canvas::fromOpen(Workspace *workspace)
 {
 	QString filePath = FileDialog::getOpenFilePath(0, tr("Open"), tr("PaintField Document"), {"pfield"});
 	
 	if (filePath.isEmpty())	// cancelled
 		return 0;
 	
-	return fromSavedFile(filePath);
+	return fromSavedFile(filePath, workspace);
 }
 
-Canvas *Canvas::fromNewFromImageFile()
+Canvas *Canvas::fromNewFromImageFile(Workspace *workspace)
 {
 	QString filePath = FileDialog::getOpenFilePath(0, tr("Open"), tr("Image File"), ImageImporter::importableExtensions());
 	
 	if (filePath.isEmpty())
 		return 0;
 	
-	return fromImageFile(filePath);
+	return fromImageFile(filePath, workspace);
 }
 
-Canvas *Canvas::fromFile(const QString &path)
+Canvas *Canvas::fromFile(const QString &path, Workspace *workspace)
 {
 	QFileInfo fileInfo(path);
 	
 	if (fileInfo.suffix() == "pfield")
-		return fromSavedFile(path);
+		return fromSavedFile(path, workspace);
 	else
-		return fromImageFile(path);
+		return fromImageFile(path, workspace);
 }
 
-Canvas *Canvas::fromSavedFile(const QString &path)
+Canvas *Canvas::fromSavedFile(const QString &path, Workspace *workspace)
 {
 	DocumentIO documentIO(path);
 	if (!documentIO.openUnzip())
@@ -293,10 +281,10 @@ Canvas *Canvas::fromSavedFile(const QString &path)
 		return 0;
 	}
 	
-	return new Canvas(document);
+	return new Canvas(document, workspace);
 }
 
-Canvas *Canvas::fromImageFile(const QString &path)
+Canvas *Canvas::fromImageFile(const QString &path, Workspace *workspace)
 {
 	QSize size;
 	
@@ -305,7 +293,7 @@ Canvas *Canvas::fromImageFile(const QString &path)
 		return 0;
 	
 	auto document = new Document(appController()->unduplicatedNewFileTempName(), size, {layer});
-	return new Canvas(document);
+	return new Canvas(document, workspace);
 }
 
 bool Canvas::saveAsCanvas()
@@ -389,7 +377,7 @@ bool Canvas::closeCanvas()
 
 void Canvas::newCanvasIntoDocument()
 {
-	auto newCanvas = new Canvas(this);
+	auto newCanvas = new Canvas(this, d->workspace);
 	
 	workspace()->addAndShowCanvas(newCanvas);
 	workspace()->setCurrentCanvas(newCanvas);

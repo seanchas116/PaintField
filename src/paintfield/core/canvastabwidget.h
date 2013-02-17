@@ -31,6 +31,8 @@ public:
 	void insertCanvas(int index, Canvas *canvas);
 	void addCanvas(Canvas *canvas) { insertCanvas(count(), canvas); }
 	
+	void addCanvasesFromUrls(const QList<QUrl> &urls);
+	
 	QList<CanvasView *> canvasViews();
 	
 signals:

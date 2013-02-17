@@ -78,6 +78,18 @@ void CanvasTabWidget::restoreTransforms()
 
 void CanvasTabWidget::insertCanvas(int index, Canvas *canvas)
 {
+	if (canvas->workspace() != workspace())
+	{
+		auto originalCanvas = canvas;
+		canvas = new Canvas(canvas, workspace());
+		originalCanvas->closeCanvas();
+	}
+	
+	if (!canvas->view())
+	{
+		new CanvasView(canvas);
+	}
+	
 	workspace()->addCanvas(canvas);
 	DockTabWidget::insertTab(index, canvas->view(), canvas->document()->fileName());
 }
@@ -159,6 +171,17 @@ CanvasView *CanvasTabWidget::canvasViewAt(int index)
 	return qobject_cast<CanvasView *>(widget(index));
 }
 
+void CanvasTabWidget::addCanvasesFromUrls(const QList<QUrl> &urls)
+{
+	for (const QUrl &url : urls)
+	{
+		auto canvas = Canvas::fromFile(url.toLocalFile(), workspace());
+		
+		if (canvas)
+			addCanvas(canvas);
+	}
+}
+
 CanvasTabBar::CanvasTabBar(CanvasTabWidget *tabWidget, QWidget *parent) :
     DockTabBar(tabWidget, parent),
     _tabWidget(tabWidget)
@@ -178,18 +201,11 @@ void CanvasTabBar::dropEvent(QDropEvent *event)
 	
 	if (mimeData->hasUrls())
 	{
-		for (const QUrl &url : mimeData->urls())
-		{
-			auto canvas = Canvas::fromFile(url.toLocalFile());
-			if (canvas)
-			{
-				new CanvasView(canvas);
-				_tabWidget->insertCanvas(insertionIndexAt(event->pos()), canvas);
-			}
-		}
+		_tabWidget->addCanvasesFromUrls(mimeData->urls());
 		event->acceptProposedAction();
 	}
 }
+
 
 
 } // namespace PaintField

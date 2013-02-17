@@ -31,7 +31,6 @@ struct Workspace::Data
 	WorkspaceView *view = 0;
 };
 
-
 Workspace::Workspace(QObject *parent) :
     QObject(parent),
     d(new Data)
@@ -124,7 +123,7 @@ QActionList Workspace::nullCanvasActions()
 
 void Workspace::newCanvas()
 {
-	auto canvas = Canvas::fromNew();
+	auto canvas = Canvas::fromNew(this);
 	if (canvas)
 	{
 		addAndShowCanvas(canvas);
@@ -134,7 +133,7 @@ void Workspace::newCanvas()
 
 void Workspace::newCanvasFromImageFile()
 {
-	auto canvas = Canvas::fromNewFromImageFile();
+	auto canvas = Canvas::fromNewFromImageFile(this);
 	if (canvas)
 	{
 		addAndShowCanvas(canvas);
@@ -144,7 +143,7 @@ void Workspace::newCanvasFromImageFile()
 
 void Workspace::openCanvas()
 {
-	auto canvas = Canvas::fromOpen();
+	auto canvas = Canvas::fromOpen(this);
 	if (canvas)
 	{
 		addAndShowCanvas(canvas);
@@ -154,7 +153,7 @@ void Workspace::openCanvas()
 
 void Workspace::openCanvasFromFilepath(const QString &filepath)
 {
-	auto canvas = Canvas::fromFile(filepath);
+	auto canvas = Canvas::fromFile(filepath, this);
 	if (canvas)
 	{
 		addAndShowCanvas(canvas);
@@ -202,25 +201,11 @@ void Workspace::addCanvas(Canvas *canvas)
 	if (!canvas)
 		return;
 	
-	if (canvas->workspace() && canvas->workspace() != this)
-		canvas->workspace()->removeCanvas(canvas);
-	
 	if (!d->canvasControllers.contains(canvas))
 	{
-		canvas->setWorkspace(this);
 		d->canvasControllers << canvas;
 		connect(canvas, SIGNAL(shouldBeDeleted(Canvas*)),
 		        this, SLOT(deleteCanvas(Canvas*)));
-	}
-}
-
-void Workspace::removeCanvas(Canvas *canvas)
-{
-	if (d->canvasControllers.contains(canvas))
-	{
-		d->canvasControllers.removeAll(canvas);
-		disconnect(canvas, 0, this, 0);
-		canvas->setWorkspace(0);
 	}
 }
 
@@ -241,7 +226,7 @@ void Workspace::deleteCanvas(Canvas *canvas)
 		if (d->currentCanvas == canvas)
 			setCurrentCanvas(0);
 		
-		removeCanvas(canvas);
+		d->canvasControllers.removeAll(canvas);
 		canvas->deleteLater();
 	}
 }

@@ -25,9 +25,9 @@ public:
 	 * @param document
 	 * @param parent
 	 */
-	Canvas(Document *document, Workspace *parent = 0);
+	Canvas(Document *document, Workspace *parent);
 	
-	Canvas(Canvas *other, Workspace *parent = 0);
+	Canvas(Canvas *other, Workspace *parent);
 	
 	~Canvas();
 	
@@ -35,19 +35,19 @@ public:
 	 * Shows a dialog and creates a new canvas.
 	 * @return The created canvas or null
 	 */
-	static Canvas *fromNew();
+	static Canvas *fromNew(Workspace *workspace);
 	
 	/**
 	 * Shows a file dialog and opens a canvas.
 	 * @return The created canvas or null
 	 */
-	static Canvas *fromOpen();
+	static Canvas *fromOpen(Workspace *workspace);
 	
 	/**
 	 * Shows a file dialog, opens a image file and creates a canvas from it.
 	 * @return The created canvas or null
 	 */
-	static Canvas *fromNewFromImageFile();
+	static Canvas *fromNewFromImageFile(Workspace *workspace);
 	
 	/**
 	 * Opens a file and creates a canvas.
@@ -56,23 +56,21 @@ public:
 	 * @param path
 	 * @return The created canvas or null
 	 */
-	static Canvas *fromFile(const QString &path);
+	static Canvas *fromFile(const QString &path, Workspace *workspace);
 	
 	/**
 	 * Opens a file as a PaintField .pfield document and opens a canvas.
 	 * @param path
 	 * @return The created canvas or null
 	 */
-	static Canvas *fromSavedFile(const QString &path);
+	static Canvas *fromSavedFile(const QString &path, Workspace *workspace);
 	
 	/**
 	 * Opens a file as an image file and creates a new canvas.
 	 * @param path
 	 * @return The created canvas or null
 	 */
-	static Canvas *fromImageFile(const QString &path);
-	
-	void setWorkspace(Workspace *workspace);
+	static Canvas *fromImageFile(const QString &path, Workspace *workspace);
 	
 	/**
 	 * @return The workspace controller which owns the canvas

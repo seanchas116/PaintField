@@ -46,15 +46,7 @@ void CanvasSplitDefaultWidget::dropEvent(QDropEvent *event)
 	
 	if (mimeData->hasUrls())
 	{
-		for (const QUrl &url : mimeData->urls())
-		{
-			auto canvas = Canvas::fromFile(url.toLocalFile());
-			if (canvas)
-			{
-				new CanvasView(canvas);
-				_tabWidget->addCanvas(canvas);
-			}
-		}
+		_tabWidget->addCanvasesFromUrls(mimeData->urls());
 		event->acceptProposedAction();
 	}
 }

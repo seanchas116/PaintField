@@ -49,13 +49,6 @@ public:
 	 */
 	void addCanvas(Canvas *canvas);
 	
-	/**
-	 * Removes a canvas.
-	 * The canvas is not deleted.
-	 * @param canvas
-	 */
-	void removeCanvas(Canvas *canvas);
-	
 	QList<Canvas *> canvases();
 	
 	Canvas *currentCanvas();
