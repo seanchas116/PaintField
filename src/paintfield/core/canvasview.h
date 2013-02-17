@@ -111,6 +111,15 @@ private:
 	void continueDragRotation(const QPoint &pos);
 	void endDragRotation();
 	
+	enum DragNavigationMode
+	{
+		NoNavigation,
+		Translating,
+		Scaling,
+		Rotating
+	};
+	
+	
 	class Data;
 	Data *d;
 };

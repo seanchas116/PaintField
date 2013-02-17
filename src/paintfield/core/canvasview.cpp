@@ -69,7 +69,7 @@ public:
 	
 	QKeySequence scaleKeys, rotationKeys, translationKeys;
 	
-	bool isScalingByDrag = false, isRotatingByDrag = false, isTranslatingByDrag = false;
+	DragNavigationMode dragNavigationMode = NoNavigation;
 	QPoint navigationOrigin;
 	
 	Navigation nav, backupNav, memorizedNav;
@@ -686,7 +686,6 @@ void CanvasView::repaintDesignatedRect()
 {
 	if (d->repaintRect.isValid())
 	{
-		//PAINTFIELD_DEBUG << "repainting" << _repaintRect;
 		repaint(d->repaintRect);
 		d->repaintRect = QRect();
 	}
@@ -715,23 +714,21 @@ bool CanvasView::tryBeginDragNavigation(const QPoint &pos)
 
 bool CanvasView::continueDragNavigation(const QPoint &pos)
 {
-	if (d->isTranslatingByDrag)
+	switch (d->dragNavigationMode)
 	{
-		continueDragTranslation(pos);
-		return true;
+		default:
+		case NoNavigation:
+			return false;
+		case Translating:
+			continueDragTranslation(pos);
+			return true;
+		case Scaling:
+			continueDragScaling(pos);
+			return true;
+		case Rotating:
+			continueDragRotation(pos);
+			return true;
 	}
-	if (d->isScalingByDrag)
-	{
-		continueDragScaling(pos);
-		return true;
-	}
-	if (d->isRotatingByDrag)
-	{
-		continueDragRotation(pos);
-		return true;
-	}
-	
-	return false;
 }
 
 void CanvasView::endDragNavigation()
@@ -745,7 +742,7 @@ void CanvasView::beginDragTranslation(const QPoint &pos)
 {
 	qApp->setOverrideCursor(Qt::ClosedHandCursor);
 	
-	d->isTranslatingByDrag = true;
+	d->dragNavigationMode = Translating;
 	d->navigationOrigin = pos;
 	d->backupNav = d->nav;
 }
@@ -758,14 +755,14 @@ void CanvasView::continueDragTranslation(const QPoint &pos)
 void CanvasView::endDragTranslation()
 {
 	qApp->restoreOverrideCursor();
-	d->isTranslatingByDrag = false;
+	d->dragNavigationMode = NoNavigation;
 }
 
 void CanvasView::beginDragScaling(const QPoint &pos)
 {
 	qApp->setOverrideCursor(Qt::SizeVerCursor);
 	
-	d->isScalingByDrag = true;
+	d->dragNavigationMode = Scaling;
 	d->navigationOrigin = pos;
 	d->backupNav = d->nav;
 }
@@ -790,18 +787,16 @@ void CanvasView::continueDragScaling(const QPoint &pos)
 void CanvasView::endDragScaling()
 {
 	qApp->restoreOverrideCursor();
-	d->isScalingByDrag = false;
+	d->dragNavigationMode = NoNavigation;
 }
 
 void CanvasView::beginDragRotation(const QPoint &pos)
 {
 	qApp->setOverrideCursor(Qt::ClosedHandCursor);
 	
-	d->isRotatingByDrag = true;
+	d->dragNavigationMode = Rotating;
 	d->navigationOrigin = pos;
 	d->backupNav = d->nav;
-	
-	PAINTFIELD_DEBUG << d->nav.translation;
 }
 
 void CanvasView::continueDragRotation(const QPoint &pos)
@@ -825,8 +820,7 @@ void CanvasView::continueDragRotation(const QPoint &pos)
 void CanvasView::endDragRotation()
 {
 	qApp->restoreOverrideCursor();
-	
-	d->isRotatingByDrag = false;
+	d->dragNavigationMode = NoNavigation;
 }
 
 
