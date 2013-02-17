@@ -67,9 +67,12 @@ public slots:
 	
 private slots:
 	
+	void setViewScale(double scale);
+	void setViewRotation(double rotation);
+	
 	void resetTranslation() { setTranslation(QPoint()); }
-	void resetScale() { setScale(1); }
-	void resetRotation() { setRotation(0); }
+	void resetScale() { setViewScale(1); }
+	void resetRotation() { setViewRotation(0); }
 	void zoomOut() { setZoomLevel(zoomLevel() - 1); }
 	void zoomIn() { setZoomLevel(zoomLevel() + 1); }
 	void rotateLeft() { setRotationLevel(rotationLevel() - 1); }
@@ -83,10 +86,10 @@ private:
 	double scaleMax() const { return exp2(_scaleLogMax); }
 	
 	int zoomLevel() const { return qRound(log2(_scale) / _scaleLogStep); }
-	void setZoomLevel(int x) { setScale(exp2(x * _scaleLogStep)); }
+	void setZoomLevel(int x) { setViewScale(exp2(x * _scaleLogStep)); }
 	
 	int rotationLevel() const { return qRound(_rotationD / _rotationDStep); }
-	void setRotationLevel(int x) { setRotation(x * _rotationDStep); }
+	void setRotationLevel(int x) { setViewRotation(x * _rotationDStep); }
 	
 	QLayout *createScaleRotationUILayout();
 	QLayout *createMiscUILayout();

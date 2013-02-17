@@ -63,6 +63,10 @@ Canvas::Canvas(Canvas *other, Workspace *parent) :
 	d->document = other->document();
 	d->documentRefCount = other->d->documentRefCount;
 	
+	d->translation = other->d->translation;
+	d->scale = other->d->scale;
+	d->rotation = other->d->rotation;
+	
 	commonInit();
 }
 
@@ -135,9 +139,6 @@ void Canvas::setScale(double scale)
 
 void Canvas::setRotation(double rotation)
 {
-	// rotation will be in [-180, 180)
-	rotation = fmod(rotation + 180, 360) - 180;
-	
 	if (d->rotation != rotation)
 	{
 		d->rotation = rotation;

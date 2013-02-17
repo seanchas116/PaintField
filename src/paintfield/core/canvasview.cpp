@@ -94,6 +94,9 @@ CanvasView::CanvasView(Canvas *canvas, QWidget *parent) :
 {
 	d->canvas = canvas;
 	d->sceneSize = canvas->document()->size();
+	d->nav.translation = canvas->translation();
+	d->nav.scale = canvas->scale();
+	d->nav.rotation = canvas->rotation();
 	
 	// setup viewport
 	{
@@ -795,27 +798,24 @@ void CanvasView::beginDragRotation(const QPoint &pos)
 	d->isRotatingByDrag = true;
 	d->navigationOrigin = pos;
 	d->backupNav = d->nav;
+	
+	PAINTFIELD_DEBUG << d->nav.translation;
 }
 
 void CanvasView::continueDragRotation(const QPoint &pos)
 {
 	auto originalDelta = d->navigationOrigin - viewCenter();
 	auto delta = pos - viewCenter();
-	if (delta != QPoint())
+	if (originalDelta != QPoint() && delta != QPoint())
 	{
-		auto originalRotation = -atan2(originalDelta.x(), originalDelta.y()) / M_PI * 180.0;
-		auto deltaRotation = -atan2(delta.x(), delta.y()) / M_PI * 180.0;
-		
-		auto navigationOffset = d->navigationOrigin - viewCenter();
-		
-		auto rotation = d->backupNav.rotation + deltaRotation - originalRotation;
+		auto originalRotation = atan2(originalDelta.y(), originalDelta.x()) / M_PI * 180.0;
+		auto deltaRotation = atan2(delta.y(), delta.x()) / M_PI * 180.0;
 		
 		QTransform transform;
-		transform.rotate(rotation);
+		transform.rotate(deltaRotation - originalRotation);
 		
-		auto translation = (d->backupNav.translation - navigationOffset) * transform + navigationOffset;
-		
-		d->canvas->setRotation(rotation);
+		auto translation = d->backupNav.translation * transform;
+		d->canvas->setRotation(d->backupNav.rotation + deltaRotation - originalRotation);
 		d->canvas->setTranslation(translation);
 	}
 }

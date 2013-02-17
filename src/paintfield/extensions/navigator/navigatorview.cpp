@@ -25,6 +25,33 @@ void NavigatorView::setScale(double scale)
 	
 	if (_scale != scale)
 	{
+		_scale = scale;
+		_currentMode = Translation;
+		emit scaleChanged(scale);
+	}
+}
+
+void NavigatorView::setRotation(double rotation)
+{
+	rotation = Malachite::Division(rotation + 180.0, 360.0).rem() - 180.0;
+	
+	if (rotation == -180.0)
+		rotation += 360.0;
+	
+	if (_rotationD != rotation)
+	{
+		_rotationD = rotation;
+		_currentMode = Translation;
+		emit rotationChanged(rotation);
+	}
+}
+
+void NavigatorView::setViewScale(double scale)
+{
+	scale = qBound(scaleMin(), scale, scaleMax());
+	
+	if (_scale != scale)
+	{
 		if (_currentMode != Scaling)
 			setOriginalValues();
 		
@@ -36,7 +63,7 @@ void NavigatorView::setScale(double scale)
 	}
 }
 
-void NavigatorView::setRotation(double rotation)
+void NavigatorView::setViewRotation(double rotation)
 {
 	rotation = Malachite::Division(rotation + 180.0, 360.0).rem() - 180.0;
 	
@@ -62,7 +89,6 @@ void NavigatorView::setTranslation(const QPoint &value)
 	{
 		_translation = value;
 		_currentMode = Translation;
-		
 		emit translationChanged(value);
 	}
 }
@@ -143,7 +169,7 @@ QLayout *NavigatorView::createScaleRotationUILayout()
 		};
 		
 		auto signalConverter = new SignalConverter(to, from, this);
-		signalConverter->connectChannelADouble(this, SIGNAL(scaleChanged(double)), SLOT(setScale(double)));
+		signalConverter->connectChannelADouble(this, SIGNAL(scaleChanged(double)), SLOT(setViewScale(double)));
 		signalConverter->connectChannelBInt(slider, SIGNAL(valueChanged(int)), SLOT(setValue(int)));
 		
 		layout->addWidget(slider, 0, 1);
@@ -177,7 +203,7 @@ QLayout *NavigatorView::createScaleRotationUILayout()
 		auto fromPercent = [](const QVariant &value) { return value.toDouble() / 100.0; };
 		
 		auto signalConverter = new SignalConverter(toPercent, fromPercent, this);
-		signalConverter->connectChannelADouble(this, SIGNAL(scaleChanged(double)), SLOT(setScale(double)));
+		signalConverter->connectChannelADouble(this, SIGNAL(scaleChanged(double)), SLOT(setViewScale(double)));
 		signalConverter->connectChannelBDouble(spinBox, SIGNAL(valueChanged(double)), SLOT(setValue(double)));
 		
 		layout->addWidget(spinBox, 0, 4);
@@ -211,7 +237,7 @@ QLayout *NavigatorView::createScaleRotationUILayout()
 		};
 		
 		auto signalConverter = new SignalConverter(toInt, toDouble, this);
-		signalConverter->connectChannelADouble(this, SIGNAL(rotationChanged(double)), SLOT(setRotation(double)));
+		signalConverter->connectChannelADouble(this, SIGNAL(rotationChanged(double)), SLOT(setViewRotation(double)));
 		signalConverter->connectChannelBInt(slider, SIGNAL(valueChanged(int)), SLOT(setValue(int)));
 		
 		layout->addWidget(slider, 1, 1);
@@ -240,7 +266,7 @@ QLayout *NavigatorView::createScaleRotationUILayout()
 		spinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
 		spinBox->setAlignment(Qt::AlignRight);
 		
-		connect(spinBox, SIGNAL(valueChanged(double)), this, SLOT(setRotation(double)));
+		connect(spinBox, SIGNAL(valueChanged(double)), this, SLOT(setViewRotation(double)));
 		connect(this, SIGNAL(rotationChanged(double)), spinBox, SLOT(setValue(double)));
 		
 		layout->addWidget(spinBox, 1, 4);
