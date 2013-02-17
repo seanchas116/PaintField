@@ -30,9 +30,6 @@ public:
 	Document *document();
 	LayerModel *layerModel();
 	
-	void memorizeNavigation();
-	void restoreNavigation();
-	
 	QPoint viewCenter() const;
 	
 	Malachite::Affine2D transformToScene() const;

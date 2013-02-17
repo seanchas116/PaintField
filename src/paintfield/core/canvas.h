@@ -132,6 +132,9 @@ public:
 	 */
 	QPoint translation() const;
 	
+	void memorizeNavigation();
+	void restoreNavigation();
+	
 	/**
 	 * @return The current tool
 	 */

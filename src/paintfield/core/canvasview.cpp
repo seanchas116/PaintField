@@ -72,7 +72,7 @@ public:
 	DragNavigationMode dragNavigationMode = NoNavigation;
 	QPoint navigationOrigin;
 	
-	Navigation nav, backupNav, memorizedNav;
+	Navigation nav, backupNav;
 	bool mirror = false;
 	
 	QSize sceneSize;
@@ -203,16 +203,6 @@ void CanvasView::setTranslation(const QPoint &value)
 {
 	d->nav.translation = value;
 	updateTransforms();
-}
-
-void CanvasView::memorizeNavigation()
-{
-	d->memorizedNav = d->nav;
-}
-
-void CanvasView::restoreNavigation()
-{
-	d->nav = d->memorizedNav;
 }
 
 Affine2D CanvasView::transformToScene() const

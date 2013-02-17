@@ -39,6 +39,9 @@ struct Canvas::Data
 	double scale = 1, rotation = 0;
 	QPoint translation;
 	
+	double memorizedScale = 1, memorizedRotation = 0;
+	QPoint memorizedTranslation;
+	
 	QScopedPointer<Tool> tool;
 };
 
@@ -114,6 +117,20 @@ Canvas::~Canvas()
 	}
 	
 	delete d;
+}
+
+void Canvas::memorizeNavigation()
+{
+	d->memorizedScale = d->scale;
+	d->memorizedRotation = d->rotation;
+	d->memorizedTranslation = d->translation;
+}
+
+void Canvas::restoreNavigation()
+{
+	setScale(d->memorizedScale);
+	setRotation(d->memorizedRotation);
+	setTranslation(d->memorizedTranslation);
 }
 
 double Canvas::scale() const
