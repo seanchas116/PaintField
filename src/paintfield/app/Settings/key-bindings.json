@@ -1,7 +1,7 @@
 {
 	".key-bindings":
 	{
-		"paintfield.file.new": "Ctrl+Shift+N",
+		"paintfield.file.new": "Ctrl+N",
 		"paintfield.file.open": "Ctrl+O",
 		"paintfield.file.save": "Ctrl+S",
 		"paintfield.file.saveAs": "Ctrl+Shift+S",
@@ -16,7 +16,10 @@
 		"paintfield.edit.selectAll": "Ctrl+A",
 
 		"paintfield.layer.newRaster": "Ctrl+N",
+
 		"paintfield.window.minimize": "Ctrl+M",
+		"paintfield.window.newWorkspace": "Ctrl+Shift+N",
+		"paintfield.window.closeWorkspace": "Ctrl+Shift+W",
 		
 		"paintfield.canvas.dragTranslation": "Space",
 		"paintfield.canvas.dragScale": "Alt+Space",

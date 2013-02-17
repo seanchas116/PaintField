@@ -47,22 +47,19 @@
 			]
 		},
 		{
-			"menu": "paintfield.view",
-			"children":
-			[
-				"paintfield.view.newWorkspace",
-				"",
-				"paintfield.view.splitVertically",
-				"paintfield.view.splitHorizontally",
-				"paintfield.view.closeCurrentSplit"
-			]
-		},
-		{
 			"menu": "paintfield.window",
 			"children":
 			[
 				"paintfield.window.minimize",
-				"paintfield.window.zoom"
+				"paintfield.window.zoom",
+				"",
+				"paintfield.window.newWorkspace",
+				"",
+				"paintfield.window.splitVertically",
+				"paintfield.window.splitHorizontally",
+				"paintfield.window.closeCurrentSplit",
+				"",
+				"paintfield.window.closeWorkspace"
 			]
 		},
 		{

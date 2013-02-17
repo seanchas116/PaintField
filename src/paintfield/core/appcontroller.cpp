@@ -199,14 +199,16 @@ void AppController::declareMenus()
 	settingsManager()->declareMenu("paintfield.view",
 	                               tr("View"));
 	
-	settingsManager()->declareAction("paintfield.view.newWorkspace",
+	settingsManager()->declareAction("paintfield.window.newWorkspace",
 	                                 tr("New Workspace"));
-	settingsManager()->declareAction("paintfield.view.splitVertically",
+	settingsManager()->declareAction("paintfield.window.splitVertically",
 	                                 tr("Split Vertically"));
-	settingsManager()->declareAction("paintfield.view.splitHorizontally",
+	settingsManager()->declareAction("paintfield.window.splitHorizontally",
 	                                 tr("Split Horizontally"));
-	settingsManager()->declareAction("paintfield.view.closeCurrentSplit",
+	settingsManager()->declareAction("paintfield.window.closeCurrentSplit",
 	                                 tr("Close Current Split"));
+	settingsManager()->declareAction("paintfield.window.closeWorkspace",
+	                                 tr("Close Workspace"));
 	
 	settingsManager()->declareMenu("paintfield.window",
 	                               tr("Window"));
@@ -225,7 +227,7 @@ void AppController::createActions()
 	d->actions << Util::createAction("paintfield.file.quit", d->workspaceManager, SLOT(tryCloseAll()));
 	d->actions << Util::createAction("paintfield.window.minimize", this, SLOT(minimizeCurrentWindow()));
 	d->actions << Util::createAction("paintfield.window.zoom", this, SLOT(zoomCurrentWindow()));
-	d->actions << Util::createAction("paintfield.view.newWorkspace", d->workspaceManager, SLOT(newWorkspace()));
+	d->actions << Util::createAction("paintfield.window.newWorkspace", d->workspaceManager, SLOT(newWorkspace()));
 }
 
 void AppController::loadExtensions()

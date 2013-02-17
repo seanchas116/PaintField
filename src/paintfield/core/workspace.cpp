@@ -38,13 +38,15 @@ Workspace::Workspace(QObject *parent) :
 	d->toolManager = new ToolManager(this);
 	d->paletteManager = new PaletteManager(this);
 	
-	d->actions << Util::createAction("paintfield.view.splitVertically", this, SIGNAL(splitVerticallyRequested()));
-	d->actions << Util::createAction("paintfield.view.splitHorizontally", this, SIGNAL(splitHorizontallyRequested()));
-	d->actions << Util::createAction("paintfield.view.closeCurrentSplit", this, SIGNAL(closeCurrentSplitRequested()));
+	d->actions << Util::createAction("paintfield.window.splitVertically", this, SIGNAL(splitVerticallyRequested()));
+	d->actions << Util::createAction("paintfield.window.splitHorizontally", this, SIGNAL(splitHorizontallyRequested()));
+	d->actions << Util::createAction("paintfield.window.closeCurrentSplit", this, SIGNAL(closeCurrentSplitRequested()));
 	
 	d->actions << Util::createAction("paintfield.file.new", this, SLOT(newCanvas()));
 	d->actions << Util::createAction("paintfield.file.open", this, SLOT(openCanvas()));
 	d->actions << Util::createAction("paintfield.file.newFromImageFile", this, SLOT(newCanvasFromImageFile()));
+	
+	d->actions << Util::createAction("paintfield.window.closeWorkspace", this, SLOT(tryClose()));
 	
 	addExtensions(appController()->extensionManager()->createWorkspaceExtensions(this, this));
 	addNullCanvasExtensions(appController()->extensionManager()->createCanvasExtensions(0, this));
