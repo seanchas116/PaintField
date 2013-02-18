@@ -1,8 +1,6 @@
-#include <QtGui>
-
+#include <QTextCodec>
 #include "paintfield/core/application.h"
 #include "paintfield/core/appcontroller.h"
-#include "paintfield/core/extensionmanager.h"
 
 #define QUOTE(x) #x
 #define DEFINE_STR(x) QUOTE(x)
@@ -12,7 +10,7 @@ using namespace PaintField;
 int main(int argc, char *argv[])
 {
 	Application a(argc, argv);
-	a.setApplicationVersion(DEFINE_STR(PAINTFIELD_VERSION));
+	a.setApplicationVersion(DEFINE_STR(PF_VERSION));
 	
 	QString message;
 	if (argc >= 2)

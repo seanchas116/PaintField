@@ -4,7 +4,8 @@ TARGET = PaintField
 include(../paintfield.pri)
 include(../postlink.pri)
 
-DEFINES += "PAINTFIELD_VERSION=$$PAINTFIELD_VERSION"
+VERSION = $$PF_VERSION
+DEFINES += "PF_VERSION=$$PF_VERSION"
 
 SOURCES += main.cpp
 
