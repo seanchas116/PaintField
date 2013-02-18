@@ -8,6 +8,7 @@ TARGET = paintfield-core
 DEFINES += PAINTFIELD_LIBRARY
 
 include(../paintfield-core.pri)
+include(../postlink.pri)
 
 # Input
 HEADERS += \

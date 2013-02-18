@@ -73,7 +73,7 @@ void SettingsManager::loadSettingsFromDir(const QString &dirPath)
 	if (!dir.exists())
 		return;
 	
-	for (const QFileInfo &fileInfo : dir.entryInfoList())
+	for (const QFileInfo &fileInfo : dir.entryInfoList(QDir::NoFilter, QDir::Name))
 	{
 		if (fileInfo.suffix() == "json")
 			loadSettingsFromJsonFile(fileInfo.absoluteFilePath());

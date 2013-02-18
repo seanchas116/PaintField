@@ -83,6 +83,10 @@ FileUtils.rm_rf("#{destination}/Extensions")
 FileUtils.cp_r("#{in_pwd_app}/Contents", destination)
 FileUtils.cp_r("#{in_pwd_app}/Settings", destination)
 
+if platform != :mac
+  FileUtils.rm("#{destination}/Settings/override-key-bindings-mac.json")
+end
+
 FileUtils.mkdir("#{destination}/Extensions")
 
 Pathname.glob("#{out_pwd_extensions}/*/*.#{extension_suffix}").each do |path|

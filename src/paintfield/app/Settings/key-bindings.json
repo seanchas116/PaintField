@@ -22,7 +22,7 @@
 		"paintfield.window.closeWorkspace": "Ctrl+Shift+W",
 		
 		"paintfield.canvas.dragTranslation": "Space",
-		"paintfield.canvas.dragScale": "Alt+Space",
+		"paintfield.canvas.dragScale": "Ctrl+Space",
 		"paintfield.canvas.dragRotation": "Shift+Space"
 	}
 }
