@@ -29,7 +29,6 @@ public:
 	virtual void updateAccurately() = 0;
 	virtual void beforeUpdateTile() = 0;
 	virtual void afterUpdateTile() = 0;
-	virtual void update() = 0;
 	virtual bool isReady() = 0;
 	
 	/*

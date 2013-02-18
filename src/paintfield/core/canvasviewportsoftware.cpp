@@ -116,7 +116,12 @@ void CanvasViewportSoftware::updateAccurately()
 {
 	QList<QRect> rects;
 	
-	for (const QPoint &key : Surface::rectToKeys(QRect(QPoint(), d->size)))
+	auto sceneRect = QRect(QPoint(), d->size);
+	auto viewRectOnScene = d->transformToScene.mapRect(QRectF(QPoint(), this->size())).toAlignedRect();
+	
+	auto rect = sceneRect & viewRectOnScene;
+	
+	for (const QPoint &key : Surface::rectToKeys(rect))
 		rects << d->transformFromScene.mapRect( QRectF( Surface::keyToRect( key ) ) ).toAlignedRect();
 	
 	d->accurateUpdateSceneRects = rects;

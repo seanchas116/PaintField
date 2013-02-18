@@ -25,7 +25,6 @@ public:
 	void updateAccurately() override;
 	void beforeUpdateTile() override {}
 	void afterUpdateTile() override {}
-	void update() override {}
 	bool isReady() override { return true; }
 	
 signals:
