@@ -56,6 +56,16 @@ if platform == :mac
   replace_info_plist_version("#{out_pwd_app}/PaintField.app/Contents/Info.plist", version_str)
 end
 
+# copy dylibs (Mac)
+
+if platform == :mac
+  destination_frameworks = "#{out_pwd_app}/PaintField.app/Contents/Frameworks"
+  `mkdir -p #{destination_frameworks}`
+  `cp -R #{out_pwd_root}/src/libs/Malachite/src/lib*.dylib #{destination_frameworks}`
+  `cp -R #{out_pwd_root}/src/libs/Minizip/lib*.dylib #{destination_frameworks}`
+  `cp -R #{out_pwd_root}/src/paintfield/core/lib*.dylib #{destination_frameworks}`
+end
+
 # copy paintfield-launch.sh (other than Mac)
 
 if platform == :unix

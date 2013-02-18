@@ -4,11 +4,11 @@ include(../src.pri)
 PF_VERSION = 0.0.2
 
 macx {
-PF_PLATFORM = "mac"
+	PF_PLATFORM = "mac"
 }
 
 unix:!macx {
-PF_PLATFORM = "unix"
+	PF_PLATFORM = "unix"
 }
 
 QT += core gui network xml svg plugin
