@@ -18,6 +18,12 @@ class Workspace;
 class Canvas : public QObject
 {
 	Q_OBJECT
+	
+	Q_PROPERTY(double scale READ scale WRITE setScale NOTIFY scaleChanged)
+	Q_PROPERTY(double rotation READ rotation WRITE setRotation NOTIFY rotationChanged)
+	Q_PROPERTY(QPoint translation READ translation WRITE setTranslation NOTIFY translationChanged)
+	Q_PROPERTY(bool mirrored READ isMirrored WRITE setMirrored NOTIFY mirroredChanged)
+	
 public:
 	
 	/**
@@ -132,6 +138,8 @@ public:
 	 */
 	QPoint translation() const;
 	
+	bool isMirrored() const;
+	
 	void memorizeNavigation();
 	void restoreNavigation();
 	
@@ -147,6 +155,7 @@ signals:
 	void scaleChanged(double scale);
 	void rotationChanged(double rotation);
 	void translationChanged(const QPoint &translation);
+	void mirroredChanged(bool mirrored);
 	
 	void toolChanged(Tool *tool);
 	
@@ -187,6 +196,8 @@ public slots:
 	void setTranslation(int x, int y) { setTranslation(QPoint(x, y)); }
 	void setTranslationX(int x) { setTranslation(x, translation().y()); }
 	void setTranslationY(int y) { setTranslation(translation().x(), y); }
+	
+	void setMirrored(bool mirrored);
 	
 private slots:
 	

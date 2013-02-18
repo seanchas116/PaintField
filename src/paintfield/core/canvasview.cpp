@@ -73,7 +73,7 @@ public:
 	QPoint navigationOrigin;
 	
 	Navigation nav, backupNav;
-	bool mirror = false;
+	bool mirrored = false;
 	
 	QSize sceneSize;
 	QPoint viewCenter;
@@ -138,6 +138,7 @@ CanvasView::CanvasView(Canvas *canvas, QWidget *parent) :
 		connect(canvas, SIGNAL(scaleChanged(double)), this, SLOT(setScale(double)));
 		connect(canvas, SIGNAL(rotationChanged(double)), this, SLOT(setRotation(double)));
 		connect(canvas, SIGNAL(translationChanged(QPoint)), this, SLOT(setTranslation(QPoint)));
+		connect(canvas, SIGNAL(mirroredChanged(bool)), this, SLOT(setMirrored(bool)));
 		
 		setScale(canvas->scale());
 		setRotation(canvas->rotation());
@@ -205,6 +206,12 @@ void CanvasView::setTranslation(const QPoint &value)
 	updateTransforms();
 }
 
+void CanvasView::setMirrored(bool mirrored)
+{
+	d->mirrored = mirrored;
+	updateTransforms();
+}
+
 Affine2D CanvasView::transformToScene() const
 {
 	return d->transformToScene;
@@ -224,6 +231,9 @@ void CanvasView::updateTransforms()
 	                 Affine2D::fromRotationDegrees(d->nav.rotation) *
 	                 Affine2D::fromScale(d->nav.scale) *
 	                 Affine2D::fromTranslation(Vec2D(-sceneOffset));
+	
+	if (d->mirrored)
+		transform = transform * Affine2D(-1, 0, 0, 1, d->sceneSize.width(), 0);
 	
 	d->transformFromScene = transform;
 	d->transformToScene = transform.inverted();

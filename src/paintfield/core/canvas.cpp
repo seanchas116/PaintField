@@ -38,6 +38,7 @@ struct Canvas::Data
 	
 	double scale = 1, rotation = 0;
 	QPoint translation;
+	bool mirrored = false;
 	
 	double memorizedScale = 1, memorizedRotation = 0;
 	QPoint memorizedTranslation;
@@ -148,6 +149,11 @@ QPoint Canvas::translation() const
 	return d->translation;
 }
 
+bool Canvas::isMirrored() const
+{
+	return d->mirrored;
+}
+
 void Canvas::setScale(double scale)
 {
 	if (d->scale != scale)
@@ -172,6 +178,15 @@ void Canvas::setTranslation(const QPoint &translation)
 	{
 		d->translation = translation;
 		emit translationChanged(translation);
+	}
+}
+
+void Canvas::setMirrored(bool mirrored)
+{
+	if (d->mirrored != mirrored)
+	{
+		d->mirrored = mirrored;
+		emit mirroredChanged(mirrored);
 	}
 }
 

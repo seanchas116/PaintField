@@ -37,10 +37,6 @@ public:
 	
 public slots:
 	
-	void setScale(double value);
-	void setRotation(double value);
-	void setTranslation(const QPoint &value);
-	
 	void setTool(Tool *tool);
 	
 protected:
@@ -61,6 +57,11 @@ protected:
 	bool event(QEvent *event);
 	
 private slots:
+	
+	void setScale(double value);
+	void setRotation(double value);
+	void setTranslation(const QPoint &value);
+	void setMirrored(bool mirrored);
 	
 	void updateTiles(const QPointSet &keys) { updateTiles(keys, QHash<QPoint, QRect>()); }
 	void updateTiles(const QHash<QPoint, QRect> &rects) { updateTiles(QPointSet(), rects); }

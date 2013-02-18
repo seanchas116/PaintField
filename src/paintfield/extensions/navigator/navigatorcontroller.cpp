@@ -23,12 +23,13 @@ NavigatorController::NavigatorController(Canvas *canvas, QObject *parent) :
 		connect(view, SIGNAL(translationChanged(QPoint)), canvas, SLOT(setTranslation(QPoint)));
 		connect(canvas, SIGNAL(translationChanged(QPoint)), view, SLOT(setTranslation(QPoint)));
 		
-		connect(view, SIGNAL(mirroringEnabledChanged(bool)), canvas, SLOT(setMirroringEnabled(bool)));
-		connect(canvas, SIGNAL(mirroringEnabledChanged(bool)), view, SLOT(setMirroringEnabled(bool)));
+		connect(view, SIGNAL(mirroringEnabledChanged(bool)), canvas, SLOT(setMirrored(bool)));
+		connect(canvas, SIGNAL(mirroredChanged(bool)), view, SLOT(setMirroringEnabled(bool)));
 		
 		view->setTranslation(canvas->translation());
 		view->setScale(canvas->scale());
 		view->setRotation(canvas->rotation());
+		view->setMirroringEnabled(canvas->isMirrored());
 	}
 	else
 	{
