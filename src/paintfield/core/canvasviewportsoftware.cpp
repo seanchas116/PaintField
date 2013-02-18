@@ -100,7 +100,10 @@ void CanvasViewportSoftware::updateTile(const QPoint &tileKey, const Image &imag
 	
 	d->surface.tileRef(tileKey).paste(imageU8, offset);
 	
-	QRect viewRect = d->transformFromScene.mapRect(QRectF(pos, imageU8.size())).toAlignedRect();
+	QRect viewRect = d->transformFromScene.mapRect(QRectF(pos, imageU8.size())).toAlignedRect() & QRect(QPoint(), size());
+	
+	if (viewRect.isEmpty())
+		return;
 	
 	d->accurateUpdateSceneRects << viewRect;
 	
