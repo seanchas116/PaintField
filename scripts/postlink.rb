@@ -51,7 +51,7 @@ end
 # copy and modify info.plist (Mac)
 
 if platform == :mac
-  FileUtils.rm("#{out_pwd_app}/PaintField.app/Contents/Info.plist")
+  FileUtils.rm_f("#{out_pwd_app}/PaintField.app/Contents/Info.plist")
   FileUtils.cp("#{in_pwd_app}/Info.plist", "#{out_pwd_app}/PaintField.app/Contents")
   replace_info_plist_version("#{out_pwd_app}/PaintField.app/Contents/Info.plist", version_str)
 end
@@ -59,7 +59,7 @@ end
 # copy paintfield-launch.sh (other than Mac)
 
 if platform == :unix
-  FileUtils.rm("#{out_pwd_app}/paintfield-launch.sh")
+  FileUtils.rm_f("#{out_pwd_app}/paintfield-launch.sh")
   FileUtils.cp("#{in_pwd_app}/paintfield-launch.sh", out_pwd_app)
   `chmod +x #{out_pwd_app}/paintfield-launch.sh`
 end
