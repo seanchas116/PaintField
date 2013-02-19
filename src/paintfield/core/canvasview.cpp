@@ -86,6 +86,8 @@ public:
 	QTimer *accurateUpdateTimer = 0;
 	
 	QPoint maxAbsTranslation;
+	
+	bool skipNextUpdate = false;
 };
 
 CanvasView::CanvasView(Canvas *canvas, QWidget *parent) :
@@ -285,8 +287,19 @@ void CanvasView::setTool(Tool *tool)
 	}
 }
 
+void CanvasView::makeSkipNextUpdate()
+{
+	d->skipNextUpdate = true;
+}
+
 void CanvasView::updateTiles(const QPointSet &keys, const QHash<QPoint, QRect> &rects)
 {
+	if (d->skipNextUpdate)
+	{
+		d->skipNextUpdate = false;
+		return;
+	}
+	
 	d->viewport->beforeUpdateTile();
 	
 	CanvasRenderer renderer;

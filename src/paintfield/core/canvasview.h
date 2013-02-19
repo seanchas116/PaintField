@@ -38,6 +38,7 @@ public:
 public slots:
 	
 	void setTool(Tool *tool);
+	void makeSkipNextUpdate();
 	
 protected:
 	

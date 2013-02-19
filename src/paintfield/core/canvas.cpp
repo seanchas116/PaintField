@@ -190,6 +190,12 @@ void Canvas::setMirrored(bool mirrored)
 	}
 }
 
+void Canvas::makeSkipNextUpdate()
+{
+	if (d->view)
+		d->view->makeSkipNextUpdate();
+}
+
 Workspace *Canvas::workspace()
 {
 	return d->workspace;
