@@ -307,23 +307,8 @@ void CanvasView::updateTiles(const QPointSet &keys, const QHash<QPoint, QRect> &
 	
 	Surface surface = renderer.renderToSurface(layerModel()->rootLayer()->children(), keys, rects);
 	
-	QPointSet renderKeys = rects.isEmpty() ? keys : rects.keys().toSet();
-
-	for (const QPoint &key : renderKeys)
+	auto updateTile = [this, &surface](const QPoint &key, const QRect &rect)
 	{
-		QRect rect;
-		
-		if (!rects.isEmpty())
-		{
-			rect = rects.value(key);
-			if (rect.isEmpty())
-				continue;
-		}
-		else
-		{
-			rect = QRect(0, 0, Surface::tileWidth(), Surface::tileWidth());
-		}
-		
 		Image image(rect.size());
 		image.fill(Color::fromRgbValue(1,1,1).toPixel());
 		
@@ -334,6 +319,22 @@ void CanvasView::updateTiles(const QPointSet &keys, const QHash<QPoint, QRect> &
 		}
 		
 		d->viewport->updateTile(key, image, rect.topLeft());
+	};
+	
+	if (rects.isEmpty())
+	{
+		for (const QPoint &key : keys)
+		{
+			auto rect = QRect(0, 0, Surface::tileWidth(), Surface::tileWidth());
+			updateTile(key, rect);
+		}
+	}
+	else
+	{
+		for (auto iter = rects.begin(); iter != rects.end(); ++iter)
+		{
+			updateTile(iter.key(), iter.value());
+		}
 	}
 	
 	d->viewport->afterUpdateTile();

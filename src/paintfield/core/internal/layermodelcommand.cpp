@@ -22,9 +22,7 @@ void LayerModelEditCommand::redo()
 {
 	Layer *layer = layerForPath(_path);
 	_edit->redo(layer);
-	//layer->updateThumbnail(document()->size());
 	layer->setThumbnailDirty(true);
-	emitDataChanged(layer);
 	
 	if (_edit->modifiedKeys().isEmpty())
 		enqueueTileUpdate(model()->document()->tileKeys());
@@ -36,9 +34,7 @@ void LayerModelEditCommand::undo()
 {
 	Layer *layer = layerForPath(_path);
 	_edit->undo(layer);
-	//layer->updateThumbnail(document()->size());
 	layer->setThumbnailDirty(true);
-	emitDataChanged(layer);
 	
 	if (_edit->modifiedKeys().isEmpty())
 		enqueueTileUpdate(model()->document()->tileKeys());

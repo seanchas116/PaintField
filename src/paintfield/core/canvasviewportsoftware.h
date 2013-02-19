@@ -24,7 +24,7 @@ public:
 	void updateTile(const QPoint &tileKey, const Malachite::Image &image, const QPoint &offset) override;
 	void updateAccurately() override;
 	void beforeUpdateTile() override {}
-	void afterUpdateTile() override {}
+	void afterUpdateTile() override;
 	bool isReady() override { return true; }
 	
 signals:
@@ -39,7 +39,7 @@ protected:
 	
 private:
 	
-	void repaintRects(const QList<QRect> &rects, bool considerBorder);
+	void repaintRects(const QVector<QRect> &rects, bool considerBorder);
 	
 	class Data;
 	Data *d;

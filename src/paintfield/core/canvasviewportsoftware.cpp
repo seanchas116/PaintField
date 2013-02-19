@@ -21,7 +21,7 @@ struct CanvasViewportSoftware::Data
 	QSize size;
 	QPointSet tileKeys;
 	
-	QList<QRect> accurateUpdateSceneRects;
+	QVector<QRect> accurateUpdateSceneRects;
 	bool accurateUpdateConsiderBorder = false;
 	
 	QPixmap roughUpdatePixmap;
@@ -111,13 +111,33 @@ void CanvasViewportSoftware::updateTile(const QPoint &tileKey, const Image &imag
 	int tileBottom = (d->size.height() - 1) / Surface::tileWidth();
 	
 	d->accurateUpdateConsiderBorder |= (tileKey.x() <= 0 || tileKey.x() >= tileRight || tileKey.y() <= 0 || tileKey.y() >= tileBottom);
+}
+
+void CanvasViewportSoftware::afterUpdateTile()
+{
+	QRect unionRect;
+	for (auto rect : d->accurateUpdateSceneRects)
+	{
+		unionRect |= rect;
+	}
 	
-	repaint(viewRect);
+	if (unionRect.width() <= Surface::tileWidth() && unionRect.height() <= Surface::tileWidth())
+	{
+		d->accurateUpdateSceneRects.clear();
+		d->accurateUpdateSceneRects << unionRect;
+		
+		repaint(unionRect);
+	}
+	else
+	{
+		for (auto rect : d->accurateUpdateSceneRects)
+			repaint(rect);
+	}
 }
 
 void CanvasViewportSoftware::updateAccurately()
 {
-	QList<QRect> rects;
+	QVector<QRect> rects;
 	
 	auto sceneRect = QRect(QPoint(), d->size);
 	auto viewRectOnScene = d->transformToScene.mapRect(QRectF(QPoint(), this->size())).toAlignedRect();
@@ -133,7 +153,7 @@ void CanvasViewportSoftware::updateAccurately()
 	repaint();
 }
 
-void CanvasViewportSoftware::repaintRects(const QList<QRect> &rects, bool considerBorder)
+void CanvasViewportSoftware::repaintRects(const QVector<QRect> &rects, bool considerBorder)
 {
 	QPainter painter(this);
 	if (!considerBorder)
@@ -141,6 +161,9 @@ void CanvasViewportSoftware::repaintRects(const QList<QRect> &rects, bool consid
 	
 	for (const QRect &rect : rects)
 	{
+		if (rect.isEmpty())
+			continue;
+		
 		QRect requiredSceneRect = d->transformToScene.mapRect(QRectF(rect)).toAlignedRect();
 		
 		if ( d->transformTranslatingOnly )
