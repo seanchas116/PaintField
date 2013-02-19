@@ -73,7 +73,8 @@ HEADERS += \
     extensionmanager.h \
     canvasviewportinterface.h \
     canvasviewportgl.h \
-    canvasviewportsoftware.h
+    canvasviewportsoftware.h \
+    redoundoaction.h
 FORMS += dialogs/exportdialog.ui dialogs/newdocumentdialog.ui
 SOURCES += \
            document.cpp \
@@ -128,7 +129,8 @@ SOURCES += \
     extension.cpp \
     extensionmanager.cpp \
     canvasviewportgl.cpp \
-    canvasviewportsoftware.cpp
+    canvasviewportsoftware.cpp \
+    redoundoaction.cpp
 
 RESOURCES += \
     resources/resource-paintfield-core.qrc

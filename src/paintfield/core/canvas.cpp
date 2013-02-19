@@ -92,11 +92,11 @@ void Canvas::commonInit()
 	d->actions << Util::createAction("paintfield.file.newCanvasIntoDocument", this, SLOT(newCanvasIntoDocument()));
 	d->actions << Util::createAction("paintfield.file.export", this, SLOT(exportCanvas()));
 	
-	auto undoAction  = d->document->undoStack()->createUndoAction(this);
+	auto undoAction  = d->document->createUndoAction(this);
 	undoAction->setObjectName("paintfield.edit.undo");
 	d->actions << undoAction;
 	
-	auto redoAction = d->document->undoStack()->createRedoAction(this);
+	auto redoAction = d->document->createRedoAction(this);
 	redoAction->setObjectName("paintfield.edit.redo");
 	d->actions << redoAction;
 	
@@ -250,6 +250,10 @@ Tool *Canvas::tool()
 void Canvas::onToolChanged(const QString &name)
 {
 	auto tool = ExtensionUtil::createTool(appController()->extensions(), workspace()->extensions(), extensions(), name, this);
+	
+	if (d->tool)
+		d->tool->deinitialize();
+	
 	d->tool.reset(tool);
 	emit toolChanged(tool);
 }

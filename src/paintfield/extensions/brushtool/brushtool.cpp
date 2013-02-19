@@ -18,12 +18,24 @@ using namespace Malachite;
 namespace PaintField {
 
 BrushTool::BrushTool(Canvas *parent) :
-	Tool(parent)
+	Tool(parent),
+	_commitTimer(new QTimer(this))
 {
+	_commitTimer->setInterval(500);
+	_commitTimer->setSingleShot(true);
+	connect(_commitTimer, SIGNAL(timeout()), this, SLOT(delayedCommit()));
+	
+	connect(parent->document()->layerModel(), SIGNAL(editingAboutToStart()), this, SLOT(commitImmediately()));
+	
 	//setCustomCursorEnabled(true);
 }
 
 BrushTool::~BrushTool() {}
+
+void BrushTool::deinitialize()
+{
+	commitImmediately();
+}
 
 void BrushTool::drawLayer(SurfacePainter *painter, const Layer *layer)
 {
@@ -87,16 +99,25 @@ void BrushTool::beginStroke(const TabletInputData &data)
 	if (!_strokerFactory)
 		return;
 	
-	_layer = currentLayer();
+	if (!isEditing())
+	{
+		layerModel()->startEditing();
+		
+		_layer = currentLayer();
+		
+		if (!_layer)
+			return;
+		
+		if (_layer->type() != Layer::TypeRaster)
+		{
+			_layer = 0;
+			return;
+		}
+		
+		_surface = _layer->surface();
+	}
 	
-	if (_layer->type() != Layer::TypeRaster)
-		return;
-	
-	layerModel()->startEditing();
-	
-	//PAINTFIELD_CALC_SCOPE_ELAPSED_TIME;
-	
-	_surface = _layer->surface();
+	_commitTimer->stop();
 	
 	_stroker.reset(_strokerFactory->createStroker(&_surface));
 	_stroker->loadSettings(_settings);
@@ -140,23 +161,38 @@ void BrushTool::endStroke(const TabletInputData &data)
 	
 	_stroker->lineTo(data);
 	_stroker->end();
+	
 	updateTiles();
 	
-	if (_layer && _layer == currentLayer())
-	{
-		_surface.squeeze(_stroker->totalEditedKeys());
-		//document()->layerModel()->makeSkipNextUpdate();
-		document()->layerModel()->editLayer(document()->layerModel()->indexForLayer(_layer), new LayerSurfaceEdit(_surface, _stroker->totalEditedKeys()), tr("Brush"));
-	}
+	_totalEditedKeys |= _stroker->totalEditedKeys();
 	
 	_stroker.reset();
 	clearCustomDrawLayer();
+	
+	_commitTimer->start();
 }
 
 void BrushTool::updateTiles()
 {
 	emit requestUpdate(_stroker->lastEditedKeysWithRects());
 	_stroker->clearLastEditedKeys();
+}
+
+void BrushTool::delayedCommit()
+{
+	if (isEditing() && _layer == currentLayer())
+	{
+		_surface.squeeze(_totalEditedKeys);
+		layerModel()->editLayer(layerModel()->indexForLayer(_layer), new LayerSurfaceEdit(_surface, _totalEditedKeys), tr("Brush"));
+		_layer = 0;
+		_totalEditedKeys.clear();
+	}
+}
+
+void BrushTool::commitImmediately()
+{
+	_commitTimer->stop();
+	delayedCommit();
 }
 
 void BrushTool::setPrevData(const TabletInputData &data)

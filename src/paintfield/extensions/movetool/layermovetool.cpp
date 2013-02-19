@@ -78,7 +78,10 @@ void LayerMoveTool::tabletMoveEvent(CanvasTabletEvent *event)
 void LayerMoveTool::tabletPressEvent(CanvasTabletEvent *event)
 {
 	PAINTFIELD_DEBUG << "pressed";
+	
+	layerModel()->startEditing();
 	_layer = currentLayer();
+	
 	if (_layer && _layer->type() == Layer::TypeRaster)
 	{
 		layerModel()->startEditing();

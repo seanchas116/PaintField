@@ -36,6 +36,8 @@ public:
 	 */
 	QModelIndex currentLayerIndex() { return selectionModel()->currentIndex(); }
 	
+	virtual void deinitialize() {}
+	
 	/**
 	 * @return The document's current layer
 	 */

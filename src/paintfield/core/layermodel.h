@@ -143,6 +143,8 @@ signals:
 	void layerMetadataChanged(const QModelIndex &index);
 	void thumbnailsUpdated();
 	
+	void editingAboutToStart();
+	
 public slots:
 	
 	void startEditing();
