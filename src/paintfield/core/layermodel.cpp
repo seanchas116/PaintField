@@ -61,9 +61,6 @@ LayerModel::LayerModel(const LayerList &layers, Document *parent) :
 		
 		d->thumbnailUpdateTimer = timer;
 	}
-	
-	connect(parent, SIGNAL(beforeRedo()), this, SIGNAL(editingAboutToStart()));
-	connect(parent, SIGNAL(beforeUndo()), this, SIGNAL(editingAboutToStart()));
 }
 
 LayerModel::~LayerModel()
@@ -553,7 +550,6 @@ void LayerModel::enqueueTileUpdate(const QPointSet &tileKeys)
 void LayerModel::startEditing()
 {
 	d->thumbnailUpdateTimer->stop();
-	emit editingAboutToStart();
 }
 
 void LayerModel::update()

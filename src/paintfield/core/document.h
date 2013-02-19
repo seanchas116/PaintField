@@ -77,9 +77,6 @@ public:
 	void setModified(bool modified);
 	void setFilePath(const QString &filePath);
 	
-	QAction *createRedoAction(QObject *parent);
-	QAction *createUndoAction(QObject *parent);
-	
 signals:
 	
 	void modified();
@@ -87,13 +84,7 @@ signals:
 	void filePathChanged(const QString &filePath);
 	void fileNameChanged(const QString &fileName);
 	
-	void beforeUndo();
-	void beforeRedo();
-	
 public slots:
-	
-	void undo();
-	void redo();
 	
 protected:
 	

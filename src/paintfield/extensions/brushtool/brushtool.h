@@ -19,8 +19,6 @@ public:
 	BrushTool(Canvas *parent = 0);
 	~BrushTool();
 	
-	void deinitialize();
-	
 	void drawLayer(Malachite::SurfacePainter *painter, const Layer *layer);
 	
 	void drawCustomCursor(QPainter *painter, const Malachite::Vec2D &pos);
@@ -49,15 +47,9 @@ protected:
 	
 	void updateTiles();
 	
-private slots:
-	
-	void delayedCommit();
-	void commitImmediately();
-	
 private:
 	
 	bool isStroking() const { return _stroker; }
-	bool isEditing() const { return _layer; }
 	void setPrevData(const TabletInputData &data);
 	
 	Malachite::Pixel _pixel;
@@ -69,9 +61,6 @@ private:
 	bool _dataPrevSet = false;
 	const Layer *_layer = 0;
 	Malachite::Surface _surface;
-	
-	QTimer *_commitTimer = 0;
-	QPointSet _totalEditedKeys;
 };
 
 }

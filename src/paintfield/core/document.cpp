@@ -1,6 +1,5 @@
 #include <QtGui>
 #include "layermodel.h"
-#include "redoundoaction.h"
 
 #include "document.h"
 
@@ -112,38 +111,6 @@ void Document::setFilePath(const QString &filePath)
 	d->filePath = filePath;
 	emit filePathChanged(filePath);
 	emit fileNameChanged(fileName());
-}
-
-QAction *Document::createRedoAction(QObject *parent)
-{
-	auto action = new RedoUndoAction(parent);
-	action->setPrefix("Redo ");
-	connect(d->undoStack, SIGNAL(canRedoChanged(bool)), action, SLOT(setEnabled(bool)));
-	connect(d->undoStack, SIGNAL(redoTextChanged(QString)), action, SLOT(setDescription(QString)));
-	connect(action, SIGNAL(triggered()), this, SLOT(redo()));
-	return action;
-}
-
-QAction *Document::createUndoAction(QObject *parent)
-{
-	auto action = new RedoUndoAction(parent);
-	action->setPrefix("Undo ");
-	connect(d->undoStack, SIGNAL(canUndoChanged(bool)), action, SLOT(setEnabled(bool)));
-	connect(d->undoStack, SIGNAL(undoTextChanged(QString)), action, SLOT(setDescription(QString)));
-	connect(action, SIGNAL(triggered()), this, SLOT(undo()));
-	return action;
-}
-
-void Document::redo()
-{
-	emit beforeRedo();
-	d->undoStack->redo();
-}
-
-void Document::undo()
-{
-	emit beforeUndo();
-	d->undoStack->undo();
 }
 
 void Document::onUndoneOrRedone()
