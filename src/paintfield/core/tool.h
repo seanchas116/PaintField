@@ -57,10 +57,6 @@ public:
 	void clearCustomDrawLayer() { _customDrawLayers.clear(); }
 	LayerConstList customDrawLayers() { return _customDrawLayers; }
 	
-	virtual void drawCustomCursor(QPainter *painter, const Malachite::Vec2D &pos) { Q_UNUSED(painter) Q_UNUSED(pos) }
-	virtual QRect customCursorRect(const Malachite::Vec2D &pos) { Q_UNUSED(pos) return QRect(); }
-	
-	bool isCustomCursorEnabled() const { return _customCursorEnabled; }
 	QCursor cursor() const { return _cursor; }
 	
 	virtual void mouseMoveEvent(CanvasMouseEvent *event) { event->ignore(); return; }
@@ -84,12 +80,9 @@ signals:
 	void requestUpdate(const QPointSet &tiles);
 	void requestUpdate(const QHash<QPoint, QRect> &rects);
 	
-	void cursorChanged(const QCursor &cursor);
-	
 protected:
 	
-	void setCustomCursorEnabled(bool enabled) { _customCursorEnabled = enabled; }
-	void setCursor(const QCursor &cursor) { emit cursorChanged(cursor); _cursor = cursor; }
+	void setCursor(const QCursor &cursor) { _cursor = cursor; }
 	
 	Canvas *canvas() { return static_cast<Canvas *>(parent()); }
 	Document *document() { return canvas()->document(); }
@@ -100,7 +93,6 @@ private:
 	
 	LayerConstList _customDrawLayers;
 	QCursor _cursor;
-	bool _customCursorEnabled = false;
 };
 
 }

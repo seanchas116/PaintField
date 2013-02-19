@@ -28,5 +28,6 @@
         <file>icons/16x16/rotateBoldLeft.svg</file>
         <file>icons/16x16/rotateLeft.svg</file>
         <file>icons/16x16/rotateRight.svg</file>
+        <file>icons/32x32/tinycursor.png</file>
     </qresource>
 </RCC>

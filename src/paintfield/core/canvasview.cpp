@@ -273,17 +273,8 @@ void CanvasView::setTool(Tool *tool)
 		connect(tool, SIGNAL(requestUpdate(QPointSet)), this, SLOT(updateTiles(QPointSet)));
 		connect(tool, SIGNAL(requestUpdate(QHash<QPoint,QRect>)), this, SLOT(updateTiles(QHash<QPoint,QRect>)));
 		
-		if (tool->isCustomCursorEnabled())
-		{
-			d->toolCursor = QCursor(Qt::BlankCursor);
-			setCursor(QCursor(Qt::BlankCursor));
-		}
-		else
-		{
-			connect(tool, SIGNAL(cursorChanged(QCursor)), this, SLOT(onToolCursorChanged(QCursor)));
-			d->toolCursor = tool->cursor();
-			setCursor(tool->cursor());
-		}
+		d->toolCursor = tool->cursor();
+		setCursor(tool->cursor());
 	}
 }
 
@@ -420,15 +411,15 @@ void CanvasView::enterEvent(QEvent *e)
 {
 	super::enterEvent(e);
 	setFocus();
-	qApp->setOverrideCursor(d->toolCursor);
+	//qApp->setOverrideCursor(d->toolCursor);
 }
 
 void CanvasView::leaveEvent(QEvent *e)
 {
 	super::leaveEvent(e);
 	
-	while (qApp->overrideCursor())
-		qApp->restoreOverrideCursor();
+	//while (qApp->overrideCursor())
+	//	qApp->restoreOverrideCursor();
 }
 
 void CanvasView::mouseDoubleClickEvent(QMouseEvent *event)
@@ -676,19 +667,6 @@ bool CanvasView::sendCanvasTabletEvent(QMouseEvent *mouseEvent)
 	CanvasTabletEvent tabletEvent(type, mouseEvent->globalPos(), mouseEvent->globalPos(), data, mouseEvent->modifiers());
 	d->tool->toolEvent(&tabletEvent);
 	return tabletEvent.isAccepted();
-}
-
-void CanvasView::addCustomCursorRectToRepaintRect()
-{
-	if (d->tool->isCustomCursorEnabled())
-	{
-		addRepaintRect(d->prevCustomCursorRect);
-		
-		auto rect = d->tool->customCursorRect(d->customCursorPos);
-		d->prevCustomCursorRect = rect;
-		
-		addRepaintRect(rect);
-	}
 }
 
 void CanvasView::addRepaintRect(const QRect &rect)

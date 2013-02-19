@@ -90,7 +90,6 @@ private:
 	bool sendCanvasTabletEvent(QMouseEvent *mouseEvent);
 	bool sendCanvasTabletEvent(WidgetTabletEvent *event);
 	
-	void addCustomCursorRectToRepaintRect();
 	void addRepaintRect(const QRect &rect);
 	void repaintDesignatedRect();
 	

@@ -20,7 +20,7 @@ namespace PaintField {
 BrushTool::BrushTool(Canvas *parent) :
 	Tool(parent)
 {
-	//setCustomCursorEnabled(true);
+	setCursor(QCursor(QPixmap(":/icons/32x32/tinycursor.png")));
 }
 
 BrushTool::~BrushTool() {}
