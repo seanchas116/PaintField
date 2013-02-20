@@ -298,10 +298,12 @@ void CanvasView::updateTiles(const QPointSet &keys, const QHash<QPoint, QRect> &
 	
 	Surface surface = renderer.renderToSurface(layerModel()->rootLayer()->children(), keys, rects);
 	
+	static const Pixel whitePixel = Color::fromRgbValue(1,1,1).toPixel();
+	
 	auto updateTile = [this, &surface](const QPoint &key, const QRect &rect)
 	{
 		Image image(rect.size());
-		image.fill(Color::fromRgbValue(1,1,1).toPixel());
+		image.fill(whitePixel);
 		
 		if (surface.contains(key))
 		{

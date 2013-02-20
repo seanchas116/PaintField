@@ -40,6 +40,7 @@ protected:
 private:
 	
 	void repaintRects(const QVector<QRect> &rects, bool considerBorder);
+	void repaintRect(const QRect &rect, bool considerBorder);
 	
 	class Data;
 	Data *d;

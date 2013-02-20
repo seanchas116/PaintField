@@ -61,6 +61,7 @@ private:
 	bool _dataPrevSet = false;
 	const Layer *_layer = 0;
 	Malachite::Surface _surface;
+	int _count = 0;
 };
 
 }

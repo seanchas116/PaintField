@@ -128,6 +128,7 @@ void BrushTool::drawStroke(const TabletInputData &data)
 	//PAINTFIELD_CALC_SCOPE_ELAPSED_TIME;
 	
 	_stroker->lineTo(data);
+	
 	updateTiles();
 }
 

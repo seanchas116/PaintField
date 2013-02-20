@@ -123,15 +123,22 @@ void CanvasViewportSoftware::afterUpdateTile()
 	
 	if (unionRect.width() <= Surface::tileWidth() && unionRect.height() <= Surface::tileWidth())
 	{
-		d->accurateUpdateSceneRects.clear();
-		d->accurateUpdateSceneRects << unionRect;
-		
+		d->accurateUpdateSceneRects = { unionRect };
 		repaint(unionRect);
+		d->accurateUpdateSceneRects.clear();
+		d->accurateUpdateConsiderBorder = false;
 	}
 	else
 	{
-		for (auto rect : d->accurateUpdateSceneRects)
+		auto rects = d->accurateUpdateSceneRects;
+		
+		for (auto rect : rects)
+		{
+			d->accurateUpdateSceneRects = { rect };
 			repaint(rect);
+			d->accurateUpdateSceneRects.clear();
+		}
+		d->accurateUpdateConsiderBorder = false;
 	}
 }
 
@@ -149,8 +156,9 @@ void CanvasViewportSoftware::updateAccurately()
 	
 	d->accurateUpdateSceneRects = rects;
 	d->accurateUpdateConsiderBorder = true;
-	
 	repaint();
+	d->accurateUpdateSceneRects.clear();
+	d->accurateUpdateConsiderBorder = false;
 }
 
 void CanvasViewportSoftware::repaintRects(const QVector<QRect> &rects, bool considerBorder)
@@ -221,9 +229,6 @@ void CanvasViewportSoftware::paintEvent(QPaintEvent *)
 	else
 	{
 		repaintRects(d->accurateUpdateSceneRects, d->accurateUpdateConsiderBorder);
-		
-		d->accurateUpdateConsiderBorder = false;
-		d->accurateUpdateSceneRects.clear();
 	}
 }
 

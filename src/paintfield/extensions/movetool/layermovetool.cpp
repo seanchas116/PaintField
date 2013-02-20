@@ -31,9 +31,13 @@ void FSLayerMoveEdit::redo(Layer *layer)
 	RasterLayer *rasterLayer = dynamic_cast<RasterLayer *>(layer);
 	Q_ASSERT(rasterLayer);
 	Surface surface;
-	Painter painter(&surface);
-	painter.drawPreTransformedSurface(_offset, rasterLayer->surface());
-	painter.end();
+	
+	{
+		Painter painter(&surface);
+		painter.drawPreTransformedSurface(_offset, rasterLayer->surface());
+	}
+	
+	surface.squeeze();
 	
 	rasterLayer->setSurface(surface);
 }
@@ -43,8 +47,14 @@ void FSLayerMoveEdit::undo(Layer *layer)
 	RasterLayer *rasterLayer = dynamic_cast<RasterLayer *>(layer);
 	Q_ASSERT(rasterLayer);
 	Surface surface;
-	Painter painter(&surface);
-	painter.drawPreTransformedSurface(-_offset, rasterLayer->surface());
+	
+	{
+		Painter painter(&surface);
+		painter.drawPreTransformedSurface(-_offset, rasterLayer->surface());
+	}
+	
+	surface.squeeze();
+	
 	rasterLayer->setSurface(surface);
 }
 
