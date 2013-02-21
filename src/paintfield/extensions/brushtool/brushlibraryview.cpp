@@ -22,7 +22,7 @@ BrushLibraryView::BrushLibraryView(BrushLibraryModel *model, QItemSelectionModel
 		
 		Util::setExpandTreeViewRecursive(treeView, QModelIndex(), true);
 		
-		auto defaultPresetIndex = model->findIndex({"Built-in", "Simple Brush", "Simple Brush"});
+		auto defaultPresetIndex = model->findIndex({"Built-in", "Pen", "Pen"});
 		selectionModel->setCurrentIndex(defaultPresetIndex, QItemSelectionModel::SelectCurrent);
 		
 		layout->addWidget(treeView);
