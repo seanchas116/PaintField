@@ -54,6 +54,9 @@ protected:
 	void leaveEvent(QEvent *);
 	void wheelEvent(QWheelEvent *event);
 	void resizeEvent(QResizeEvent *);
+	void changeEvent(QEvent *event);
+	void showEvent(QShowEvent *);
+	void hideEvent(QHideEvent *);
 	
 	bool event(QEvent *event);
 	
@@ -108,6 +111,8 @@ private:
 	void beginDragRotation(const QPoint &pos);
 	void continueDragRotation(const QPoint &pos);
 	void endDragRotation();
+	
+	void moveViewport();
 	
 	enum DragNavigationMode
 	{

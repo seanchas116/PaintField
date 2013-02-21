@@ -131,6 +131,18 @@ void setExpandTreeViewRecursive(QTreeView *view, const QModelIndex &index, bool 
 		setExpandTreeViewRecursive(view, view->model()->index(i, 0, index), expanded);
 }
 
+QPoint mapToWindow(QWidget *widget, const QPoint &pos)
+{
+	return widget->mapToGlobal(pos) - widget->window()->geometry().topLeft();
+	
+	/*
+	while (widget->parent())
+	{
+		result = widget->mapToParent(result);
+		widget = widget->parentWidget();
+	}*/
+}
+
 }
 
 }

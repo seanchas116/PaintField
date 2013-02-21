@@ -129,6 +129,11 @@ void BrushTool::drawStroke(const TabletInputData &data)
 	
 	_stroker->lineTo(data);
 	
+	//_count++;
+	
+	//if (_count % 3)
+	//	return;
+	
 	updateTiles();
 }
 

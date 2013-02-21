@@ -109,6 +109,8 @@ void maximizeWindowSize(QWidget *widget);
 
 void setExpandTreeViewRecursive(QTreeView *view, const QModelIndex &index, bool expanded);
 
+QPoint mapToWindow(QWidget *widget, const QPoint &pos);
+
 }
 }
 

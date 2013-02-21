@@ -50,6 +50,9 @@ CanvasViewportSoftware::CanvasViewportSoftware(QWidget *parent) :
 	
 	connect(d->scrollBars[Qt::Horizontal], SIGNAL(valueChanged(int)), this, SIGNAL(scrollBarXChanged(int)));
 	connect(d->scrollBars[Qt::Vertical], SIGNAL(valueChanged(int)), this, SIGNAL(scrollBarYChanged(int)));
+	
+	setAttribute(Qt::WA_PaintOnScreen, true);
+	//setAttribute(Qt::WA_PaintUnclipped, true);
 }
 
 CanvasViewportSoftware::~CanvasViewportSoftware()

@@ -104,17 +104,21 @@ CanvasView::CanvasView(Canvas *canvas, QWidget *parent) :
 	
 	// setup viewport
 	{
-		auto viewport = new CanvasViewportSoftware(this);
+		auto viewport = new CanvasViewportSoftware(window());
+		
 		d->viewport = viewport;
 		d->viewportWidget = viewport;
 		
+		moveViewport();
+		
+		/*
 		{
 			auto layout = new QVBoxLayout;
 			layout->addWidget(viewport);
 			viewport->setMouseTracking(true);
 			layout->setContentsMargins(0, 0, 0 ,0);
 			setLayout(layout);
-		}
+		}*/
 		
 		d->viewCenter = QPoint(width() / 2, height() / 2);
 		
@@ -573,8 +577,34 @@ void CanvasView::wheelEvent(QWheelEvent *event)
 
 void CanvasView::resizeEvent(QResizeEvent *)
 {
+	moveViewport();
 	d->viewCenter = QPoint(width() / 2, height() / 2);
 	updateTransforms();
+}
+
+void CanvasView::changeEvent(QEvent *event)
+{
+	switch (event->type())
+	{
+		case QEvent::ParentChange:
+			moveViewport();
+			break;
+		case QEvent::EnabledChange:
+			d->viewportWidget->setEnabled(isEnabled());
+			break;
+		default:
+			break;
+	}
+}
+
+void CanvasView::showEvent(QShowEvent *)
+{
+	d->viewportWidget->show();
+}
+
+void CanvasView::hideEvent(QHideEvent *)
+{
+	d->viewportWidget->hide();
 }
 
 bool CanvasView::event(QEvent *event)
@@ -815,6 +845,15 @@ void CanvasView::endDragRotation()
 {
 	qApp->restoreOverrideCursor();
 	d->dragNavigationMode = NoNavigation;
+}
+
+void CanvasView::moveViewport()
+{
+	d->viewportWidget->setParent(window());
+	QRect geom(Util::mapToWindow(this, QPoint()), this->geometry().size());
+	d->viewportWidget->setGeometry(geom);
+	d->viewportWidget->show();
+	d->viewportWidget->lower();
 }
 
 
