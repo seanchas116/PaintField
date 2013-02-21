@@ -18,6 +18,8 @@ LIBS += -lfreeimage -lqjson
 
 INCLUDEPATH += $$PWD/.. $$PWD/../libs $$PWD/../libs/Malachite/include
 
+#DEFINES += PF_FORCE_RASTER_ENGINE
+
 # note that the head of a result is always /
 defineReplace(relativePathFrom) {
 

@@ -9,7 +9,9 @@ using namespace PaintField;
 
 int main(int argc, char *argv[])
 {
-	//QApplication::setGraphicsSystem("raster");
+#ifdef PF_FORCE_RASTER_ENGINE
+	QApplication::setGraphicsSystem("raster");
+#endif
 	
 	Application a(argc, argv);
 	a.setApplicationVersion(DEFINE_STR(PF_VERSION));

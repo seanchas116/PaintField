@@ -8,7 +8,7 @@
 
 #include "canvasviewportsoftware.h"
 
-#ifdef Q_OS_MAC
+#if defined(Q_OS_MAC) && !defined(PF_FORCE_RASTER_ENGINE)
 #define PAINTFIELD_COREGRAPHICS_REPAINT
 #endif
 
