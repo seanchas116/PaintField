@@ -250,7 +250,7 @@ void CanvasView::updateTransforms()
 	
 	d->accurateUpdateTimer->start();
 	
-	update();
+	d->viewportWidget->update();
 }
 
 Canvas *CanvasView::canvas()

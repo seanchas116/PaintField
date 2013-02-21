@@ -8,6 +8,10 @@
 
 #include "canvasviewportsoftware.h"
 
+#ifdef Q_OS_MAC
+#define PAINTFIELD_COREGRAPHICS_REPAINT
+#endif
+
 using namespace Malachite;
 
 namespace PaintField {
@@ -113,6 +117,8 @@ void CanvasViewportSoftware::updateTile(const QPoint &tileKey, const Image &imag
 	int tileBottom = (d->size.height() - 1) / Surface::tileWidth();
 	
 	d->accurateUpdateConsiderBorder |= (tileKey.x() <= 0 || tileKey.x() >= tileRight || tileKey.y() <= 0 || tileKey.y() >= tileBottom);
+	
+	//repaint(viewRect);
 }
 
 void CanvasViewportSoftware::afterUpdateTile()
@@ -123,6 +129,19 @@ void CanvasViewportSoftware::afterUpdateTile()
 		unionRect |= rect;
 	}
 	
+#ifdef PAINTFIELD_COREGRAPHICS_REPAINT
+	if (unionRect.width() <= Surface::tileWidth() && unionRect.height() <= Surface::tileWidth())
+	{
+		d->accurateUpdateSceneRects = { unionRect };
+		repaint(unionRect);
+	}
+	else
+	{
+		for (auto rect : d->accurateUpdateSceneRects)
+			repaint(rect);
+	}
+	
+#else
 	if (unionRect.width() <= Surface::tileWidth() && unionRect.height() <= Surface::tileWidth())
 	{
 		d->accurateUpdateSceneRects = { unionRect };
@@ -142,6 +161,7 @@ void CanvasViewportSoftware::afterUpdateTile()
 		}
 		d->accurateUpdateConsiderBorder = false;
 	}
+#endif
 }
 
 void CanvasViewportSoftware::updateAccurately()
@@ -159,8 +179,10 @@ void CanvasViewportSoftware::updateAccurately()
 	d->accurateUpdateSceneRects = rects;
 	d->accurateUpdateConsiderBorder = true;
 	repaint();
+#ifndef PAINTFIELD_COREGRAPHICS_REPAINT
 	d->accurateUpdateSceneRects.clear();
 	d->accurateUpdateConsiderBorder = false;
+#endif
 }
 
 void CanvasViewportSoftware::repaintRects(const QVector<QRect> &rects, bool considerBorder)
@@ -222,6 +244,8 @@ void CanvasViewportSoftware::paintEvent(QPaintEvent *)
 	
 	if (d->accurateUpdateSceneRects.isEmpty()) // rough update
 	{
+		PAINTFIELD_DEBUG << "painting roughly";
+		
 		painter.setCompositionMode(QPainter::CompositionMode_Source);
 		
 		painter.setTransform(d->transformFromScene);
@@ -231,6 +255,12 @@ void CanvasViewportSoftware::paintEvent(QPaintEvent *)
 	else
 	{
 		repaintRects(d->accurateUpdateSceneRects, d->accurateUpdateConsiderBorder);
+		
+		// In Core Graphics graphics engine, multiple repaint calls in one event loop seem to be put together
+#ifdef PAINTFIELD_COREGRAPHICS_REPAINT
+		d->accurateUpdateSceneRects.clear();
+		d->accurateUpdateConsiderBorder = false;
+#endif
 	}
 }
 
