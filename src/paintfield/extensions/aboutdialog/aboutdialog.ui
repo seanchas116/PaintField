@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>318</height>
+    <width>500</width>
+    <height>400</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -41,9 +41,32 @@
    <item>
     <widget class="QLabel" name="label_2">
      <property name="text">
-      <string>PaintFIeld is an open-source cross-platform digital painting app.</string>
+      <string>&lt;a href=&quot;http://iofg2100.github.com/PaintField/&quot;&gt;PaintFIeld&lt;/a&gt; is an open-source cross-platform digital painting app.</string>
      </property>
      <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+     <property name="openExternalLinks">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_5">
+     <property name="text">
+      <string>Licenced under &lt;a href=&quot;http://www.gnu.org/copyleft/lesser.html&quot;&gt;LGPL&lt;/a&gt;.</string>
+     </property>
+     <property name="openExternalLinks">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_4">
+     <property name="text">
+      <string>Powerd by &lt;a href=&quot;http://qt-project.org/&quot;&gt;Qt&lt;/a&gt;, &lt;a href=&quot;http://www.antigrain.com/&quot;&gt;Anti-Grain Geometry&lt;/a&gt;, &lt;a href=&quot;http://www.angusj.com/delphi/clipper.php&quot;&gt;Clipper&lt;/a&gt;, &lt;a href=&quot;http://www.winimage.com/zLibDll/minizip.html&quot;&gt;Minizip&lt;/a&gt;, &lt;a href=&quot;http://freeimage.sourceforge.net/&quot;&gt;FreeImage&lt;/a&gt;.</string>
+     </property>
+     <property name="openExternalLinks">
       <bool>true</bool>
      </property>
     </widget>
@@ -79,22 +102,9 @@ Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)</string>
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="standardButtons">
-      <set>QDialogButtonBox::Ok</set>
+      <set>QDialogButtonBox::Close</set>
      </property>
     </widget>
-   </item>
-   <item>
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
-     </property>
-    </spacer>
    </item>
   </layout>
  </widget>
