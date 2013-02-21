@@ -54,7 +54,7 @@
    <item>
     <widget class="QLabel" name="label_5">
      <property name="text">
-      <string>Licenced under &lt;a href=&quot;http://www.gnu.org/copyleft/lesser.html&quot;&gt;LGPL&lt;/a&gt;.</string>
+      <string>Licensed under &lt;a href=&quot;http://www.gnu.org/copyleft/lesser.html&quot;&gt;LGPL&lt;/a&gt;.</string>
      </property>
      <property name="openExternalLinks">
       <bool>true</bool>
@@ -64,7 +64,7 @@
    <item>
     <widget class="QLabel" name="label_4">
      <property name="text">
-      <string>Powerd by &lt;a href=&quot;http://qt-project.org/&quot;&gt;Qt&lt;/a&gt;, &lt;a href=&quot;http://www.antigrain.com/&quot;&gt;Anti-Grain Geometry&lt;/a&gt;, &lt;a href=&quot;http://www.angusj.com/delphi/clipper.php&quot;&gt;Clipper&lt;/a&gt;, &lt;a href=&quot;http://www.winimage.com/zLibDll/minizip.html&quot;&gt;Minizip&lt;/a&gt;, &lt;a href=&quot;http://freeimage.sourceforge.net/&quot;&gt;FreeImage&lt;/a&gt;.</string>
+      <string>Powered by &lt;a href=&quot;http://qt-project.org/&quot;&gt;Qt&lt;/a&gt;, &lt;a href=&quot;http://www.antigrain.com/&quot;&gt;Anti-Grain Geometry&lt;/a&gt;, &lt;a href=&quot;http://www.angusj.com/delphi/clipper.php&quot;&gt;Clipper&lt;/a&gt;, &lt;a href=&quot;http://www.winimage.com/zLibDll/minizip.html&quot;&gt;Minizip&lt;/a&gt;, &lt;a href=&quot;http://freeimage.sourceforge.net/&quot;&gt;FreeImage&lt;/a&gt;.</string>
      </property>
      <property name="openExternalLinks">
       <bool>true</bool>
