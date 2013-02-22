@@ -306,161 +306,48 @@ bool DocumentIO::loadLayerRecursive(Layer *parent, DocumentDatabase *database, c
 }
 
 DocumentDatabase::DocumentDatabase(DocumentIO *documentIO) :
-    _documentIO(documentIO),
-    _surfaceCount(0),
-    _tileCount(0)
+    _documentIO(documentIO)
 {
-	
 }
 
-Malachite::Surface DocumentDatabase::loadSurface(const QString &path)
+Surface DocumentDatabase::loadSurface(const QString &path)
 {
-	QByteArray data = loadFromUnzip(_documentIO->unzipFile(), path);
-	
-	if (data.isEmpty())
-		return Surface();
-	
-	QJson::Parser parser;
-	
-	QVariant json = parser.parse(data);
-	
-	QVariantMap jsonMap = json.toMap();
-	
-	QSize tileSize;
-	tileSize.setWidth(jsonMap["tileWidth"].toInt());
-	tileSize.setHeight(jsonMap["tileHeight"].toInt());
-	
-	if (tileSize.width() <= 0 || tileSize.height() <= 0)
-		return Surface();
-	
-	QVariant tiles = jsonMap["tiles"];
-	
-	QVariantList tileList = tiles.toList();
-	
 	Surface surface;
 	
-	if (tileSize.width() == Surface::tileWidth() && tileSize.height() == Surface::tileWidth())
-	{
-		for (const QVariant &tileData : tileList)
-		{
-			QPoint key;
-			Image tile = loadTileData(tileData, tileSize, &key);
-			
-			if (!tile.isValid())
-				continue;
-			
-			if (!surface.contains(key))
-				surface.tileRef(key) = tile;
-		}
-	}
-	else
-	{
-		Painter painter(&surface);
-		painter.setBlendMode(BlendMode::PassThrough);
-		
-		for (const QVariant &tileData : tileList)
-		{
-			QPoint key;
-			Image tile = loadTileData(tileData, tileSize, &key);
-			
-			if (!tile.isValid())
-				continue;
-			
-			painter.drawImage(key.x() * tileSize.width(), key.y() * tileSize.height(), tile);
-		}
-	}
+	QByteArray data = loadFromUnzip(_documentIO->unzipFile(), path);
+	QDataStream stream(&data, QIODevice::ReadOnly);
+	stream >> surface;
 	
 	return surface;
 }
 
 
 
-QString DocumentDatabase::addSurface(const Malachite::Surface &surface)
+QString DocumentDatabase::addSurface(const Surface &surface)
 {
-	QVariantList tiles;
+	QString path = "data/surfaces/" + QString::number(_surfacesToSave.size()) + ".surface";
 	
-	foreach (const QPoint &key, surface.keys())
-	{
-		QVariantMap tileData;
-		tileData["x"] = key.x();
-		tileData["y"] = key.y();
-		tileData["source"] = addTile(surface.tile(key));
-		
-		tiles << tileData;
-	}
-	
-	QVariantMap surfaceData;
-	surfaceData["tileWidth"] = Surface::tileWidth();
-	surfaceData["tileHeight"] = Surface::tileWidth();
-	surfaceData["tiles"] = tiles;
-	
-	QString path = "data/surfaces/" + QString::number(_surfaceCount) + ".surface";
-	
-	_surfacesToSave << SurfaceSaveInfo(surfaceData, path);
-	++_surfaceCount;
+	_surfacesToSave << SurfaceSaveInfo(surface, path);
 	
 	return path;
 }
 
 bool DocumentDatabase::save(zipFile zip)
 {
-	// saving tiles
-	
-	foreach (auto tileInfo, _tilesToSave)
-	{
-		if (!saveIntoZip(zip, tileInfo.path, qCompress(tileInfo.tile.toByteArray()), Z_NO_COMPRESSION))
-			return false;
-	}
-	
 	// saving surfaces
 	
-	foreach (auto surfaceInfo, _surfacesToSave)
+	for (auto surfaceInfo : _surfacesToSave)
 	{
-		QJson::Serializer serializer;
-		QByteArray json = serializer.serialize(surfaceInfo.data);
-		if (!saveIntoZip(zip, surfaceInfo.path, json, Z_DEFAULT_COMPRESSION))
+		QByteArray data;
+		QDataStream stream(&data, QIODevice::WriteOnly);
+		
+		stream << surfaceInfo.surface;
+		
+		if (!saveIntoZip(zip, surfaceInfo.path, data, Z_DEFAULT_COMPRESSION))
 			return false;
 	}
 	
 	return true;
-}
-
-Image DocumentDatabase::loadTile(const QString &path, const QSize &size)
-{
-	if (path.isEmpty())
-		return Image();
-	
-	QByteArray compressed = loadFromUnzip(_documentIO->unzipFile(), path);
-	if (compressed.isEmpty())
-		return Image();
-	
-	QByteArray data = qUncompress(compressed);
-	
-	return Image::fromByteArray(data, size);
-}
-
-Image DocumentDatabase::loadTileData(const QVariant &tileData, const QSize &size, QPoint *key)
-{
-	QVariantMap tileMap = tileData.toMap();
-	*key = QPoint(tileMap["x"].toInt(), tileMap["y"].toInt());
-	
-	return loadTile(tileMap["source"].toString(), size);
-}
-
-QString DocumentDatabase::addTile(const Malachite::Image &tile)
-{
-	for (auto iter = _tilesToSave.begin(); iter != _tilesToSave.end(); ++iter)
-	{
-		if (tile.referenceIsEqualTo(iter->tile))
-			return iter->path;
-	}
-	
-	QString path = "data/tiles/" + QString::number(_tileCount) + ".tile";
-	
-	_tilesToSave << TileSaveInfo(tile, path);
-	++_tileCount;
-	
-	return path;
 }
 
 }

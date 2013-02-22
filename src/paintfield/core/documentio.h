@@ -76,39 +76,17 @@ public:
 	
 private:
 	
-	Malachite::Image loadTile(const QString &path, const QSize &size);
-	Malachite::Image loadTileData(const QVariant &tileData, const QSize &size, QPoint *key);
-	
-	/**
-	 * Add a tile into the list which contains tiles which will be saved when "save()" is called.
-	 * Does nothing if the same tile has already been added to the list, to avoid duplication.
-	 * 
-	 * @param tile The tile to save
-	 * @return The in-archive path to which the tile will be saved
-	 */
-	QString addTile(const Malachite::Image &tile);
-	
 	DocumentIO *_documentIO;
-	
-	struct TileSaveInfo
-	{
-		TileSaveInfo(const Malachite::Image &tile, const QString &path) : tile(tile), path(path) {}
-		
-		Malachite::Image tile;
-		QString path;
-	};
 	
 	struct SurfaceSaveInfo
 	{
-		SurfaceSaveInfo(const QVariant &data, const QString &path) : data(data), path(path) {}
+		SurfaceSaveInfo(const Malachite::Surface &surface, const QString &path) : surface(surface), path(path) {}
 		
-		QVariant data;
+		Malachite::Surface surface;
 		QString path;
 	};
 	
-	int _surfaceCount, _tileCount;
 	QList<SurfaceSaveInfo> _surfacesToSave;
-	QList<TileSaveInfo> _tilesToSave;
 };
 
 }
