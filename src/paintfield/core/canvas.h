@@ -201,8 +201,6 @@ public slots:
 	
 	void setMirrored(bool mirrored);
 	
-	void makeSkipNextUpdate();
-	
 private slots:
 	
 	void onToolChanged(const QString &name);

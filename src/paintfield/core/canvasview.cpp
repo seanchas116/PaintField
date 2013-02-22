@@ -87,7 +87,7 @@ public:
 	
 	QPoint maxAbsTranslation;
 	
-	bool skipNextUpdate = false;
+	bool updateEnabled = true;
 };
 
 CanvasView::CanvasView(Canvas *canvas, QWidget *parent) :
@@ -187,6 +187,15 @@ CanvasView::~CanvasView()
 	delete d;
 }
 
+bool CanvasView::isUpdateTilesEnabled() const
+{
+	return d->updateEnabled;
+}
+
+void CanvasView::setUpdateTilesEnabled(bool enable)
+{
+	d->updateEnabled = enable;
+}
 
 QPoint CanvasView::viewCenter() const
 {
@@ -280,19 +289,10 @@ void CanvasView::setTool(Tool *tool)
 		setCursor(tool->cursor());
 	}
 }
-
-void CanvasView::makeSkipNextUpdate()
-{
-	d->skipNextUpdate = true;
-}
-
 void CanvasView::updateTiles(const QPointSet &keys, const QHash<QPoint, QRect> &rects)
 {
-	if (d->skipNextUpdate)
-	{
-		d->skipNextUpdate = false;
+	if (!d->updateEnabled)
 		return;
-	}
 	
 	d->viewport->beforeUpdateTile();
 	

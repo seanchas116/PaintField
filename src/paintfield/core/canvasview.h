@@ -35,10 +35,13 @@ public:
 	Malachite::Affine2D transformToScene() const;
 	Malachite::Affine2D transformFromScene() const;
 	
+	bool isUpdateTilesEnabled() const;
+	
 public slots:
 	
+	void setUpdateTilesEnabled(bool enable);
+	
 	void setTool(Tool *tool);
-	void makeSkipNextUpdate();
 	
 protected:
 	
