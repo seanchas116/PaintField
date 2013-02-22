@@ -81,7 +81,7 @@ public:
 	Affine2D transformToScene, transformFromScene;
 	
 	CanvasViewportInterface *viewport = 0;
-	QWidget *viewportWidget = 0;
+	QPointer<QWidget> viewportWidget = 0;
 	
 	QTimer *accurateUpdateTimer = 0;
 	
@@ -182,7 +182,8 @@ CanvasView::CanvasView(Canvas *canvas, QWidget *parent) :
 
 CanvasView::~CanvasView()
 {
-	d->viewportWidget->deleteLater();
+	if (d->viewportWidget)
+		d->viewportWidget->deleteLater();
 	delete d;
 }
 
@@ -409,6 +410,11 @@ void CanvasView::keyReleaseEvent(QKeyEvent *event)
 	
 	PAINTFIELD_DEBUG << "released:" << event->key() << "modifiers" << event->modifiers();
 	d->keyTracker->releaseKey(event->key());
+}
+
+void CanvasView::focusInEvent(QFocusEvent *)
+{
+	d->viewport->updateAccurately();
 }
 
 void CanvasView::enterEvent(QEvent *e)

@@ -50,6 +50,7 @@ protected:
 	void mouseReleaseEvent(QMouseEvent *event);
 	void tabletEvent(QTabletEvent *event);
 	void customTabletEvent(WidgetTabletEvent *event);
+	void focusInEvent(QFocusEvent *);
 	void enterEvent(QEvent *);
 	void leaveEvent(QEvent *);
 	void wheelEvent(QWheelEvent *event);
