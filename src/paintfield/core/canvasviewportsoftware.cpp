@@ -35,6 +35,9 @@ struct CanvasViewportSoftware::Data
 	
 	void paintUnpaintedTilesToPixmap()
 	{
+		if (roughUpdatePixelUnpaintedTiles.isEmpty())
+			return;
+		
 		QPainter painter(&roughUpdatePixmap);
 		painter.setCompositionMode(QPainter::CompositionMode_Source);
 		
@@ -42,6 +45,8 @@ struct CanvasViewportSoftware::Data
 		{
 			painter.drawImage( key * Surface::tileWidth(), surface.tileRef(key).wrapInQImage() );
 		}
+		
+		roughUpdatePixelUnpaintedTiles.clear();
 	}
 };
 
