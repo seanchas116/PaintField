@@ -853,6 +853,8 @@ void CanvasView::endDragRotation()
 
 void CanvasView::moveViewport()
 {
+	PAINTFIELD_DEBUG << "moving viewport";
+	
 	d->viewportWidget->setParent(window());
 	QRect geom(Util::mapToWindow(this, QPoint()), this->geometry().size());
 	d->viewportWidget->setGeometry(geom);
