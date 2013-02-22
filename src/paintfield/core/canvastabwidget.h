@@ -53,6 +53,8 @@ private slots:
 	void onTabMovedIn(QWidget *widget);
 	void onTabAboutToBeMovedOut(QWidget *widget);
 	
+	void onCanvasDocumentPropertyChanged(Canvas *canvas);
+	
 private:
 	
 	CanvasView *canvasViewAt(int index);

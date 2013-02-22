@@ -79,6 +79,9 @@ void Canvas::commonInit()
 {
 	*d->documentRefCount += 1;
 	
+	connect(d->document, SIGNAL(filePathChanged(QString)), this, SIGNAL(documentPropertyChanged()));
+	connect(d->document, SIGNAL(modifiedChanged(bool)), this, SIGNAL(documentPropertyChanged()));
+	
 	// create selection model
 	
 	d->selectionModel = new QItemSelectionModel(d->document->layerModel(), this);

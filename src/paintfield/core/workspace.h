@@ -58,6 +58,9 @@ public:
 	
 signals:
 	
+	void currentCanvasDocumentPropertyChanged();
+	void canvasDocumentPropertyChanged(Canvas *canvas);
+	
 	void currentCanvasChanged(Canvas *canvas);
 	
 	void canvasShowRequested(Canvas *canvas);
@@ -104,6 +107,7 @@ public slots:
 private slots:
 	
 	void deleteCanvas(Canvas *canvas);
+	void onCanvasDocumentPropertyChanged();
 	
 private:
 	

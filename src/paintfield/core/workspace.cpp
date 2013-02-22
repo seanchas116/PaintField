@@ -16,7 +16,7 @@ namespace PaintField
 
 struct Workspace::Data
 {
-	QList<Canvas *> canvasControllers;
+	QList<Canvas *> canvases;
 	QPointer<Canvas> currentCanvas;
 	
 	ToolManager *toolManager = 0;
@@ -165,7 +165,7 @@ void Workspace::openCanvasFromFilepath(const QString &filepath)
 
 bool Workspace::tryClose()
 {
-	for (Canvas *canvas : d->canvasControllers)
+	for (Canvas *canvas : d->canvases)
 	{
 		if (!canvas->closeCanvas())
 			return false;
@@ -203,17 +203,18 @@ void Workspace::addCanvas(Canvas *canvas)
 	if (!canvas)
 		return;
 	
-	if (!d->canvasControllers.contains(canvas))
+	if (!d->canvases.contains(canvas))
 	{
-		d->canvasControllers << canvas;
+		d->canvases << canvas;
 		connect(canvas, SIGNAL(shouldBeDeleted(Canvas*)),
 		        this, SLOT(deleteCanvas(Canvas*)));
+		connect(canvas, SIGNAL(documentPropertyChanged()), this, SLOT(onCanvasDocumentPropertyChanged()));
 	}
 }
 
 QList<Canvas *> Workspace::canvases()
 {
-	return d->canvasControllers;
+	return d->canvases;
 }
 
 Canvas *Workspace::currentCanvas()
@@ -223,12 +224,12 @@ Canvas *Workspace::currentCanvas()
 
 void Workspace::deleteCanvas(Canvas *canvas)
 {
-	if (d->canvasControllers.contains(canvas))
+	if (d->canvases.contains(canvas))
 	{
 		if (d->currentCanvas == canvas)
 			setCurrentCanvas(0);
 		
-		d->canvasControllers.removeAll(canvas);
+		d->canvases.removeAll(canvas);
 		canvas->deleteLater();
 	}
 }
@@ -241,6 +242,18 @@ QActionList Workspace::currentCanvasActions()
 CanvasExtensionList Workspace::currentCanvasModules()
 {
 	return d->currentCanvas ? d->currentCanvas->extensions() : d->nullCanvasModules;
+}
+
+void Workspace::onCanvasDocumentPropertyChanged()
+{
+	auto canvas = qobject_cast<Canvas *>(sender());
+	if (canvas && d->canvases.contains(canvas))
+	{
+		emit canvasDocumentPropertyChanged(canvas);
+		
+		if (canvas == d->currentCanvas)
+			emit currentCanvasDocumentPropertyChanged();
+	}
 }
 
 }

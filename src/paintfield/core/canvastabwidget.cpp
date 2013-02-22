@@ -33,6 +33,8 @@ CanvasTabWidget::CanvasTabWidget(Workspace *workspace, QWidget *parent) :
 	
 	connect(workspace, SIGNAL(currentCanvasChanged(Canvas*)), this, SLOT(onCurrentCanvasChanged(Canvas*)));
 	connect(this, SIGNAL(currentCanvasChanged(Canvas*)), workspace, SLOT(setCurrentCanvas(Canvas*)));
+	
+	connect(workspace, SIGNAL(canvasDocumentPropertyChanged(Canvas*)), this, SLOT(onCanvasDocumentPropertyChanged(Canvas*)));
 }
 
 CanvasTabWidget::~CanvasTabWidget()
@@ -140,6 +142,18 @@ void CanvasTabWidget::onTabAboutToBeMovedOut(QWidget *widget)
 	CanvasView *canvasView = qobject_cast<CanvasView *>(widget);
 	if (canvasView)
 		canvasView->canvas()->memorizeNavigation();
+}
+
+void CanvasTabWidget::onCanvasDocumentPropertyChanged(Canvas *canvas)
+{
+	for (int i = 0; i < count(); ++i)
+	{
+		auto view = canvasViewAt(i);
+		if (view && view->canvas() == canvas)
+		{
+			setTabText(i, canvas->document()->fileName());
+		}
+	}
 }
 
 bool CanvasTabWidget::tryClose()

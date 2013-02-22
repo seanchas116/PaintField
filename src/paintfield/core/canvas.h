@@ -150,6 +150,8 @@ public:
 	
 signals:
 	
+	void documentPropertyChanged();
+	
 	void shouldBeDeleted(Canvas *canvas);
 	
 	void scaleChanged(double scale);

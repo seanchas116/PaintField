@@ -122,7 +122,7 @@ protected:
 	
 private slots:
 	
-	void onCurrentCanvasPropertyChanged();
+	void onCurrentCanvasDocumentPropertyChanged();
 	
 private:
 	

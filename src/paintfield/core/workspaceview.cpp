@@ -251,6 +251,7 @@ WorkspaceView::WorkspaceView(Workspace *workspace, QWidget *parent) :
 	
 	connect(workspace, SIGNAL(currentCanvasChanged(Canvas*)), this, SLOT(setCurrentCanvas(Canvas*)));
 	connect(this, SIGNAL(closeRequested()), workspace, SLOT(tryClose()));
+	connect(workspace, SIGNAL(currentCanvasDocumentPropertyChanged()), this, SLOT(onCurrentCanvasDocumentPropertyChanged()));
 	
 	{
 		QVariantMap workspaceItemOrderMap = appController()->settingsManager()->settings()["workspace-item-order"].toMap();
@@ -267,7 +268,7 @@ WorkspaceView::WorkspaceView(Workspace *workspace, QWidget *parent) :
 	connect(workspace, SIGNAL(shouldBeDeleted(Workspace*)), this, SLOT(deleteLater()));
 	connect(workspace, SIGNAL(focused()), this, SLOT(setFocus()));
 	
-	onCurrentCanvasPropertyChanged();
+	onCurrentCanvasDocumentPropertyChanged();
 	
 	updateWorkspaceItems();
 	updateWorkspaceItemsForCanvas(workspace->currentCanvas());
@@ -415,26 +416,15 @@ Workspace *WorkspaceView::workspace()
 
 void WorkspaceView::setCurrentCanvas(Canvas *canvas)
 {
-	if (d->currentCanvas)
-	{
-		disconnect(d->currentCanvas->document(), 0, this, 0);
-	}
-	
 	d->currentCanvas = canvas;
-	
-	if (d->currentCanvas)
-	{
-		connect(canvas->document(), SIGNAL(modifiedChanged(bool)), this, SLOT(onCurrentCanvasPropertyChanged()));
-		connect(canvas->document(), SIGNAL(filePathChanged(QString)), this, SLOT(onCurrentCanvasPropertyChanged()));
-	}
 	
 	updateWorkspaceItemsForCanvas(canvas);
 	updateMenuBar();
 	
-	onCurrentCanvasPropertyChanged();
+	onCurrentCanvasDocumentPropertyChanged();
 }
 
-void WorkspaceView::onCurrentCanvasPropertyChanged()
+void WorkspaceView::onCurrentCanvasDocumentPropertyChanged()
 {
 	if (d->currentCanvas)
 	{
