@@ -182,9 +182,7 @@ CanvasView::CanvasView(Canvas *canvas, QWidget *parent) :
 
 CanvasView::~CanvasView()
 {
-	while (qApp->overrideCursor())
-		qApp->restoreOverrideCursor();
-	
+	d->viewportWidget->deleteLater();
 	delete d;
 }
 
