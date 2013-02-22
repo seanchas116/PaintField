@@ -40,6 +40,8 @@ else
   destination = out_pwd_app
 end
 
+FileUtils.mkpath(destination)
+
 out_pwd_extensions = "#{out_pwd_root}/src/paintfield/extensions"
 
 if platform == :mac
@@ -60,7 +62,7 @@ end
 
 if platform == :mac
   destination_frameworks = "#{out_pwd_app}/PaintField.app/Contents/Frameworks"
-  `mkdir -p #{destination_frameworks}`
+  FileUtils.mkpath(destination_frameworks)
   `cp -R #{out_pwd_root}/src/libs/Malachite/src/lib*.dylib #{destination_frameworks}`
   `cp -R #{out_pwd_root}/src/libs/Minizip/lib*.dylib #{destination_frameworks}`
   `cp -R #{out_pwd_root}/src/paintfield/core/lib*.dylib #{destination_frameworks}`
