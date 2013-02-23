@@ -256,7 +256,7 @@ void CanvasViewportSoftware::paintEvent(QPaintEvent *ev)
 		d->clearAccurateUpdateQueue();
 #endif
 	
-	if (d->accurateUpdateSceneRects.isEmpty()) // rough update
+	if (d->accurateUpdateSceneRects.isEmpty()) // rough update, painting whole event rect
 	{
 		PAINTFIELD_DEBUG << "painting roughly";
 		
@@ -266,7 +266,7 @@ void CanvasViewportSoftware::paintEvent(QPaintEvent *ev)
 		d->paintUnpaintedTilesToPixmap();
 		painter.drawPixmap(QPoint(), d->roughUpdatePixmap);
 	}
-	else
+	else // accurate update, painting designated rects only
 	{
 		PAINTFIELD_DEBUG << "painting accurately";
 		
