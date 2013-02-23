@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <title>FAQ - PaintField</title>
+
+  <link href="http://fonts.googleapis.com/css?family=Open+Sans:300" rel="stylesheet">
+
+  <link href="../css/bootstrap.min.css" rel="stylesheet" media="screen">
+  <link href="../css/bootstrap-responsive.min.css" rel="stylesheet">
+  <link href="../css/lightbox.css" rel="stylesheet">
+  
+  <link href="../css/pf-style.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+  <div class="pf-above-footer">
+
+    <div class="navbar navbar-fixed-top navbar-inverse">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="index.html">PaintField</a>
+          <ul class="nav">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="features.html">Features</a></li>
+            <li><a href="downloads.html">Downloads</a></li>
+            <li class="active"><a href="#">FAQ</a></li>
+          </ul>
+          <ul class="nav pull-right">
+            <li><a href="../ja/faq.html">日本語</a></li>
+            <li class="active"><a href="#">English</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <a href="https://github.com/iofg2100/PaintField"><img class="pf-fork-me" src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png" alt="Fork me on GitHub"></a>
+
+    <div class="container">
+
+      <div class="pf-top-pad"></div>
+
+      <section id="FAQ">
+
+        <div class="page-header">
+          <h1>Frequently Asked Questions</h1>
+        </div>
+
+        <h4>What are the default shortcuts of PaintField?</h4>
+
+        <ul>
+          <li>Translating canvas: Space+Drag</li>
+          <li>Scaling canvas: Option+Drag (Mac), Control+Drag (Linux)</li>
+          <li>Rotating canvas: Shift+Drag</li>
+        </ul>
+
+        <p>
+          Also, many of the menu bar items has their own shortcuts.
+        </p>
+
+        <h4>PaintField fails to launch. What can I do?</h4>
+
+        <p>
+          <strong>On Linux:</strong>
+        <p>
+          The following libraries must be installed. Check if these libraries are installed and install them if not.
+        </p>
+
+        <ul>
+          <li>Qt 4.8</li>
+          <li>libfreeimage</li>
+          <li>libqjson</li>
+        </ul>
+
+        <p>
+          <strong>On Mac:</strong>
+        </p>
+
+        <p>
+          PaintField only supports Lion and Mountain Lion.
+        </p>
+
+        <h4>How can I do to change the settings?</h4>
+
+        <p>PaintField searches 2 folders on startup to load settings or brush presets in this order:</p>
+
+        <ol>
+          <li>The folder that contains PaintField executable (PaintField.app/Contents/MacOS on Mac) (built-in)</li>
+          <li>The folder named "PaintField" in user's document folder (~/Documents/PaintField on Mac) (for user)</li>
+        </ol>
+
+        <p>The structure of each folders is like this:</p>
+        <pre>
+Contents/
+  Brush Presets/
+      (brush preset files and folders)
+Settings/
+  key-bindings.json (key binding settings)
+  menubar.json (menubar arrangement)
+  workspace-items.json (toolbars and sidebars arrangement)</pre>
+
+        <p>Place your original settings files in the user PaintField folder, and the settings are overridden.</p>
+
+      </section>
+
+      <div class="pf-bottom-pad"></div>
+
+    </div>
+
+  </div>
+
+  <div class="pf-footer">
+    <div class="container">
+      <p class="muted"><small>
+        <br>
+        Developed by <a href="https://twitter.com/seanchas_t">@seanchas_t</a>. Hosted on <a href="http://github.com/iofg2100/PaintField">GitHub</a>.<br>
+        Website powered by <a href="http://twitter.github.com/bootstrap/">Bootstrap</a>.
+        Pattern from <a href="http://subtlepatterns.com/">Subtle Patterns</a>.
+        Font from <a href="http://www.google.com/webfonts">Google</a>.
+      </small></p>
+    </div>
+  </div>
+
+</body>
+
+</html>

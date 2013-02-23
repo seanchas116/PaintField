@@ -1,30 +1,78 @@
-
 body {
-  padding-top: 50px;
-  padding-bottom: 50px;
   font-family: "Open Sans", sans-serif;
-  font-weight: 300;
-}
-
-h1 {
-  font-weight: 300;
-}
-h2 {
-  font-weight: 300;
-}
-h3 {
-  font-weight: 300;
+  font-weight: normal;
+  background-image: url("../images/fabric_plaid.png");
 }
 
 .hero-unit {
-  border-style: solid;
-  border-width: 2px;
-  border-color: #e7e7e7;
-  background-color: #fcfcfc;
+  background-color: rgba(0, 0, 0, 0.1);
 }
 
-.container-fluid {
-  margin-right: auto;
-  margin-left: auto;
-  max-width: 940px;
+.pf-top-pad {
+  height: 80px;
 }
+
+.pf-image-frame {
+  padding: 40px;
+}
+
+@media (max-width: 979px) {
+  .pf-top-pad {
+    height: 20px;
+  }
+}
+
+html,
+body {
+  height: 100%;
+}
+
+.pf-above-footer {
+  min-height: 100%;
+  height: auto !important;
+  height: 100%;
+  margin: 0 auto -80px;
+}
+
+.pf-bottom-pad {
+  height: 80px;
+}
+
+.pf-footer {
+  height: 80px;
+}
+
+@media (max-width: 767px) {
+  .pf-footer {
+    margin-left: -20px;
+    margin-right: -20px;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}
+
+@media (min-width: 980px) {
+  .pf-fork-me {
+    position: fixed;
+    top: 40px;
+    right: 0;
+    border: 0;
+    z-index: 0;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 979px) {
+  .pf-fork-me {
+    margin-top: -20px;
+    float: right;
+  }
+}
+
+@media (max-width: 767px) {
+  .pf-fork-me {
+    margin-top: -20px;
+    margin-right: -20px;
+    float: right;
+  }
+}
+
