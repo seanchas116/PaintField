@@ -63,9 +63,9 @@ end
 if platform == :mac
   destination_frameworks = "#{out_pwd_app}/PaintField.app/Contents/Frameworks"
   FileUtils.mkpath(destination_frameworks)
-  `cp -R #{out_pwd_root}/src/libs/Malachite/src/lib*.dylib #{destination_frameworks}`
-  `cp -R #{out_pwd_root}/src/libs/Minizip/lib*.dylib #{destination_frameworks}`
-  `cp -R #{out_pwd_root}/src/paintfield/core/lib*.dylib #{destination_frameworks}`
+  `cp #{out_pwd_root}/src/libs/Malachite/src/lib*.1.dylib #{destination_frameworks}`
+  `cp #{out_pwd_root}/src/libs/Minizip/lib*.1.dylib #{destination_frameworks}`
+  `cp #{out_pwd_root}/src/paintfield/core/lib*.1.dylib #{destination_frameworks}`
 end
 
 # copy paintfield-launch.sh (other than Mac)
