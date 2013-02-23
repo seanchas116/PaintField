@@ -347,9 +347,12 @@ bool DockTabMotherWidget::dropDockTab(DockTabWidget *srcTabWidget, int srcIndex,
 		return false;
 	
 	auto dstTabWidget = srcTabWidget->createNewTabWidget();
-	srcTabWidget->moveTab(srcIndex, dstTabWidget, 0);
 	
-	return insertTabWidget(dstTabWidget, area);
+	bool inserted = insertTabWidget(dstTabWidget, area);
+	if (inserted)
+		srcTabWidget->moveTab(srcIndex, dstTabWidget, 0);
+	
+	return inserted;
 }
 
 void DockTabMotherWidget::onTabWidgetWillBeDeleted(DockTabWidget *widget)

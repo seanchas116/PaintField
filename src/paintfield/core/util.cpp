@@ -137,7 +137,18 @@ QPoint mapToWindow(QWidget *widget, const QPoint &pos)
 	
 	QPoint result = pos;
 	
-	while (widget->parent())
+	auto widgetIsTopLevel = [&widget]()->bool
+	{
+		if (!widget->parent())
+			return true;
+		
+		if ((widget->windowFlags() & Qt::Tool) == Qt::Tool)
+			return true;
+		
+		return false;
+	};
+	
+while (!widgetIsTopLevel())
 	{
 		result = widget->mapToParent(result);
 		widget = widget->parentWidget();

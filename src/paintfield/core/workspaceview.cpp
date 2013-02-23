@@ -228,6 +228,7 @@ WorkspaceView::WorkspaceView(Workspace *workspace, QWidget *parent) :
     QMainWindow(parent),
     d(new Data)
 {
+	workspace->setView(this);
 	d->workspace = workspace;
 	d->currentCanvas = workspace->currentCanvas();
 	

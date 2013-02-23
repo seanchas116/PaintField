@@ -7,11 +7,51 @@
 namespace PaintField
 {
 
-DockTabWidget::DockTabWidget(QWidget *parent) :
-	QTabWidget(parent)
+struct DockTabWidget::Data
 {
-	new DockTabBar(this);
+	bool autoDeletionEnabled = false;
+	bool floating = false;
+	QWidget *baseWindow = 0;
+};
+
+DockTabWidget::DockTabWidget(QWidget *baseWindow, QWidget *parent) :
+	QTabWidget(parent),
+	d(new Data)
+{
+	d->baseWindow = baseWindow;
+	
+	new DockTabBar(this, 0);
 	connect(this, SIGNAL(currentChanged(int)), this, SLOT(onCurrentChanged(int)));
+}
+
+DockTabWidget::~DockTabWidget()
+{
+	delete d;
+}
+
+void DockTabWidget::makeFloating()
+{
+	PAINTFIELD_DEBUG << d->baseWindow;
+	hide();
+	setParent(d->baseWindow);
+	setWindowFlags(Qt::Tool);
+	show();
+	d->floating = true;
+}
+
+bool DockTabWidget::isFloating() const
+{
+	return d->floating;
+}
+
+void DockTabWidget::setAutoDeletionEnabled(bool x)
+{
+	d->autoDeletionEnabled = x;
+}
+
+bool DockTabWidget::isAutoDeletionEnabled() const
+{
+	return d->autoDeletionEnabled;
 }
 
 
@@ -62,7 +102,9 @@ bool DockTabWidget::eventIsTabDrag(QDragEnterEvent *event)
 
 QObject *DockTabWidget::createNew()
 {
-	return new DockTabWidget();
+	auto w = new DockTabWidget(d->baseWindow, 0);
+	w->setAutoDeletionEnabled(d->autoDeletionEnabled);
+	return w;
 }
 
 void DockTabWidget::mousePressEvent(QMouseEvent *event)
@@ -83,24 +125,48 @@ void DockTabWidget::closeEvent(QCloseEvent *event)
 
 void DockTabWidget::onCurrentChanged(int index)
 {
-	if (index < 0 && _autoDeletionEnabled)
+	if (index < 0 && d->autoDeletionEnabled)
 	{
 		emit willBeAutomaticallyDeleted(this);
 		deleteLater();
 	}
 }
 
+struct DockTabBar::Data
+{
+	DockTabWidget *tabWidget = 0;
+	bool isStartingDrag = false, isCursorOverridden = false;
+	QPoint dragStartPos;
+	int dragIndex;
+};
+
 DockTabBar::DockTabBar(DockTabWidget *tabWidget, QWidget *parent) :
 	QTabBar(parent),
-	_tabWidget(tabWidget)
+	d(new Data)
 {
+	d->tabWidget = tabWidget;
+	
 	Q_ASSERT(tabWidget);
 	
 	tabWidget->setTabBar(this);
 	connect(this, SIGNAL(clicked()), tabWidget, SIGNAL(tabClicked()));
 	
 	setDocumentMode(true);
-	//setExpanding(false);
+}
+
+DockTabBar::~DockTabBar()
+{
+	delete d;
+}
+
+DockTabWidget *DockTabBar::tabWidget()
+{
+	return d->tabWidget;
+}
+
+bool DockTabBar::tabIsInsertable(DockTabWidget *src, int srcIndex)
+{
+	return d->tabWidget->tabIsInsertable(src, srcIndex);
 }
 
 int DockTabBar::insertionIndexAt(const QPoint &pos)
@@ -131,11 +197,11 @@ void DockTabBar::mousePressEvent(QMouseEvent *event)
 	
 	if (event->button() == Qt::LeftButton)
 	{
-		_dragIndex = tabAt(event->pos());
-		if (_dragIndex >= 0)
+		d->dragIndex = tabAt(event->pos());
+		if (d->dragIndex >= 0)
 		{
-			_dragStartPos = event->pos();
-			_isStartingDrag = true;
+			d->dragStartPos = event->pos();
+			d->isStartingDrag = true;
 		}
 	}
 	QTabBar::mousePressEvent(event);
@@ -143,20 +209,29 @@ void DockTabBar::mousePressEvent(QMouseEvent *event)
 
 void DockTabBar::mouseMoveEvent(QMouseEvent *event)
 {
-	QPoint delta = event->pos() - _dragStartPos;
-	if (delta.manhattanLength() < qApp->startDragDistance())
+	if (d->isStartingDrag)
 	{
-		qApp->setOverrideCursor(Qt::SizeAllCursor);
+		QPoint delta = event->pos() - d->dragStartPos;
+		if (delta.manhattanLength() >= qApp->startDragDistance())
+		{
+			//qApp->setOverrideCursor(Qt::SizeAllCursor);
+			d->isCursorOverridden = true;
+		}
 	}
 }
 
 void DockTabBar::mouseReleaseEvent(QMouseEvent *event)
 {
-	if (_isStartingDrag && (event->pos() - _dragStartPos).manhattanLength() >= qApp->startDragDistance())
+	if (d->isCursorOverridden)
 	{
-		qApp->setOverrideCursor(QCursor());
-		dragDropTab(_dragIndex, mapToGlobal(event->pos()), _dragStartPos - tabRect(_dragIndex).topLeft());
-		_isStartingDrag = false;
+		//qApp->restoreOverrideCursor();
+		d->isCursorOverridden = false;
+	}
+	
+	if (d->isStartingDrag && (event->pos() - d->dragStartPos).manhattanLength() >= qApp->startDragDistance())
+	{
+		dragDropTab(d->dragIndex, mapToGlobal(event->pos()), d->dragStartPos - tabRect(d->dragIndex).topLeft());
+		d->isStartingDrag = false;
 	}
 }
 
@@ -175,9 +250,9 @@ void DockTabBar::dragDropTab(int index, const QPoint &globalPos, const QPoint &d
 		{
 			droppableWidget = widget;
 			
-			if (droppable->tabIsInsertable(_tabWidget, index))
+			if (droppable->tabIsInsertable(d->tabWidget, index))
 			{
-				bool dropResult = droppable->dropDockTab(_tabWidget, index, droppableWidget->mapFromGlobal(globalPos));
+				bool dropResult = droppable->dropDockTab(d->tabWidget, index, droppableWidget->mapFromGlobal(globalPos));
 				if (dropResult)
 					return;
 			}
@@ -186,20 +261,21 @@ void DockTabBar::dragDropTab(int index, const QPoint &globalPos, const QPoint &d
 	}
 	
 	int dstIndex = 0;
-	auto dstTabWidget = _tabWidget->createNewTabWidget();
-	QRect dstGeom = _tabWidget->geometry();
+	auto dstTabWidget = d->tabWidget->createNewTabWidget();
+	QRect dstGeom = d->tabWidget->geometry();
 	dstGeom.moveTopLeft(globalPos - dragStartOffset);
 	dstTabWidget->setGeometry(dstGeom);
 	
-	dstTabWidget->show();
+	dstTabWidget->makeFloating();
+	//dstTabWidget->show();
 	
-	if (!_tabWidget->moveTab(index, dstTabWidget, dstIndex))
+	if (!d->tabWidget->moveTab(index, dstTabWidget, dstIndex))
 		dstTabWidget->deleteLater();
 }
 
 bool DockTabBar::dropDockTab(DockTabWidget *srcTabWidget, int srcIndex, const QPoint &pos)
 {
-	return srcTabWidget->moveTab(srcIndex, _tabWidget, insertionIndexAt(pos));
+	return srcTabWidget->moveTab(srcIndex, d->tabWidget, insertionIndexAt(pos));
 }
 
 }

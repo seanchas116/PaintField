@@ -20,10 +20,15 @@ class DockTabWidget : public QTabWidget, public ReproductiveInterface
 	
 public:
 	
-	explicit DockTabWidget(QWidget *parent = 0);
+	explicit DockTabWidget(QWidget *baseWindow, QWidget *parent);
+	~DockTabWidget();
 	
-	void setAutoDeletionEnabled(bool x) { _autoDeletionEnabled = x; }
-	bool isAutoDeletionEnabled() const { return _autoDeletionEnabled; }
+	void makeFloating();
+	
+	bool isFloating() const;
+	
+	void setAutoDeletionEnabled(bool x);
+	bool isAutoDeletionEnabled() const;
 	
 	bool contains(QWidget *widget) { return indexOf(widget) >= 0; }
 	
@@ -64,7 +69,8 @@ private slots:
 	
 private:
 	
-	bool _autoDeletionEnabled = false;
+	struct Data;
+	Data *d;
 };
 
 class DockTabBar : public QTabBar, public DockTabDroppableInterface
@@ -74,15 +80,12 @@ class DockTabBar : public QTabBar, public DockTabDroppableInterface
 	
 public:
 	
-	DockTabBar(DockTabWidget *tabWidget, QWidget *parent = 0);
+	DockTabBar(DockTabWidget *tabWidget, QWidget *parent);
+	~DockTabBar();
 	
-	DockTabWidget *tabWidget() { return _tabWidget; }
+	DockTabWidget *tabWidget();
 	
-	bool tabIsInsertable(DockTabWidget *src, int srcIndex) override
-	{
-		return _tabWidget->tabIsInsertable(src, srcIndex);
-	}
-
+	bool tabIsInsertable(DockTabWidget *src, int srcIndex) override;
 	bool dropDockTab(DockTabWidget *srcTabWidget, int srcIndex, const QPoint &pos) override;
 	
 	int insertionIndexAt(const QPoint &pos);
@@ -101,10 +104,8 @@ private:
 	
 	void dragDropTab(int index, const QPoint &globalPos, const QPoint &dragStartOffset);
 	
-	DockTabWidget *_tabWidget = 0;
-	bool _isStartingDrag = false;
-	QPoint _dragStartPos;
-	int _dragIndex;
+	struct Data;
+	Data *d;
 };
 
 }

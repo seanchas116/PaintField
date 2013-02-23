@@ -18,9 +18,6 @@ public:
 	explicit WorkspaceTabWidget(Workspace *workspace, QWidget *parent = 0);
 	~WorkspaceTabWidget();
 	
-	bool isFloating() const;
-	void setFloating(bool floating);
-	
 	Workspace *workspace();
 	
 signals:
@@ -28,8 +25,6 @@ signals:
 public slots:
 	
 protected:
-	
-	bool event(QEvent *event);
 	
 private slots:
 	

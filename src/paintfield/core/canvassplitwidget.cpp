@@ -56,7 +56,6 @@ CanvasSplitWidget::CanvasSplitWidget(CanvasTabWidget *tabWidget, QWidget *parent
     _tabWidget(tabWidget),
     _defaultWidget(new CanvasSplitDefaultWidget(tabWidget, 0))
 {
-	_tabWidget->setFloating(false);
 	_tabWidget->setAutoDeletionEnabled(false);
 	
 	insertWidget(IndexTabWidget, tabWidget);
