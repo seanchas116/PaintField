@@ -8,10 +8,6 @@
 
 #include "canvasviewportsoftware.h"
 
-#if defined(Q_OS_MAC) && !defined(PF_FORCE_RASTER_ENGINE)
-#define PAINTFIELD_COREGRAPHICS_REPAINT
-#endif
-
 using namespace Malachite;
 
 namespace PaintField {
@@ -26,7 +22,14 @@ struct CanvasViewportSoftware::Data
 	QPointSet tileKeys;
 	
 	QVector<QRect> accurateUpdateSceneRects;
+	QRect unionAccurateUpdateSceneRect;
 	bool accurateUpdateConsiderBorder = false;
+	
+	void clearAccurateUpdateQueue()
+	{
+		accurateUpdateSceneRects.clear();
+		accurateUpdateConsiderBorder = false;
+	}
 	
 	QPixmap roughUpdatePixmap;
 	QPointSet roughUpdatePixelUnpaintedTiles;
@@ -134,6 +137,8 @@ void CanvasViewportSoftware::afterUpdateTile()
 		unionRect |= rect;
 	}
 	
+	d->unionAccurateUpdateSceneRect = unionRect;
+	
 #ifdef PAINTFIELD_COREGRAPHICS_REPAINT
 	if (unionRect.width() <= Surface::tileWidth() && unionRect.height() <= Surface::tileWidth())
 	{
@@ -151,8 +156,7 @@ void CanvasViewportSoftware::afterUpdateTile()
 	{
 		d->accurateUpdateSceneRects = { unionRect };
 		repaint(unionRect);
-		d->accurateUpdateSceneRects.clear();
-		d->accurateUpdateConsiderBorder = false;
+		d->clearAccurateUpdateQueue();
 	}
 	else
 	{
@@ -185,8 +189,7 @@ void CanvasViewportSoftware::updateAccurately()
 	d->accurateUpdateConsiderBorder = true;
 	repaint();
 #ifndef PAINTFIELD_COREGRAPHICS_REPAINT
-	d->accurateUpdateSceneRects.clear();
-	d->accurateUpdateConsiderBorder = false;
+	d->clearAccurateUpdateQueue();
 #endif
 }
 
@@ -243,9 +246,15 @@ void CanvasViewportSoftware::repaintRects(const QVector<QRect> &rects, bool cons
 	}
 }
 
-void CanvasViewportSoftware::paintEvent(QPaintEvent *)
+void CanvasViewportSoftware::paintEvent(QPaintEvent *ev)
 {
 	QPainter painter(this);
+	
+#ifdef PAINTFIELD_COREGRAPHICS_REPAINT
+	// In Mac, sometimes the repaint event is merged with another update event and the repaint rect is expanded
+	if (!d->unionAccurateUpdateSceneRect.contains(ev->rect()))
+		d->clearAccurateUpdateQueue();
+#endif
 	
 	if (d->accurateUpdateSceneRects.isEmpty()) // rough update
 	{
@@ -259,12 +268,13 @@ void CanvasViewportSoftware::paintEvent(QPaintEvent *)
 	}
 	else
 	{
+		PAINTFIELD_DEBUG << "painting accurately";
+		
 		repaintRects(d->accurateUpdateSceneRects, d->accurateUpdateConsiderBorder);
 		
 		// In Core Graphics graphics engine, multiple repaint calls in one event loop seem to be put together
 #ifdef PAINTFIELD_COREGRAPHICS_REPAINT
-		d->accurateUpdateSceneRects.clear();
-		d->accurateUpdateConsiderBorder = false;
+		d->clearAccurateUpdateQueue();
 #endif
 	}
 }

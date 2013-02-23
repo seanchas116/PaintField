@@ -10,6 +10,10 @@
 #define PAINTFIELDCORE_EXPORT Q_DECL_IMPORT
 #endif
 
+#if defined(Q_OS_MAC) && !defined(PF_FORCE_RASTER_ENGINE)
+#define PAINTFIELD_COREGRAPHICS_REPAINT
+#endif
+
 namespace PaintField
 {
 
