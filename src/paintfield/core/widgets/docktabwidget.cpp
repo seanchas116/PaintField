@@ -100,7 +100,7 @@ DockTabBar::DockTabBar(DockTabWidget *tabWidget, QWidget *parent) :
 	connect(this, SIGNAL(clicked()), tabWidget, SIGNAL(tabClicked()));
 	
 	setDocumentMode(true);
-	setExpanding(false);
+	//setExpanding(false);
 }
 
 int DockTabBar::insertionIndexAt(const QPoint &pos)
@@ -152,7 +152,7 @@ void DockTabBar::mouseMoveEvent(QMouseEvent *event)
 
 void DockTabBar::mouseReleaseEvent(QMouseEvent *event)
 {
-	if (_isStartingDrag)
+	if (_isStartingDrag && (event->pos() - _dragStartPos).manhattanLength() < qApp->startDragDistance())
 	{
 		qApp->setOverrideCursor(QCursor());
 		dragDropTab(_dragIndex, mapToGlobal(event->pos()), _dragStartPos - tabRect(_dragIndex).topLeft());
