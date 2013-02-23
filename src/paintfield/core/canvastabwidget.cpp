@@ -78,6 +78,16 @@ void CanvasTabWidget::restoreTransforms()
 		view->canvas()->restoreNavigation();
 }
 
+static QString canvasTabText(Canvas *canvas)
+{
+	QString text = canvas->document()->fileName();
+	if (canvas->document()->isModified())
+	{
+		text += "*";
+	}
+	return text;
+}
+
 void CanvasTabWidget::insertCanvas(int index, Canvas *canvas)
 {
 	if (canvas->workspace() != workspace())
@@ -93,7 +103,7 @@ void CanvasTabWidget::insertCanvas(int index, Canvas *canvas)
 	}
 	
 	workspace()->addCanvas(canvas);
-	DockTabWidget::insertTab(index, canvas->view(), canvas->document()->fileName());
+	DockTabWidget::insertTab(index, canvas->view(), canvasTabText(canvas));
 }
 
 QList<CanvasView *> CanvasTabWidget::canvasViews()
@@ -151,7 +161,7 @@ void CanvasTabWidget::onCanvasDocumentPropertyChanged(Canvas *canvas)
 		auto view = canvasViewAt(i);
 		if (view && view->canvas() == canvas)
 		{
-			setTabText(i, canvas->document()->fileName());
+			setTabText(i, canvasTabText(canvas));
 		}
 	}
 }
