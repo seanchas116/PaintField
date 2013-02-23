@@ -2,6 +2,7 @@
 
 #include <QObject>
 #include <QSet>
+#include "global.h"
 
 class QKeySequence;
 
@@ -26,6 +27,7 @@ public slots:
 	
 	void pressKey(int key);
 	void releaseKey(int key);
+	void setModifiers(Qt::KeyboardModifiers modifiers);
 	
 signals:
 	

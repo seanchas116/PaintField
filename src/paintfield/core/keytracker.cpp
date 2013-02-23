@@ -62,6 +62,11 @@ void KeyTracker::releaseKey(int key)
 	emit pressedKeysChanged(pressedKeys());
 }
 
+void KeyTracker::setModifiers(Qt::KeyboardModifiers modifiers)
+{
+	d->modifiers = modifiers;
+}
+
 QSet<int> KeyTracker::unmodifiedPressedKeys() const
 {
 	return d->keys;
@@ -86,6 +91,10 @@ Qt::KeyboardModifiers KeyTracker::modifiers() const
 bool KeyTracker::match(const QKeySequence &sequence) const
 {
 	auto keys = pressedKeys();
+	
+	PAINTFIELD_DEBUG << keys;
+	PAINTFIELD_DEBUG << sequence;
+	
 	return keys.size() == 1 && sequence.count() == 1 && *keys.begin() == sequence[0];
 }
 

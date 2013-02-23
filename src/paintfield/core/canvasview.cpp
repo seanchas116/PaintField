@@ -401,6 +401,7 @@ void CanvasView::keyPressEvent(QKeyEvent *event)
 	
 	PAINTFIELD_DEBUG << "pressed:" << event->key() << "modifiers" << event->modifiers() << "at" << this;
 	d->keyTracker->pressKey(event->key());
+	d->keyTracker->setModifiers(event->modifiers());
 }
 
 void CanvasView::keyReleaseEvent(QKeyEvent *event)
