@@ -72,7 +72,7 @@ void test_DockTabWidget()
 	motherWidget->show();
 	motherWidget->setFocus();
 	
-	auto tabWidget = new DockTabWidget(0);
+	auto tabWidget = new DockTabWidget(0,0);
 	tabWidget->addTab(new QLabel("Tab 1"), "Tab 1");
 	tabWidget->addTab(new QLabel("Tab 2"), "Tab 2");
 	tabWidget->addTab(new QLabel("Tab 3"), "Tab 3");
