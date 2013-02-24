@@ -92,9 +92,6 @@ bool KeyTracker::match(const QKeySequence &sequence) const
 {
 	auto keys = pressedKeys();
 	
-	PAINTFIELD_DEBUG << keys;
-	PAINTFIELD_DEBUG << sequence;
-	
 	return keys.size() == 1 && sequence.count() == 1 && *keys.begin() == sequence[0];
 }
 

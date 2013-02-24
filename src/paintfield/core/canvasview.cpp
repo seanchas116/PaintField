@@ -136,7 +136,7 @@ CanvasView::CanvasView(Canvas *canvas, QWidget *parent) :
 		{
 			auto timer = new QTimer(this);
 			timer->setSingleShot(true);
-			timer->setInterval(500);
+			timer->setInterval(100);
 			connect(timer, SIGNAL(timeout()), this, SLOT(onViewportAccurateUpdate()));
 			d->accurateUpdateTimer = timer;
 		}
@@ -407,7 +407,7 @@ void CanvasView::keyPressEvent(QKeyEvent *event)
 	if (d->tool)
 		d->tool->toolEvent(event);
 	
-	PAINTFIELD_DEBUG << "pressed:" << event->key() << "modifiers" << event->modifiers() << "at" << this;
+	//PAINTFIELD_DEBUG << "pressed:" << event->key() << "modifiers" << event->modifiers() << "at" << this;
 	d->keyTracker->pressKey(event->key());
 	d->keyTracker->setModifiers(event->modifiers());
 }
@@ -417,7 +417,7 @@ void CanvasView::keyReleaseEvent(QKeyEvent *event)
 	if (d->tool)
 		d->tool->toolEvent(event);
 	
-	PAINTFIELD_DEBUG << "released:" << event->key() << "modifiers" << event->modifiers() << "at" << this;
+	//PAINTFIELD_DEBUG << "released:" << event->key() << "modifiers" << event->modifiers() << "at" << this;
 	d->keyTracker->releaseKey(event->key());
 }
 

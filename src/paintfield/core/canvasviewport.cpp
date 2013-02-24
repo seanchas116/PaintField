@@ -277,6 +277,8 @@ void CanvasViewport::paintEvent(QPaintEvent *event)
 			d->accurateUpdateConsiderBorder = true;
 		}
 		
+		PAINTFIELD_DEBUG << "accurate update";
+		
 		paintRects(d->accurateUpdateOutputRects, d->accurateUpdateConsiderBorder);
 		
 		// In Core Graphics graphics engine, multiple repaint calls in one event loop are put together
