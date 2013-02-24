@@ -38,7 +38,7 @@ struct Canvas::Data
 	
 	double scale = 1, rotation = 0;
 	QPoint translation;
-	bool mirrored = false;
+	bool mirrored = false, retinaMode = false;
 	
 	double memorizedScale = 1, memorizedRotation = 0;
 	QPoint memorizedTranslation;
@@ -157,6 +157,11 @@ bool Canvas::isMirrored() const
 	return d->mirrored;
 }
 
+bool Canvas::isRetinaMode() const
+{
+	return d->retinaMode;
+}
+
 void Canvas::setScale(double scale)
 {
 	if (d->scale != scale)
@@ -190,6 +195,15 @@ void Canvas::setMirrored(bool mirrored)
 	{
 		d->mirrored = mirrored;
 		emit mirroredChanged(mirrored);
+	}
+}
+
+void Canvas::setRetinaMode(bool mode)
+{
+	if (d->retinaMode != mode)
+	{
+		d->retinaMode = mode;
+		emit retinaModeChanged(mode);
 	}
 }
 

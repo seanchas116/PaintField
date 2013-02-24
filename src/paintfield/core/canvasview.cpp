@@ -1,5 +1,6 @@
 #include <QtGui>
 
+#include "scopedtimer.h"
 #include "application.h"
 #include "settingsmanager.h"
 #include "smartpointer.h"
@@ -12,7 +13,7 @@
 #include "keytracker.h"
 #include "widgets/vanishingscrollbar.h"
 
-#include "canvasviewportsoftware.h"
+#include "canvasviewport.h"
 
 #include "canvasview.h"
 
@@ -73,15 +74,15 @@ public:
 	QPoint navigationOrigin;
 	
 	Navigation nav, backupNav;
-	bool mirrored = false;
+	bool mirrored = false, retinaMode = false;
 	
 	QSize sceneSize;
 	QPoint viewCenter;
 	
 	Affine2D transformToScene, transformFromScene;
 	
-	CanvasViewportInterface *viewport = 0;
-	QPointer<QWidget> viewportWidget = 0;
+	QPointer<CanvasViewport> viewport = 0;
+	VanishingScrollBar *scrollBarX = 0, *scrollBarY = 0;
 	
 	QTimer *accurateUpdateTimer = 0;
 	
@@ -102,12 +103,22 @@ CanvasView::CanvasView(Canvas *canvas, QWidget *parent) :
 	
 	d->keyTracker = new KeyTracker(this);
 	
+	// setup scrollbars
+	{
+		d->scrollBarX = new VanishingScrollBar(Qt::Horizontal, this);
+		d->scrollBarY = new VanishingScrollBar(Qt::Vertical, this);
+		
+		moveScrollBars();
+		
+		connect(d->scrollBarX, SIGNAL(valueChanged(int)), this, SLOT(onScrollBarXChanged(int)));
+		connect(d->scrollBarY, SIGNAL(valueChanged(int)), this, SLOT(onScrollBarYChanged(int)));
+	}
+	
 	// setup viewport
 	{
-		auto viewport = new CanvasViewportSoftware(window());
+		auto viewport = new CanvasViewport(window());
 		
 		d->viewport = viewport;
-		d->viewportWidget = viewport;
 		
 		moveViewport();
 		
@@ -130,13 +141,9 @@ CanvasView::CanvasView(Canvas *canvas, QWidget *parent) :
 			d->accurateUpdateTimer = timer;
 		}
 		
-		connect(d->viewportWidget, SIGNAL(scrollBarXChanged(int)), this, SLOT(onScrollBarXChanged(int)));
-		connect(d->viewportWidget, SIGNAL(scrollBarYChanged(int)), this, SLOT(onScrollBarYChanged(int)));
-		
-		if (viewport->isReady())
-			onViewportReady();
-		else
-			connect(viewport, SIGNAL(ready()), this, SLOT(onViewportReady()));
+		d->viewport->setDocumentSize(d->sceneSize);
+		updateTransforms();
+		updateTiles(layerModel()->document()->tileKeys());
 	}
 	
 	// connect to canvas
@@ -145,6 +152,7 @@ CanvasView::CanvasView(Canvas *canvas, QWidget *parent) :
 		connect(canvas, SIGNAL(rotationChanged(double)), this, SLOT(setRotation(double)));
 		connect(canvas, SIGNAL(translationChanged(QPoint)), this, SLOT(setTranslation(QPoint)));
 		connect(canvas, SIGNAL(mirroredChanged(bool)), this, SLOT(setMirrored(bool)));
+		connect(canvas, SIGNAL(retinaModeChanged(bool)), this, SLOT(setRetinaMode(bool)));
 		
 		setScale(canvas->scale());
 		setRotation(canvas->rotation());
@@ -182,8 +190,8 @@ CanvasView::CanvasView(Canvas *canvas, QWidget *parent) :
 
 CanvasView::~CanvasView()
 {
-	if (d->viewportWidget)
-		d->viewportWidget->deleteLater();
+	if (d->viewport)
+		d->viewport->deleteLater();
 	delete d;
 }
 
@@ -226,6 +234,12 @@ void CanvasView::setMirrored(bool mirrored)
 	updateTransforms();
 }
 
+void CanvasView::setRetinaMode(bool mode)
+{
+	d->retinaMode = mode;
+	updateTransforms();
+}
+
 Affine2D CanvasView::transformToScene() const
 {
 	return d->transformToScene;
@@ -241,9 +255,11 @@ void CanvasView::updateTransforms()
 	QPoint sceneOffset = QPoint(d->sceneSize.width(), d->sceneSize.height()) / 2;
 	QPoint viewOffset = viewCenter() + d->nav.translation;
 	
+	double scale = d->retinaMode ? d->nav.scale * 0.5 : d->nav.scale;
+	
 	auto transform = Affine2D::fromTranslation(Vec2D(viewOffset)) *
 	                 Affine2D::fromRotationDegrees(d->nav.rotation) *
-	                 Affine2D::fromScale(d->nav.scale) *
+	                 Affine2D::fromScale(scale) *
 	                 Affine2D::fromTranslation(Vec2D(-sceneOffset));
 	
 	if (d->mirrored)
@@ -251,14 +267,14 @@ void CanvasView::updateTransforms()
 	
 	d->transformFromScene = transform;
 	d->transformToScene = transform.inverted();
-	d->viewport->setTransform(transform, d->nav.translation != QPoint(), d->nav.scale != 1.0, d->nav.rotation != 0);
+	d->viewport->setTransform(transform, d->nav.translation, scale, d->nav.rotation, d->retinaMode);
 	
 	updateScrollBarRange();
 	updateScrollBarValue();
 	
 	d->accurateUpdateTimer->start();
 	
-	d->viewportWidget->update();
+	d->viewport->update();
 }
 
 Canvas *CanvasView::canvas()
@@ -294,7 +310,7 @@ void CanvasView::updateTiles(const QPointSet &keys, const QHash<QPoint, QRect> &
 	if (!d->updateEnabled)
 		return;
 	
-	d->viewport->beforeUpdateTile();
+	d->viewport->beforeUpdateTile(CanvasViewport::PartialAccurateUpdate);
 	
 	CanvasRenderer renderer;
 	renderer.setTool(d->tool);
@@ -352,17 +368,9 @@ void CanvasView::onTabletActiveChanged(bool active)
 	d->tabletActive = active;
 }
 
-void CanvasView::onViewportReady()
-{
-	d->viewport->setDocumentSize(d->sceneSize);
-	updateTransforms();
-	updateTiles(layerModel()->document()->tileKeys());
-}
-
 void CanvasView::onViewportAccurateUpdate()
 {
-	PAINTFIELD_DEBUG << "update accurately";
-	d->viewport->updateAccurately();
+	d->viewport->updateWholeAccurately();
 }
 
 void CanvasView::onScrollBarXChanged(int value)
@@ -381,17 +389,17 @@ void CanvasView::updateScrollBarRange()
 	
 	d->maxAbsTranslation = QPoint(radius + this->width(), radius + this->height());
 	
-	d->viewport->setScrollBarRange(Qt::Horizontal, 0, 2 * d->maxAbsTranslation.x());
-	d->viewport->setScrollBarRange(Qt::Vertical, 0, 2 * d->maxAbsTranslation.y());
+	d->scrollBarX->setRange(0, 2 * d->maxAbsTranslation.x());
+	d->scrollBarY->setRange(0, 2 * d->maxAbsTranslation.y());
 	
-	d->viewport->setScrollBarPageStep(Qt::Horizontal, this->width());
-	d->viewport->setScrollBarPageStep(Qt::Vertical, this->height());
+	d->scrollBarX->setPageStep(this->width());
+	d->scrollBarY->setPageStep(this->height());
 }
 
 void CanvasView::updateScrollBarValue()
 {
-	d->viewport->setScrollBarValue(Qt::Horizontal, d->maxAbsTranslation.x() - d->nav.translation.x());
-	d->viewport->setScrollBarValue(Qt::Vertical, d->maxAbsTranslation.y() - d->nav.translation.y());
+	d->scrollBarX->setValue(d->maxAbsTranslation.x() - d->nav.translation.x());
+	d->scrollBarY->setValue(d->maxAbsTranslation.y() - d->nav.translation.y());
 }
 
 void CanvasView::keyPressEvent(QKeyEvent *event)
@@ -415,7 +423,7 @@ void CanvasView::keyReleaseEvent(QKeyEvent *event)
 
 void CanvasView::focusInEvent(QFocusEvent *)
 {
-	d->viewport->updateAccurately();
+	d->viewport->updateWholeAccurately();
 }
 
 void CanvasView::enterEvent(QEvent *e)
@@ -582,6 +590,7 @@ void CanvasView::wheelEvent(QWheelEvent *event)
 
 void CanvasView::resizeEvent(QResizeEvent *)
 {
+	moveScrollBars();
 	moveViewport();
 	d->viewCenter = QPoint(width() / 2, height() / 2);
 	updateTransforms();
@@ -595,7 +604,7 @@ void CanvasView::changeEvent(QEvent *event)
 			moveViewport();
 			break;
 		case QEvent::EnabledChange:
-			d->viewportWidget->setEnabled(isEnabled());
+			d->viewport->setEnabled(isEnabled());
 			break;
 		default:
 			break;
@@ -604,12 +613,12 @@ void CanvasView::changeEvent(QEvent *event)
 
 void CanvasView::showEvent(QShowEvent *)
 {
-	d->viewportWidget->show();
+	d->viewport->show();
 }
 
 void CanvasView::hideEvent(QHideEvent *)
 {
-	d->viewportWidget->hide();
+	d->viewport->hide();
 }
 
 bool CanvasView::event(QEvent *event)
@@ -856,11 +865,25 @@ void CanvasView::moveViewport()
 {
 	PAINTFIELD_DEBUG << "moving viewport";
 	
-	d->viewportWidget->setParent(window());
+	d->viewport->setParent(window());
 	QRect geom(Util::mapToWindow(this, QPoint()), this->geometry().size());
-	d->viewportWidget->setGeometry(geom);
-	d->viewportWidget->show();
-	d->viewportWidget->lower();
+	d->viewport->setGeometry(geom);
+	d->viewport->show();
+	d->viewport->lower();
+}
+
+void CanvasView::moveScrollBars()
+{
+	int barWidthX = d->scrollBarX->totalBarWidth();
+	int barWidthY = d->scrollBarY->totalBarWidth();
+	
+	auto widgetRect = QRect(QPoint(), geometry().size());
+	
+	auto scrollBarXRect = widgetRect.adjusted(0, widgetRect.height() - barWidthY, -barWidthX, 0);
+	auto scrollBarYRect = widgetRect.adjusted(widgetRect.width() - barWidthX, 0, 0, -barWidthY);
+	
+	d->scrollBarX->setGeometry(scrollBarXRect);
+	d->scrollBarY->setGeometry(scrollBarYRect);
 }
 
 

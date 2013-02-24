@@ -20,7 +20,7 @@ public:
 	void setScrollBarPageStep(Qt::Orientation orientation, int value) override;
 	
 	void setDocumentSize(const QSize &size) override;
-	void setTransform(const Malachite::Affine2D &transform, bool hasTranslation, bool hasScaling, bool hasRotation) override;
+	void setTransform(const Malachite::Affine2D &transform, bool hasTranslation, bool hasScaling, bool hasRotation, bool retinaMode) override;
 	void updateTile(const QPoint &tileKey, const Malachite::Image &image, const QPoint &offset) override;
 	void updateAccurately() override;
 	void beforeUpdateTile() override {}
@@ -39,8 +39,8 @@ protected:
 	
 private:
 	
-	void repaintRects(const QVector<QRect> &rects, bool considerBorder);
-	void repaintRect(const QRect &rect, bool considerBorder);
+	void repaintViewRect(const QRect &rect);
+	void paintRects(const QVector<QRect> &rects, bool considerBorder);
 	
 	class Data;
 	Data *d;

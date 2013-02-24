@@ -70,6 +70,7 @@ private slots:
 	void setRotation(double value);
 	void setTranslation(const QPoint &value);
 	void setMirrored(bool mirrored);
+	void setRetinaMode(bool mode);
 	
 	void updateTiles(const QPointSet &keys) { updateTiles(keys, QHash<QPoint, QRect>()); }
 	void updateTiles(const QHash<QPoint, QRect> &rects) { updateTiles(QPointSet(), rects); }
@@ -77,8 +78,6 @@ private slots:
 	void onClicked();
 	void onToolCursorChanged(const QCursor &cursor);
 	void onTabletActiveChanged(bool active);
-	
-	void onViewportReady();
 	
 	void onViewportAccurateUpdate();
 	
@@ -117,6 +116,7 @@ private:
 	void endDragRotation();
 	
 	void moveViewport();
+	void moveScrollBars();
 	
 	enum DragNavigationMode
 	{

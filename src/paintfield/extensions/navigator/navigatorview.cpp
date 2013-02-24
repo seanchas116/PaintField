@@ -102,6 +102,15 @@ void NavigatorView::setMirroringEnabled(bool enabled)
 	}
 }
 
+void NavigatorView::setRetinaMode(bool mode)
+{
+	if (_retinaMode != mode)
+	{
+		_retinaMode = mode;
+		emit retinaModeChanged(mode);
+	}
+}
+
 void NavigatorView::onTranslationChanged(const QPoint &translation)
 {
 	emit translationXChanged(translation.x());
@@ -121,6 +130,14 @@ void NavigatorView::createWidgets()
 			auto checkBox = new QCheckBox("Mirror");
 			connect(checkBox, SIGNAL(toggled(bool)), this, SLOT(setMirroringEnabled(bool)));
 			connect(this, SIGNAL(mirroringEnabledChanged(bool)), checkBox, SLOT(setChecked(bool)));
+			
+			checkBoxLayout->addWidget(checkBox);
+		}
+		
+		{
+			auto checkBox = new QCheckBox("Retina Mode");
+			connect(checkBox, SIGNAL(toggled(bool)), this, SLOT(setRetinaMode(bool)));
+			connect(this, SIGNAL(retinaModeChanged(bool)), checkBox, SLOT(setChecked(bool)));
 			
 			checkBoxLayout->addWidget(checkBox);
 		}

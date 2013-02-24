@@ -26,6 +26,9 @@ NavigatorController::NavigatorController(Canvas *canvas, QObject *parent) :
 		connect(view, SIGNAL(mirroringEnabledChanged(bool)), canvas, SLOT(setMirrored(bool)));
 		connect(canvas, SIGNAL(mirroredChanged(bool)), view, SLOT(setMirroringEnabled(bool)));
 		
+		connect(view, SIGNAL(retinaModeChanged(bool)), canvas, SLOT(setRetinaMode(bool)));
+		connect(canvas, SIGNAL(retinaModeChanged(bool)), view, SLOT(setRetinaMode(bool)));
+		
 		view->setTranslation(canvas->translation());
 		view->setScale(canvas->scale());
 		view->setRotation(canvas->rotation());

@@ -24,7 +24,7 @@ public:
 	virtual void setScrollBarPageStep(Qt::Orientation orientation, int value) = 0;
 	
 	virtual void setDocumentSize(const QSize &size) = 0;
-	virtual void setTransform(const Malachite::Affine2D &transform, bool hasTranslation, bool hasScaling, bool hasRotation) = 0;
+	virtual void setTransform(const Malachite::Affine2D &transform, bool hasTranslation, bool hasScaling, bool hasRotation, bool retinaMode) = 0;
 	virtual void updateTile(const QPoint &tileKey, const Malachite::Image &image, const QPoint &offset) = 0;
 	virtual void updateAccurately() = 0;
 	virtual void beforeUpdateTile() = 0;

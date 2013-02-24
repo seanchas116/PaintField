@@ -139,6 +139,7 @@ public:
 	QPoint translation() const;
 	
 	bool isMirrored() const;
+	bool isRetinaMode() const;
 	
 	void memorizeNavigation();
 	void restoreNavigation();
@@ -158,6 +159,7 @@ signals:
 	void rotationChanged(double rotation);
 	void translationChanged(const QPoint &translation);
 	void mirroredChanged(bool mirrored);
+	void retinaModeChanged(bool mode);
 	
 	void toolChanged(Tool *tool);
 	
@@ -200,6 +202,7 @@ public slots:
 	void setTranslationY(int y) { setTranslation(translation().x(), y); }
 	
 	void setMirrored(bool mirrored);
+	void setRetinaMode(bool mode);
 	
 private slots:
 	

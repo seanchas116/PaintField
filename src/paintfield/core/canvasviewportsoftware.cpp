@@ -14,8 +14,11 @@ namespace PaintField {
 
 struct CanvasViewportSoftware::Data
 {
-	QTransform transformFromScene, transformToScene;
+	QTransform transformToView, transformToScene;
 	bool transformTranslatingOnly = true;
+	bool retinaMode = false;
+	
+	QRect viewRect;
 	
 	SurfaceU8 surface;
 	QSize size;
@@ -97,12 +100,29 @@ void CanvasViewportSoftware::setDocumentSize(const QSize &size)
 	d->roughUpdatePixmap = QPixmap(size);
 }
 
-void CanvasViewportSoftware::setTransform(const Malachite::Affine2D &transform, bool hasTranslation, bool hasScaling, bool hasRotation)
+void CanvasViewportSoftware::setTransform(const Malachite::Affine2D &transform, bool hasTranslation, bool hasScaling, bool hasRotation, bool retinaMode)
 {
 	Q_UNUSED(hasTranslation)
-	d->transformFromScene = transform.toQTransform();
-	d->transformToScene = transform.inverted().toQTransform();
+	
+	d->retinaMode = retinaMode;
+	
+	if (retinaMode)
+	{
+		PAINTFIELD_DEBUG << "retina mode";
+		d->transformToView = (Affine2D::fromScale(2) * transform).toQTransform();
+	}
+	else
+	{
+		d->transformToView = transform.toQTransform();
+	}
+	
+	d->transformToScene = d->transformToView.inverted();
 	d->transformTranslatingOnly = !hasScaling && !hasRotation;
+	
+	if (retinaMode)
+		d->viewRect = QRect(0, 0, width() * 2, height() * 2);
+	else
+		d->viewRect = QRect(QPoint(), size());
 }
 
 void CanvasViewportSoftware::updateTile(const QPoint &tileKey, const Image &image, const QPoint &offset)
@@ -115,7 +135,7 @@ void CanvasViewportSoftware::updateTile(const QPoint &tileKey, const Image &imag
 	
 	d->surface.tileRef(tileKey).paste(imageU8, offset);
 	
-	QRect viewRect = d->transformFromScene.mapRect(QRectF(pos, imageU8.size())).toAlignedRect() & QRect(QPoint(), size());
+	QRect viewRect = d->transformToView.mapRect(QRectF(pos, imageU8.size())).toAlignedRect() & d->viewRect;
 	
 	if (viewRect.isEmpty())
 		return;
@@ -144,19 +164,20 @@ void CanvasViewportSoftware::afterUpdateTile()
 	if (unionRect.width() <= Surface::tileWidth() && unionRect.height() <= Surface::tileWidth())
 	{
 		d->accurateUpdateSceneRects = { unionRect };
-		repaint(unionRect);
+		
+		repaintViewRect(unionRect);
 	}
 	else
 	{
 		for (auto rect : d->accurateUpdateSceneRects)
-			repaint(rect);
+			repaintViewRect(rect);
 	}
 	
 #else
 	if (unionRect.width() <= Surface::tileWidth() && unionRect.height() <= Surface::tileWidth())
 	{
 		d->accurateUpdateSceneRects = { unionRect };
-		repaint(unionRect);
+		repaintViewRect(unionRect);
 		d->clearAccurateUpdateQueue();
 	}
 	else
@@ -166,7 +187,7 @@ void CanvasViewportSoftware::afterUpdateTile()
 		for (auto rect : rects)
 		{
 			d->accurateUpdateSceneRects = { rect };
-			repaint(rect);
+			repaintViewRect(rect);
 			d->accurateUpdateSceneRects.clear();
 		}
 		d->accurateUpdateConsiderBorder = false;
@@ -179,12 +200,12 @@ void CanvasViewportSoftware::updateAccurately()
 	QVector<QRect> rects;
 	
 	auto sceneRect = QRect(QPoint(), d->size);
-	auto viewRectOnScene = d->transformToScene.mapRect(QRectF(QPoint(), this->size())).toAlignedRect();
+	auto viewRectOnScene = d->transformToScene.mapRect(QRectF(d->viewRect)).toAlignedRect();
 	
 	auto rect = sceneRect & viewRectOnScene;
 	
 	for (const QPoint &key : Surface::rectToKeys(rect))
-		rects << d->transformFromScene.mapRect( QRectF( Surface::keyToRect( key ) ) ).toAlignedRect();
+		rects << d->transformToView.mapRect( QRectF( Surface::keyToRect( key ) ) ).toAlignedRect();
 	
 	d->accurateUpdateSceneRects = rects;
 	d->accurateUpdateConsiderBorder = true;
@@ -195,32 +216,56 @@ void CanvasViewportSoftware::updateAccurately()
 #endif
 }
 
-void CanvasViewportSoftware::repaintRects(const QVector<QRect> &rects, bool considerBorder)
+void CanvasViewportSoftware::repaintViewRect(const QRect &rect)
+{
+	if (d->retinaMode)
+	{
+		QRectF newRect(double(rect.left()) * 0.5, double(rect.top()) * 0.5, double(rect.width()) * 0.5, double(rect.height()) * 0.5);
+		repaint(newRect.toAlignedRect());
+	}
+	else
+	{
+		repaint(rect);
+	}
+}
+
+void CanvasViewportSoftware::paintRects(const QVector<QRect> &rects, bool considerBorder)
 {
 	QPainter painter(this);
 	if (!considerBorder)
 		painter.setCompositionMode(QPainter::CompositionMode_Source);
 	
-	for (const QRect &rect : rects)
+	if (d->retinaMode)
+		painter.scale(0.5, 0.5);
+	
+	if (d->transformTranslatingOnly)
 	{
-		if (rect.isEmpty())
-			continue;
+		auto offset = QPoint(d->transformToView.dx(), d->transformToView.dy());
 		
-		QRect requiredSceneRect = d->transformToScene.mapRect(QRectF(rect)).toAlignedRect();
-		
-		if ( d->transformTranslatingOnly )
+		for (const QRect &rect : rects)
 		{
-			auto image = d->surface.crop<ImageU8>( requiredSceneRect );
+			if (rect.isEmpty())
+				continue;
 			
-			painter.setTransform( d->transformFromScene );
+			QRect requiredSceneRect = d->transformToScene.mapRect(QRectF(rect)).toAlignedRect();
+			
+			auto image = d->surface.crop<ImageU8>( requiredSceneRect );
 			
 			if ( considerBorder )
 				painter.setClipRect( QRect( QPoint(), d->size ) );
 			
-			painter.drawImage( requiredSceneRect.topLeft(), image.wrapInQImage() );
+			painter.drawImage( requiredSceneRect.topLeft() + offset, image.wrapInQImage() );
 		}
-		else
+	}
+	else
+	{
+		for (const QRect &rect : rects)
 		{
+			if (rect.isEmpty())
+				continue;
+			
+			QRect requiredSceneRect = d->transformToScene.mapRect(QRectF(rect)).toAlignedRect();
+			
 			requiredSceneRect.adjust(-1, -1, 1, 1);
 			
 			auto image = d->surface.crop<ImageU8>( requiredSceneRect );
@@ -232,7 +277,7 @@ void CanvasViewportSoftware::repaintRects(const QVector<QRect> &rects, bool cons
 			{
 				QPainter imagePainter( &viewImage );
 				imagePainter.setRenderHint( QPainter::SmoothPixmapTransform, true );
-				imagePainter.setTransform( d->transformFromScene * QTransform::fromTranslate( -viewImageOffset.x(), -viewImageOffset.y() ) );
+				imagePainter.setTransform( d->transformToView * QTransform::fromTranslate( -viewImageOffset.x(), -viewImageOffset.y() ) );
 				imagePainter.drawImage( requiredSceneRect.topLeft(), image.wrapInQImage() );
 			}
 			
@@ -240,7 +285,7 @@ void CanvasViewportSoftware::repaintRects(const QVector<QRect> &rects, bool cons
 			{
 				QPainterPath path;
 				path.addRect( QRect( QPoint(), d->size ) );
-				painter.setClipPath( path * d->transformFromScene );
+				painter.setClipPath( path * d->transformToView );
 			}
 			
 			painter.drawImage( viewImageOffset, viewImage );
@@ -250,8 +295,6 @@ void CanvasViewportSoftware::repaintRects(const QVector<QRect> &rects, bool cons
 
 void CanvasViewportSoftware::paintEvent(QPaintEvent *ev)
 {
-	QPainter painter(this);
-	
 #ifdef PAINTFIELD_COREGRAPHICS_REPAINT
 	// In Mac, sometimes the repaint event is merged with another update event and the repaint rect is expanded
 	if (!d->wholeAccurateUpdate && !d->unionAccurateUpdateSceneRect.contains(ev->rect()))
@@ -262,11 +305,17 @@ void CanvasViewportSoftware::paintEvent(QPaintEvent *ev)
 	
 	if (d->accurateUpdateSceneRects.isEmpty()) // rough update, painting whole event rect
 	{
+		QPainter painter(this);
+		
 		PAINTFIELD_DEBUG << "painting roughly";
 		
 		painter.setCompositionMode(QPainter::CompositionMode_Source);
 		
-		painter.setTransform(d->transformFromScene);
+		if (d->retinaMode)
+			painter.setTransform(d->transformToView * QTransform::fromScale(0.5, 0.5));
+		else
+			painter.setTransform(d->transformToView);
+		
 		d->paintUnpaintedTilesToPixmap();
 		painter.drawPixmap(QPoint(), d->roughUpdatePixmap);
 	}
@@ -274,7 +323,7 @@ void CanvasViewportSoftware::paintEvent(QPaintEvent *ev)
 	{
 		PAINTFIELD_DEBUG << "painting accurately";
 		
-		repaintRects(d->accurateUpdateSceneRects, d->accurateUpdateConsiderBorder);
+		paintRects(d->accurateUpdateSceneRects, d->accurateUpdateConsiderBorder);
 		
 		// In Core Graphics graphics engine, multiple repaint calls in one event loop seem to be put together
 #ifdef PAINTFIELD_COREGRAPHICS_REPAINT
