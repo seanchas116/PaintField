@@ -24,6 +24,7 @@ struct CanvasViewportSoftware::Data
 	QVector<QRect> accurateUpdateSceneRects;
 	QRect unionAccurateUpdateSceneRect;
 	bool accurateUpdateConsiderBorder = false;
+	bool wholeAccurateUpdate = false;
 	
 	void clearAccurateUpdateQueue()
 	{
@@ -187,6 +188,7 @@ void CanvasViewportSoftware::updateAccurately()
 	
 	d->accurateUpdateSceneRects = rects;
 	d->accurateUpdateConsiderBorder = true;
+	d->wholeAccurateUpdate = true;
 	repaint();
 #ifndef PAINTFIELD_COREGRAPHICS_REPAINT
 	d->clearAccurateUpdateQueue();
@@ -252,9 +254,11 @@ void CanvasViewportSoftware::paintEvent(QPaintEvent *ev)
 	
 #ifdef PAINTFIELD_COREGRAPHICS_REPAINT
 	// In Mac, sometimes the repaint event is merged with another update event and the repaint rect is expanded
-	if (!d->unionAccurateUpdateSceneRect.contains(ev->rect()))
+	if (!d->wholeAccurateUpdate && !d->unionAccurateUpdateSceneRect.contains(ev->rect()))
 		d->clearAccurateUpdateQueue();
 #endif
+	
+	d->wholeAccurateUpdate = false;
 	
 	if (d->accurateUpdateSceneRects.isEmpty()) // rough update, painting whole event rect
 	{
