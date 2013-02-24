@@ -71,9 +71,6 @@ HEADERS += \
     workspace.h \
     extension.h \
     extensionmanager.h \
-    canvasviewportinterface.h \
-    canvasviewportgl.h \
-    canvasviewportsoftware.h \
     canvasviewwrapper.h \
     canvasviewport.h
 FORMS += dialogs/exportdialog.ui dialogs/newdocumentdialog.ui
@@ -129,8 +126,6 @@ SOURCES += \
     workspace.cpp \
     extension.cpp \
     extensionmanager.cpp \
-    canvasviewportgl.cpp \
-    canvasviewportsoftware.cpp \
     canvasviewwrapper.cpp \
     canvasviewport.cpp
 
