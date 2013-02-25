@@ -95,9 +95,6 @@ private:
 	bool sendCanvasTabletEvent(QMouseEvent *mouseEvent);
 	bool sendCanvasTabletEvent(WidgetTabletEvent *event);
 	
-	void addRepaintRect(const QRect &rect);
-	void repaintDesignatedRect();
-	
 	bool tryBeginDragNavigation(const QPoint &pos);
 	bool continueDragNavigation(const QPoint &pos);
 	void endDragNavigation();

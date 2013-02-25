@@ -59,9 +59,6 @@ public:
 	Tool *tool = 0;
 	
 	double mousePressure = 0;
-	QRect repaintRect;
-	QRect prevCustomCursorRect;
-	Malachite::Vec2D customCursorPos;
 	bool tabletActive = false;
 	
 	KeyTracker *keyTracker = 0;
@@ -103,6 +100,8 @@ CanvasView::CanvasView(Canvas *canvas, QWidget *parent) :
 	
 	d->keyTracker = new KeyTracker(this);
 	
+	d->viewCenter = QPoint(width() / 2, height() / 2);
+	
 	// setup scrollbars
 	{
 		d->scrollBarX = new VanishingScrollBar(Qt::Horizontal, this);
@@ -117,21 +116,8 @@ CanvasView::CanvasView(Canvas *canvas, QWidget *parent) :
 	// setup viewport
 	{
 		auto viewport = new CanvasViewport(window());
-		
 		d->viewport = viewport;
-		
 		moveViewport();
-		
-		/*
-		{
-			auto layout = new QVBoxLayout;
-			layout->addWidget(viewport);
-			viewport->setMouseTracking(true);
-			layout->setContentsMargins(0, 0, 0 ,0);
-			setLayout(layout);
-		}*/
-		
-		d->viewCenter = QPoint(width() / 2, height() / 2);
 		
 		{
 			auto timer = new QTimer(this);
@@ -141,7 +127,7 @@ CanvasView::CanvasView(Canvas *canvas, QWidget *parent) :
 			d->accurateUpdateTimer = timer;
 		}
 		
-		d->viewport->setDocumentSize(d->sceneSize);
+		viewport->setDocumentSize(d->sceneSize);
 		updateTransforms();
 		updateTiles(layerModel()->document()->tileKeys());
 	}
@@ -195,20 +181,14 @@ CanvasView::~CanvasView()
 	delete d;
 }
 
-bool CanvasView::isUpdateTilesEnabled() const
-{
-	return d->updateEnabled;
-}
+bool CanvasView::isUpdateTilesEnabled() const { return d->updateEnabled; }
 
 void CanvasView::setUpdateTilesEnabled(bool enable)
 {
 	d->updateEnabled = enable;
 }
 
-QPoint CanvasView::viewCenter() const
-{
-	return d->viewCenter;
-}
+QPoint CanvasView::viewCenter() const { return d->viewCenter; }
 
 void CanvasView::setScale(double value)
 {
@@ -240,15 +220,8 @@ void CanvasView::setRetinaMode(bool mode)
 	updateTransforms();
 }
 
-Affine2D CanvasView::transformToScene() const
-{
-	return d->transformToScene;
-}
-
-Affine2D CanvasView::transformFromScene() const
-{
-	return d->transformFromScene;
-}
+Affine2D CanvasView::transformToScene() const { return d->transformToScene; }
+Affine2D CanvasView::transformFromScene() const { return d->transformFromScene; }
 
 void CanvasView::updateTransforms()
 {
@@ -277,20 +250,9 @@ void CanvasView::updateTransforms()
 	d->viewport->update();
 }
 
-Canvas *CanvasView::canvas()
-{
-	return d->canvas;
-}
-
-Document *CanvasView::document()
-{
-	return d->canvas->document();
-}
-
-LayerModel *CanvasView::layerModel()
-{
-	return d->canvas->layerModel();
-}
+Canvas *CanvasView::canvas() { return d->canvas; }
+Document *CanvasView::document() { return d->canvas->document(); }
+LayerModel *CanvasView::layerModel() { return d->canvas->layerModel(); }
 
 void CanvasView::setTool(Tool *tool)
 {
@@ -709,20 +671,6 @@ bool CanvasView::sendCanvasTabletEvent(QMouseEvent *mouseEvent)
 	CanvasTabletEvent tabletEvent(type, mouseEvent->globalPos(), mouseEvent->globalPos(), data, mouseEvent->modifiers());
 	d->tool->toolEvent(&tabletEvent);
 	return tabletEvent.isAccepted();
-}
-
-void CanvasView::addRepaintRect(const QRect &rect)
-{
-	d->repaintRect |= rect;
-}
-
-void CanvasView::repaintDesignatedRect()
-{
-	if (d->repaintRect.isValid())
-	{
-		repaint(d->repaintRect);
-		d->repaintRect = QRect();
-	}
 }
 
 bool CanvasView::tryBeginDragNavigation(const QPoint &pos)
