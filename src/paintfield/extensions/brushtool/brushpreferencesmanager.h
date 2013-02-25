@@ -2,6 +2,9 @@
 #define PAINTFIELD_BRUSHPREFERENCESMANAGER_H
 
 #include <QObject>
+#include <QHash>
+
+class QStandardItem;
 
 namespace PaintField {
 
@@ -17,6 +20,8 @@ public slots:
 	
 	void setBrushSize(int brushSize);
 	
+	void onCurrentPresetItemChanged(QStandardItem *item, QStandardItem *prev);
+	
 signals:
 	
 	void brushSizeChanged(int brushSize);
@@ -24,6 +29,7 @@ signals:
 private:
 	
 	int _brushSize = 10;
+	QHash<QStandardItem *, int> _brushSizeHash;
 };
 
 } // namespace PaintField

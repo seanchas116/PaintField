@@ -1,6 +1,7 @@
 #include <QtGui>
 #include "paintfield/core/util.h"
 #include "paintfield/core/appcontroller.h"
+#include "paintfield/core/application.h"
 #include "paintfield/core/settingsmanager.h"
 #include "brushlibrarymodel.h"
 #include "brushpresetmanager.h"
@@ -23,20 +24,47 @@ BrushLibraryController::BrushLibraryController(BrushPresetManager *presetManager
 	
 	auto view = new BrushLibraryView(_model, _selectionModel);
 	
-	connect(_selectionModel, SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(onCurrentChanged(QModelIndex)));
-	onCurrentChanged(_selectionModel->currentIndex());
+	connect(appController()->app(), SIGNAL(tabletPointerChanged(TabletPointerInfo,TabletPointerInfo)), this, SLOT(onCurrentTabletPointerChanged(TabletPointerInfo,TabletPointerInfo)));
+	
+	connect(_selectionModel, SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(onCurrentChanged(QModelIndex,QModelIndex)));
+	onCurrentChanged(_selectionModel->currentIndex(), QModelIndex());
 	
 	//connect(view, SIGNAL(saveRequested()), this, SLOT(onSaveRequested()));
 	connect(view, SIGNAL(reloadRequested()), this, SLOT(onReloadRequested()));
 	
 	_view.reset(view);
+	
+	{
+		_defaultPenItem = _model->itemFromIndex(_model->findIndex({"Built-in", "Pen", "Pen"}));
+		_defaultEraserItem = _model->itemFromIndex(_model->findIndex({"Built-in", "Pen", "Eraser"}));
+		setCurrentItem(_defaultPenItem);
+	}
 }
 
-void BrushLibraryController::onCurrentChanged(const QModelIndex &index)
+void BrushLibraryController::onCurrentTabletPointerChanged(const TabletPointerInfo &curr, const TabletPointerInfo &prev)
+{
+	_itemHash[prev] = _model->itemFromIndex(_selectionModel->currentIndex());
+	
+	if (_itemHash.contains(curr))
+	{
+		setCurrentItem(_itemHash[curr]);
+	}
+	else
+	{
+		if (curr.type == QTabletEvent::Eraser)
+			setCurrentItem(_defaultEraserItem);
+		else
+			setCurrentItem(_defaultPenItem);
+	}
+}
+
+void BrushLibraryController::onCurrentChanged(const QModelIndex &index, const QModelIndex &prev)
 {
 	auto data = _model->loadPreset(index);
 	if (!data.isEmpty())
 		_presetManager->setPreset(data);
+	
+	emit currentItemChanged(_model->itemFromIndex(index), _model->itemFromIndex(prev));
 }
 
 void BrushLibraryController::onSaveRequested()
@@ -70,6 +98,11 @@ void BrushLibraryController::onReloadRequested()
 {
 	auto item = _model->itemFromIndex(_selectionModel->currentIndex());
 	_model->updateDirItem(_model->itemDir(item));
+}
+
+void BrushLibraryController::setCurrentItem(QStandardItem *item)
+{
+	_selectionModel->setCurrentIndex(_model->indexFromItem(item), QItemSelectionModel::SelectCurrent);
 }
 
 } // namespace PaintField

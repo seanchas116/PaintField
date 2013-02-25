@@ -36,6 +36,8 @@ BrushToolExtension::BrushToolExtension(Workspace *workspace, QObject *parent) :
 	
 	auto libraryController = new BrushLibraryController(_presetManager, this);
 	
+	connect(libraryController, SIGNAL(currentItemChanged(QStandardItem*,QStandardItem*)), _preferencesManager, SLOT(onCurrentPresetItemChanged(QStandardItem*,QStandardItem*)));
+	
 	addSideBar(_brushLibrarySidebarName, libraryController->view());
 	
 	{

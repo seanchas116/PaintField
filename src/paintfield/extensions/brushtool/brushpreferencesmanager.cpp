@@ -16,4 +16,10 @@ void BrushPreferencesManager::setBrushSize(int size)
 	}
 }
 
+void BrushPreferencesManager::onCurrentPresetItemChanged(QStandardItem *item, QStandardItem *prev)
+{
+	_brushSizeHash[prev] = _brushSize;
+	setBrushSize(_brushSizeHash.value(item, 10));
+}
+
 } // namespace PaintField

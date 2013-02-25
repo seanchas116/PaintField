@@ -63,7 +63,6 @@ HEADERS += \
     canvassplitwidget.h \
     canvassplitareacontroller.h \
     widgets/memorizablesplitter.h \
-    tabletpointerdata.h \
     settingsmanager.h \
     workspacetabwidget.h \
     scopedtimer.h \
@@ -73,7 +72,8 @@ HEADERS += \
     extensionmanager.h \
     canvasviewwrapper.h \
     canvasviewport.h \
-    selection.h
+    selection.h \
+    tabletpointerinfo.h
 FORMS += dialogs/exportdialog.ui dialogs/newdocumentdialog.ui
 SOURCES += \
            document.cpp \

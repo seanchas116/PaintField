@@ -8,7 +8,7 @@ namespace PaintField
 struct Application::Data
 {
 	bool isTabletActive = false;
-	TabletPointerData tabletPointerData;
+	TabletPointerInfo tabletPointerInfo;
 };
 
 Application::Application(int &argc, char **argv) :
@@ -37,9 +37,9 @@ bool Application::isTabletActive() const
 	return d->isTabletActive;
 }
 
-TabletPointerData Application::tabletPointerData() const
+TabletPointerInfo Application::tabletPointerData() const
 {
-	return d->tabletPointerData;
+	return d->tabletPointerInfo;
 }
 
 void Application::onTabletEntered(QTabletEvent *ev)
@@ -48,11 +48,12 @@ void Application::onTabletEntered(QTabletEvent *ev)
 	emit tabletActiveChanged(true);
 	emit tabletActivated();
 	
-	TabletPointerData pointerData(ev->uniqueId(), ev->pointerType());
-	if (d->tabletPointerData != pointerData)
+	TabletPointerInfo pointerInfo(ev->uniqueId(), ev->pointerType());
+	if (d->tabletPointerInfo != pointerInfo)
 	{
-		d->tabletPointerData = pointerData;
-		emit tabletPointerChanged(pointerData);
+		auto prev = d->tabletPointerInfo;
+		d->tabletPointerInfo = pointerInfo;
+		emit tabletPointerChanged(pointerInfo, prev);
 	}
 }
 

@@ -3,7 +3,7 @@
 
 #include "qtsingleapplication/qtsingleapplication.h"
 #include <QTabletEvent>
-#include "tabletpointerdata.h"
+#include "tabletpointerinfo.h"
 
 #ifdef Q_OS_MAC
 #define PAINTFIELD_ENABLE_TABLET_EVENT_FILTER
@@ -20,7 +20,7 @@ class Application : public QtSingleApplication
 	Q_PROPERTY(bool tabletActive
 	           READ isTabletActive
 	           NOTIFY tabletActiveChanged)
-	Q_PROPERTY(TabletPointerData tabletPointerData
+	Q_PROPERTY(TabletPointerInfo tabletPointerData
 	           READ tabletPointerData
 	           NOTIFY tabletPointerChanged)
 	
@@ -32,7 +32,7 @@ public:
 	~Application();
 	
 	bool isTabletActive() const;
-	TabletPointerData tabletPointerData() const;
+	TabletPointerInfo tabletPointerData() const;
 	
 signals:
 	
@@ -40,7 +40,7 @@ signals:
 	void tabletDeactivated();
 	void tabletActiveChanged(bool active);
 	
-	void tabletPointerChanged(const TabletPointerData &pointerData);
+	void tabletPointerChanged(const TabletPointerInfo &currentInfo, const TabletPointerInfo &prevInfo);
 	
 	void fileOpenRequested(const QString &filepath);
 	
