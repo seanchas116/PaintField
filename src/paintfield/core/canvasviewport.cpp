@@ -299,29 +299,33 @@ void CanvasViewport::paintRects(const QVector<QRect> &outputRects, bool consider
 	if (!considerBorder)
 		painter.setCompositionMode(QPainter::CompositionMode_Source);
 	
-	if (d->retinaMode)
-		painter.setTransform(QTransform::fromScale(0.5, 0.5));
-	
 	if (d->transformTranslatingOnly)
 	{
+		if (d->retinaMode)
+			painter.setTransform(d->transformOutputFromScene * QTransform::fromScale(0.5, 0.5));
+		else
+			painter.setTransform(d->transformOutputFromScene);
+		
 		for (const QRect &rect : outputRects)
 		{
 			if (rect.isEmpty())
 				continue;
 			
 			QRect requiredSceneRect = d->sceneRectFromOutputRect(rect);
-			QPoint offset = rect.topLeft() - requiredSceneRect.topLeft();
 			
 			auto image = d->surface.crop<ImageU8>( requiredSceneRect );
 			
 			if ( considerBorder )
-				painter.setClipRect( QRect( offset, d->sceneSize ) );
+				painter.setClipRect( QRect( QPoint(), d->sceneSize ) );
 			
-			painter.drawImage( rect.topLeft(), image.wrapInQImage() );
+			painter.drawImage( requiredSceneRect.topLeft(), image.wrapInQImage() );
 		}
 	}
 	else
 	{
+		if (d->retinaMode)
+			painter.scale(0.5, 0.5);
+		
 		for (const QRect &rect : outputRects)
 		{
 			if (rect.isEmpty())
