@@ -1,5 +1,6 @@
 #include <QtGui>
 #include "layermodel.h"
+#include "selection.h"
 
 #include "document.h"
 
@@ -19,6 +20,7 @@ struct Document::Data
 	QUndoStack *undoStack = 0;
 	
 	LayerModel *layerModel = 0;
+	Selection *selection = 0;
 };
 
 Document::Document(const QString &tempName, const QSize &size, const LayerList &layers,  QObject *parent) :
@@ -28,7 +30,10 @@ Document::Document(const QString &tempName, const QSize &size, const LayerList &
 	d->size = size;
 	d->tempName = tempName;
 	d->undoStack = new QUndoStack(this);
+	
 	d->layerModel = new LayerModel(layers, this);
+	d->selection = new Selection(this);
+	
 	d->tileXCount = ceil(double(size.width()) / double(Surface::tileWidth()));
 	d->tileXCount = ceil(double(size.height()) / double(Surface::tileWidth()));
 	d->tileKeys = Surface::rectToKeys(QRect(QPoint(), size));
@@ -41,60 +46,28 @@ Document::~Document()
 	delete d;
 }
 
-QSize Document::size() const
-{
-	return d->size;
-}
+QSize Document::size() const { return d->size; }
 
-bool Document::isModified() const
-{
-	return d->modified;
-}
+bool Document::isModified() const { return d->modified; }
+bool Document::isNew() const { return d->filePath.isEmpty(); }
 
-bool Document::isNew() const
-{
-	return d->filePath.isEmpty();
-}
-
-QString Document::filePath() const
-{
-	return d->filePath;
-}
+QString Document::filePath() const { return d->filePath; }
 
 QString Document::fileName() const
 {
 	return d->filePath.isEmpty() ? d->tempName : d->filePath.section('/', -1);
 }
 
-QString Document::tempName() const
-{
-	return d->tempName;
-}
+QString Document::tempName() const { return d->tempName; }
 
-int Document::tileXCount() const
-{
-	return d->tileXCount;
-}
+int Document::tileXCount() const { return d->tileXCount; }
+int Document::tileYCount() const { return d->tileYCount; }
+QPointSet Document::tileKeys() const { return d->tileKeys; }
 
-int Document::tileYCount() const
-{
-	return d->tileYCount;
-}
+QUndoStack *Document::undoStack() { return d->undoStack; }
 
-QPointSet Document::tileKeys() const
-{
-	return d->tileKeys;
-}
-
-QUndoStack *Document::undoStack()
-{
-	return d->undoStack;
-}
-
-LayerModel *Document::layerModel()
-{
-	return d->layerModel;
-}
+LayerModel *Document::layerModel() { return d->layerModel; }
+Selection *Document::selection() { return d->selection; }
 
 void Document::setModified(bool modified)
 {

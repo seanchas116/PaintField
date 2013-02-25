@@ -72,7 +72,8 @@ HEADERS += \
     extension.h \
     extensionmanager.h \
     canvasviewwrapper.h \
-    canvasviewport.h
+    canvasviewport.h \
+    selection.h
 FORMS += dialogs/exportdialog.ui dialogs/newdocumentdialog.ui
 SOURCES += \
            document.cpp \
@@ -127,7 +128,8 @@ SOURCES += \
     extension.cpp \
     extensionmanager.cpp \
     canvasviewwrapper.cpp \
-    canvasviewport.cpp
+    canvasviewport.cpp \
+    selection.cpp
 
 RESOURCES += \
     resources/resource-paintfield-core.qrc

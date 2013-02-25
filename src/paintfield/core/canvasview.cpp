@@ -305,6 +305,7 @@ void CanvasView::setTool(Tool *tool)
 		setCursor(tool->cursor());
 	}
 }
+
 void CanvasView::updateTiles(const QPointSet &keys, const QHash<QPoint, QRect> &rects)
 {
 	if (!d->updateEnabled)
@@ -356,11 +357,6 @@ void CanvasView::onClicked()
 {
 	setFocus();
 	canvas()->workspace()->setCurrentCanvas(canvas());
-}
-
-void CanvasView::onToolCursorChanged(const QCursor &cursor)
-{
-	setCursor(cursor);
 }
 
 void CanvasView::onTabletActiveChanged(bool active)

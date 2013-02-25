@@ -9,11 +9,11 @@
 namespace PaintField {
 
 class LayerModel;
+class Selection;
 
 class Document : public QObject
 {
 	Q_OBJECT
-	friend class FSDocumentCommand;
 	
 public:
 	
@@ -73,6 +73,7 @@ public:
 	
 	QUndoStack *undoStack();
 	LayerModel *layerModel();
+	Selection *selection();
 	
 	void setModified(bool modified);
 	void setFilePath(const QString &filePath);

@@ -76,7 +76,6 @@ private slots:
 	void updateTiles(const QHash<QPoint, QRect> &rects) { updateTiles(QPointSet(), rects); }
 	
 	void onClicked();
-	void onToolCursorChanged(const QCursor &cursor);
 	void onTabletActiveChanged(bool active);
 	
 	void onViewportAccurateUpdate();
