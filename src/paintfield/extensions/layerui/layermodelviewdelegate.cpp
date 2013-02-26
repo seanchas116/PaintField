@@ -1,4 +1,6 @@
-#include <QtGui>
+#include <QMouseEvent>
+#include <QMenu>
+
 #include "paintfield/core/layermodel.h"
 
 #include "layeruicontroller.h"

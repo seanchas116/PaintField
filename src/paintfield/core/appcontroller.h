@@ -67,7 +67,7 @@ private:
 	
 	QString unduplicatedTempName(const QString &name);
 	
-	class Data;
+	struct Data;
 	Data *d;
 	
 	static AppController *_instance;

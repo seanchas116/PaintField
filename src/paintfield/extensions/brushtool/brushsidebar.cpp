@@ -1,4 +1,9 @@
-#include <QtGui>
+#include <QVBoxLayout>
+#include <QGridLayout>
+#include <QLabel>
+#include <QSlider>
+#include <QSpinBox>
+
 #include "brushsidebar.h"
 
 namespace PaintField {

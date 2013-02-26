@@ -1,4 +1,9 @@
-#include <QtGui>
+#include <QVBoxLayout>
+#include <QCheckBox>
+#include <QGridLayout>
+#include <QLabel>
+#include <QHBoxLayout>
+
 #include <Malachite/Division>
 #include <Malachite/Affine2D>
 #include "paintfield/core/widgets/simplebutton.h"

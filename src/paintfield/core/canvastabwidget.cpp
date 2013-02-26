@@ -1,4 +1,7 @@
-#include <QtGui>
+#include <QUrl>
+#include <QDragEnterEvent>
+#include <QDropEvent>
+
 #include "workspace.h"
 #include "appcontroller.h"
 #include "workspacemanager.h"

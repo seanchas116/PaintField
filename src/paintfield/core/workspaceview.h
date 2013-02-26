@@ -134,7 +134,7 @@ private:
 	void updateWorkspaceItemsForCanvas(Canvas *canvas);
 	void updateMenuBar();
 	
-	class Data;
+	struct Data;
 	Data *d;
 };
 

@@ -1,4 +1,10 @@
-#include <QtGui>
+#include <QTreeView>
+#include <QComboBox>
+#include <QHBoxLayout>
+#include <QFormLayout>
+#include <QLabel>
+#include <QMenu>
+
 #include <Malachite/Painter>
 #include <Malachite/ImageIO>
 

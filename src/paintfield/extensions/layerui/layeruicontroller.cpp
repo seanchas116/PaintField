@@ -1,4 +1,6 @@
-#include <QtGui>
+#include <QAction>
+#include <QFileDialog>
+#include <QDir>
 #include <Malachite/ImageIO>
 
 #include "paintfield/core/util.h"

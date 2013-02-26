@@ -1,4 +1,6 @@
-#include <QtGui>
+#include <QItemSelectionModel>
+#include <QFileDialog>
+
 #include "paintfield/core/util.h"
 #include "paintfield/core/appcontroller.h"
 #include "paintfield/core/application.h"

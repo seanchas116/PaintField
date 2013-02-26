@@ -1,4 +1,4 @@
-#include <QtGui>
+#include <QLineEdit>
 #include <Malachite/Division>
 
 #include "loosespinbox.h"

@@ -1,4 +1,7 @@
-#include <QtGui>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QTreeView>
+
 #include "paintfield/core/util.h"
 #include "paintfield/core/widgets/simplebutton.h"
 

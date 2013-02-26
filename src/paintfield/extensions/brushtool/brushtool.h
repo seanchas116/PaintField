@@ -6,7 +6,7 @@
 
 namespace PaintField {
 
-class TabletInputData;
+struct TabletInputData;
 class BrushStroker;
 class BrushStrokerFactory;
 class BrushToolExtension;

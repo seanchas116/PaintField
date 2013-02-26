@@ -1,4 +1,6 @@
-#include <QtGui>
+#include <QPauseAnimation>
+#include <QPainter>
+#include <QMouseEvent>
 #include <cfloat>
 #include <functional>
 #include "../callbackanimation.h"

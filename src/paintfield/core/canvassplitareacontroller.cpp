@@ -85,46 +85,6 @@ static QWidget *oppositeSplitterWidget(QSplitter *splitter, QWidget *widget)
 	return splitter->widget((index == 0) ? 1 : 0);
 }
 
-static void memorizeRecursive(QWidget *widget)
-{
-	MemorizableSplitter *splitter = qobject_cast<MemorizableSplitter *>(widget);
-	
-	if (splitter)
-	{
-		splitter->memorizeSizes();
-		
-		for (QWidget *child : splitterWidgetList(splitter))
-			memorizeRecursive(child);
-	}
-	else
-	{
-		CanvasSplitWidget *split = qobject_cast<CanvasSplitWidget *>(widget);
-		
-		if (split)
-			split->tabWidget()->memorizeTransforms();
-	}
-}
-
-static void restoreRecursive(QWidget *widget)
-{
-	MemorizableSplitter *splitter = qobject_cast<MemorizableSplitter *>(widget);
-	
-	if (splitter)
-	{
-		splitter->restoreSizes();
-		
-		for (QWidget *child : splitterWidgetList(splitter))
-			restoreRecursive(child);
-	}
-	else
-	{
-		CanvasSplitWidget *split = qobject_cast<CanvasSplitWidget *>(widget);
-		
-		if (split)
-			split->tabWidget()->restoreTransforms();
-	}
-}
-
 void CanvasSplitAreaController::addSplit(CanvasSplitWidget *existingSplit, CanvasSplitWidget *newSplit, Qt::Orientation orientation)
 {
 	auto splitter = splitterForWidget(existingSplit);

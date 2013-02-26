@@ -1,5 +1,4 @@
-#include <QtGui>
-
+#include <QPainter>
 #include "simplebutton.h"
 
 namespace PaintField

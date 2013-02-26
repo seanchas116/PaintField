@@ -1,5 +1,5 @@
-#include <QtGui>
-
+#include <QSplitter>
+#include <QHBoxLayout>
 #include "docktabwidget.h"
 
 #include "docktabmotherwidget.h"

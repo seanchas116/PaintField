@@ -60,7 +60,7 @@ private:
 	CanvasView *canvasViewAt(int index);
 	void commonInit();
 	
-	class Data;
+	struct Data;
 	Data *d;
 };
 

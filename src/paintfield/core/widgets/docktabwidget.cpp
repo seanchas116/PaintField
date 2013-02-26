@@ -1,4 +1,7 @@
-#include <QtGui>
+#include <QDragEnterEvent>
+#include <QMouseEvent>
+#include <QCloseEvent>
+#include <QApplication>
 
 #include "docktabwidget.h"
 

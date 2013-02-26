@@ -1,4 +1,5 @@
-#include <QtGui>
+#include <QMouseEvent>
+#include <QPainter>
 #include <Malachite/Vec2D>
 
 #include "colorwheel.h"

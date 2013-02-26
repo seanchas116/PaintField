@@ -166,7 +166,7 @@ private:
 	
 	Layer *nonConstLayer(const Layer *layer) { return const_cast<Layer *>(layer); }
 	
-	class Data;
+	struct Data;
 	Data *d;
 };
 

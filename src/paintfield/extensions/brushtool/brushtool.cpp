@@ -1,4 +1,4 @@
-#include <QtGui>
+
 #include <Malachite/SurfacePainter>
 
 #include "paintfield/core/layeredit.h"

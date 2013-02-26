@@ -1,4 +1,4 @@
-#include <QtGui>
+#include <QApplication>
 #include "../tabletevent.h"
 
 #include "applicationeventfilter.h"

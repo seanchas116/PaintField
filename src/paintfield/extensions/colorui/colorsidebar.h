@@ -1,7 +1,7 @@
 #ifndef FSCOLORPANEL_H
 #define FSCOLORPANEL_H
 
-#include <QtGui>
+#include <QWidget>
 #include <Malachite/Color>
 
 class QVBoxLayout;

@@ -13,6 +13,13 @@ unix:!macx {
 
 QT += core gui network xml svg plugin
 QMAKE_CXXFLAGS += -std=c++11
+QMAKE_LFLAGS += -std=c++11
+
+contains(QMAKE_CXX, clang++) {
+	QMAKE_CXXFLAGS += -stdlib=libc++
+	QMAKE_LFLAGS += -stdlib=libc++
+	DEFINES += Q_COMPILER_INITIALIZER_LISTS
+}
 
 LIBS += -lfreeimage -lqjson
 

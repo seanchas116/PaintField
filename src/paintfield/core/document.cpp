@@ -1,4 +1,4 @@
-#include <QtGui>
+
 #include "layermodel.h"
 #include "selection.h"
 

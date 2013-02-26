@@ -1,4 +1,5 @@
-#include <QtGui>
+#include <QTimer>
+#include <QMimeData>
 #include <Malachite/Painter>
 
 #include "util.h"

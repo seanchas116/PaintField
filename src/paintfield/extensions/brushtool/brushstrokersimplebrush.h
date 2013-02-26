@@ -5,7 +5,7 @@
 
 namespace PaintField {
 
-class BrushScanline;
+struct BrushScanline;
 
 class BrushStrokerSimpleBrush : public BrushStroker
 {

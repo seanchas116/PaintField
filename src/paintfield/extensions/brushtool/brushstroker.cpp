@@ -1,4 +1,4 @@
-#include <QtGui>
+
 #include <Malachite/CurveSubdivision>
 
 #include "brushstroker.h"

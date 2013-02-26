@@ -1,4 +1,11 @@
-#include <QtGui>
+#include <QLabel>
+#include <QComboBox>
+#include <QHBoxLayout>
+#include <QGridLayout>
+#include <QLineEdit>
+#include <QFormLayout>
+#include <QButtonGroup>
+
 #include "paintfield/core/util.h"
 #include "paintfield/core/appcontroller.h"
 #include "paintfield/core/widgets/colorbutton.h"

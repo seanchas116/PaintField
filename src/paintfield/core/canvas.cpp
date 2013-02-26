@@ -1,4 +1,4 @@
-#include <QtGui>
+#include <QAction>
 #include <Malachite/ImageIO>
 
 #include "smartpointer.h"

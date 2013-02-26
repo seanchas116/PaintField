@@ -1,4 +1,7 @@
-#include <QtGui>
+#include <QGraphicsScene>
+#include <QGraphicsRectItem>
+#include <QGraphicsDropShadowEffect>
+#include <QPainter>
 
 #include "thumbnail.h"
 
@@ -21,7 +24,7 @@ Thumbnail::Thumbnail(const QPixmap &originalPixmap)
 		shadow.fill(Qt::transparent);
 		
 		QGraphicsScene scene(shadow.rect());
-		QGraphicsRectItem *rectItem = scene.addRect(pixmapRect, Qt::NoPen, Qt::white);
+		auto rectItem = scene.addRect(pixmapRect, Qt::NoPen, Qt::white);
 		QGraphicsDropShadowEffect effect(0);
 		effect.setBlurRadius(6);
 		effect.setOffset(0);

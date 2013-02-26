@@ -1,3 +1,4 @@
+#include <cmath>
 #include "doubleslider.h"
 
 namespace PaintField
@@ -42,7 +43,7 @@ void DoubleSlider::setDoubleValue(double x)
 		
 		x = qBound(_doubleMin, x, _doubleMax);
 		
-		int i = minimum() + round((x - _doubleMin) * double(maximum() - minimum()) / (_doubleMax - _doubleMin));
+		int i = minimum() + ::round((x - _doubleMin) * double(maximum() - minimum()) / (_doubleMax - _doubleMin));
 		setValue(i);
 		
 		emit doubleValueChanged(x);

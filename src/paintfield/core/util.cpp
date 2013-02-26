@@ -1,4 +1,10 @@
-#include <QtGui>
+#include <QAction>
+#include <QFile>
+#include <QWidget>
+#include <QTreeView>
+#include <QApplication>
+#include <QDesktopWidget>
+
 #include <qjson/parser.h>
 #include <qjson/serializer.h>
 

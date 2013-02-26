@@ -1,4 +1,4 @@
-#include <QtGui>
+
 #include <Malachite/GenericImage>
 #include <Malachite/PixelConversion>
 #include "util.h"

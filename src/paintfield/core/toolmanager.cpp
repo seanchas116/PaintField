@@ -1,4 +1,5 @@
-#include <QtGui>
+#include <QActionGroup>
+#include <QAction>
 
 #include "appcontroller.h"
 #include "extensionmanager.h"

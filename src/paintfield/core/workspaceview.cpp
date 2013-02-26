@@ -1,4 +1,8 @@
-#include <QtGui>
+#include <QMenu>
+#include <QMenuBar>
+#include <QToolBar>
+#include <QCloseEvent>
+
 #include "widgets/docktabmotherwidget.h"
 #include "canvas.h"
 #include "canvassplitareacontroller.h"

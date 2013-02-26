@@ -1,4 +1,4 @@
-#include <QtGui>
+#include <QTimer>
 
 #include "scopedtimer.h"
 #include "application.h"

@@ -100,7 +100,7 @@ private:
 	
 	void applyKeyBindingsToActionDeclarations();
 	
-	class Data;
+	struct Data;
 	Data *d;
 };
 

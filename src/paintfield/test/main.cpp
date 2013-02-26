@@ -1,4 +1,5 @@
 #include <QtGui>
+
 #include "autotest.h"
 #include "test_documentio.h"
 #include "testutil.h"

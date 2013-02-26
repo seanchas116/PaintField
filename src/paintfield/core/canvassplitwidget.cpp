@@ -1,4 +1,7 @@
-#include <QtGui>
+#include <QDragEnterEvent>
+#include <QDropEvent>
+#include <QUrl>
+
 #include "canvastabwidget.h"
 #include "canvasview.h"
 #include "canvas.h"

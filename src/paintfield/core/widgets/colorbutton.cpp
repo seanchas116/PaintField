@@ -1,4 +1,4 @@
-#include <QtGui>
+#include <QPainter>
 #include "colorbutton.h"
 
 namespace PaintField

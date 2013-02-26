@@ -212,7 +212,7 @@ private:
 	
 	void commonInit();
 	
-	class Data;
+	struct Data;
 	Data *d;
 };
 

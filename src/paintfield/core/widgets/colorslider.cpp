@@ -1,4 +1,6 @@
-#include <QtGui>
+#include <QMouseEvent>
+#include <QPainter>
+
 #include <Malachite/Division>
 
 #include "colorslider.h"

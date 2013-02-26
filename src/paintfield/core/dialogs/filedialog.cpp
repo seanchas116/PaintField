@@ -1,4 +1,4 @@
-#include <QtGui>
+#include <QDesktopServices>
 
 #include "../appcontroller.h"
 #include "../settingsmanager.h"

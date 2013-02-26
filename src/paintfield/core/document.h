@@ -95,7 +95,7 @@ private slots:
 	
 private:
 	
-	class Data;
+	struct Data;
 	Data *d;
 };
 

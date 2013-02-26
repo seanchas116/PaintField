@@ -1,4 +1,4 @@
-#include <QtGui>
+
 #include <QPluginLoader>
 
 #include "util.h"

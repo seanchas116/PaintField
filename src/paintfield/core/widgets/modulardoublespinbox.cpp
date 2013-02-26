@@ -1,4 +1,5 @@
 #include <QDebug>
+#include <cmath>
 
 #include "modulardoublespinbox.h"
 
@@ -14,7 +15,7 @@ ModularDoubleSpinBox::ModularDoubleSpinBox(QWidget *parent) :
 void ModularDoubleSpinBox::stepBy(int steps)
 {
 	double v = value() + singleStep() * steps;
-	setValue(fmod(v, maximum()));
+	setValue(::fmod(v, maximum()));
 }
 
 }

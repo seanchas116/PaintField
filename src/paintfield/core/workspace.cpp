@@ -1,4 +1,4 @@
-#include <QtGui>
+
 
 #include "smartpointer.h"
 #include "util.h"

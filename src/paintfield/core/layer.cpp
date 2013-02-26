@@ -1,4 +1,4 @@
-#include <QtGui>
+#include <QFileInfo>
 
 #include <Malachite/Painter>
 #include <Malachite/ImageIO>
