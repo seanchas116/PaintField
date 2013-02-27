@@ -10,3 +10,7 @@ include(../extensions.pri)
 HEADERS += aboutdialog.h aboutdialogextension.h
 FORMS += aboutdialog.ui
 SOURCES += aboutdialog.cpp aboutdialogextension.cpp
+
+OTHER_FILES +=
+
+RESOURCES +=

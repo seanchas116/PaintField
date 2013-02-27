@@ -11,7 +11,7 @@ unix:!macx {
 	PF_PLATFORM = "unix"
 }
 
-QT += core gui network xml svg plugin
+QT += core gui network xml svg
 QMAKE_CXXFLAGS += -std=c++11
 QMAKE_LFLAGS += -std=c++11
 

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>600</width>
-    <height>352</height>
+    <height>400</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -52,16 +52,6 @@
     </widget>
    </item>
    <item>
-    <widget class="QLabel" name="label_5">
-     <property name="text">
-      <string>Licensed under &lt;a href=&quot;http://www.gnu.org/copyleft/lesser.html&quot;&gt;LGPL&lt;/a&gt;.</string>
-     </property>
-     <property name="openExternalLinks">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item>
     <widget class="QLabel" name="label_4">
      <property name="text">
       <string>Powered by &lt;a href=&quot;http://qt-project.org/&quot;&gt;Qt&lt;/a&gt;, &lt;a href=&quot;http://www.antigrain.com/&quot;&gt;Anti-Grain Geometry&lt;/a&gt;, &lt;a href=&quot;http://www.angusj.com/delphi/clipper.php&quot;&gt;Clipper&lt;/a&gt;, &lt;a href=&quot;http://www.winimage.com/zLibDll/minizip.html&quot;&gt;Minizip&lt;/a&gt;, &lt;a href=&quot;http://freeimage.sourceforge.net/&quot;&gt;FreeImage&lt;/a&gt;, &lt;a href=&quot;http://qjson.sourceforge.net/&quot;&gt;QJson&lt;/a&gt;.</string>
@@ -91,8 +81,16 @@
       <bool>true</bool>
      </property>
      <property name="plainText">
-      <string>Anti-Grain Geometry - Version 2.4
-Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)</string>
+      <string>PaintField
+Copyright (C) 2011-2013 Ryohei Ikegami &lt;iofg2100@gmail.com&gt;
+Licensed under the MIT License.
+
+Anti-Grain Geometry - Version 2.4
+Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
+
+QtSingleApplication
+Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+Licensed under the BSD 3-Clause License.</string>
      </property>
     </widget>
    </item>
