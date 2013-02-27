@@ -44,9 +44,17 @@ void KeyTracker::pressKey(int key)
 {
 	auto modifier = keyToModifier(key);
 	if (modifier != Qt::NoModifier)
+	{
+		if (d->modifiers & modifier)
+			return;
 		d->modifiers |= modifier;
+	}
 	else
+	{
+		if (d->keys.contains(key))
+			return;
 		d->keys << key;
+	}
 	
 	emit pressedKeysChanged(pressedKeys());
 }
