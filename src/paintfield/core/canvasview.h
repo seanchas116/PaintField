@@ -66,6 +66,8 @@ protected:
 	
 private slots:
 	
+	void onPressedKeysChanged();
+	
 	void setScale(double value);
 	void setRotation(double value);
 	void setTranslation(const QPoint &value);
@@ -121,7 +123,6 @@ private:
 		Scaling,
 		Rotating
 	};
-	
 	
 	class Data;
 	Data *d;

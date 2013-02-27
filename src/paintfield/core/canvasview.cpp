@@ -68,7 +68,7 @@ public:
 	
 	QKeySequence scaleKeys, rotationKeys, translationKeys;
 	
-	DragNavigationMode dragNavigationMode = NoNavigation;
+	DragNavigationMode navigationMode = NoNavigation;
 	QPoint navigationOrigin;
 	
 	Navigation nav, backupNav;
@@ -100,6 +100,7 @@ CanvasView::CanvasView(Canvas *canvas, QWidget *parent) :
 	d->nav.rotation = canvas->rotation();
 	
 	d->keyTracker = new KeyTracker(this);
+	connect(d->keyTracker, SIGNAL(pressedKeysChanged(QSet<int>)), this, SLOT(onPressedKeysChanged()));
 	
 	d->viewCenter = QPoint(width() / 2, height() / 2);
 	
@@ -365,7 +366,7 @@ void CanvasView::keyPressEvent(QKeyEvent *event)
 	if (d->tool)
 		d->tool->toolEvent(event);
 	
-	//PAINTFIELD_DEBUG << "pressed:" << event->key() << "modifiers" << event->modifiers() << "at" << this;
+	PAINTFIELD_DEBUG << "pressed:" << event->key() << "modifiers" << event->modifiers() << "at" << this;
 	d->keyTracker->pressKey(event->key());
 	d->keyTracker->setModifiers(event->modifiers());
 }
@@ -375,7 +376,7 @@ void CanvasView::keyReleaseEvent(QKeyEvent *event)
 	if (d->tool)
 		d->tool->toolEvent(event);
 	
-	//PAINTFIELD_DEBUG << "released:" << event->key() << "modifiers" << event->modifiers() << "at" << this;
+	PAINTFIELD_DEBUG << "released:" << event->key() << "modifiers" << event->modifiers() << "at" << this;
 	d->keyTracker->releaseKey(event->key());
 }
 
@@ -698,7 +699,7 @@ bool CanvasView::tryBeginDragNavigation(const QPoint &pos)
 
 bool CanvasView::continueDragNavigation(const QPoint &pos)
 {
-	switch (d->dragNavigationMode)
+	switch (d->navigationMode)
 	{
 		default:
 		case NoNavigation:
@@ -723,13 +724,36 @@ void CanvasView::endDragNavigation()
 }
 
 static const QString navigatingCursorId = "paintfield.canvas.navigate";
-static const QString waitingForNavigatingCursorId = "paintfield.canvas.waitNavigate";
+
+static const QString readyToTranslateCursorId = "paintfield.canvas.readyToTranslate";
+static const QString readyToScaleCursorId = "paintfield.canvas.readyToScale";
+static const QString readyToRotateCursorId = "paintfield.canvas.readyToRotate";
+
+void CanvasView::onPressedKeysChanged()
+{
+	PAINTFIELD_DEBUG;
+	
+	auto cs = appController()->cursorStack();
+	auto kt = d->keyTracker;
+	
+	auto addOrRemove = [cs, kt](const QKeySequence &seq, const QString &id, const QCursor &cursor)
+	{
+		if (kt->match(seq))
+			cs->add(id, cursor);
+		else
+			cs->remove(id);
+	};
+	
+	addOrRemove(d->translationKeys, readyToTranslateCursorId, Qt::OpenHandCursor);
+	addOrRemove(d->scaleKeys, readyToScaleCursorId, Qt::OpenHandCursor);
+	addOrRemove(d->rotationKeys, readyToRotateCursorId, Qt::OpenHandCursor);
+}
 
 void CanvasView::beginDragTranslation(const QPoint &pos)
 {
 	appController()->cursorStack()->add(navigatingCursorId, Qt::ClosedHandCursor);
 	
-	d->dragNavigationMode = Translating;
+	d->navigationMode = Translating;
 	d->navigationOrigin = pos;
 	d->backupNav = d->nav;
 }
@@ -742,14 +766,14 @@ void CanvasView::continueDragTranslation(const QPoint &pos)
 void CanvasView::endDragTranslation()
 {
 	appController()->cursorStack()->remove(navigatingCursorId);
-	d->dragNavigationMode = NoNavigation;
+	d->navigationMode = NoNavigation;
 }
 
 void CanvasView::beginDragScaling(const QPoint &pos)
 {
 	appController()->cursorStack()->add(navigatingCursorId, Qt::SizeVerCursor);
 	
-	d->dragNavigationMode = Scaling;
+	d->navigationMode = Scaling;
 	d->navigationOrigin = pos;
 	d->backupNav = d->nav;
 }
@@ -775,14 +799,14 @@ void CanvasView::continueDragScaling(const QPoint &pos)
 void CanvasView::endDragScaling()
 {
 	appController()->cursorStack()->remove(navigatingCursorId);
-	d->dragNavigationMode = NoNavigation;
+	d->navigationMode = NoNavigation;
 }
 
 void CanvasView::beginDragRotation(const QPoint &pos)
 {
 	appController()->cursorStack()->add(navigatingCursorId, Qt::ClosedHandCursor);
 	
-	d->dragNavigationMode = Rotating;
+	d->navigationMode = Rotating;
 	d->navigationOrigin = pos;
 	d->backupNav = d->nav;
 }
@@ -808,7 +832,7 @@ void CanvasView::continueDragRotation(const QPoint &pos)
 void CanvasView::endDragRotation()
 {
 	appController()->cursorStack()->remove(navigatingCursorId);
-	d->dragNavigationMode = NoNavigation;
+	d->navigationMode = NoNavigation;
 }
 
 void CanvasView::moveViewport()
