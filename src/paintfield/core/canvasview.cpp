@@ -265,7 +265,6 @@ void CanvasView::setTool(Tool *tool)
 		connect(tool, SIGNAL(requestUpdate(QHash<QPoint,QRect>)), this, SLOT(updateTiles(QHash<QPoint,QRect>)));
 		
 		d->toolCursor = tool->cursor();
-		setCursor(tool->cursor());
 	}
 }
 
@@ -385,19 +384,21 @@ void CanvasView::focusInEvent(QFocusEvent *)
 	d->viewport->updateWholeAccurately();
 }
 
+static const QString toolCursorId = "paintfield.canvas.tool";
+
 void CanvasView::enterEvent(QEvent *e)
 {
 	super::enterEvent(e);
 	setFocus();
-	//qApp->setOverrideCursor(d->toolCursor);
+	
+	appController()->cursorStack()->add(toolCursorId, d->toolCursor);
 }
 
 void CanvasView::leaveEvent(QEvent *e)
 {
 	super::leaveEvent(e);
 	
-	//while (qApp->overrideCursor())
-	//	qApp->restoreOverrideCursor();
+	appController()->cursorStack()->remove(toolCursorId);
 }
 
 void CanvasView::mouseDoubleClickEvent(QMouseEvent *event)
