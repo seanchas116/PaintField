@@ -50,8 +50,12 @@ bool CursorStack::isEnabled() const
 
 void CursorStack::add(const QString &id, const QCursor &cursor)
 {
-	d->cursorStack.removeIf([id](const IdAndCursor &x){return x.first == id;});
-	d->cursorStack << IdAndCursor(id, cursor);
+	int index = d->cursorStack.foundIndex([id](const IdAndCursor &x){return x.first == id;});
+	if (index >= 0)
+		d->cursorStack[index] = IdAndCursor(id, cursor);
+	else
+		d->cursorStack << IdAndCursor(id, cursor);
+	
 	updateCursor();
 }
 
