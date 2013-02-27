@@ -5,6 +5,7 @@
 #include "workspacemanager.h"
 #include "extensionmanager.h"
 #include "settingsmanager.h"
+#include "cursorstack.h"
 #include "application.h"
 #include "document.h"
 #include "canvas.h"
@@ -21,6 +22,7 @@ struct AppController::Data
 	WorkspaceManager *workspaceManager = 0;
 	ExtensionManager *extensionManager = 0;
 	SettingsManager *settingsManager = 0;
+	CursorStack *cursorStack = 0;
 	
 	QList<AppExtension *> extensions;
 	QList<QAction *> actions;
@@ -34,6 +36,7 @@ AppController::AppController(Application *app, QObject *parent) :
 	d->workspaceManager = new WorkspaceManager(this);
 	d->extensionManager = new ExtensionManager(this);
 	d->settingsManager = new SettingsManager(this);
+	d->cursorStack = new CursorStack(this);
 	
 	_instance = this;
 	
@@ -61,20 +64,10 @@ void AppController::begin()
 	workspaceManager()->newWorkspace();
 }
 
-WorkspaceManager *AppController::workspaceManager()
-{
-	return d->workspaceManager;
-}
-
-ExtensionManager *AppController::extensionManager()
-{
-	return d->extensionManager;
-}
-
-SettingsManager *AppController::settingsManager()
-{
-	return d->settingsManager;
-}
+WorkspaceManager *AppController::workspaceManager() { return d->workspaceManager; }
+ExtensionManager *AppController::extensionManager() { return d->extensionManager; }
+SettingsManager *AppController::settingsManager() { return d->settingsManager; }
+CursorStack *AppController::cursorStack() { return d->cursorStack; }
 
 void AppController::addExtensions(const AppExtensionList &extensions)
 {
@@ -84,20 +77,14 @@ void AppController::addExtensions(const AppExtensionList &extensions)
 	d->extensions += extensions;
 }
 
-QList<AppExtension *> AppController::extensions()
-{
-	return d->extensions;
-}
+QList<AppExtension *> AppController::extensions() { return d->extensions; }
 
 void AppController::addActions(const QList<QAction *> &actions)
 {
 	d->actions += actions;
 }
 
-QList<QAction *> AppController::actions()
-{
-	return d->actions;
-}
+QList<QAction *> AppController::actions() { return d->actions; }
 
 QString AppController::unduplicatedNewFileTempName()
 {

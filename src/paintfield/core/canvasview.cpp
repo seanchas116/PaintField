@@ -1,5 +1,6 @@
 #include <QTimer>
 
+#include "cursorstack.h"
 #include "scopedtimer.h"
 #include "application.h"
 #include "settingsmanager.h"
@@ -720,9 +721,12 @@ void CanvasView::endDragNavigation()
 	endDragRotation();
 }
 
+static const QString navigatingCursorId = "paintfield.canvas.navigate";
+static const QString waitingForNavigatingCursorId = "paintfield.canvas.waitNavigate";
+
 void CanvasView::beginDragTranslation(const QPoint &pos)
 {
-	qApp->setOverrideCursor(Qt::ClosedHandCursor);
+	appController()->cursorStack()->add(navigatingCursorId, Qt::ClosedHandCursor);
 	
 	d->dragNavigationMode = Translating;
 	d->navigationOrigin = pos;
@@ -736,13 +740,13 @@ void CanvasView::continueDragTranslation(const QPoint &pos)
 
 void CanvasView::endDragTranslation()
 {
-	qApp->restoreOverrideCursor();
+	appController()->cursorStack()->remove(navigatingCursorId);
 	d->dragNavigationMode = NoNavigation;
 }
 
 void CanvasView::beginDragScaling(const QPoint &pos)
 {
-	qApp->setOverrideCursor(Qt::SizeVerCursor);
+	appController()->cursorStack()->add(navigatingCursorId, Qt::SizeVerCursor);
 	
 	d->dragNavigationMode = Scaling;
 	d->navigationOrigin = pos;
@@ -754,6 +758,7 @@ void CanvasView::continueDragScaling(const QPoint &pos)
 	auto delta = pos - d->navigationOrigin;
 	
 	constexpr double divisor = 100;
+	
 	
 	double scaleRatio = exp2(-delta.y() / divisor);
 	double scale = d->backupNav.scale * scaleRatio;
@@ -768,13 +773,13 @@ void CanvasView::continueDragScaling(const QPoint &pos)
 
 void CanvasView::endDragScaling()
 {
-	qApp->restoreOverrideCursor();
+	appController()->cursorStack()->remove(navigatingCursorId);
 	d->dragNavigationMode = NoNavigation;
 }
 
 void CanvasView::beginDragRotation(const QPoint &pos)
 {
-	qApp->setOverrideCursor(Qt::ClosedHandCursor);
+	appController()->cursorStack()->add(navigatingCursorId, Qt::ClosedHandCursor);
 	
 	d->dragNavigationMode = Rotating;
 	d->navigationOrigin = pos;
@@ -801,7 +806,7 @@ void CanvasView::continueDragRotation(const QPoint &pos)
 
 void CanvasView::endDragRotation()
 {
-	qApp->restoreOverrideCursor();
+	appController()->cursorStack()->remove(navigatingCursorId);
 	d->dragNavigationMode = NoNavigation;
 }
 

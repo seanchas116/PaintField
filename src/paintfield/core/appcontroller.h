@@ -16,6 +16,7 @@ class ExtensionManager;
 class SettingsManager;
 class AppExtension;
 class ExtensionFactory;
+class CursorStack;
 
 /**
  * AppController is an singleton class that manages application-wide classes.
@@ -33,6 +34,7 @@ public:
 	WorkspaceManager *workspaceManager();
 	ExtensionManager *extensionManager();
 	SettingsManager *settingsManager();
+	CursorStack *cursorStack();
 	
 	void addExtensions(const QList<AppExtension *> &extensions);
 	QList<AppExtension *> extensions();

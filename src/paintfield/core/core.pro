@@ -70,7 +70,8 @@ HEADERS += \
     canvasviewwrapper.h \
     canvasviewport.h \
     selection.h \
-    tabletpointerinfo.h
+    tabletpointerinfo.h \
+    cursorstack.h
 FORMS += dialogs/exportdialog.ui dialogs/newdocumentdialog.ui
 SOURCES += \
            document.cpp \
@@ -124,7 +125,8 @@ SOURCES += \
     extensionmanager.cpp \
     canvasviewwrapper.cpp \
     canvasviewport.cpp \
-    selection.cpp
+    selection.cpp \
+    cursorstack.cpp
 
 RESOURCES += \
     resources/resource-paintfield-core.qrc
