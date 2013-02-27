@@ -56,16 +56,6 @@ CanvasSplitWidget *CanvasSplitAreaController::createSplitWidget()
 	return splitWidget;
 }
 
-static QWidgetList splitterWidgetList(QSplitter *splitter)
-{
-	QWidgetList list;
-	
-	for (int i = 0; i < splitter->count(); ++i)
-		list << splitter->widget(i);
-	
-	return list;
-}
-
 static void replaceSplitterWidget(QSplitter *splitter, QWidget *before, QWidget *after)
 {
 	int index = splitter->indexOf(before);

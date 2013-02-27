@@ -65,6 +65,7 @@ if platform == :mac
   FileUtils.mkpath(destination_frameworks)
   `cp #{out_pwd_root}/src/libs/Malachite/src/lib*.1.dylib #{destination_frameworks}`
   `cp #{out_pwd_root}/src/libs/Minizip/lib*.1.dylib #{destination_frameworks}`
+  `cp #{out_pwd_root}/src/libs/QtSingleApplication/lib*.1.dylib #{destination_frameworks}`
   `cp #{out_pwd_root}/src/paintfield/core/lib*.1.dylib #{destination_frameworks}`
 end
 

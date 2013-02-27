@@ -48,5 +48,5 @@ return($$path_to_from)
 
 PF_OUT_PWD = $$OUT_PWD$$relativePathFrom($$PWD, $$_PRO_FILE_PWD_)
 
-LIBS += -L$$PF_OUT_PWD/../libs/Malachite/src -L$$PF_OUT_PWD/../libs/Minizip
-LIBS += -lmalachite -lminizip
+LIBS += -L$$PF_OUT_PWD/../libs/Malachite/src -L$$PF_OUT_PWD/../libs/Minizip -L$$PF_OUT_PWD/../libs/QtSingleApplication
+LIBS += -lmalachite -lpaintfield-minizip -lpaintfield-qtsingleapplication

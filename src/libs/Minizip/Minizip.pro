@@ -1,6 +1,6 @@
 TEMPLATE = lib
 QT -= gui
-TARGET = minizip
+TARGET = paintfield-minizip
 
 DEFINES += unix
 

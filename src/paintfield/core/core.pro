@@ -46,9 +46,6 @@ HEADERS += \
     canvasview.h \
     smartpointer.h \
     interface.h \
-    qtsingleapplication/qtsingleapplication.h \
-    qtsingleapplication/qtlockedfile.h \
-    qtsingleapplication/qtlocalpeer.h \
     appcontroller.h \
     application.h \
     internal/applicationeventfilter.h \
@@ -106,8 +103,6 @@ SOURCES += \
     widgets/docktabmotherwidget.cpp \
     canvasview.cpp \
     tool.cpp \
-    qtsingleapplication/qtsingleapplication.cpp \
-    qtsingleapplication/qtlocalpeer.cpp \
     appcontroller.cpp \
     application.cpp \
     internal/applicationeventfilter.cpp \

@@ -16,6 +16,7 @@ cp -r $SRC/src/paintfield/app/Contents $DEST
 cp -r $SRC/src/paintfield/app/Extensions $DEST
 cp $SRC/src/libs/Malachite/src/lib*.so.1 $DEST
 cp $SRC/src/libs/Minizip/lib*.so.1 $DEST
+cp $SRC/src/libs/QtSingleApplication/lib*.so.1 $DEST
 cp $SRC/src/paintfield/core/lib*.so.1 $DEST
 
 chmod +x $DEST/paintfield-launch.sh
