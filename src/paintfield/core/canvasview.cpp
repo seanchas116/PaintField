@@ -329,7 +329,8 @@ void CanvasView::onTabletActiveChanged(bool active)
 
 void CanvasView::onViewportAccurateUpdate()
 {
-	d->viewport->updateWholeAccurately();
+	if (d->navigationMode == NoNavigation)
+		d->viewport->updateWholeAccurately();
 }
 
 void CanvasView::onScrollBarXChanged(int value)
