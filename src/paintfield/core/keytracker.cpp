@@ -32,7 +32,6 @@ KeyTracker::KeyTracker(QObject *parent) :
 	QObject(parent),
 	d(new Data)
 {
-	
 }
 
 KeyTracker::~KeyTracker()

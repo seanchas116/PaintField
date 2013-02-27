@@ -745,7 +745,7 @@ void CanvasView::onPressedKeysChanged()
 	};
 	
 	addOrRemove(d->translationKeys, readyToTranslateCursorId, Qt::OpenHandCursor);
-	addOrRemove(d->scaleKeys, readyToScaleCursorId, Qt::OpenHandCursor);
+	addOrRemove(d->scaleKeys, readyToScaleCursorId, Qt::SizeVerCursor);
 	addOrRemove(d->rotationKeys, readyToRotateCursorId, Qt::OpenHandCursor);
 }
 
