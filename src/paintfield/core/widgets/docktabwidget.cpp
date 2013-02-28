@@ -3,6 +3,9 @@
 #include <QCloseEvent>
 #include <QApplication>
 
+#include "appcontroller.h"
+#include "cursorstack.h"
+
 #include "docktabwidget.h"
 
 #define MIMETYPE_TABINDEX "x-paintfield-tabindex"
@@ -210,6 +213,8 @@ void DockTabBar::mousePressEvent(QMouseEvent *event)
 	QTabBar::mousePressEvent(event);
 }
 
+static const QString cursorId = "paintfield.docktab.drag";
+
 void DockTabBar::mouseMoveEvent(QMouseEvent *event)
 {
 	if (d->isStartingDrag)
@@ -217,7 +222,7 @@ void DockTabBar::mouseMoveEvent(QMouseEvent *event)
 		QPoint delta = event->pos() - d->dragStartPos;
 		if (delta.manhattanLength() >= qApp->startDragDistance())
 		{
-			//qApp->setOverrideCursor(Qt::SizeAllCursor);
+			appController()->cursorStack()->add(cursorId, Qt::SizeAllCursor);
 			d->isCursorOverridden = true;
 		}
 	}
@@ -227,7 +232,7 @@ void DockTabBar::mouseReleaseEvent(QMouseEvent *event)
 {
 	if (d->isCursorOverridden)
 	{
-		//qApp->restoreOverrideCursor();
+		appController()->cursorStack()->remove(cursorId);
 		d->isCursorOverridden = false;
 	}
 	
