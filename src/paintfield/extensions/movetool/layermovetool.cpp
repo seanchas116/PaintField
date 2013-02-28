@@ -93,7 +93,7 @@ void LayerMoveTool::tabletPressEvent(CanvasTabletEvent *event)
 	{
 		layerModel()->startEditing();
 		_layerIsDragged = true;
-		addCustomDrawLayer(_layer);
+		addLayerDelegation(_layer);
 		_dragStartPoint = event->data.pos.toQPoint();
 		_lastKeys = _layer->surface().keys();
 	}
@@ -106,7 +106,7 @@ void LayerMoveTool::tabletReleaseEvent(CanvasTabletEvent *event)
 	{
 		_offset = event->data.pos.toQPoint() - _dragStartPoint;
 		_layerIsDragged = false;
-		clearCustomDrawLayer();
+		clearLayerDelegation();
 		layerModel()->editLayer(currentLayerIndex(), new FSLayerMoveEdit(_offset), tr("Layer Move"));
 	}
 }

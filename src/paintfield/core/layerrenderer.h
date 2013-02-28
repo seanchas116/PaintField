@@ -44,9 +44,17 @@ protected:
 	*/
 	virtual void drawLayer(Malachite::SurfacePainter *painter, const Layer *layer);
 	
+	/**
+	 * Renders layers.
+	 * The default implementation calls renderLayer for each layer in reverse order.
+	 * @param painter
+	 * @param layers
+	 */
+	virtual void renderLayers(Malachite::SurfacePainter *painter, const LayerConstList &layers);
+	
 private:
 	
-	void renderLayers(Malachite::SurfacePainter *painter, const LayerConstList &layers);
+	
 };
 
 }

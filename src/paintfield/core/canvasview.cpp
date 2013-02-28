@@ -1,4 +1,5 @@
 #include <QTimer>
+#include <QGraphicsView>
 
 #include "cursorstack.h"
 #include "scopedtimer.h"
@@ -35,10 +36,34 @@ protected:
 	
 	void drawLayer(SurfacePainter *painter, const Layer *layer)
 	{
-		if (_tool && _tool->customDrawLayers().contains(layer))
+		if (_tool && _tool->layerDelegations().contains(layer))
 			_tool->drawLayer(painter, layer);
 		else
 			LayerRenderer::drawLayer(painter, layer);
+	}
+	
+	void renderLayers(SurfacePainter *painter, const LayerConstList &layers)
+	{
+		if (!_tool || _tool->layerInsertions().isEmpty())
+		{
+			LayerRenderer::renderLayers(painter, layers);
+			return;
+		}
+		
+		QListIterator<LayerConstList::value_type> iter(layers);
+		iter.toBack();
+		
+		while (iter.hasPrevious())
+		{
+			auto layer = iter.previous();
+			
+			renderLayer(painter, layer);
+			
+			auto layerToInsert = _tool->layerInsertions().value(layer, 0);
+			
+			if (layerToInsert)
+				renderLayer(painter, layerToInsert);
+		}
 	}
 	
 private:
@@ -87,6 +112,8 @@ public:
 	QPoint maxAbsTranslation;
 	
 	bool updateEnabled = true;
+	
+	QGraphicsView *graphicsView = 0;
 };
 
 CanvasView::CanvasView(Canvas *canvas, QWidget *parent) :
@@ -104,16 +131,23 @@ CanvasView::CanvasView(Canvas *canvas, QWidget *parent) :
 	
 	d->viewCenter = QPoint(width() / 2, height() / 2);
 	
+	// setup graphics view
+	{
+		d->graphicsView = new QGraphicsView(this);
+		d->graphicsView->setStyleSheet("background: transparent;");
+		d->graphicsView->setAttribute(Qt::WA_TransparentForMouseEvents);
+	}
+	
 	// setup scrollbars
 	{
 		d->scrollBarX = new VanishingScrollBar(Qt::Horizontal, this);
 		d->scrollBarY = new VanishingScrollBar(Qt::Vertical, this);
 		
-		moveScrollBars();
-		
 		connect(d->scrollBarX, SIGNAL(valueChanged(int)), this, SLOT(onScrollBarXChanged(int)));
 		connect(d->scrollBarY, SIGNAL(valueChanged(int)), this, SLOT(onScrollBarYChanged(int)));
 	}
+	
+	moveChildWidgets();
 	
 	// setup viewport
 	{
@@ -246,6 +280,8 @@ void CanvasView::updateTransforms()
 	
 	updateScrollBarRange();
 	updateScrollBarValue();
+	
+	emit transformUpdated();
 	
 	d->accurateUpdateTimer->start();
 	
@@ -552,7 +588,7 @@ void CanvasView::wheelEvent(QWheelEvent *event)
 
 void CanvasView::resizeEvent(QResizeEvent *)
 {
-	moveScrollBars();
+	moveChildWidgets();
 	moveViewport();
 	d->viewCenter = QPoint(width() / 2, height() / 2);
 	updateTransforms();
@@ -847,7 +883,7 @@ void CanvasView::moveViewport()
 	d->viewport->lower();
 }
 
-void CanvasView::moveScrollBars()
+void CanvasView::moveChildWidgets()
 {
 	int barWidthX = d->scrollBarX->totalBarWidth();
 	int barWidthY = d->scrollBarY->totalBarWidth();
@@ -859,6 +895,8 @@ void CanvasView::moveScrollBars()
 	
 	d->scrollBarX->setGeometry(scrollBarXRect);
 	d->scrollBarY->setGeometry(scrollBarYRect);
+	
+	d->graphicsView->setGeometry(widgetRect);
 }
 
 

@@ -103,7 +103,7 @@ void BrushTool::beginStroke(const TabletInputData &data)
 	_stroker->setPixel(_pixel);
 	_stroker->setRadiusBase(double(_brushSize) * 0.5);
 	
-	addCustomDrawLayer(_layer);
+	addLayerDelegation(_layer);
 	
 	// discard pressure for the 1st time to reduce overshoot
 	TabletInputData newData = data;
@@ -157,7 +157,7 @@ void BrushTool::endStroke(const TabletInputData &data)
 	}
 	
 	_stroker.reset();
-	clearCustomDrawLayer();
+	clearLayerDelegation();
 }
 
 void BrushTool::updateTiles()

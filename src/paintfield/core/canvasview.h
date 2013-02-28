@@ -43,6 +43,10 @@ public slots:
 	
 	void setTool(Tool *tool);
 	
+signals:
+	
+	void transformUpdated();
+	
 protected:
 	
 	void keyPressEvent(QKeyEvent *event);
@@ -114,7 +118,7 @@ private:
 	void endDragRotation();
 	
 	void moveViewport();
-	void moveScrollBars();
+	void moveChildWidgets();
 	
 	enum DragNavigationMode
 	{

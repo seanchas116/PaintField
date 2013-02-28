@@ -1,3 +1,3 @@
 TEMPLATE = subdirs
 
-SUBDIRS = aboutdialog brushtool colorui layerui movetool navigator toolui
+SUBDIRS = aboutdialog brushtool colorui layerui movetool navigator toolui vectortools

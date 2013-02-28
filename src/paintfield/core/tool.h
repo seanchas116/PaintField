@@ -29,7 +29,8 @@ class Tool : public QObject
 	
 public:
 	
-	explicit Tool(Canvas *parent = 0) : QObject(parent) {}
+	explicit Tool(Canvas *parent = 0);
+	~Tool();
 	
 	/**
 	 * @return The document's current layer index
@@ -53,11 +54,31 @@ public:
 	 * @param layer
 	 */
 	virtual void drawLayer(Malachite::SurfacePainter *painter, const Layer *layer) { Q_UNUSED(painter) Q_UNUSED(layer) }
-	void addCustomDrawLayer(const Layer *layer) { _customDrawLayers << layer; }
-	void clearCustomDrawLayer() { _customDrawLayers.clear(); }
-	LayerConstList customDrawLayers() { return _customDrawLayers; }
 	
-	QCursor cursor() const { return _cursor; }
+	/**
+	 * Adds a new layer insertion which is performed on rendering.
+	 * The Tool takes ownership of "layer".
+	 * @param insertAt The layer is inserted above this layer
+	 * @param layer The inserted layer
+	 */
+	void addLayerInsertion(const Layer *insertAt, const Layer *layer);
+	
+	void clearLayerInsertions();
+	
+	QHash<const Layer *, const Layer *> layerInsertions() const;
+	
+	/**
+	 * Adds a layer delegation which is performed on rendering.
+	 * Tool::drawLayer is called instead of the default layer drawing function of canvas, when the layer is going to be rendered.
+	 * @param layer
+	 */
+	void addLayerDelegation(const Layer *layer);
+	
+	void clearLayerDelegation();
+	
+	LayerConstList layerDelegations() const;
+	
+	QCursor cursor() const;
 	
 	virtual void mouseMoveEvent(CanvasMouseEvent *event) { event->ignore(); return; }
 	virtual void mousePressEvent(CanvasMouseEvent *event) { event->ignore(); return; }
@@ -82,7 +103,7 @@ signals:
 	
 protected:
 	
-	void setCursor(const QCursor &cursor) { _cursor = cursor; }
+	void setCursor(const QCursor &cursor);
 	
 	Canvas *canvas() { return static_cast<Canvas *>(parent()); }
 	Document *document() { return canvas()->document(); }
@@ -91,8 +112,8 @@ protected:
 	
 private:
 	
-	LayerConstList _customDrawLayers;
-	QCursor _cursor;
+	struct Data;
+	Data *d;
 };
 
 }
