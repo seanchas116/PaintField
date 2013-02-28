@@ -11,7 +11,7 @@ class GeneralEditAction : public ProxyAction
 public:
 	
 	explicit GeneralEditAction(QObject *parent);
-	GeneralEditAction(const QString &id, const QString &text, QObject *parent);
+	GeneralEditAction(const QString &id, QObject *parent);
 	
 private slots:
 	

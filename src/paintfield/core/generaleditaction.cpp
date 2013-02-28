@@ -10,21 +10,23 @@ GeneralEditAction::GeneralEditAction(QObject *parent) :
 	connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)), this, SLOT(onFocusChanged(QWidget*,QWidget*)));
 }
 
-GeneralEditAction::GeneralEditAction(const QString &id, const QString &text, QObject *parent) :
+GeneralEditAction::GeneralEditAction(const QString &id, QObject *parent) :
 	GeneralEditAction(parent)
 {
 	setObjectName(id);
-	setText(text);
 }
 
 void GeneralEditAction::onFocusChanged(QWidget *, QWidget *now)
 {
-	for (auto action : now->actions())
+	if (now)
 	{
-		if (action->objectName() == this->objectName())
+		for (auto action : now->actions())
 		{
-			setBackendAction(action);
-			return;
+			if (action->objectName() == this->objectName())
+			{
+				setBackendAction(action);
+				return;
+			}
 		}
 	}
 	

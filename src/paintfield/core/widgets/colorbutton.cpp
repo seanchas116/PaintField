@@ -12,11 +12,41 @@ namespace PaintField
 
 using namespace Malachite;
 
+struct ColorButton::Data
+{
+	Color color;
+	QAction *copyAction = 0, *pasteAction = 0;
+};
+
 ColorButton::ColorButton(QWidget *parent) :
-	QAbstractButton(parent)
+	QAbstractButton(parent),
+	d(new Data)
 {
 	setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	setCheckable(true);
+	
+	{
+		auto a = new QAction(tr("Copy"), this);
+		a->setObjectName("paintfield.edit.copy");
+		connect(a, SIGNAL(triggered()), this, SLOT(copyColor()));
+		addAction(a);
+		d->copyAction = a;
+	}
+	
+	{
+		auto a = new QAction(tr("Paste"), this);
+		a->setObjectName("paintfield.edit.paste");
+		connect(a, SIGNAL(triggered()), this, SLOT(pasteColor()));
+		addAction(a);
+		d->pasteAction = a;
+	}
+	
+	setFocusPolicy(Qt::ClickFocus);
+}
+
+ColorButton::~ColorButton()
+{
+	delete d;
 }
 
 QSize ColorButton::sizeHint() const
@@ -26,14 +56,19 @@ QSize ColorButton::sizeHint() const
 
 void ColorButton::setColor(const Color &c)
 {
-	_color = c;
+	d->color = c;
 	update();
+}
+
+Color ColorButton::color() const
+{
+	return d->color;
 }
 
 void ColorButton::copyColor()
 {
 	auto mime = new QMimeData;
-	mime->setColorData(_color.toQColor());
+	mime->setColorData(d->color.toQColor());
 	qApp->clipboard()->setMimeData(mime);
 }
 
@@ -53,14 +88,8 @@ void ColorButton::contextMenuEvent(QContextMenuEvent *event)
 	
 	QMenu menu;
 	
-	auto copyAction = new QAction(tr("Copy"), &menu);
-	connect(copyAction, SIGNAL(triggered()), this, SLOT(copyColor()));
-	
-	auto pasteAction = new QAction(tr("Paste"), &menu);
-	connect(pasteAction, SIGNAL(triggered()), this, SLOT(pasteColor()));
-	
-	menu.addAction(copyAction);
-	menu.addAction(pasteAction);
+	menu.addAction(d->copyAction);
+	menu.addAction(d->pasteAction);
 	
 	menu.exec(globalPos);
 }
@@ -76,12 +105,12 @@ void ColorButton::paintEvent(QPaintEvent *)
 	painter.setBrush(Qt::white);
 	painter.drawRect(buttonRect);
 	
-	painter.setBrush(_color.toQColor());
+	painter.setBrush(d->color.toQColor());
 	painter.drawRect(buttonRect);
 	
-	if (_color.alpha() != 1.0)
+	if (d->color.alpha() != 1.0)
 	{
-		auto opaqueColor = _color;
+		auto opaqueColor = d->color;
 		opaqueColor.setAlpha(1.0);
 		
 		painter.setBrush(opaqueColor.toQColor());

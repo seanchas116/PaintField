@@ -1,6 +1,7 @@
 
 #include <QPluginLoader>
 
+#include "generaleditaction.h"
 #include "util.h"
 #include "workspacemanager.h"
 #include "extensionmanager.h"
@@ -214,6 +215,12 @@ void AppController::createActions()
 	d->actions << Util::createAction("paintfield.window.minimize", this, SLOT(minimizeCurrentWindow()));
 	d->actions << Util::createAction("paintfield.window.zoom", this, SLOT(zoomCurrentWindow()));
 	d->actions << Util::createAction("paintfield.window.newWorkspace", d->workspaceManager, SLOT(newWorkspace()));
+	
+	d->actions << new GeneralEditAction("paintfield.edit.cut", this);
+	d->actions << new GeneralEditAction("paintfield.edit.copy", this);
+	d->actions << new GeneralEditAction("paintfield.edit.paste", this);
+	d->actions << new GeneralEditAction("paintfield.edit.delete", this);
+	d->actions << new GeneralEditAction("paintfield.edit.selectAll", this);
 }
 
 void AppController::loadExtensions()

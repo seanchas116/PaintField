@@ -19,9 +19,10 @@ public:
 	};
 	
 	explicit ColorButton(QWidget *parent = 0);
+	~ColorButton();
 	
 	QSize sizeHint() const;
-	Malachite::Color color() const { return _color; }
+	Malachite::Color color() const;
 	
 signals:
 	
@@ -38,7 +39,8 @@ protected:
 	
 private:
 	
-	Malachite::Color _color;
+	struct Data;
+	Data *d;
 };
 
 }

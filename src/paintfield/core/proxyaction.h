@@ -2,6 +2,7 @@
 
 #include <QAction>
 #include <QPointer>
+#include "global.h"
 
 namespace PaintField {
 
