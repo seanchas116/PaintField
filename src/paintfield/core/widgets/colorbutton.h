@@ -36,6 +36,10 @@ public slots:
 	
 protected:
 	
+	void mousePressEvent(QMouseEvent *e);
+	void mouseMoveEvent(QMouseEvent *e);
+	void dragEnterEvent(QDragEnterEvent *e);
+	void dropEvent(QDropEvent *e);
 	void contextMenuEvent(QContextMenuEvent *);
 	void paintEvent(QPaintEvent *e);
 	

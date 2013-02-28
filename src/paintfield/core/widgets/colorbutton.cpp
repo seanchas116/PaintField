@@ -16,6 +16,7 @@ struct ColorButton::Data
 {
 	Color color;
 	QAction *copyAction = 0, *pasteAction = 0;
+	QPoint dragStartPos;
 };
 
 ColorButton::ColorButton(QWidget *parent) :
@@ -44,6 +45,7 @@ ColorButton::ColorButton(QWidget *parent) :
 	}
 	
 	setFocusPolicy(Qt::ClickFocus);
+	setAcceptDrops(true);
 }
 
 ColorButton::~ColorButton()
@@ -86,6 +88,42 @@ void ColorButton::pasteColor()
 	
 	auto color = qvariant_cast<QColor>(mime->colorData());
 	setColor(Color::fromQColor(color));
+}
+
+void ColorButton::mousePressEvent(QMouseEvent *e)
+{
+	if (e->button() == Qt::LeftButton)
+		d->dragStartPos = e->pos();
+	QAbstractButton::mousePressEvent(e);
+}
+
+void ColorButton::mouseMoveEvent(QMouseEvent *e)
+{
+	if (!(e->buttons() & Qt::LeftButton))
+		return;
+	
+	if ((e->pos() - d->dragStartPos).manhattanLength() < qApp->startDragDistance())
+		return;
+	
+	auto drag = new QDrag(this);
+	auto mime = new QMimeData;
+	
+	mime->setColorData(d->color.toQColor());
+	drag->setMimeData(mime);
+	
+	drag->exec(Qt::CopyAction);
+}
+
+void ColorButton::dragEnterEvent(QDragEnterEvent *e)
+{
+	if (e->mimeData()->hasColor())
+		e->acceptProposedAction();
+}
+
+void ColorButton::dropEvent(QDropEvent *e)
+{
+	if (e->mimeData()->hasColor())
+		setColor(Color::fromQColor(qvariant_cast<QColor>(e->mimeData()->colorData())));
 }
 
 void ColorButton::contextMenuEvent(QContextMenuEvent *event)
