@@ -26,9 +26,14 @@ public:
 signals:
 	
 public slots:
+	
 	void setColor(const Malachite::Color &c);
+	void copyColor();
+	void pasteColor();
 	
 protected:
+	
+	void contextMenuEvent(QContextMenuEvent *);
 	void paintEvent(QPaintEvent *e);
 	
 private:
