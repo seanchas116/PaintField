@@ -178,7 +178,6 @@ void AppController::declareMenus()
 	settingsManager()->declareAction("paintfield.edit.paste",
 	                                 tr("Paste"));
 	settingsManager()->declareAction("paintfield.edit.delete",
-	              
 	                                 tr("Delete"));
 	settingsManager()->declareAction("paintfield.edit.selectAll",
 	                                 tr("Select All"));

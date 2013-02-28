@@ -53,25 +53,6 @@ private:
 	Workspace *_workspace;
 };
 
-class WorkspaceMenuAction : public QAction
-{
-	Q_OBJECT
-public:
-	
-	WorkspaceMenuAction(QObject *parent);
-	
-	void setBackendAction(QAction *action);
-	QAction *backendAction() { return _backendAction; }
-	
-private slots:
-	
-	void onBackendActionChanged();
-	
-private:
-	
-	QPointer<QAction> _backendAction = 0;
-};
-
 class DockTabMotherWidget;
 
 class SideBarFrame : public QWidget

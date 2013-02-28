@@ -3,6 +3,7 @@
 #include <QToolBar>
 #include <QCloseEvent>
 
+#include "proxyaction.h"
 #include "widgets/docktabmotherwidget.h"
 #include "canvas.h"
 #include "canvassplitareacontroller.h"
@@ -86,7 +87,7 @@ QMenu *createMenu(const QHash<QString, ActionInfo> &actionDeclarations, const QH
 					if (actionInfo.text.isEmpty())
 						actionInfo.text = id;
 					
-					WorkspaceMenuAction *action = new WorkspaceMenuAction(menu);
+					auto action = new ProxyAction(menu);
 					action->setObjectName(id);
 					action->setText(actionInfo.text);
 					action->setShortcut(actionInfo.shortcut);
@@ -123,7 +124,7 @@ void associateMenuWithActions(QMenu *menu, const QActionList &actions)
 {
 	for (QAction *action : menu->actions())
 	{
-		WorkspaceMenuAction *menuAction = qobject_cast<WorkspaceMenuAction *>(action);
+		auto menuAction = qobject_cast<ProxyAction *>(action);
 		if (menuAction)
 		{
 			QAction *foundAction = Util::findQObjectReverse(actions, menuAction->objectName());
@@ -170,51 +171,6 @@ void SideBarFrame::setSideBar(QWidget *sideBar)
 	_layout->addWidget(_sideBar);
 	_sideBar->show();
 }
-
-WorkspaceMenuAction::WorkspaceMenuAction(QObject *parent) :
-    QAction(parent)
-{
-	setEnabled(false);
-}
-
-void WorkspaceMenuAction::setBackendAction(QAction *action)
-{
-	if (action == _backendAction)
-		return;
-	
-	if (_backendAction)
-	{
-		disconnect(_backendAction, 0, this, 0);
-		disconnect(this, 0, _backendAction, 0);
-	}
-	
-	_backendAction = action;
-	setEnabled(action);
-	
-	if (action)
-	{
-		connect(action, SIGNAL(changed()), this, SLOT(onBackendActionChanged()));
-		
-		if (action->isCheckable())
-		{
-			setCheckable(true);
-			connect(action, SIGNAL(triggered(bool)), this, SLOT(setChecked(bool)));
-			connect(this, SIGNAL(triggered(bool)), action, SLOT(setChecked(bool)));
-		}
-		else
-		{
-			connect(this, SIGNAL(triggered()), action, SLOT(trigger()));
-		}
-		onBackendActionChanged();
-	}
-}
-
-void WorkspaceMenuAction::onBackendActionChanged()
-{
-	Q_ASSERT(_backendAction);
-	setEnabled(_backendAction->isEnabled());
-}
-
 
 struct WorkspaceView::Data
 {
