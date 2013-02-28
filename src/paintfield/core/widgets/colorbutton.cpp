@@ -27,7 +27,8 @@ ColorButton::ColorButton(QWidget *parent) :
 	
 	{
 		auto a = new QAction(tr("Copy"), this);
-		a->setObjectName("paintfield.edit.copy");
+		a->setShortcut(QKeySequence::Copy);
+		a->setShortcutContext(Qt::WidgetShortcut);
 		connect(a, SIGNAL(triggered()), this, SLOT(copyColor()));
 		addAction(a);
 		d->copyAction = a;
@@ -35,7 +36,8 @@ ColorButton::ColorButton(QWidget *parent) :
 	
 	{
 		auto a = new QAction(tr("Paste"), this);
-		a->setObjectName("paintfield.edit.paste");
+		a->setShortcut(QKeySequence::Paste);
+		a->setShortcutContext(Qt::WidgetShortcut);
 		connect(a, SIGNAL(triggered()), this, SLOT(pasteColor()));
 		addAction(a);
 		d->pasteAction = a;
@@ -56,8 +58,12 @@ QSize ColorButton::sizeHint() const
 
 void ColorButton::setColor(const Color &c)
 {
-	d->color = c;
-	update();
+	if (d->color != c)
+	{
+		d->color = c;
+		emit colorChanged(c);
+		update();
+	}
 }
 
 Color ColorButton::color() const

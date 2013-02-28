@@ -91,8 +91,9 @@ public slots:
 	void setCurrentIndex(int index);
 	
 private slots:
-	void onColorButtonPressed();
 	
+	void onButtonColorChanged(const Malachite::Color &color);
+	void onColorButtonPressed();
 	void setCurrentOpacity(double opacity);
 	
 private:

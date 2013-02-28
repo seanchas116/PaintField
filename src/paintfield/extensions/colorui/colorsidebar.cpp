@@ -318,7 +318,9 @@ ColorSidebar::ColorSidebar(QWidget *parent) :
 		colorButtonLayout->addWidget(button);
 		colorButtonGroup->addButton(button);
 		connect(button, SIGNAL(pressed()), this, SLOT(onColorButtonPressed()));
+		connect(button, SIGNAL(colorChanged(Malachite::Color)), this, SLOT(onButtonColorChanged(Malachite::Color)));
 	}
+	
 	colorButtonLayout->addStretch(1);
 	
 	// color wheel
@@ -410,11 +412,12 @@ void ColorSidebar::setColor(int index, const Color &color)
 	{
 		_colorButtons.at(index)->setColor(color);
 		emit colorChanged(index, color);
-		if (index == _currentIndex)
-		{
-			emit currentColorChanged(color);
-			emit currentOpacityChanged(color.alpha());
-		}
+	}
+	
+	if (index == _currentIndex)
+	{
+		emit currentColorChanged(color);
+		emit currentOpacityChanged(color.alpha());
 	}
 }
 
@@ -432,9 +435,16 @@ void ColorSidebar::setCurrentIndex(int index)
 	}
 }
 
+void ColorSidebar::onButtonColorChanged(const Color &color)
+{
+	int index = _colorButtons.indexOf(static_cast<ColorButton *>(sender()));
+	if (index == _currentIndex)
+		setCurrentColor(color);
+}
+
 void ColorSidebar::onColorButtonPressed()
 {
-	int index = _colorButtons.indexOf(reinterpret_cast<ColorButton *>(sender()));
+	int index = _colorButtons.indexOf(static_cast<ColorButton *>(sender()));
 	
 	if (index >= 0)
 		setCurrentIndex(index);

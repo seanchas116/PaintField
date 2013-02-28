@@ -26,6 +26,8 @@ public:
 	
 signals:
 	
+	void colorChanged(const Malachite::Color &c);
+	
 public slots:
 	
 	void setColor(const Malachite::Color &c);
