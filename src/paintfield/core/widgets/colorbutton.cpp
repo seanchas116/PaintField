@@ -4,12 +4,14 @@
 #include <QClipboard>
 #include <QMenu>
 #include <QContextMenuEvent>
+#include <stdexcept>
 
 #include "colorbutton.h"
 
 namespace PaintField
 {
 
+using namespace std;
 using namespace Malachite;
 
 struct ColorButton::Data
@@ -77,17 +79,33 @@ void ColorButton::copyColor()
 {
 	auto mime = new QMimeData;
 	mime->setColorData(d->color.toQColor());
+	mime->setText(d->color.toWebColor());
 	qApp->clipboard()->setMimeData(mime);
 }
 
 void ColorButton::pasteColor()
 {
 	auto mime = qApp->clipboard()->mimeData();
-	if (!mime || !mime->hasColor())
+	if (!mime)
 		return;
 	
-	auto color = qvariant_cast<QColor>(mime->colorData());
-	setColor(Color::fromQColor(color));
+	if (mime->hasColor())
+	{
+		auto color = qvariant_cast<QColor>(mime->colorData());
+		setColor(Color::fromQColor(color));
+	}
+	else if (mime->hasText())
+	{
+		try
+		{
+			auto color = Color::fromWebColor(mime->text());
+			setColor(color);
+		}
+		catch (const runtime_error &)
+		{
+			
+		}
+	}
 }
 
 void ColorButton::mousePressEvent(QMouseEvent *e)
@@ -109,6 +127,7 @@ void ColorButton::mouseMoveEvent(QMouseEvent *e)
 	auto mime = new QMimeData;
 	
 	mime->setColorData(d->color.toQColor());
+	mime->setText(d->color.toWebColor());
 	drag->setMimeData(mime);
 	
 	drag->exec(Qt::CopyAction);
