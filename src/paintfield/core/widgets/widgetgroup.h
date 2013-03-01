@@ -10,17 +10,13 @@ class WidgetGroup : public QObject
 {
 	Q_OBJECT
 public:
-	explicit WidgetGroup(QObject *parent = 0) : QObject(parent) {}
+	explicit WidgetGroup(QObject *parent = 0);
+	~WidgetGroup();
 	
-	void addWidget(QWidget *widget) { _widgets << widget; }
+	void addWidget(QWidget *widget);
 	
-	template <class Widget>
-	void addWidgets(const QList<Widget *> &widgets)
-	{
-		_widgets.reserve(_widgets.size() + widgets.size());
-		for (Widget *widget : widgets)
-			_widgets << widget;
-	}
+	bool isVisible() const;
+	bool isEnabled() const;
 	
 signals:
 	
@@ -31,7 +27,8 @@ public slots:
 	
 private:
 	
-	QList<QWidget *> _widgets;
+	struct Data;
+	Data *d;
 };
 
 }

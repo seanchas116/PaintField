@@ -5,6 +5,8 @@
 #include <QLineEdit>
 #include <QFormLayout>
 #include <QButtonGroup>
+#include <QPushButton>
+#include <stdexcept>
 
 #include "paintfield/core/util.h"
 #include "paintfield/core/appcontroller.h"
@@ -24,179 +26,147 @@ namespace PaintField
 {
 
 using namespace Malachite;
+using namespace std;
 
 ColorSliderPanel::ColorSliderPanel(QWidget *parent) :
 	QWidget(parent)
 {
-	QList<LooseSpinBox *> rgbSpins, hsvSpins;
-	QList<QSpinBox *> rgb8Spins;
+	auto layout = new QVBoxLayout;
 	
-	for (int i = 0; i < 3; ++i)
-	{
-		LooseSpinBox *spin = new LooseSpinBox();
-		spin->setDecimals(3);
-		spin->setSingleStep(0.01);
-		spin->setMinimum(0);
-		spin->setMaximum(1);
-		spin->setMinimumWidth(60);
-		rgbSpins << spin;
-	}
+	auto wgroupRgb = new WidgetGroup;
+	auto wgroupHsv = new WidgetGroup;
+	auto wgroupRgb8 = new WidgetGroup;
 	
 	{
-		LooseSpinBox *spin = new LooseSpinBox();
-		spin->setDecimals(1);
-		spin->setSingleStep(1);
-		spin->setMinimum(0);
-		spin->setMaximum(360);
-		spin->setWrapping(true);
-		spin->setMinimumWidth(60);
-		hsvSpins << spin;
-	}
-	
-	for (int i = 0; i < 2; ++i)
-	{
-		LooseSpinBox *spin = new LooseSpinBox();
-		spin->setDecimals(3);
-		spin->setSingleStep(0.01);
-		spin->setMinimum(0);
-		spin->setMaximum(1);
-		spin->setMinimumWidth(60);
-		hsvSpins << spin;
-	}
-	
-	for (int i = 0; i < 3; ++i)
-	{
-		QSpinBox *spin = new QSpinBox();
-		spin->setSingleStep(1);
-		spin->setMinimum(0);
-		spin->setMaximum(255);
-		spin->setMinimumWidth(60);
-		rgb8Spins << spin;
-	}
-	
-	QList<ColorSlider *> rgbSliders, hsvSliders, rgb8Sliders;
-	
-	rgbSliders << new ColorSlider(Color::Red, 1000);
-	rgbSliders << new ColorSlider(Color::Green, 1000);
-	rgbSliders << new ColorSlider(Color::Blue, 1000);
-	
-	hsvSliders << new ColorSlider(Color::Hue, 1000);
-	hsvSliders << new ColorSlider(Color::Saturation, 1000);
-	hsvSliders << new ColorSlider(Color::Value, 1000);
-	
-	rgb8Sliders << new ColorSlider(Color::Red, 1000);
-	rgb8Sliders << new ColorSlider(Color::Green, 1000);
-	rgb8Sliders << new ColorSlider(Color::Blue, 1000);
-	
-	for (int i = 0; i < 3; ++i)
-	{
- 		Util::connectMutual(rgbSliders.at(i), SIGNAL(colorChanged(Malachite::Color)), this, SLOT(setColor(Malachite::Color)));
-		Util::connectMutual(rgbSliders.at(i), SIGNAL(valueChanged(double)), rgbSpins.at(i), SLOT(setValue(double)));
-		rgbSpins.at(i)->setValue(rgbSliders.at(i)->value());
-	}
-	
-	{
-		auto normalizedToDegrees = [](double x) { return x * 360.0; };
-		auto degreesToNormalized = [](double x) { return x * (1.0 / 360.0); };
+		auto buttonLayout = new QHBoxLayout;
 		
-		auto signalConverter = SignalConverter::fromDoubleFunc(normalizedToDegrees, degreesToNormalized, this);
-		signalConverter->connectChannelADouble(hsvSliders.at(0), SIGNAL(valueChanged(double)), SLOT(setValue(double)));
-		signalConverter->connectChannelBDouble(hsvSpins.at(0), SIGNAL(valueChanged(double)), SLOT(setValue(double)));
-		Util::connectMutual(hsvSliders.at(0), SIGNAL(colorChanged(Malachite::Color)), this, SLOT(setColor(Malachite::Color)));
+		buttonLayout->addStretch(1);
+		
+		{
+			auto b = new QPushButton(tr("RGB"));
+			b->setCheckable(true);
+			connect(b, SIGNAL(toggled(bool)), wgroupRgb, SLOT(setVisible(bool)));
+			buttonLayout->addWidget(b);
+			
+			b->setChecked(true);
+		}
+		
+		{
+			auto b = new QPushButton(tr("HSV"));
+			b->setCheckable(true);
+			connect(b, SIGNAL(toggled(bool)), wgroupHsv, SLOT(setVisible(bool)));
+			buttonLayout->addWidget(b);
+		}
+		
+		{
+			auto b = new QPushButton(tr("RGB 0..255"));
+			b->setCheckable(true);
+			connect(b, SIGNAL(toggled(bool)), wgroupRgb8, SLOT(setVisible(bool)));
+			buttonLayout->addWidget(b);
+		}
+		
+		buttonLayout->addStretch(1);
+		
+		layout->addLayout(buttonLayout);
 	}
 	
-	for (int i = 1; i < 3; ++i)
 	{
-		Util::connectMutual(hsvSliders.at(i), SIGNAL(colorChanged(Malachite::Color)), this, SLOT(setColor(Malachite::Color)));
-		Util::connectMutual(hsvSliders.at(i), SIGNAL(valueChanged(double)), hsvSpins.at(i), SLOT(setValue(double)));
-		hsvSpins.at(i)->setValue(hsvSliders.at(i)->value());
+		auto gridLayout = new QGridLayout;
+		
+		auto addToLayout = [gridLayout](const QString &label, QWidget *slider, QWidget *spin, WidgetGroup *wgroup)
+		{
+			auto labelWidget = new QLabel(label);
+			
+			int row = gridLayout->rowCount();
+			gridLayout->addWidget(labelWidget, row, 0);
+			gridLayout->addWidget(slider, row, 1);
+			gridLayout->addWidget(spin, row, 2);
+			
+			wgroup->addWidget(labelWidget);
+			wgroup->addWidget(slider);
+			wgroup->addWidget(spin);
+		};
+		
+		auto addLine = [this, addToLayout](const QString &label, ColorSlider *slider, LooseSpinBox *spin, WidgetGroup *wgroup)
+		{
+			addToLayout(label, slider, spin, wgroup);
+			Util::connectMutual(slider, SIGNAL(colorChanged(Malachite::Color)), this, SLOT(setColor(Malachite::Color)));
+			Util::connectMutual(slider, SIGNAL(valueChanged(double)), spin, SLOT(setValue(double)));
+		};
+		
+		auto createLooseSpinBox = []()
+		{
+			auto *spin = new LooseSpinBox();
+			spin->setDecimals(3);
+			spin->setSingleStep(0.01);
+			spin->setMinimum(0);
+			spin->setMaximum(1);
+			spin->setMinimumWidth(60);
+			return spin;
+		};
+		
+		addLine("R", new ColorSlider(Color::Red, 1000), createLooseSpinBox(), wgroupRgb);
+		addLine("G", new ColorSlider(Color::Green, 1000), createLooseSpinBox(), wgroupRgb);
+		addLine("B", new ColorSlider(Color::Blue, 1000), createLooseSpinBox(), wgroupRgb);
+		
+		{
+			auto addLineHue = [this, addToLayout](const QString &label, ColorSlider *slider, LooseSpinBox *spin, WidgetGroup *wgroup)
+			{
+				addToLayout(label, slider, spin, wgroup);
+				
+				auto normalizedToDegrees = [](double x) { return x * 360.0; };
+				auto degreesToNormalized = [](double x) { return x * (1.0 / 360.0); };
+				
+				auto signalConverter = SignalConverter::fromDoubleFunc(normalizedToDegrees, degreesToNormalized, this);
+				signalConverter->connectChannelADouble(slider, SIGNAL(valueChanged(double)), SLOT(setValue(double)));
+				signalConverter->connectChannelBDouble(spin, SIGNAL(valueChanged(double)), SLOT(setValue(double)));
+				Util::connectMutual(slider, SIGNAL(colorChanged(Malachite::Color)), this, SLOT(setColor(Malachite::Color)));
+			};
+			
+			LooseSpinBox *spin = new LooseSpinBox();
+			spin->setDecimals(1);
+			spin->setSingleStep(1);
+			spin->setMinimum(0);
+			spin->setMaximum(360);
+			spin->setWrapping(true);
+			spin->setMinimumWidth(60);
+			
+			addLineHue("H", new ColorSlider(Color::Hue, 1000), spin, wgroupHsv);
+		}
+		
+		addLine("S", new ColorSlider(Color::Saturation, 1000), createLooseSpinBox(), wgroupHsv);
+		addLine("V", new ColorSlider(Color::Value, 1000), createLooseSpinBox(), wgroupHsv);
+		
+		{
+			auto createIntSpinBox = []
+			{
+				auto spin = new QSpinBox();
+				spin->setSingleStep(1);
+				spin->setMinimum(0);
+				spin->setMaximum(255);
+				spin->setMinimumWidth(60);
+				return spin;
+			};
+			
+			auto addLineInt = [this, addToLayout](const QString &label, ColorSlider *slider, QSpinBox *spin, WidgetGroup *wgroup)
+			{
+				addToLayout(label, slider, spin, wgroup);
+				
+				Util::connectMutual(slider, SIGNAL(colorChanged(Malachite::Color)), this, SLOT(setColor(Malachite::Color)));
+				connect(slider, SIGNAL(value8BitChanged(int)), spin, SLOT(setValue(int)));
+				connect(spin, SIGNAL(valueChanged(int)), slider, SLOT(setValue8Bit(int)));
+				spin->setValue(slider->value8Bit());
+			};
+			
+			addLineInt("R", new ColorSlider(Color::Red, 1000), createIntSpinBox(), wgroupRgb8);
+			addLineInt("G", new ColorSlider(Color::Green, 1000), createIntSpinBox(), wgroupRgb8);
+			addLineInt("B", new ColorSlider(Color::Blue, 1000), createIntSpinBox(), wgroupRgb8);
+		}
+		
+		layout->addLayout(gridLayout);
 	}
-	
-	for (int i = 0; i < 3; ++i)
-	{
-		Util::connectMutual(rgb8Sliders.at(i), SIGNAL(colorChanged(Malachite::Color)), this, SLOT(setColor(Malachite::Color)));
-		connect(rgb8Sliders.at(i), SIGNAL(value8BitChanged(int)), rgb8Spins.at(i), SLOT(setValue(int)));
-		connect(rgb8Spins.at(i), SIGNAL(valueChanged(int)), rgb8Sliders.at(i), SLOT(setValue8Bit(int)));
-		rgb8Spins.at(i)->setValue(rgb8Sliders.at(i)->value8Bit());
-	}
-	
-	QList<QLabel *> rgbLabels, hsvLabels, rgb8Labels;
-	
-	rgbLabels << new QLabel("R");
-	rgbLabels << new QLabel("G");
-	rgbLabels << new QLabel("B");
-	hsvLabels << new QLabel("H");
-	hsvLabels << new QLabel("S");
-	hsvLabels << new QLabel("V");
-	rgb8Labels << new QLabel("R");
-	rgb8Labels << new QLabel("G");
-	rgb8Labels << new QLabel("B");
-	
-	QComboBox *comboBox = new QComboBox();
-	comboBox->addItem(tr("RGB"));
-	comboBox->addItem(tr("HSV"));
-	comboBox->addItem(tr("RGB (0..255)"));
-	
-	connect(comboBox, SIGNAL(activated(int)), this, SLOT(onComboBoxActivated(int)));
-	
-	QHBoxLayout *comboBoxLayout = new QHBoxLayout();
-	comboBoxLayout->addWidget(comboBox);
-	comboBoxLayout->addStretch(1);
-	comboBoxLayout->setContentsMargins(0, 0, 0, 0);
-	
-	QGridLayout *layout = new QGridLayout();
-	layout->addLayout(comboBoxLayout, 0, 1, 1, 2);
-	
-	for (int i = 0; i < 3; ++i)
-	{
-		layout->addWidget(rgbLabels.at(i), i+1, 0);
-		layout->addWidget(rgbSliders.at(i), i+1, 1);
-		layout->addWidget(rgbSpins.at(i), i+1, 2);
-	}
-	
-	for (int i = 0; i < 3; ++i)
-	{
-		layout->addWidget(hsvLabels.at(i), i+4, 0);
-		layout->addWidget(hsvSliders.at(i), i+4, 1);
-		layout->addWidget(hsvSpins.at(i), i+4, 2);
-	}
-	
-	for (int i = 0; i < 3; ++i)
-	{
-		layout->addWidget(rgb8Labels.at(i), i+7, 0);
-		layout->addWidget(rgb8Sliders.at(i), i+7, 1);
-		layout->addWidget(rgb8Spins.at(i), i+7, 2);
-	}
-	
-	layout->setContentsMargins(0, 0, 0, 0);
-	
-	WidgetGroup *groupRgb = new WidgetGroup(this);
-	WidgetGroup *groupHsv = new WidgetGroup(this);
-	WidgetGroup *groupRgb8 = new WidgetGroup(this);
-	
-	groupRgb->addWidgets(rgbLabels);
-	groupRgb->addWidgets(rgbSliders);
-	groupRgb->addWidgets(rgbSpins);
-	
-	groupHsv->addWidgets(hsvLabels);
-	groupHsv->addWidgets(hsvSliders);
-	groupHsv->addWidgets(hsvSpins);
-	
-	groupRgb8->addWidgets(rgb8Labels);
-	groupRgb8->addWidgets(rgb8Sliders);
-	groupRgb8->addWidgets(rgb8Spins);
-	
-	connect(this, SIGNAL(rgbSelectedChanged(bool)), groupRgb, SLOT(setVisible(bool)));
-	connect(this, SIGNAL(rgb8SelectedChanged(bool)), groupRgb8, SLOT(setVisible(bool)));
-	connect(this, SIGNAL(hsvSelectedChanged(bool)), groupHsv, SLOT(setVisible(bool)));
 	
 	setLayout(layout);
-	
-	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
-	
-	comboBox->setCurrentIndex(0);
-	onComboBoxActivated(0);
-	setColor(Color::white());
 }
 
 void ColorSliderPanel::setColor(const Color &color)
@@ -258,14 +228,12 @@ void WebColorPanel::setColor(const Color &color)
 
 void WebColorPanel::onLineEditEditingFinished()
 {
-	bool ok;
-	Color newColor = Color::fromWebColor(_lineEdit->text(), &ok);
-	
-	if (ok)
+	try
 	{
+		Color newColor = Color::fromWebColor(_lineEdit->text());
 		setColor(newColor);
 	}
-	else
+	catch (const runtime_error &)
 	{
 		_lineEdit->setText(color().toWebColor());
 	}
@@ -288,11 +256,6 @@ ColorSidebar::ColorSidebar(QWidget *parent) :
 	wheelButton->setCheckable(true);
 	sliderButton->setCheckable(true);
 	webButton->setCheckable(true);
-	
-	QButtonGroup *buttonGroup = new QButtonGroup(this);
-	buttonGroup->addButton(wheelButton);
-	buttonGroup->addButton(sliderButton);
-	buttonGroup->addButton(webButton);
 	
 	buttonLayout->setMargin(0);
 	buttonLayout->addStretch(1);
