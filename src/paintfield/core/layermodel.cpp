@@ -245,27 +245,26 @@ bool LayerModel::setData(const QModelIndex &index, const QVariant &value, int ro
 	
 	role = normalizeItemRole(role);
 	
-	// set description text if possible
-	switch (role)
+	if (description.isEmpty())
 	{
-		case PaintField::RoleName:
-			if (description.isNull())
+		// set description text if possible
+		switch (role)
+		{
+			case PaintField::RoleName:
 				text = tr("Rename Layer");
-			break;
-		case PaintField::RoleVisible:
-			if (description.isNull())
+				break;
+			case PaintField::RoleVisible:
 				text = tr("Change visibility");
-			break;
-		case PaintField::RoleBlendMode:
-			if (description.isNull())
+				break;
+			case PaintField::RoleBlendMode:
 				text = tr("Change Blend Mode");
-			break;
-		case PaintField::RoleOpacity:
-			if (description.isNull())
+				break;
+			case PaintField::RoleOpacity:
 				text = tr("Change Opacity");
-			break;
-		default:
-			break;
+				break;
+			default:
+				break;
+		}
 	}
 	
 	if (data(index, role) == value)
