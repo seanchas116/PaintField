@@ -234,8 +234,6 @@ QVariant Layer::property(int role) const
 	{
 		case PaintField::RoleName:
 			return _name;
-		case PaintField::RoleType:
-			return type();
 		case PaintField::RoleVisible:
 			return _isVisible;
 		case PaintField::RoleLocked:

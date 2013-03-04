@@ -20,7 +20,6 @@ namespace PaintField
 enum LayerPropertyRole
 {
 	RoleName = Qt::UserRole,
-	RoleType,
 	RoleVisible,
 	RoleLocked,
 	RoleOpacity,

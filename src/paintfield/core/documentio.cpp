@@ -207,7 +207,7 @@ bool DocumentIO::saveLayerRecursive(const Layer *parent, DocumentDatabase *datab
 	Q_ASSERT(database);
 	Q_ASSERT(result);
 	
-	if (parent->type() != Layer::TypeGroup)
+	if (!parent->isType<GroupLayer>())
 		return false;
 	
 	QVariantList layerDataList;
@@ -216,17 +216,12 @@ bool DocumentIO::saveLayerRecursive(const Layer *parent, DocumentDatabase *datab
 	{
 		QVariantMap layerData;
 		
-		switch (layer->type())
-		{
-			case Layer::TypeGroup:
-				layerData["type"] = "group";
-				break;
-			case Layer::TypeRaster:
-				layerData["type"] = "raster";
-				break;
-			default:
-				continue;
-		}
+		if (layer->isType<GroupLayer>())
+			layerData["type"] = "group";
+		else if (layer->isType<RasterLayer>())
+			layerData["type"] = "raster";
+		else
+			continue;
 		
 		layerData["name"] = layer->name();
 		layerData["visible"] = layer->isVisible();
@@ -234,7 +229,7 @@ bool DocumentIO::saveLayerRecursive(const Layer *parent, DocumentDatabase *datab
 		layerData["opacity"] = layer->opacity();
 		layerData["blendMode"] = Malachite::BlendMode(layer->blendMode()).toString();
 		
-		if (layer->type() == Layer::TypeGroup)
+		if (layer->isType<GroupLayer>())
 		{
 			QVariantList childDataList;
 			if (saveLayerRecursive(layer, database, &childDataList))
@@ -242,7 +237,7 @@ bool DocumentIO::saveLayerRecursive(const Layer *parent, DocumentDatabase *datab
 			else
 				return false;
 		}
-		else if (layer->type() == Layer::TypeRaster && !layer->surface().isEmpty())
+		else if (!layer->surface().isEmpty())
 		{
 			layerData["source"] = database->addSurface(layer->surface());
 		}

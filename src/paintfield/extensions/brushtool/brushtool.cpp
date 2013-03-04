@@ -89,7 +89,7 @@ void BrushTool::beginStroke(const TabletInputData &data)
 	
 	_layer = currentLayer();
 	
-	if (_layer->type() != Layer::TypeRaster)
+	if (!_layer->isType<RasterLayer>())
 		return;
 	
 	layerModel()->startEditing();

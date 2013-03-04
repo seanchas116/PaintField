@@ -28,8 +28,8 @@ signals:
 public slots:
 	
 	void importLayer();
-	void newRasterLayer() { newLayer(Layer::TypeRaster); }
-	void newGroupLayer() { newLayer(Layer::TypeGroup); }
+	void newRasterLayer();
+	void newGroupLayer();
 	void removeLayers();
 	void mergeLayers();
 	
@@ -39,7 +39,7 @@ private slots:
 	
 private:
 	
-	void newLayer(Layer::Type type);
+	void addLayer(Layer *layer, const QString &description);
 	void setActionsEnabled(const QList<QAction *> &actions, bool enabled);
 	
 	Canvas *_canvas = nullptr;

@@ -24,10 +24,6 @@ typedef QList<const Layer *> LayerConstList;
 class Layer
 {
 public:
-	enum Type {
-		TypeGroup,
-		TypeRaster
-	};
 	
 	Layer(const QString &name = QString());
 	Layer(const Layer &other);
@@ -245,10 +241,11 @@ public:
 	
 	virtual Malachite::Surface surface() const { return Malachite::Surface(); }
 	virtual Layer *clone() const = 0;
-	virtual Type type() const = 0;
 	virtual bool canHaveChildren() const { return false; }
 	
 	static Layer *createFromImageFile(const QString &path, QSize *imageSize = 0);
+	
+	template <class T> bool isType() const { return dynamic_cast<const T *>(this); }
 	
 protected:
 	
@@ -276,7 +273,6 @@ public:
 	bool setProperty(const QVariant &data, int role);
 	
 	Layer *clone() const { return new RasterLayer(*this); }
-	Type type() const { return Layer::TypeRaster; }
 	
 	Malachite::Surface surface() const { return _surface; }
 	void setSurface(const Malachite::Surface &surface) { _surface = surface; }
@@ -295,7 +291,6 @@ public:
 	GroupLayer(const GroupLayer &other) : Layer(other) {}
 	
 	Layer *clone() const { return new GroupLayer(*this); }
-	Type type() const { return Layer::TypeGroup; }
 	bool canHaveChildren() const { return true; }
 	
 	void updateThumbnail(const QSize &size);

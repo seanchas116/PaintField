@@ -39,19 +39,19 @@ void LayerUIController::importLayer()
 		return;
 	
 	auto layer = Layer::createFromImageFile(filePath);
-	if (!layer)
-		return;
 	
-	QModelIndex index = _canvas->selectionModel()->currentIndex();
-	int row = index.isValid() ? index.row() + 1 : _canvas->layerModel()->rowCount(QModelIndex());
-	_canvas->layerModel()->addLayer(layer, index.parent(), row, tr("Add Image"));
+	if (layer)
+		addLayer(layer, tr("Add From Image File"));
 }
 
-void LayerUIController::newLayer(Layer::Type type)
+void LayerUIController::newRasterLayer()
 {
-	QModelIndex index = _canvas->selectionModel()->currentIndex();
-	int row = index.isValid() ? index.row() + 1 : _canvas->layerModel()->rowCount(QModelIndex());
-	_canvas->layerModel()->newLayer(type, index.parent(), row);
+	addLayer(new RasterLayer(tr("New Layer")), tr("Add Layer"));
+}
+
+void LayerUIController::newGroupLayer()
+{
+	addLayer(new GroupLayer(tr("New Group")), tr("Add Group"));
 }
 
 void LayerUIController::removeLayers()
@@ -68,6 +68,14 @@ void LayerUIController::mergeLayers()
 		QItemSelectionRange range = selection.at(0);
 		_canvas->layerModel()->mergeLayers(range.parent(), range.top(), range.bottom());
 	}
+}
+
+void LayerUIController::addLayer(Layer *layer, const QString &description)
+{
+	auto index = _canvas->selectionModel()->currentIndex();
+	int row = index.isValid() ? index.row() : _canvas->layerModel()->rowCount(QModelIndex());
+	auto parent = index.isValid() ? index.parent() : QModelIndex();
+	_canvas->layerModel()->addLayers({layer}, parent, row, description);
 }
 
 void LayerUIController::onSelectionChanged(const QItemSelection &selection)

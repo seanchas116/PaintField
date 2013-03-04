@@ -58,7 +58,6 @@ public:
 	ModelRootLayer(const ModelRootLayer &other) : Layer(other), _model(other._model) { setBlendMode(Malachite::BlendMode::PassThrough); }
 	
 	Layer *clone() const { return new ModelRootLayer(*this); }
-	Type type() const { return Layer::TypeGroup; }
 	bool canHaveChildren() const { return true; }
 	
 	bool setProperty(const QVariant &, int) { return false; }
@@ -84,9 +83,7 @@ public:
 	void makeSkipNextUpdate();
 	
 	void editLayer(const QModelIndex &index, LayerEdit *edit, const QString &description);
-	void addLayer(Layer *layer, const QModelIndex &parent, int row, const QString &description) { addLayers({layer}, parent, row, description); }
 	void addLayers(QList<Layer *> layers, const QModelIndex &parent, int row, const QString &description);
-	void newLayer(Layer::Type type, const QModelIndex &parent, int row);
 	void removeLayers(const QModelIndexList &indexes);
 	void moveLayers(const QModelIndexList &indexes, const QModelIndex &parent, int row);
 	void copyLayers(const QModelIndexList &indexes, const QModelIndex &parent, int row);
@@ -109,8 +106,6 @@ public:
 	QStringList mimeTypes() const;
 	QMimeData *mimeData(const QModelIndexList &indexes) const;
 	bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent);
-	
-	Layer::Type layerType(const QModelIndex &index) const { return layerForIndex(index)->type(); }
 	
 	bool checkIndexes(const QModelIndexList &indexes) const;
 	

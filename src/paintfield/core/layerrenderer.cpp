@@ -45,19 +45,12 @@ void LayerRenderer::renderLayer(SurfacePainter *painter, const Layer *layer)
 void LayerRenderer::drawLayer(SurfacePainter *painter, const Layer *layer)
 {
 	Surface surface;
-	switch (layer->type())
-	{
-		case Layer::TypeRaster:
-			surface = layer->surface();
-			break;
-			
-		case Layer::TypeGroup:
-			surface = renderToSurface(layer->children(), painter->keyClip());
-			break;
-			
-		default:
-			break;
-	}
+	
+	if (layer->isType<GroupLayer>())
+		surface = renderToSurface(layer->children(), painter->keyClip());
+	else
+		surface = layer->surface();
+	
 	painter->drawPreTransformedSurface(QPoint(), surface);
 }
 

@@ -113,42 +113,6 @@ void LayerModel::addLayers(QList<Layer *> layers, const QModelIndex &parent, int
 	pushCommand(command);
 }
 
-void LayerModel::newLayer(Layer::Type type, const QModelIndex &parent, int row)
-{
-	if (!checkIndex(parent))
-	{
-		PAINTFIELD_WARNING << "invalid index";
-		return;
-	}
-	
-	Layer *layer;
-	QString description;
-	
-	switch(type)
-	{
-		case Layer::TypeGroup:
-			
-			layer = new GroupLayer();
-			layer->setName(tr("Untitled Group"));
-			description = tr("New Group");
-			break;
-			
-		case Layer::TypeRaster:
-			
-			layer = new RasterLayer();
-			layer->setName(tr("Untitled Layer"));
-			description = tr("New Layer");
-			break;
-			
-		default:
-			
-			PAINTFIELD_WARNING << "unsupported layer type";
-			return;
-	}
-	
-	addLayer(layer, parent, row, description);
-}
-
 void LayerModel::removeLayers(const QModelIndexList &indexes)
 {
 	auto command = new QUndoCommand(tr("Remove Layers"));
@@ -254,19 +218,6 @@ void LayerModel::mergeLayers(const QModelIndex &parent, int from, int to)
 	pushCommand(command);
 }
 
-/*
-QMap<int, QVariant> LayerModel::itemData(const QModelIndex &index) const
-{
-	auto layer = layerForIndex(index);
-	
-	QMap<int, QVariant> map;
-	map[Qt::EditRole] = layer->property(PaintField::RoleName);
-	map[Qt::DecorationRole] = layer->property(PaintField::RoleThumbnail);
-	map[Qt::CheckStateRole] = layer->property(PaintField::RoleVisible);
-	
-	return map;
-}*/
-
 QVariant LayerModel::data(const QModelIndex &index, int role) const
 {
 	if (!index.isValid())
@@ -333,7 +284,7 @@ Qt::ItemFlags LayerModel::flags(const QModelIndex &index) const
 	Qt::ItemFlags layerFlags = Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsDragEnabled | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
 	Qt::ItemFlags groupFlags = layerFlags | Qt::ItemIsDropEnabled;
 	
-	if (layerForIndex(index)->type() == Layer::TypeGroup)
+	if (layerForIndex(index)->isType<GroupLayer>())
 		return groupFlags;
 	else
 		return layerFlags;
