@@ -153,6 +153,7 @@ void Workspace::newCanvasFromClipboard()
 		return;
 	
 	auto layer = RasterLayer::createFromImage(pixmap.toImage());
+	layer->setName(tr("Clipboard"));
 	auto document = new Document(appController()->unduplicatedNewFileTempName(), pixmap.size(), {layer});
 	auto canvas = new Canvas(document, this);
 	
