@@ -1,3 +1,7 @@
+#include <QPainterPathStroker>
+#include <Malachite/Painter>
+#include "thumbnail.h"
+
 #include "shapelayer.h"
 
 using namespace Malachite;
@@ -64,12 +68,66 @@ QVariant ShapeLayer::property(int role) const
 
 void ShapeLayer::updateThumbnail(const QSize &size)
 {
+	QPixmap pixmap(size);
+	pixmap.fill(Qt::transparent);
 	
+	{
+		QPainter painter(&pixmap);
+		
+		painter.setBrush(_fillColor.toQColor());
+		painter.drawPath(shape());
+		
+		painter.setBrush(_strokeColor.toQColor());
+		painter.drawPath(strokePath());
+	}
+	
+	setThumbnail(Thumbnail::createThumbnail(pixmap));
 }
 
 void ShapeLayer::render(Malachite::Painter *painter) const
 {
+	painter->setColor(_fillColor);
+	painter->drawPath(shape());
 	
+	painter->setColor(_strokeColor);
+	painter->drawPath(strokePath());
 }
+
+void ShapeLayer::updateStrokePath()
+{
+	QPainterPathStroker stroker;
+	
+	if (_strokePos != StrokePositionCenter)
+		stroker.setWidth(_strokeWidth * 2);
+	else
+		stroker.setWidth(_strokeWidth);
+	
+	stroker.setCapStyle(_capStyle);
+	stroker.setJoinStyle(_joinStyle);
+	
+	auto fill = _fillPath;
+	auto stroke = stroker.createStroke(fill);
+	
+	switch (_strokePos)
+	{
+		default:
+		case StrokePositionCenter:
+			_strokePath = stroke;
+			break;
+		case StrokePositionInside:
+			_strokePath = stroke & fill;
+			break;
+		case StrokePositionOutside:
+			_strokePath = stroke - fill;
+			break;
+	}
+}
+
+void ShapeLayer::setFillPath(const QPainterPath &path)
+{
+	_fillPath = path;
+	updateStrokePath();
+}
+
 
 } // namespace PaintField

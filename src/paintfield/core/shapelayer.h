@@ -24,7 +24,7 @@ public:
 	void updateThumbnail(const QSize &size);
 	
 	virtual QPainterPath shape() const = 0;
-	
+		
 	StrokePosition strokePosition() const { return _strokePos; }
 	void setStrokePos(StrokePosition pos) { _strokePos = pos; }
 	
@@ -51,7 +51,14 @@ public:
 	
 	void render(Malachite::Painter *painter) const override;
 	
+	QPainterPath fillPath() const { return _fillPath; }
+	QPainterPath strokePath() const { return _strokePath; }
+	
+	void updateStrokePath();
+	
 private:
+	
+	void setFillPath(const QPainterPath &path);
 	
 	StrokePosition _strokePos = StrokePositionCenter;
 	double _strokeWidth = 1.0;
@@ -60,6 +67,8 @@ private:
 	
 	bool _fillEnabled = true, _strokeEnabled = true;
 	Malachite::Color _fillColor, _strokeColor;
+	
+	QPainterPath _fillPath, _strokePath;
 };
 
 } // namespace PaintField
