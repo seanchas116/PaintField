@@ -6,6 +6,7 @@
 #include "document.h"
 #include "layerrenderer.h"
 #include "internal/layermodelcommand.h"
+#include "grouplayer.h"
 
 #include "layermodel.h"
 

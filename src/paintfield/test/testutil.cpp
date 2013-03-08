@@ -1,6 +1,8 @@
 #include <QtCore>
 #include <Malachite/Painter>
 #include "testutil.h"
+#include "paintfield/core/rasterlayer.h"
+#include "paintfield/core/grouplayer.h"
 
 using namespace Malachite;
 

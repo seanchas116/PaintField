@@ -17,14 +17,14 @@ void Test_DocumentIO::saveLoad()
 	auto doc = TestUtil::createTestDocument(this);
 	
 	{
-		DocumentIO documentIO;
-		documentIO.saveAs(doc, path);
+		DocumentSaver saver(doc);
+		saver.save(path);
 	}
 	
 	Document *openedDoc;
 	{
-		DocumentIO documentIO(path);
-		openedDoc = documentIO.load(this);
+		DocumentLoader loader;
+		openedDoc = loader.load(path, 0);
 	}
 	
 	QCOMPARE(doc->layerModel()->rootLayer()->childCount(), openedDoc->layerModel()->rootLayer()->childCount());

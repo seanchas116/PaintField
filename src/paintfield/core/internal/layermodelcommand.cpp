@@ -1,5 +1,6 @@
 #include "../layerrenderer.h"
 #include "../document.h"
+#include "../rasterlayer.h"
 
 #include "layermodelcommand.h"
 
@@ -56,7 +57,7 @@ LayerModelAddCommand::LayerModelAddCommand(Layer *layer, const LayerPath &newPar
 void LayerModelAddCommand::redo()
 {
 	auto parent = layerForPath(_newParentPath);
-	enqueueTileUpdate(_layer->surface().keys());
+	enqueueTileUpdate(_layer->tileKeysRecursive());
 	insertLayer(parent, _newRow, _layer.take());
 }
 
@@ -164,7 +165,7 @@ void LayerModelMergeCommand::redo()
 	
 	LayerRenderer renderer;
 	
-	RasterLayer *newLayer = new RasterLayer(_name);
+	auto newLayer = new RasterLayer(_name);
 	newLayer->setSurface(renderer.renderToSurface(Malachite::constList(_oldLayers)));
 	newLayer->updateThumbnail(model()->document()->size());
 	

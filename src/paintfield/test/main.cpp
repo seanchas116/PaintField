@@ -44,14 +44,14 @@ void test_DocumentIO_saveLoad()
 	auto doc = TestUtil::createTestDocument(0);
 	
 	{
-		DocumentIO documentIO;
-		documentIO.saveAs(doc, path);
+		DocumentSaver saver(doc);
+		saver.save(path);
 	}
 	
 	Document *openedDoc;
 	{
-		DocumentIO documentIO(path);
-		openedDoc = documentIO.load(0);
+		DocumentLoader loader;
+		openedDoc = loader.load(path, 0);
 	}
 	
     auto controller = new Canvas(openedDoc, 0);

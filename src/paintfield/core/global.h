@@ -25,7 +25,17 @@ enum LayerPropertyRole
 	RoleOpacity,
 	RoleBlendMode,
 	RoleThumbnail,
-	RoleSurface
+	
+	RoleSurface,
+	
+	RoleStrokePosition,
+	RoleStrokeWidth,
+	RoleJoinStyle,
+	RoleCapStyle,
+	RoleFillColor,
+	RoleStrokeColor,
+	RoleFillEnabled,
+	RoleStrokeEnabled
 };
 
 enum EventType
@@ -56,6 +66,13 @@ enum EditActionType
 	EditActionPaste,
 	EditActionDelete,
 	EditActionSelectAll
+};
+
+enum StrokePosition
+{
+	StrokePositionInside,
+	StrokePositionCenter,
+	StrokePositionOutside
 };
 
 #define PAINTFIELD_WARNING qWarning() << Q_FUNC_INFO << ":"

@@ -59,7 +59,7 @@ private:
 	int _brushSize;
 	TabletInputData _dataPrev;
 	bool _dataPrevSet = false;
-	const Layer *_layer = 0;
+	const RasterLayer *_layer = 0;
 	Malachite::Surface _surface;
 	int _count = 0;
 };

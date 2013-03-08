@@ -44,14 +44,10 @@ void LayerRenderer::renderLayer(SurfacePainter *painter, const Layer *layer)
 
 void LayerRenderer::drawLayer(SurfacePainter *painter, const Layer *layer)
 {
-	Surface surface;
+	if (layer->childCount())
+		painter->drawPreTransformedSurface(QPoint(), renderToSurface(layer->children(), painter->keyClip()));
 	
-	if (layer->isType<GroupLayer>())
-		surface = renderToSurface(layer->children(), painter->keyClip());
-	else
-		surface = layer->surface();
-	
-	painter->drawPreTransformedSurface(QPoint(), surface);
+	layer->render(painter);
 }
 
 void LayerRenderer::renderLayers(SurfacePainter *painter, const LayerConstList &layers)

@@ -1,6 +1,7 @@
 #include <Malachite/SurfacePainter>
 
 #include "layer.h"
+#include "rasterlayer.h"
 
 #include "layeredit.h"
 
@@ -48,7 +49,7 @@ LayerSurfaceEdit::LayerSurfaceEdit(const Surface &surface, const QPointSet &tile
 
 void LayerSurfaceEdit::redo(Layer *layer)
 {
-	RasterLayer *rasterLayer = dynamic_cast<RasterLayer *>(layer);
+	auto rasterLayer = dynamic_cast<RasterLayer *>(layer);
 	Q_ASSERT(rasterLayer);
 	
 	Surface surface = rasterLayer->surface();
@@ -58,7 +59,7 @@ void LayerSurfaceEdit::redo(Layer *layer)
 
 void LayerSurfaceEdit::undo(Layer *layer)
 {
-	RasterLayer *rasterLayer = dynamic_cast<RasterLayer *>(layer);
+	auto rasterLayer = dynamic_cast<RasterLayer *>(layer);
 	Q_ASSERT(rasterLayer);
 	
 	Surface surface = rasterLayer->surface();

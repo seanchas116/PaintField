@@ -73,7 +73,11 @@ HEADERS += \
     tabletpointerinfo.h \
     cursorstack.h \
     generaleditaction.h \
-    proxyaction.h
+    proxyaction.h \
+    rasterlayer.h \
+    grouplayer.h \
+    shapelayer.h \
+    layerfactorymanager.h
 FORMS += dialogs/exportdialog.ui dialogs/newdocumentdialog.ui
 SOURCES += \
            document.cpp \
@@ -130,7 +134,11 @@ SOURCES += \
     selection.cpp \
     cursorstack.cpp \
     generaleditaction.cpp \
-    proxyaction.cpp
+    proxyaction.cpp \
+    rasterlayer.cpp \
+    grouplayer.cpp \
+    shapelayer.cpp \
+    layerfactorymanager.cpp
 
 RESOURCES += \
     resources/resource-paintfield-core.qrc

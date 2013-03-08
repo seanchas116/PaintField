@@ -5,6 +5,7 @@
 #include <QItemSelectionModel>
 #include <QUndoCommand>
 
+#include "grouplayer.h"
 #include "layer.h"
 
 
@@ -51,16 +52,10 @@ public:
 typedef QList<LayerPath> LayerPathList;
 
 
-class ModelRootLayer : public Layer
+class ModelRootLayer : public GroupLayer
 {
 public:
-	ModelRootLayer(LayerModel *model) : Layer("root"), _model(model) { setBlendMode(Malachite::BlendMode::PassThrough); }
-	ModelRootLayer(const ModelRootLayer &other) : Layer(other), _model(other._model) { setBlendMode(Malachite::BlendMode::PassThrough); }
-	
-	Layer *clone() const { return new ModelRootLayer(*this); }
-	bool canHaveChildren() const { return true; }
-	
-	bool setProperty(const QVariant &, int) { return false; }
+	ModelRootLayer(LayerModel *model) : GroupLayer("root"), _model(model) {}
 	
 	LayerModel *layerModel() { return _model; }
 	

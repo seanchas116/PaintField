@@ -3,6 +3,8 @@
 #include <QDir>
 #include <Malachite/ImageIO>
 
+#include "paintfield/core/rasterlayer.h"
+#include "paintfield/core/grouplayer.h"
 #include "paintfield/core/util.h"
 
 #include "layeruicontroller.h"
@@ -38,7 +40,7 @@ void LayerUIController::importLayer()
 	if (filePath.isEmpty())
 		return;
 	
-	auto layer = Layer::createFromImageFile(filePath);
+	auto layer = RasterLayer::createFromImageFile(filePath);
 	
 	if (layer)
 		addLayer(layer, tr("Add From Image File"));

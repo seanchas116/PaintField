@@ -3,6 +3,7 @@
 #include "paintfield/core/tabletevent.h"
 #include "paintfield/core/layer.h"
 #include "paintfield/core/widgets/simplebutton.h"
+#include "paintfield/core/rasterlayer.h"
 
 #include "layermovetool.h"
 
@@ -11,10 +12,10 @@ using namespace Malachite;
 namespace PaintField
 {
 
-class FSLayerMoveEdit : public LayerEdit
+class LayerMoveEdit : public LayerEdit
 {
 public:
-	explicit FSLayerMoveEdit(const QPoint &offset)
+	explicit LayerMoveEdit(const QPoint &offset)
 	    : LayerEdit(),
 		  _offset(offset)
 	{}
@@ -26,7 +27,7 @@ private:
 	QPoint _offset;
 };
 
-void FSLayerMoveEdit::redo(Layer *layer)
+void LayerMoveEdit::redo(Layer *layer)
 {
 	RasterLayer *rasterLayer = dynamic_cast<RasterLayer *>(layer);
 	Q_ASSERT(rasterLayer);
@@ -42,7 +43,7 @@ void FSLayerMoveEdit::redo(Layer *layer)
 	rasterLayer->setSurface(surface);
 }
 
-void FSLayerMoveEdit::undo(Layer *layer)
+void LayerMoveEdit::undo(Layer *layer)
 {
 	RasterLayer *rasterLayer = dynamic_cast<RasterLayer *>(layer);
 	Q_ASSERT(rasterLayer);
@@ -65,7 +66,8 @@ LayerMoveTool::LayerMoveTool(Canvas *parent) :
 void LayerMoveTool::drawLayer(SurfacePainter *painter, const Layer *layer)
 {
 	PAINTFIELD_DEBUG << "offset:" << _offset;
-	painter->drawSurface(_offset, layer->surface());
+	auto rasterLayer = dynamic_cast<const RasterLayer *>(layer);
+	painter->drawSurface(_offset, rasterLayer->surface());
 }
 
 void LayerMoveTool::tabletMoveEvent(CanvasTabletEvent *event)
@@ -76,10 +78,8 @@ void LayerMoveTool::tabletMoveEvent(CanvasTabletEvent *event)
 	
 	QPointSet keys;
 	
-	for (const QPoint &key : _layer->surface().keys())
-	{
+	for (const QPoint &key : _layer->tileKeys())
 		keys |= Surface::rectToKeys(Surface::keyToRect(key).translated(_offset));
-	}
 	
 	requestUpdate(keys | _lastKeys);
 	_lastKeys = keys;
@@ -95,7 +95,7 @@ void LayerMoveTool::tabletPressEvent(CanvasTabletEvent *event)
 		_layerIsDragged = true;
 		addLayerDelegation(_layer);
 		_dragStartPoint = event->data.pos.toQPoint();
-		_lastKeys = _layer->surface().keys();
+		_lastKeys = _layer->tileKeys();
 	}
 }
 
@@ -107,7 +107,7 @@ void LayerMoveTool::tabletReleaseEvent(CanvasTabletEvent *event)
 		_offset = event->data.pos.toQPoint() - _dragStartPoint;
 		_layerIsDragged = false;
 		clearLayerDelegation();
-		layerModel()->editLayer(currentLayerIndex(), new FSLayerMoveEdit(_offset), tr("Layer Move"));
+		layerModel()->editLayer(currentLayerIndex(), new LayerMoveEdit(_offset), tr("Layer Move"));
 	}
 }
 

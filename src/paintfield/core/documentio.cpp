@@ -1,33 +1,36 @@
 #include <QtCore>
-#include "qjson/parser.h"
-#include "qjson/serializer.h"
+#include <qjson/parser.h>
+#include <qjson/serializer.h>
 #include <Malachite/Painter>
+#include <stdexcept>
+#include <Minizip/unzip.h>
+#include <Minizip/zip.h>
 
+#include "grouplayer.h"
+#include "layerfactorymanager.h"
 #include "randomstring.h"
 
 #include "documentio.h"
 
+using namespace Malachite;
+using namespace std;
+
 namespace PaintField
 {
 
-using namespace Malachite;
-
-bool saveIntoZip(zipFile zip, const QString &path, const QByteArray &data, int level)
+static void saveIntoZip(zipFile zip, const QString &path, const QByteArray &data, int level)
 {
 	if (zipOpenNewFileInZip64(zip, path.toLocal8Bit(), 0, 0, 0, 0, 0, 0, Z_DEFLATED, level, 1) != ZIP_OK)
-		return false;
+		throw runtime_error("cannot create file in archive");
 	
 	zipWriteInFileInZip(zip, data.data(), data.length());
-	
 	zipCloseFileInZip(zip);
-	
-	return true;
 }
 
-QByteArray loadFromUnzip(unzFile unzip, const QString &path)
+static QByteArray loadFromUnzip(unzFile unzip, const QString &path)
 {
 	if (unzLocateFile(unzip, path.toLocal8Bit(), 1) != UNZ_OK)
-		return QByteArray();
+		throw runtime_error("cannot find file in archive");
 	
 	unz_file_info64 fileInfo;
 	unzGetCurrentFileInfo64(unzip, &fileInfo, 0, 0, 0, 0, 0, 0);
@@ -45,304 +48,210 @@ QByteArray loadFromUnzip(unzFile unzip, const QString &path)
 	return data;
 }
 
-DocumentIO::~DocumentIO()
+struct DocumentSaver::Data
 {
-	if (_unzip)
-		closeUnzip();
-}
-
-bool DocumentIO::openUnzip()
-{
-	if (_path.isEmpty())
-		return false;
+	zipFile zip = 0;
+	Document *document;
 	
-	_unzip = unzOpen64(_path.toLocal8Bit());
-	return _unzip;
-}
-
-void DocumentIO::closeUnzip()
-{
-	if (_unzip)
+	QVariantList saveLayerChildrenRecursive(const Layer *parent, int &sourceFileCount)
 	{
-		unzClose(_unzip);
-		_unzip = 0;
-	}
-}
-
-bool DocumentIO::saveAs(Document *document, const QString &newPath)
-{
-	if (newPath.isEmpty())
-	{
-		qWarning() << Q_FUNC_INFO << ": filePath is empty";
-		return false;
-	}
-	
-	QString tempFilePath = createTemporaryFilePath();
-	
-	zipFile zip = zipOpen64(tempFilePath.toLocal8Bit(), APPEND_STATUS_CREATE);
-	if (zip == 0)
-	{
-		qWarning() << __PRETTY_FUNCTION__ << ": unable to create temporary file";
-		return false;
-	}
-	
-	DocumentDatabase database(this);
-	
-	QVariantMap documentData;
-	documentData["width"] = document->width();
-	documentData["height"] = document->height();
-	documentData["version"] = "1.0";
-	
-	QVariantList stack;
-	
-	if (!saveLayerRecursive(document->layerModel()->rootLayer(), &database, &stack))
-	{
-		qWarning() << Q_FUNC_INFO << ": unable to save file";
-		return false;
-	}
-	
-	documentData["stack"] = stack;
-	
-	QJson::Serializer serializer;
-	QByteArray headerJson = serializer.serialize(documentData);
-	
-	// write data into zip archive
-	
-	if (database.save(zip) == false)
-	{
-		qWarning() << Q_FUNC_INFO << ": unable to save file";
-		return false;
-	}
-	
-	if (saveIntoZip(zip, "header.json", headerJson) == false)
-	{
-		qWarning() << Q_FUNC_INFO << ": unable to save file";
-		return false;
-	}
-	
-	zipClose(zip, 0);
-	
-	// move archive to specified place
-	
-	if (QFile::exists(newPath))
-		QFile::remove(newPath);
-	
-	if (!QFile::copy(tempFilePath, newPath) )
-	{
-		qWarning() << __PRETTY_FUNCTION__ << "unable to copy file to the specified place";
-		return false;
-	}
-	
-	// succeeded to save file
-	document->setFilePath(newPath);
-	document->setModified(false);
-	return true;
-}
-
-Document *DocumentIO::load(QObject *parent)
-{
-	if (openUnzip() == false)
-	{
-		qWarning() << Q_FUNC_INFO << ": unable to open file";
-		return 0;
-	}
-	
-	QByteArray headerJson = loadFromUnzip(unzipFile(), "header.json");
-	
-	if (headerJson.isNull())
-	{
-		qWarning() << Q_FUNC_INFO << ": failed to get header.json";
-		return 0;
-	}
-	
-	bool ok;
-	QJson::Parser parser;
-	
-	QVariantMap documentData = parser.parse(headerJson, &ok).toMap();
-	
-	if (!ok)
-	{
-		qWarning() << Q_FUNC_INFO << ": parsing failed";
-		return 0;
-	}
-	
-	if (documentData.value("version") != "1.0")
-	{
-		qWarning() << Q_FUNC_INFO << ": incompatible file version";
-		return 0;
-	}
-	
-	GroupLayer group;
-	QSize size;
-	
-	size.rwidth() = documentData.value("width").toInt();
-	size.rheight() = documentData.value("height").toInt();
-	
-	if (size.isEmpty())
-	{
-		qWarning() << Q_FUNC_INFO << ": invalid size";
-		return 0;
-	}
-	
-	QVariantList stack = documentData.value("stack").toList();
-	
-	DocumentDatabase database(this);
-	
-	if (!loadLayerRecursive(&group, &database, stack))
-	{
-		qWarning() << Q_FUNC_INFO << ": cannot compose layer stack";
-		return 0;
-	}
-	
-	closeUnzip();
-	
-	Document *document = new Document(QString(), size, group.takeChildren(), parent);
-	document->setFilePath(_path);
-	return document;
-}
-
-bool DocumentIO::saveLayerRecursive(const Layer *parent, DocumentDatabase *database, QVariantList *result)
-{
-	Q_ASSERT(parent);
-	Q_ASSERT(database);
-	Q_ASSERT(result);
-	
-	if (!parent->isType<GroupLayer>())
-		return false;
-	
-	QVariantList layerDataList;
-	
-	foreach (const Layer *layer, parent->children() )
-	{
-		QVariantMap layerData;
+		Q_ASSERT(parent);
 		
-		if (layer->isType<GroupLayer>())
-			layerData["type"] = "group";
-		else if (layer->isType<RasterLayer>())
-			layerData["type"] = "raster";
-		else
-			continue;
+		QVariantList maps;
 		
-		layerData["name"] = layer->name();
-		layerData["visible"] = layer->isVisible();
-		layerData["locked"] = layer->isLocked();
-		layerData["opacity"] = layer->opacity();
-		layerData["blendMode"] = Malachite::BlendMode(layer->blendMode()).toString();
-		
-		if (layer->isType<GroupLayer>())
+		for (const Layer *layer : parent->children())
 		{
-			QVariantList childDataList;
-			if (saveLayerRecursive(layer, database, &childDataList))
-				layerData["children"] = childDataList;
-			else
-				return false;
-		}
-		else if (!layer->surface().isEmpty())
-		{
-			layerData["source"] = database->addSurface(layer->surface());
-		}
-		
-		layerDataList << layerData;
-	}
-	
-	*result = layerDataList;
-	return true;
-}
-
-bool DocumentIO::loadLayerRecursive(Layer *parent, DocumentDatabase *database, const QVariantList &layerDataList)
-{
-	Q_ASSERT(parent);
-	Q_ASSERT(database);
-	
-	foreach (const QVariant listItem, layerDataList)
-	{
-		QVariantMap layerData = listItem.toMap();
-		
-		QString typeName = layerData["type"].toString();
-		
-		if (typeName == "group")
-		{
-			GroupLayer *group = new GroupLayer();
+			auto map = layer->saveProperies();
 			
-			group->setName(layerData["name"].toString());
-			group->setVisible(layerData["visible"].toBool());
-			group->setLocked(layerData["locked"].toBool());
-			group->setOpacity(layerData["opacity"].toDouble());
-			group->setBlendMode(Malachite::BlendMode(layerData["blendMode"].toString()).toInt());
+			map["type"] = layerFactoryManager()->nameForTypeInfo(typeid(*layer));
 			
-			parent->appendChild(group);
-			
-			if (!loadLayerRecursive(group, database, layerData["children"].toList()))
-				return false;
-		}
-		else if (typeName == "raster")
-		{
-			RasterLayer *raster = new RasterLayer();
-			
-			raster->setName(layerData["name"].toString());
-			raster->setVisible(layerData["visible"].toBool());
-			raster->setLocked(layerData["locked"].toBool());
-			raster->setOpacity(layerData["opacity"].toDouble());
-			raster->setBlendMode(Malachite::BlendMode(layerData["blendMode"].toString()).toInt());
-			
-			QString source = layerData["source"].toString();
-			
-			
-			if (!source.isEmpty())
+			if (layer->hasDataToSave())
 			{
-				raster->setSurface(database->loadSurface(source));
+				QByteArray data;
+				QDataStream stream(&data, QIODevice::WriteOnly);
+				layer->saveDataFile(stream);
+				
+				QString path = "data/" + QString::number(sourceFileCount) + "." + layer->dataSuffix();
+				sourceFileCount++;
+				
+				saveIntoZip(zip, path, data, Z_DEFAULT_COMPRESSION);
+				
+				map["source"] = path;
 			}
 			
-			parent->appendChild(raster);
+			if (layer->childCount())
+			{
+				map["children"] = saveLayerChildrenRecursive(layer, sourceFileCount);
+			}
+			
+			maps << map;
+		}
+		
+		return maps;
+	}
+};
+
+DocumentSaver::DocumentSaver(Document *document, QObject *parent) :
+	QObject(parent),
+	d(new Data)
+{
+	d->document = document;
+}
+
+DocumentSaver::~DocumentSaver()
+{
+	delete d;
+}
+
+bool DocumentSaver::save(const QString &filePath)
+{
+	try
+	{
+		QString tempFilePath = createTemporaryFilePath();
+		
+		if (QFile::exists(tempFilePath))
+			QFile::remove(tempFilePath);
+		
+		d->zip = zipOpen64(tempFilePath.toLocal8Bit(), APPEND_STATUS_CREATE);
+		if (!d->zip)
+			throw runtime_error("failed to create temp file");
+		
+		{
+			QVariantMap headerMap;
+			headerMap["width"] = d->document->width();
+			headerMap["height"] = d->document->height();
+			headerMap["version"] = "1.0";
+			
+			{
+				int count = 0;
+				headerMap["stack"] = d->saveLayerChildrenRecursive(d->document->layerModel()->rootLayer(), count);
+			}
+			
+			{
+				QJson::Serializer serializer;
+				QByteArray headerJson = serializer.serialize(headerMap);
+				saveIntoZip(d->zip, "header.json", headerJson, Z_DEFAULT_COMPRESSION);
+			}
+		}
+		
+		zipClose(d->zip, 0);
+		d->zip = 0;
+		
+		if (QFile::exists(filePath))
+			QFile::remove(filePath);
+		
+		if (!QFile::rename(tempFilePath, filePath))
+			throw runtime_error("unable to copy file to the specified place");
+		
+		d->document->setFilePath(filePath);
+		d->document->setModified(false);
+		return true;
+	}
+	catch (const runtime_error &error)
+	{
+		PAINTFIELD_WARNING << error.what();
+		
+		if (d->zip)
+		{
+			zipClose(d->zip, 0);
+			d->zip = 0;
+		}
+		
+		return false;
+	}
+}
+
+struct DocumentLoader::Data
+{
+	unzFile unzip = 0;
+	
+	void loadLayerChildrenRecursive(Layer *parent, const QVariantList &propertyMaps)
+	{
+		for (const QVariant &item : propertyMaps)
+		{
+			QVariantMap map = item.toMap();
+			PAINTFIELD_DEBUG << map;
+			
+			Layer *layer = layerFactoryManager()->createLayer(map["type"].toString());
+			if (!layer)
+				continue;
+			
+			layer->loadProperties(map);
+			
+			if (layer->hasDataToSave() && map.contains("source"))
+			{
+				QString source = map["source"].toString();
+				auto data = loadFromUnzip(unzip, source);
+				
+				QDataStream stream(&data, QIODevice::ReadOnly);
+				layer->loadDataFile(stream);
+			}
+			
+			if (layer->canHaveChildren())
+				loadLayerChildrenRecursive(layer, map["children"].toList());
+			
+			parent->appendChild(layer);
 		}
 	}
-	
-	return true;
+};
+
+DocumentLoader::DocumentLoader(QObject *parent) :
+	QObject(parent),
+	d(new Data)
+{}
+
+DocumentLoader::~DocumentLoader()
+{
+	delete d;
 }
 
-DocumentDatabase::DocumentDatabase(DocumentIO *documentIO) :
-    _documentIO(documentIO)
+Document *DocumentLoader::load(const QString &filePath, QObject *parent)
 {
-}
-
-Surface DocumentDatabase::loadSurface(const QString &path)
-{
-	Surface surface;
-	
-	QByteArray data = loadFromUnzip(_documentIO->unzipFile(), path);
-	QDataStream stream(&data, QIODevice::ReadOnly);
-	stream >> surface;
-	
-	return surface;
-}
-
-
-
-QString DocumentDatabase::addSurface(const Surface &surface)
-{
-	QString path = "data/surfaces/" + QString::number(_surfacesToSave.size()) + ".surface";
-	
-	_surfacesToSave << SurfaceSaveInfo(surface, path);
-	
-	return path;
-}
-
-bool DocumentDatabase::save(zipFile zip)
-{
-	// saving surfaces
-	
-	for (auto surfaceInfo : _surfacesToSave)
+	try
 	{
-		QByteArray data;
-		QDataStream stream(&data, QIODevice::WriteOnly);
+		d->unzip = unzOpen64(filePath.toLocal8Bit());
 		
-		stream << surfaceInfo.surface;
+		QVariantMap headerMap;
 		
-		if (!saveIntoZip(zip, surfaceInfo.path, data, Z_DEFAULT_COMPRESSION))
-			return false;
+		{
+			QJson::Parser parser;
+			headerMap = parser.parse(loadFromUnzip(d->unzip, "header.json")).toMap();
+		}
+		
+		if (headerMap["version"].toString() != "1.0")
+			throw runtime_error("incompatible file version");
+		
+		QSize size;
+		size.rwidth() = headerMap["width"].toInt();
+		size.rheight() = headerMap["height"].toInt();
+		
+		if (size.isEmpty())
+			throw runtime_error("invalid size");
+		
+		QVariantList stack = headerMap["stack"].toList();
+		
+		GroupLayer group;
+		d->loadLayerChildrenRecursive(&group, stack);
+		
+		unzClose(d->unzip);
+		d->unzip = 0;
+		
+		auto document = new Document(QString(), size, group.takeChildren(), parent);
+		document->setFilePath(filePath);
+		return document;
 	}
-	
-	return true;
+	catch (const runtime_error &error)
+	{
+		PAINTFIELD_WARNING << error.what();
+		
+		if (d->unzip)
+		{
+			unzClose(d->unzip);
+			d->unzip = 0;
+		}
+		
+		return 0;
+	}
 }
 
 }

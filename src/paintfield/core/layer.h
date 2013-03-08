@@ -13,9 +13,13 @@
 #include "util.h"
 #include "global.h"
 
+namespace Malachite
+{
+class Painter;
+}
+
 namespace PaintField
 {
-
 
 class Layer;
 typedef QList<Layer *> LayerList;
@@ -222,7 +226,7 @@ public:
 	 * Updates only this layer's thumbnail
 	 * @param size
 	 */
-	virtual void updateThumbnail(const QSize &size);
+	virtual void updateThumbnail(const QSize &size) { Q_UNUSED(size) }
 	
 	/**
 	 * Updates the thumbnail of each of ths and this descendant layers.
@@ -236,16 +240,26 @@ public:
 	 */
 	void updateDirtyThumbnailRecursive(const QSize &size);
 	
-	QPointSet tileKeys() const { return surface().keys(); }
+	virtual QPointSet tileKeys() const { return QPointSet(); }
 	QPointSet tileKeysRecursive() const;
 	
-	virtual Malachite::Surface surface() const { return Malachite::Surface(); }
 	virtual Layer *clone() const = 0;
 	virtual bool canHaveChildren() const { return false; }
 	
-	static Layer *createFromImageFile(const QString &path, QSize *imageSize = 0);
-	
 	template <class T> bool isType() const { return dynamic_cast<const T *>(this); }
+	
+	virtual void encode(QDataStream &stream) const;
+	virtual void decode(QDataStream &stream);
+	
+	QVariantMap saveProperies() const;
+	void loadProperties(const QVariantMap &map);
+	
+	virtual bool hasDataToSave() const { return false; }
+	virtual void saveDataFile(QDataStream &stream) const { Q_UNUSED(stream) }
+	virtual void loadDataFile(QDataStream &stream) { Q_UNUSED(stream) }
+	virtual QString dataSuffix() const { return "data"; }
+	
+	virtual void render(Malachite::Painter *painter) const { Q_UNUSED(painter) }
 	
 protected:
 	
@@ -263,40 +277,16 @@ private:
 	bool _isThumbnailDirty = false;
 };
 
-
-class RasterLayer : public Layer
+class LayerFactory
 {
 public:
-	RasterLayer(const QString &name = QString()) : Layer(name) {}
-	RasterLayer(const RasterLayer &other) : Layer(other), _surface(other._surface) {}
+	LayerFactory() {}
+	virtual ~LayerFactory() {}
 	
-	bool setProperty(const QVariant &data, int role);
-	
-	Layer *clone() const { return new RasterLayer(*this); }
-	
-	Malachite::Surface surface() const { return _surface; }
-	void setSurface(const Malachite::Surface &surface) { _surface = surface; }
-	
-	Malachite::Surface *psurface() { return &_surface; }
-	
-private:
-	Malachite::Surface _surface;
+	virtual QString name() const = 0;
+	virtual Layer *create() const = 0;
+	virtual const ::std::type_info &typeInfo() const = 0;
 };
-
-
-class GroupLayer : public Layer
-{
-public:
-	GroupLayer(const QString &name = QString()) : Layer(name) {}
-	GroupLayer(const GroupLayer &other) : Layer(other) {}
-	
-	Layer *clone() const { return new GroupLayer(*this); }
-	bool canHaveChildren() const { return true; }
-	
-	void updateThumbnail(const QSize &size);
-};
-
-
 
 }
 

@@ -1,7 +1,6 @@
 #include <QFileInfo>
 
 #include <Malachite/Painter>
-#include <Malachite/ImageIO>
 
 #include "thumbnail.h"
 #include "drawutil.h"
@@ -244,22 +243,12 @@ QVariant Layer::property(int role) const
 			return _opacity;
 		case PaintField::RoleBlendMode:
 			return _blendMode.toInt();
-		case PaintField::RoleSurface:
-			return QVariant::fromValue(surface());
 		default:
 			return QVariant();
 	}
 }
 
-void Layer::updateThumbnail(const QSize &size)
-{
-	QPixmap pixmap(size);
-	pixmap.fill(Qt::transparent);
-	QPainter painter(&pixmap);
-	DrawUtil::drawMLSurface(&painter, 0, 0, surface());
-	
-	_thumbnail = Thumbnail::createThumbnail(pixmap);
-}
+
 
 void Layer::updateThumbnailRecursive(const QSize &size)
 {
@@ -291,54 +280,36 @@ QPointSet Layer::tileKeysRecursive() const
 	return keys;
 }
 
-
-
-bool RasterLayer::setProperty(const QVariant &data, int role)
+QVariantMap Layer::saveProperies() const
 {
-	switch (role)
-	{
-	case PaintField::RoleSurface:
-		_surface = data.value<Malachite::Surface>();
-		return true;
-	default:
-		return Layer::setProperty(data, role);
-	}
+	QVariantMap map;
+	map["name"] = _name;
+	map["visible"] = _isVisible;
+	map["locked"] = _isLocked;
+	map["opacity"] = _opacity;
+	map["blendMode"] = _blendMode.toString();
+	return map;
 }
 
-
-
-void GroupLayer::updateThumbnail(const QSize &size)
+void Layer::loadProperties(const QVariantMap &map)
 {
-	Layer::updateThumbnail(size);
-	
-	QPixmap folderIcon(":/icons/22x22/folder.png");
-	if (folderIcon.isNull())
-		qDebug() << "resource not found";
-	
-	QPixmap thumbnail = this->thumbnail();
-	QPainter painter(&thumbnail);
-	painter.drawPixmap(38, 38, folderIcon);
-	
-	setThumbnail(thumbnail);
+	_name = map["name"].toString();
+	_isVisible = map["visible"].toBool();
+	_isLocked = map["locked"].toBool();
+	_opacity = map["opacity"].toDouble();
+	_blendMode = map["blendMode"].toString();
 }
 
-Layer *Layer::createFromImageFile(const QString &path, QSize *imageSize)
+void Layer::encode(QDataStream &stream) const
 {
-	Malachite::ImageImporter importer;
-	if (!importer.load(path))
-		return 0;
-	
-	Malachite::Surface surface = importer.toSurface();
-	
-	QFileInfo fileInfo(path);
-	
-	auto layer = new RasterLayer(fileInfo.baseName());
-	layer->setSurface(surface);
-	
-	if (imageSize)
-		*imageSize = importer.size();
-	
-	return layer;
+	stream << _name << _isVisible << _isLocked << _opacity << _blendMode.toInt();
+}
+
+void Layer::decode(QDataStream &stream)
+{
+	int blend;
+	stream >> _name >> _isVisible >> _isLocked >> _opacity >> blend;
+	_blendMode = blend;
 }
 
 

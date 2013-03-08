@@ -7,6 +7,7 @@
 #include "paintfield/core/palettemanager.h"
 #include "paintfield/core/tabletevent.h"
 #include "paintfield/core/widgets/simplebutton.h"
+#include "paintfield/core/rasterlayer.h"
 
 #include "brushstroker.h"
 
@@ -87,9 +88,9 @@ void BrushTool::beginStroke(const TabletInputData &data)
 	if (!_strokerFactory)
 		return;
 	
-	_layer = currentLayer();
+	_layer = dynamic_cast<const RasterLayer *>(currentLayer());
 	
-	if (!_layer->isType<RasterLayer>())
+	if (!_layer)
 		return;
 	
 	layerModel()->startEditing();

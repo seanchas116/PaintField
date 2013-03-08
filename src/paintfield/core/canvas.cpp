@@ -10,6 +10,7 @@
 #include "layerrenderer.h"
 #include "extensionmanager.h"
 #include "tool.h"
+#include "rasterlayer.h"
 
 #include "dialogs/filedialog.h"
 #include "dialogs/messagebox.h"
@@ -277,9 +278,9 @@ Canvas *Canvas::fromNew(Workspace *workspace)
 	if (dialog.exec() != QDialog::Accepted)
 		return 0;
 	
-	RasterLayer *layer = new RasterLayer(tr("Untitled Layer"));
+	auto layer = new RasterLayer(tr("Untitled Layer"));
 	
-	Document *document = new Document(appController()->unduplicatedNewFileTempName(), dialog.documentSize(), {layer});
+	auto document = new Document(appController()->unduplicatedNewFileTempName(), dialog.documentSize(), {layer});
 	return new Canvas(document, workspace);
 }
 
@@ -315,17 +316,11 @@ Canvas *Canvas::fromFile(const QString &path, Workspace *workspace)
 
 Canvas *Canvas::fromSavedFile(const QString &path, Workspace *workspace)
 {
-	DocumentIO documentIO(path);
-	if (!documentIO.openUnzip())
-	{
-		showMessageBox(QMessageBox::Warning, tr("Failed to open file."), QString());
-		return 0;
-	}
-	
-	Document *document = documentIO.load(0);
+	DocumentLoader loader;
+	auto document = loader.load(path, 0);
 	
 	if (document == 0)
-	{	// failed to open
+	{
 		showMessageBox(QMessageBox::Warning, tr("Failed to open file."), QString());
 		return 0;
 	}
@@ -337,7 +332,7 @@ Canvas *Canvas::fromImageFile(const QString &path, Workspace *workspace)
 {
 	QSize size;
 	
-	auto layer = Layer::createFromImageFile(path, &size);
+	auto layer = RasterLayer::createFromImageFile(path, &size);
 	if (!layer)
 		return 0;
 	
@@ -356,15 +351,16 @@ bool Canvas::saveAsCanvas()
 	
 	QFileInfo fileInfo(filePath);
 	QFileInfo dirInfo(fileInfo.dir().path());
+	
 	if (!dirInfo.isWritable())
 	{
 		showMessageBox(QMessageBox::Warning, tr("The specified folder is not writable."), tr("Save in another folder."));
 		return false;
 	}
 	
-	DocumentIO documentIO(filePath);
+	DocumentSaver saver(document);
 	
-	if (!documentIO.saveAs(document, filePath))
+	if (!saver.save(filePath))
 	{
 		showMessageBox(QMessageBox::Warning, tr("Failed to save file."), QString());
 		return false;
@@ -382,8 +378,8 @@ bool Canvas::saveCanvas()
 	if (!document->isModified())
 		return true;
 	
-	DocumentIO documentIO(document->filePath());
-	if (!documentIO.save(document))
+	DocumentSaver saver(document);
+	if (!saver.save(document->filePath()))
 	{
 		showMessageBox(QMessageBox::Warning, tr("Failed to save file."), QString());
 		return false;
