@@ -1,4 +1,6 @@
 #include <QAction>
+#include <QApplication>
+#include <QClipboard>
 #include <Malachite/ImageIO>
 
 #include "smartpointer.h"

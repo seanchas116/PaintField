@@ -91,6 +91,8 @@ public slots:
 	
 	void newCanvasFromImageFile();
 	
+	void newCanvasFromClipboard();
+	
 	/**
 	 * Opens a document and adds a canvas of it.
 	 */

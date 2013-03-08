@@ -7,6 +7,7 @@
 			[
 				"paintfield.file.new",
 				"paintfield.file.newFromImageFile",
+				"paintfield.file.newFromClipboard",
 				"paintfield.file.open",
 				"",
 				"paintfield.file.newCanvasIntoDocument",

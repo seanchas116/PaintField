@@ -29,6 +29,17 @@ RasterLayer *RasterLayer::createFromImageFile(const QString &path, QSize *imageS
 	return layer;
 }
 
+RasterLayer *RasterLayer::createFromImage(const QImage &image)
+{
+	Surface surface;
+	surface.paste(ImageU8::wrapQImage(image));
+	
+	auto layer = new RasterLayer();
+	layer->setSurface(surface);
+	
+	return layer;
+}
+
 void RasterLayer::updateThumbnail(const QSize &size)
 {
 	QPixmap pixmap(size);

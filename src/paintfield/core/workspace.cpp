@@ -1,4 +1,5 @@
-
+#include <QApplication>
+#include <QClipboard>
 
 #include "smartpointer.h"
 #include "util.h"
@@ -8,6 +9,7 @@
 #include "extension.h"
 #include "extensionmanager.h"
 #include "canvas.h"
+#include "rasterlayer.h"
 
 #include "workspace.h"
 
@@ -45,6 +47,7 @@ Workspace::Workspace(QObject *parent) :
 	d->actions << Util::createAction("paintfield.file.new", this, SLOT(newCanvas()));
 	d->actions << Util::createAction("paintfield.file.open", this, SLOT(openCanvas()));
 	d->actions << Util::createAction("paintfield.file.newFromImageFile", this, SLOT(newCanvasFromImageFile()));
+	d->actions << Util::createAction("paintfield.file.newFromClipboard", this, SLOT(newCanvasFromClipboard()));
 	
 	d->actions << Util::createAction("paintfield.window.closeWorkspace", this, SLOT(tryClose()));
 	
@@ -141,6 +144,20 @@ void Workspace::newCanvasFromImageFile()
 		addAndShowCanvas(canvas);
 		setCurrentCanvas(canvas);
 	}
+}
+
+void Workspace::newCanvasFromClipboard()
+{
+	auto pixmap = qApp->clipboard()->pixmap();
+	if (pixmap.isNull())
+		return;
+	
+	auto layer = RasterLayer::createFromImage(pixmap.toImage());
+	auto document = new Document(appController()->unduplicatedNewFileTempName(), pixmap.size(), {layer});
+	auto canvas = new Canvas(document, this);
+	
+	addAndShowCanvas(canvas);
+	setCurrentCanvas(canvas);
 }
 
 void Workspace::openCanvas()

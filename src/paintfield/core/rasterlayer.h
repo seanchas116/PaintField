@@ -37,6 +37,7 @@ public:
 	void render(Malachite::Painter *painter) const override;
 	
 	static RasterLayer *createFromImageFile(const QString &path, QSize *imageSize = 0);
+	static RasterLayer *createFromImage(const QImage &image);
 	
 private:
 	

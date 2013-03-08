@@ -150,6 +150,9 @@ void AppController::declareMenus()
 	settingsManager()->declareAction("paintfield.file.newFromImageFile",
 	                                 tr("New from Image File..."));
 	
+	settingsManager()->declareAction("paintfield.file.newFromClipboard",
+	                                 tr("New from Clipboard"));
+	
 	settingsManager()->declareAction("paintfield.file.open",
 	                                 tr("Open..."));
 	settingsManager()->declareAction("paintfield.file.close",
