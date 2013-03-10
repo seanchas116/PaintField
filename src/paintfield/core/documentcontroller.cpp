@@ -118,7 +118,7 @@ bool DocumentController::confirmClose(Document *document)
 	}
 }
 
-bool DocumentController::save(Document *document)
+bool DocumentController::saveAs(Document *document)
 {
 	QString filePath = FileDialog::getSaveFilePath(0, tr("Save As"), tr("PaintField Document"), "pfield");
 	
@@ -144,7 +144,7 @@ bool DocumentController::save(Document *document)
 	return true;
 }
 
-bool DocumentController::saveAs(Document *document)
+bool DocumentController::save(Document *document)
 {
 	if (!document->isModified())
 		return true;
