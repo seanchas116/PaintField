@@ -38,47 +38,6 @@ public:
 	~Canvas();
 	
 	/**
-	 * Shows a dialog and creates a new canvas.
-	 * @return The created canvas or null
-	 */
-	static Canvas *fromNew(Workspace *workspace);
-	
-	/**
-	 * Shows a file dialog and opens a canvas.
-	 * @return The created canvas or null
-	 */
-	static Canvas *fromOpen(Workspace *workspace);
-	
-	/**
-	 * Shows a file dialog, opens a image file and creates a canvas from it.
-	 * @return The created canvas or null
-	 */
-	static Canvas *fromNewFromImageFile(Workspace *workspace);
-	
-	/**
-	 * Opens a file and creates a canvas.
-	 * Automatically detects what type the file is (PaintField document or Image file) from the file path, and
-	 * calls fromSavedFile or fromImageFile.
-	 * @param path
-	 * @return The created canvas or null
-	 */
-	static Canvas *fromFile(const QString &path, Workspace *workspace);
-	
-	/**
-	 * Opens a file as a PaintField .pfield document and opens a canvas.
-	 * @param path
-	 * @return The created canvas or null
-	 */
-	static Canvas *fromSavedFile(const QString &path, Workspace *workspace);
-	
-	/**
-	 * Opens a file as an image file and creates a new canvas.
-	 * @param path
-	 * @return The created canvas or null
-	 */
-	static Canvas *fromImageFile(const QString &path, Workspace *workspace);
-	
-	/**
 	 * @return The workspace controller which owns the canvas
 	 */
 	Workspace *workspace();
@@ -166,18 +125,6 @@ signals:
 public slots:
 	
 	/**
-	 * Shows a dialog and saves the canvas into a new file.
-	 * @return false if cancelled or failed
-	 */
-	bool saveAsCanvas();
-	
-	/**
-	 * Shows a dialog and saves the canvas.
-	 * @return false if cancelled or failed
-	 */
-	bool saveCanvas();
-	
-	/**
 	 * Shows a warning dialog and emits shouldBeClosed() if not cancelled.
 	 * @return false if cancelled
 	 */
@@ -187,12 +134,6 @@ public slots:
 	 * Creates and adds a new canvas that shares the document with this canvas.
 	 */
 	void newCanvasIntoDocument();
-	
-	/**
-	 * Shows dialogs and export this canvas into an image file.
-	 * @return false if cancelled or failed
-	 */
-	bool exportCanvas();
 	
 	void setScale(double scale);
 	void setRotation(double rotation);

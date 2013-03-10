@@ -3,6 +3,7 @@
 #include <QClipboard>
 #include <Malachite/ImageIO>
 
+#include "documentcontroller.h"
 #include "smartpointer.h"
 #include "appcontroller.h"
 #include "toolmanager.h"
@@ -13,11 +14,11 @@
 #include "extensionmanager.h"
 #include "tool.h"
 #include "rasterlayer.h"
+#include "appcontroller.h"
+#include "documentreferencemanager.h"
 
-#include "dialogs/filedialog.h"
 #include "dialogs/messagebox.h"
-#include "dialogs/exportdialog.h"
-#include "dialogs/newdocumentdialog.h"
+
 #include "canvasview.h"
 
 #include "canvas.h"
@@ -80,7 +81,7 @@ Canvas::Canvas(Canvas *other, Workspace *parent) :
 
 void Canvas::commonInit()
 {
-	*d->documentRefCount += 1;
+	appController()->documentReferenceManager()->addCanvas(this);
 	
 	connect(d->document, SIGNAL(filePathChanged(QString)), this, SIGNAL(documentPropertyChanged()));
 	connect(d->document, SIGNAL(modifiedChanged(bool)), this, SIGNAL(documentPropertyChanged()));
@@ -92,11 +93,16 @@ void Canvas::commonInit()
 	
 	// create actions
 	
-	d->actions << Util::createAction("paintfield.file.save", this, SLOT(saveCanvas()));
-	d->actions << Util::createAction("paintfield.file.saveAs", this, SLOT(saveAsCanvas()));
+	{
+		auto documentController = new DocumentController(d->document, this);
+		
+		d->actions << Util::createAction("paintfield.file.save", documentController, SLOT(save()));
+		d->actions << Util::createAction("paintfield.file.saveAs", documentController, SLOT(saveAs()));
+		d->actions << Util::createAction("paintfield.file.export", documentController, SLOT(exportToImage()));
+	}
+	
 	d->actions << Util::createAction("paintfield.file.close", this, SLOT(closeCanvas()));
 	d->actions << Util::createAction("paintfield.file.newCanvasIntoDocument", this, SLOT(newCanvasIntoDocument()));
-	d->actions << Util::createAction("paintfield.file.export", this, SLOT(exportCanvas()));
 	
 	auto undoAction  = d->document->undoStack()->createUndoAction(this);
 	undoAction->setObjectName("paintfield.edit.undo");
@@ -115,14 +121,7 @@ void Canvas::commonInit()
 
 Canvas::~Canvas()
 {
-	*d->documentRefCount -= 1;
-	
-	if (*d->documentRefCount == 0)
-	{
-		delete d->documentRefCount;
-		d->document->deleteLater();
-	}
-	
+	appController()->documentReferenceManager()->removeCanvas(this);
 	delete d;
 }
 
@@ -210,45 +209,24 @@ void Canvas::setRetinaMode(bool mode)
 	}
 }
 
-Workspace *Canvas::workspace()
-{
-	return d->workspace;
-}
-
-Document *Canvas::document()
-{
-	return d->document;
-}
-
-QItemSelectionModel *Canvas::selectionModel()
-{
-	return d->selectionModel;
-}
+Workspace *Canvas::workspace() { return d->workspace; }
+Document *Canvas::document() { return d->document; }
+QItemSelectionModel *Canvas::selectionModel() { return d->selectionModel; }
 
 void Canvas::addActions(const QActionList &actions)
 {
 	d->actions += actions;
 }
 
-QActionList Canvas::actions()
-{
-	return d->actions;
-}
-
-CanvasExtensionList Canvas::extensions()
-{
-	return d->extensions;
-}
+QActionList Canvas::actions() { return d->actions; }
+CanvasExtensionList Canvas::extensions() { return d->extensions; }
 
 void Canvas::setView(CanvasView *view)
 {
 	d->view = view;
 }
 
-CanvasView *Canvas::view()
-{
-	return d->view;
-}
+CanvasView *Canvas::view() { return d->view; }
 
 void Canvas::addExtensions(const CanvasExtensionList &extensions)
 {
@@ -262,10 +240,7 @@ void Canvas::onSetCurrent()
 	d->view->setFocus();
 }
 
-Tool *Canvas::tool()
-{
-	return d->tool.data();
-}
+Tool *Canvas::tool() { return d->tool.data(); }
 
 void Canvas::onToolChanged(const QString &name)
 {
@@ -274,192 +249,19 @@ void Canvas::onToolChanged(const QString &name)
 	emit toolChanged(tool);
 }
 
-Canvas *Canvas::fromNew(Workspace *workspace)
-{
-	NewDocumentDialog dialog;
-	if (dialog.exec() != QDialog::Accepted)
-		return 0;
-	
-	auto layer = new RasterLayer(tr("Untitled Layer"));
-	
-	auto document = new Document(appController()->unduplicatedNewFileTempName(), dialog.documentSize(), {layer});
-	return new Canvas(document, workspace);
-}
-
-Canvas *Canvas::fromOpen(Workspace *workspace)
-{
-	QString filePath = FileDialog::getOpenFilePath(0, tr("Open"), tr("PaintField Document"), {"pfield"});
-	
-	if (filePath.isEmpty())	// cancelled
-		return 0;
-	
-	return fromSavedFile(filePath, workspace);
-}
-
-Canvas *Canvas::fromNewFromImageFile(Workspace *workspace)
-{
-	QString filePath = FileDialog::getOpenFilePath(0, tr("Open"), tr("Image File"), ImageImporter::importableExtensions());
-	
-	if (filePath.isEmpty())
-		return 0;
-	
-	return fromImageFile(filePath, workspace);
-}
-
-Canvas *Canvas::fromFile(const QString &path, Workspace *workspace)
-{
-	QFileInfo fileInfo(path);
-	
-	if (fileInfo.suffix() == "pfield")
-		return fromSavedFile(path, workspace);
-	else
-		return fromImageFile(path, workspace);
-}
-
-Canvas *Canvas::fromSavedFile(const QString &path, Workspace *workspace)
-{
-	DocumentLoader loader;
-	auto document = loader.load(path, 0);
-	
-	if (document == 0)
-	{
-		showMessageBox(QMessageBox::Warning, tr("Failed to open file."), QString());
-		return 0;
-	}
-	
-	return new Canvas(document, workspace);
-}
-
-Canvas *Canvas::fromImageFile(const QString &path, Workspace *workspace)
-{
-	QSize size;
-	
-	auto layer = RasterLayer::createFromImageFile(path, &size);
-	if (!layer)
-		return 0;
-	
-	auto document = new Document(appController()->unduplicatedNewFileTempName(), size, {layer});
-	return new Canvas(document, workspace);
-}
-
-bool Canvas::saveAsCanvas()
-{
-	Document *document = d->document;
-	
-	QString filePath = FileDialog::getSaveFilePath(0, tr("Save As"), tr("PaintField Document"), "pfield");
-	
-	if (filePath.isEmpty())
-		return false;
-	
-	QFileInfo fileInfo(filePath);
-	QFileInfo dirInfo(fileInfo.dir().path());
-	
-	if (!dirInfo.isWritable())
-	{
-		showMessageBox(QMessageBox::Warning, tr("The specified folder is not writable."), tr("Save in another folder."));
-		return false;
-	}
-	
-	DocumentSaver saver(document);
-	
-	if (!saver.save(filePath))
-	{
-		showMessageBox(QMessageBox::Warning, tr("Failed to save file."), QString());
-		return false;
-	}
-	return true;
-}
-
-bool Canvas::saveCanvas()
-{
-	Document *document = d->document;
-	
-	if (document->filePath().isEmpty())	// first save
-		return saveAsCanvas();
-	
-	if (!document->isModified())
-		return true;
-	
-	DocumentSaver saver(document);
-	if (!saver.save(document->filePath()))
-	{
-		showMessageBox(QMessageBox::Warning, tr("Failed to save file."), QString());
-		return false;
-	}
-	return true;
-}
-
 bool Canvas::closeCanvas()
 {
-	if (*d->documentRefCount == 1)
+	if (appController()->documentReferenceManager()->tryRemoveCanvas(this))
 	{
-		Document *document = d->document;
-		
-		if (document->isModified())
-		{
-			int ret = showMessageBox(QMessageBox::NoIcon,
-									 tr("Do you want to save your changes on \"%1\"?").arg(document->fileName()),
-									 tr("The changes will be lost if you don't save them."),
-									 QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel,
-									 QMessageBox::Save);
-			
-			switch (ret)
-			{
-				case QMessageBox::Save:
-					if (!saveCanvas())
-						return false;
-					break;
-				case QMessageBox::Discard:
-					break;
-				case QMessageBox::Cancel:
-				default:
-					return false;
-			}
-		}
+		emit shouldBeDeleted(this);
+		return true;
 	}
-	
-	emit shouldBeDeleted(this);
-	return true;
+	return false;
 }
 
 void Canvas::newCanvasIntoDocument()
 {
-	auto newCanvas = new Canvas(this, d->workspace);
-	
-	workspace()->addAndShowCanvas(newCanvas);
-	workspace()->setCurrentCanvas(newCanvas);
-}
-
-bool Canvas::exportCanvas()
-{
-	ExportDialog dialog;
-	
-	if (!dialog.exec())
-		return false;
-	
-	Surface surface;
-	
-	{
-		LayerRenderer renderer;
-		surface = renderer.renderToSurface(layerModel()->rootLayer()->children(), document()->tileKeys());
-	}
-	
-	QString path = FileDialog::getSaveFilePath(0, tr("Export"), dialog.currentText(), dialog.currentFormat());
-	
-	if (path.isEmpty())
-		return false;
-	
-	ImageExporter exporter(dialog.currentFormat());
-	exporter.setSurface(surface, document()->size());
-	exporter.setQuality(dialog.currentQuality());
-	
-	if (!exporter.save(path))
-	{
-		showMessageBox(QMessageBox::Warning, tr("Failed to export file."), QString());
-		return false;
-	}
-	
-	return true;
+	workspace()->addAndShowCanvas(new Canvas(this, d->workspace));
 }
 
 }

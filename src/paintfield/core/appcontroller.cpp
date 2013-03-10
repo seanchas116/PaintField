@@ -10,6 +10,7 @@
 #include "application.h"
 #include "document.h"
 #include "canvas.h"
+#include "documentreferencemanager.h"
 
 #include "appcontroller.h"
 
@@ -24,6 +25,7 @@ struct AppController::Data
 	ExtensionManager *extensionManager = 0;
 	SettingsManager *settingsManager = 0;
 	CursorStack *cursorStack = 0;
+	DocumentReferenceManager *documentReferenceManager = 0;
 	
 	QList<AppExtension *> extensions;
 	QList<QAction *> actions;
@@ -38,6 +40,7 @@ AppController::AppController(Application *app, QObject *parent) :
 	d->extensionManager = new ExtensionManager(this);
 	d->settingsManager = new SettingsManager(this);
 	d->cursorStack = new CursorStack(this);
+	d->documentReferenceManager = new DocumentReferenceManager(this);
 	
 	_instance = this;
 	
@@ -69,6 +72,7 @@ WorkspaceManager *AppController::workspaceManager() { return d->workspaceManager
 ExtensionManager *AppController::extensionManager() { return d->extensionManager; }
 SettingsManager *AppController::settingsManager() { return d->settingsManager; }
 CursorStack *AppController::cursorStack() { return d->cursorStack; }
+DocumentReferenceManager *AppController::documentReferenceManager() { return d->documentReferenceManager; }
 
 void AppController::addExtensions(const AppExtensionList &extensions)
 {

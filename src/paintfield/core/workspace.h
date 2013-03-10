@@ -15,6 +15,7 @@ class WorkspaceExtension;
 class ToolManager;
 class PaletteManager;
 class CanvasSplitAreaController;
+class Document;
 
 class Workspace : public QObject
 {
@@ -42,6 +43,7 @@ public:
 	QActionList nullCanvasActions();
 	
 	void addAndShowCanvas(Canvas *canvas);
+	void addAndShowDocument(Document *document);
 	
 	/**
 	 * Adds a canvas.

@@ -7,6 +7,7 @@
 #include "workspacemanager.h"
 #include "canvasview.h"
 #include "canvas.h"
+#include "documentcontroller.h"
 
 #include "canvastabwidget.h"
 
@@ -202,10 +203,10 @@ void CanvasTabWidget::addCanvasesFromUrls(const QList<QUrl> &urls)
 {
 	for (const QUrl &url : urls)
 	{
-		auto canvas = Canvas::fromFile(url.toLocalFile(), workspace());
+		auto document = DocumentController::createFromFile(url.toLocalFile());
 		
-		if (canvas)
-			addCanvas(canvas);
+		if (document)
+			addCanvas(new Canvas(document, workspace()));
 	}
 }
 

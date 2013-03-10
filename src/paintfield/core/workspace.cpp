@@ -10,6 +10,7 @@
 #include "extensionmanager.h"
 #include "canvas.h"
 #include "rasterlayer.h"
+#include "documentcontroller.h"
 
 #include "workspace.h"
 
@@ -126,64 +127,42 @@ QActionList Workspace::nullCanvasActions()
 	return d->nullCanvasActions;
 }
 
+void Workspace::addAndShowDocument(Document *document)
+{
+	if (document)
+		addAndShowCanvas(new Canvas(document, this));
+}
+
 void Workspace::newCanvas()
 {
-	auto canvas = Canvas::fromNew(this);
-	if (canvas)
-	{
-		addAndShowCanvas(canvas);
-		setCurrentCanvas(canvas);
-	}
+	addAndShowDocument(DocumentController::createFromNewDialog());
 }
 
 void Workspace::newCanvasFromImageFile()
 {
-	auto canvas = Canvas::fromNewFromImageFile(this);
-	if (canvas)
-	{
-		addAndShowCanvas(canvas);
-		setCurrentCanvas(canvas);
-	}
+	addAndShowDocument(DocumentController::createFromNewFromImageDialog());
 }
 
 void Workspace::newCanvasFromClipboard()
 {
-	auto pixmap = qApp->clipboard()->pixmap();
-	if (pixmap.isNull())
-		return;
-	
-	auto layer = RasterLayer::createFromImage(pixmap.toImage());
-	layer->setName(tr("Clipboard"));
-	auto document = new Document(appController()->unduplicatedNewFileTempName(), pixmap.size(), {layer});
-	auto canvas = new Canvas(document, this);
-	
-	addAndShowCanvas(canvas);
-	setCurrentCanvas(canvas);
+	addAndShowDocument(DocumentController::createFromClipboard());
 }
 
 void Workspace::openCanvas()
 {
-	auto canvas = Canvas::fromOpen(this);
-	if (canvas)
-	{
-		addAndShowCanvas(canvas);
-		setCurrentCanvas(canvas);
-	}
+	addAndShowDocument(DocumentController::createFromOpenDialog());
 }
 
 void Workspace::openCanvasFromFilepath(const QString &filepath)
 {
-	auto canvas = Canvas::fromFile(filepath, this);
-	if (canvas)
-	{
-		addAndShowCanvas(canvas);
-		setCurrentCanvas(canvas);
-	}
+	addAndShowDocument(DocumentController::createFromFile(filepath));
 }
 
 bool Workspace::tryClose()
 {
-	for (Canvas *canvas : d->canvases)
+	auto canvases = d->canvases;
+	
+	for (Canvas *canvas : canvases)
 	{
 		if (!canvas->closeCanvas())
 			return false;
@@ -214,6 +193,7 @@ void Workspace::addAndShowCanvas(Canvas *canvas)
 {
 	addCanvas(canvas);
 	emit canvasShowRequested(canvas);
+	setCurrentCanvas(canvas);
 }
 
 void Workspace::addCanvas(Canvas *canvas)

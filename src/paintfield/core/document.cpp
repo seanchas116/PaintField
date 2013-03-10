@@ -1,3 +1,4 @@
+#include <Malachite/ImageIO>
 
 #include "layermodel.h"
 #include "selection.h"
