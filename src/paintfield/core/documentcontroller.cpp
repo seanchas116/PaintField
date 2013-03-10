@@ -25,7 +25,7 @@ Document *DocumentController::createFromNewDialog()
 		return 0;
 	
 	auto layer = new RasterLayer(tr("Untitled Layer"));
-	return new Document(appController()->unduplicatedNewFileTempName(), dialog.documentSize(), {layer});
+	return new Document(appController()->unduplicatedFileTempName(tr("Untitled")), dialog.documentSize(), {layer});
 }
 
 Document *DocumentController::createFromOpenDialog()
@@ -46,7 +46,7 @@ Document *DocumentController::createFromClipboard()
 	
 	auto layer = RasterLayer::createFromImage(pixmap.toImage());
 	layer->setName(tr("Clipboard"));
-	return new Document(appController()->unduplicatedNewFileTempName(), pixmap.size(), {layer});
+	return new Document(appController()->unduplicatedFileTempName(tr("Clipboard")), pixmap.size(), {layer});
 }
 
 Document *DocumentController::createFromNewFromImageDialog()
@@ -82,6 +82,13 @@ Document *DocumentController::createFromSavedFile(const QString &path)
 
 Document *DocumentController::createFromImageFile(const QString &path)
 {
+	QString name;
+	
+	{
+		QFileInfo fileInfo(path);
+		name = fileInfo.baseName();
+	}
+	
 	QSize size;
 	
 	auto layer = RasterLayer::createFromImageFile(path, &size);
@@ -91,7 +98,7 @@ Document *DocumentController::createFromImageFile(const QString &path)
 		return 0;
 	}
 	
-	return new Document(appController()->unduplicatedNewFileTempName(), size, {layer});
+	return new Document(appController()->unduplicatedFileTempName(name), size, {layer});
 }
 
 bool DocumentController::confirmClose(Document *document)

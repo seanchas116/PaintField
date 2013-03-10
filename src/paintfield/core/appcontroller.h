@@ -44,10 +44,7 @@ public:
 	void addActions(const QList<QAction *> &actions);
 	QList<QAction *> actions();
 	
-	/**
-	 * @return Unduplicated temporary name for a new file (e.g. "Untitled 1" or "Untitled 2")
-	 */
-	QString unduplicatedNewFileTempName();
+	QString unduplicatedFileTempName(const QString &name);
 	
 	Application *app();
 	
@@ -68,8 +65,6 @@ private:
 	void createActions();
 	
 	void loadExtensions();
-	
-	QString unduplicatedTempName(const QString &name);
 	
 	struct Data;
 	Data *d;

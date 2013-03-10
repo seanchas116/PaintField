@@ -91,12 +91,7 @@ void AppController::addActions(const QList<QAction *> &actions)
 
 QList<QAction *> AppController::actions() { return d->actions; }
 
-QString AppController::unduplicatedNewFileTempName()
-{
-	return unduplicatedTempName(tr("Untitled"));
-}
-
-QString AppController::unduplicatedTempName(const QString &name)
+QString AppController::unduplicatedFileTempName(const QString &name)
 {
 	QStringList existingTempNames;
 	
