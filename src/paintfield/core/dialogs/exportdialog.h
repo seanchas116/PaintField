@@ -3,10 +3,13 @@
 
 #include <QDialog>
 #include <QHash>
+#include "global.h"
 
 namespace Ui {
 class PaintField_ExportDialog;
 }
+
+class QListWidgetItem;
 
 namespace PaintField {
 
@@ -20,22 +23,21 @@ public:
 	explicit ExportDialog(QWidget *parent = 0);
 	~ExportDialog();
 	
-	//QString formatText(const QString &formatName) const { return _hash.value(formatName); }
 	QString currentText() const;
 	QString currentFormat() const { return _format; }
 	int currentQuality() const { return _quality; }
 	
 private slots:
 	
-	void onComboBoxActivated(int index);
+	void onFormatItemChanged(QListWidgetItem *item);
 	void onQualityValueChanged(int quality);
 	
 private:
 	Ui::PaintField_ExportDialog *ui;
 	
-	WidgetGroup *_group;
+	WidgetGroup *_qualityGroup;
 	
-	QHash<QString, QString> _comboBoxHash;
+	QHash<QListWidgetItem *, QString> _itemsToFormats;
 	QString _format;
 	int _quality;
 };

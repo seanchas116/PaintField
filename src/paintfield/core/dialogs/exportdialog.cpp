@@ -1,3 +1,5 @@
+#include <QPushButton>
+
 #include "../widgets/widgetgroup.h"
 
 #include "exportdialog.h"
@@ -9,30 +11,27 @@ namespace PaintField
 ExportDialog::ExportDialog(QWidget *parent) :
 	QDialog(parent),
 	ui(new Ui::PaintField_ExportDialog),
-	_group(new WidgetGroup(this))
+	_qualityGroup(new WidgetGroup(this))
 {
 	setWindowTitle(tr("Export"));
 	
 	ui->setupUi(this);
 	
-	_group->addWidget(ui->qualityLabel);
-	_group->addWidget(ui->horizontalSlider);
-	_group->addWidget(ui->spinBox);
-	_group->addWidget(ui->percentLabel);
+	_qualityGroup->addWidget(ui->qualityLabel);
+	_qualityGroup->addWidget(ui->horizontalSlider);
+	_qualityGroup->addWidget(ui->spinBox);
+	_qualityGroup->addWidget(ui->percentLabel);
 	
 	connect(ui->spinBox, SIGNAL(valueChanged(int)), this, SLOT(onQualityValueChanged(int)));
 	
-	_comboBoxHash.insert("png", tr("PNG"));
-	_comboBoxHash.insert("jpg", tr("JPEG"));
-	_comboBoxHash.insert("bmp", tr("Windows Bitmap"));
-	
-	ui->comboBox->addItems(_comboBoxHash.values());
-	
-	connect(ui->comboBox, SIGNAL(activated(int)), this, SLOT(onComboBoxActivated(int)));
-	
-	ui->comboBox->setCurrentIndex(0);
-	onComboBoxActivated(0);
 	ui->spinBox->setValue(90);
+	
+	_itemsToFormats[new QListWidgetItem(tr("PNG"), ui->listWidget)] = "png";
+	_itemsToFormats[new QListWidgetItem(tr("JPEG"), ui->listWidget)] = "jpg";
+	_itemsToFormats[new QListWidgetItem(tr("Windows Bitmap"), ui->listWidget)] = "bmp";
+	
+	connect(ui->listWidget, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)), this, SLOT(onFormatItemChanged(QListWidgetItem*)));
+	ui->listWidget->setCurrentItem(0);
 }
 
 ExportDialog::~ExportDialog()
@@ -42,14 +41,15 @@ ExportDialog::~ExportDialog()
 
 QString ExportDialog::currentText() const
 {
-	return ui->comboBox->currentText();
+	auto item = ui->listWidget->currentItem();
+	return item ? item->text() : QString();
 }
 
-void ExportDialog::onComboBoxActivated(int index)
+void ExportDialog::onFormatItemChanged(QListWidgetItem *item)
 {
-	_format = _comboBoxHash.keys().at(index);
-	
-	_group->setVisible(_format == "jpg");
+	_format = _itemsToFormats[item];
+	_qualityGroup->setVisible(_format == "jpg");
+	ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(item);
 }
 
 void ExportDialog::onQualityValueChanged(int quality)
