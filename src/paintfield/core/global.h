@@ -32,8 +32,8 @@ enum LayerPropertyRole
 	RoleStrokeWidth,
 	RoleJoinStyle,
 	RoleCapStyle,
-	RoleFillColor,
-	RoleStrokeColor,
+	RoleFillBrush,
+	RoleStrokeBrush,
 	RoleFillEnabled,
 	RoleStrokeEnabled
 };

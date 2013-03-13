@@ -251,8 +251,8 @@ public:
 	virtual void encode(QDataStream &stream) const;
 	virtual void decode(QDataStream &stream);
 	
-	QVariantMap saveProperies() const;
-	void loadProperties(const QVariantMap &map);
+	virtual QVariantMap saveProperies() const;
+	virtual void loadProperties(const QVariantMap &map);
 	
 	virtual bool hasDataToSave() const { return false; }
 	virtual void saveDataFile(QDataStream &stream) const { Q_UNUSED(stream) }
