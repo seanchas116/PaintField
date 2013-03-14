@@ -8,9 +8,8 @@ class GroupLayer : public Layer
 public:
 	
 	GroupLayer(const QString &name = QString()) : Layer(name) { setBlendMode(Malachite::BlendMode::PassThrough); }
-	GroupLayer(const GroupLayer &other) : Layer(other) {}
 	
-	Layer *clone() const override { return new GroupLayer(*this); }
+	Layer *createAnother() const override { return new GroupLayer(); }
 	bool canHaveChildren() const override { return true; }
 	
 	void updateThumbnail(const QSize &size) override;

@@ -30,7 +30,6 @@ class Layer
 public:
 	
 	Layer(const QString &name = QString());
-	Layer(const Layer &other);
 	virtual ~Layer();
 	
 	LayerList children() { return _children; }
@@ -173,10 +172,17 @@ public:
 	bool shiftChildren(int start, int end, int shiftCount);
 	
 	/**
+	 * Clones this layer.
+	 * Calls createAnother to duplicate the layer and use encode / decode to copy data.
+	 * @return 
+	 */
+	Layer *clone() const;
+	
+	/**
 	 * Clones this layer and its descendants.
 	 * @return The cloned layer
 	 */
-	Layer *cloneRecursive();
+	Layer *cloneRecursive() const;
 	
 	/**
 	 * Creates an unduplicated child name (eg "Layer 1").
@@ -243,7 +249,13 @@ public:
 	virtual QPointSet tileKeys() const { return QPointSet(); }
 	QPointSet tileKeysRecursive() const;
 	
-	virtual Layer *clone() const = 0;
+	/**
+	 * Creates another instance of the layer.
+	 * The properties does not have to be copied.
+	 * @return 
+	 */
+	virtual Layer *createAnother() const = 0;
+	
 	virtual bool canHaveChildren() const { return false; }
 	
 	template <class T> bool isType() const { return dynamic_cast<const T *>(this); }

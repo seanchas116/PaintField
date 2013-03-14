@@ -17,15 +17,6 @@ Layer::Layer(const QString &name)
       _blendMode(BlendMode::Normal)
 {}
 
-Layer::Layer(const Layer &other)
-    : _name(other._name),
-      _isLocked(other._isLocked),
-      _isVisible(other._isVisible),
-      _opacity(other._opacity),
-      _blendMode(other._blendMode),
-      _thumbnail(other._thumbnail)
-{}
-
 Layer::~Layer()
 {
 	qDeleteAll(_children);
@@ -180,7 +171,25 @@ bool Layer::shiftChildren(int start, int end, int shiftCount)
 	return false;
 }
 
-Layer *Layer::cloneRecursive()
+Layer *Layer::clone() const
+{
+	auto layer = this->createAnother();
+	QByteArray array;
+	
+	{
+		QDataStream stream(&array, QIODevice::WriteOnly);
+		this->encode(stream);
+	}
+	
+	{
+		QDataStream stream(&array, QIODevice::ReadOnly);
+		layer->decode(stream);
+	}
+	
+	return layer;
+}
+
+Layer *Layer::cloneRecursive() const
 {
 	Layer *dest = clone();
 	
@@ -302,13 +311,13 @@ void Layer::loadProperties(const QVariantMap &map)
 
 void Layer::encode(QDataStream &stream) const
 {
-	stream << _name << _isVisible << _isLocked << _opacity << _blendMode.toInt();
+	stream << _name << _isVisible << _isLocked << _opacity << _blendMode.toInt() << _thumbnail << _isThumbnailDirty;
 }
 
 void Layer::decode(QDataStream &stream)
 {
 	int blend;
-	stream >> _name >> _isVisible >> _isLocked >> _opacity >> blend;
+	stream >> _name >> _isVisible >> _isLocked >> _opacity >> blend >> _thumbnail >> _isThumbnailDirty;
 	_blendMode = blend;
 }
 

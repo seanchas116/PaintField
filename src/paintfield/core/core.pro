@@ -79,7 +79,8 @@ HEADERS += \
     shapelayer.h \
     layerfactorymanager.h \
     documentcontroller.h \
-    documentreferencemanager.h
+    documentreferencemanager.h \
+    rectlayer.h
 FORMS += dialogs/exportdialog.ui dialogs/newdocumentdialog.ui
 SOURCES += \
            document.cpp \
@@ -142,7 +143,8 @@ SOURCES += \
     shapelayer.cpp \
     layerfactorymanager.cpp \
     documentcontroller.cpp \
-    documentreferencemanager.cpp
+    documentreferencemanager.cpp \
+    rectlayer.cpp
 
 RESOURCES += \
     resources/resource-paintfield-core.qrc

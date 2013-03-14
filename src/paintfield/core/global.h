@@ -35,7 +35,10 @@ enum LayerPropertyRole
 	RoleFillBrush,
 	RoleStrokeBrush,
 	RoleFillEnabled,
-	RoleStrokeEnabled
+	RoleStrokeEnabled,
+	
+	RoleRect,
+	RoleRectShapeType
 };
 
 enum EventType

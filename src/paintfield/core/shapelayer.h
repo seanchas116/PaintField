@@ -17,7 +17,8 @@ public:
 	typedef Layer super;
 	
 	ShapeLayer() : Layer() {}
-	ShapeLayer(const ShapeLayer &other);
+	
+	QPointSet tileKeys() const override;
 	
 	bool setProperty(const QVariant &data, int role) override;
 	QVariant property(int role) const override;
@@ -30,8 +31,6 @@ public:
 	QVariantMap saveProperies() const override;
 	void loadProperties(const QVariantMap &map) override;
 	
-	virtual QPainterPath shape() const = 0;
-		
 	StrokePosition strokePosition() const { return _strokePos; }
 	void setStrokePos(StrokePosition pos) { _strokePos = pos; }
 	
@@ -72,9 +71,11 @@ public:
 	
 	void updateStrokePath();
 	
-private:
+protected:
 	
 	void setFillPath(const QPainterPath &path);
+	
+private:
 	
 	StrokePosition _strokePos = StrokePositionCenter;
 	double _strokeWidth = 1.0;

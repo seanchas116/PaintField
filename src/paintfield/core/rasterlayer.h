@@ -10,9 +10,8 @@ public:
 	typedef Layer super;
 	
 	RasterLayer(const QString &name = QString()) : Layer(name) {}
-	RasterLayer(const RasterLayer &other) : Layer(other), _surface(other._surface) {}
 	
-	Layer *clone() const override { return new RasterLayer(*this); }
+	Layer *createAnother() const override { return new RasterLayer(); }
 	
 	Malachite::Surface surface() const { return _surface; }
 	void setSurface(const Malachite::Surface &surface) { _surface = surface; }

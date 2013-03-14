@@ -8,6 +8,29 @@ using namespace Malachite;
 
 namespace PaintField {
 
+QPointSet ShapeLayer::tileKeys() const
+{
+	QRectF rect = _strokePath.boundingRect();
+	double margin;
+	
+	switch (_strokePos)
+	{
+		case StrokePositionInside:
+			margin = 0;
+		default:
+		case StrokePositionCenter:
+			margin = _strokeWidth * 0.5;
+		case StrokePositionOutside:
+			margin = _strokeWidth;
+	}
+	
+	margin += 1.0;
+	
+	rect.adjust(-margin, -margin, margin, margin);
+	
+	return Surface::rectToKeys(rect.toAlignedRect());
+}
+
 bool ShapeLayer::setProperty(const QVariant &data, int role)
 {
 	switch (role)
@@ -186,7 +209,7 @@ void ShapeLayer::updateThumbnail(const QSize &size)
 		QPainter painter(&pixmap);
 		
 		painter.setBrush(_fillBrush.color().toQColor());
-		painter.drawPath(shape());
+		painter.drawPath(fillPath());
 		
 		painter.setBrush(_fillBrush.color().toQColor());
 		painter.drawPath(strokePath());
@@ -270,7 +293,7 @@ void ShapeLayer::setCapStyleString(const QString &string)
 void ShapeLayer::render(Malachite::Painter *painter) const
 {
 	painter->setBrush(_fillBrush);
-	painter->drawPath(shape());
+	painter->drawPath(fillPath());
 	
 	painter->setBrush(_strokeBrush);
 	painter->drawPath(strokePath());

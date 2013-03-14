@@ -75,7 +75,7 @@ QVariant RasterLayer::property(int role) const
 
 void RasterLayer::encode(QDataStream &stream) const
 {
-	super:encode(stream);
+	super::encode(stream);
 	stream << _surface;
 }
 
