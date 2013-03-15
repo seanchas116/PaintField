@@ -167,6 +167,7 @@ QVariantMap ShapeLayer::saveProperies() const
 		strokeMap["capStyle"] = capStyleString();
 		strokeMap["enabled"] = _strokeEnabled;
 		strokeMap["brush"] = mapFromBrush(_strokeBrush);
+		strokeMap["width"] = strokeWidth();
 		map["stroke"] = strokeMap;
 	}
 	
@@ -191,6 +192,7 @@ void ShapeLayer::loadProperties(const QVariantMap &map)
 		setCapStyleString(sm["capStyle"].toString());
 		setStrokeEnabled(sm["enabled"].toBool());
 		setStrokeBrush(brushFromMap(sm["brush"].toMap()));
+		setStrokeWidth(sm["width"].toDouble());
 	}
 	
 	{

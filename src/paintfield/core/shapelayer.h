@@ -32,7 +32,7 @@ public:
 	void loadProperties(const QVariantMap &map) override;
 	
 	StrokePosition strokePosition() const { return _strokePos; }
-	void setStrokePos(StrokePosition pos) { _strokePos = pos; }
+	void setStrokePosition(StrokePosition pos) { _strokePos = pos; }
 	
 	QString strokePositionString() const;
 	void setStrokePositionString(const QString &string);
@@ -79,8 +79,8 @@ private:
 	
 	StrokePosition _strokePos = StrokePositionCenter;
 	double _strokeWidth = 1.0;
-	Qt::PenJoinStyle _joinStyle = Qt::RoundJoin;
-	Qt::PenCapStyle _capStyle = Qt::RoundCap;
+	Qt::PenJoinStyle _joinStyle = Qt::MiterJoin;
+	Qt::PenCapStyle _capStyle = Qt::SquareCap;
 	
 	bool _fillEnabled = true, _strokeEnabled = true;
 	Malachite::Brush _fillBrush, _strokeBrush;

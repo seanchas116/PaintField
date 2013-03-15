@@ -30,7 +30,7 @@ public:
 	void loadProperties(const QVariantMap &map) override;
 	
 	void setRect(const QRectF &rect);
-	QRectF rect() const;
+	QRectF rect() const { return _rect; }
 	
 	void setShapeType(ShapeType type) { _shapeType = type; }
 	ShapeType shapeType() const { return _shapeType; }
@@ -41,7 +41,7 @@ public:
 private:
 	
 	QRectF _rect;
-	ShapeType _shapeType;
+	ShapeType _shapeType = ShapeTypeRect;
 };
 
 } // namespace PaintField
