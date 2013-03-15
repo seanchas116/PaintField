@@ -1,6 +1,7 @@
 #include <QTextCodec>
 #include "paintfield/core/application.h"
 #include "paintfield/core/appcontroller.h"
+#include "paintfield/core/unittest/autotest.h"
 
 #define QUOTE(x) #x
 #define DEFINE_STR(x) QUOTE(x)
@@ -15,6 +16,11 @@ int main(int argc, char *argv[])
 	
 	Application a(argc, argv);
 	a.setApplicationVersion(DEFINE_STR(PF_VERSION));
+	
+#ifdef PF_TEST
+	autoTest()->run();
+	return 0;
+#endif
 	
 	QString message;
 	if (argc >= 2)

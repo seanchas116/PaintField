@@ -15,6 +15,10 @@ QT += core gui network xml svg
 QMAKE_CXXFLAGS += -std=c++11
 QMAKE_LFLAGS += -std=c++11
 
+contains(DEFINES, PF_TEST) {
+	QT += testlib
+}
+
 contains(QMAKE_CXX, clang++) {
 	QMAKE_CXXFLAGS += -stdlib=libc++
 	QMAKE_LFLAGS += -stdlib=libc++

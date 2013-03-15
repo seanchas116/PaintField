@@ -158,9 +158,6 @@ int main(int argc, char *argv[])
 	autoTest.addTestClass<Test_DocumentIO>();
 	autoTest.run();
 	
-	//auto testObj = new TestObject;
-	//QObject::connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)), testObj, SLOT(onFocusChanged(QWidget*,QWidget*)));
-	
 	//test_SplitTabAreaController();
 	//test_TabWidget();
 	//test_TabDocumentAreaNode();
@@ -171,7 +168,7 @@ int main(int argc, char *argv[])
 	//test_scrollarea();
 	//test_VanishingScrollBar();
 	//test_VanishingScrollBar_vanishing();
-	test_LibraryModel();
+	//test_LibraryModel();
 	
 	return app.exec();
 }

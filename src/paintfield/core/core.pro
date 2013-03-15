@@ -80,7 +80,14 @@ HEADERS += \
     layerfactorymanager.h \
     documentcontroller.h \
     documentreferencemanager.h \
-    rectlayer.h
+    rectlayer.h \
+    unittest/test_shapelayer.h \
+    unittest/test_rectlayer.h \
+    unittest/test_librarymodel.h \
+    unittest/test_documentio.h \
+    unittest/test_document.h \
+    unittest/autotest.h \
+    unittest/testutil.h
 FORMS += dialogs/exportdialog.ui dialogs/newdocumentdialog.ui
 SOURCES += \
            document.cpp \
@@ -144,7 +151,14 @@ SOURCES += \
     layerfactorymanager.cpp \
     documentcontroller.cpp \
     documentreferencemanager.cpp \
-    rectlayer.cpp
+    rectlayer.cpp \
+    unittest/test_shapelayer.cpp \
+    unittest/test_rectlayer.cpp \
+    unittest/test_librarymodel.cpp \
+    unittest/test_documentio.cpp \
+    unittest/test_document.cpp \
+    unittest/autotest.cpp \
+    unittest/testutil.cpp
 
 RESOURCES += \
     resources/resource-paintfield-core.qrc
