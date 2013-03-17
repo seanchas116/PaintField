@@ -29,16 +29,6 @@ const Layer *Layer::child(int row) const
 	return _children[row];
 }
 
-const Layer *Layer::child(const QString &name) const
-{
-	for (const Layer *child : _children)
-	{
-		if (child->name() == name)
-			return child;
-	}
-	return 0;
-}
-
 const Layer *Layer::root() const
 {
 	const Layer *layer = this;
@@ -74,7 +64,7 @@ bool Layer::isAncestorOfSafe(const Layer *layer) const
 	return false;
 }
 
-bool Layer::insertChild(int row, Layer *child)
+bool Layer::insert(int row, Layer *child)
 {
 	if (!insertable(row))
 	{
@@ -88,7 +78,7 @@ bool Layer::insertChild(int row, Layer *child)
 	return true;
 }
 
-bool Layer::insertChildren(int row, const LayerList &children)
+bool Layer::insert(int row, const LayerList &children)
 {
 	if (!insertable(row))
 	{
@@ -99,12 +89,12 @@ bool Layer::insertChildren(int row, const LayerList &children)
 	int count = children.size();
 	
 	for (int i = 0; i < count; ++i)
-		insertChild(row + i, children.at(i));
+		insert(row + i, children.at(i));
 	
 	return true;
 }
 
-Layer *Layer::takeChild(int row)
+Layer *Layer::take(int row)
 {
 	if (!contains(row))
 	{
@@ -118,7 +108,7 @@ Layer *Layer::takeChild(int row)
 	return child;
 }
 
-LayerList Layer::takeChildren()
+LayerList Layer::takeAll()
 {
 	LayerList children = _children;
 	_children.clear();
@@ -129,7 +119,7 @@ LayerList Layer::takeChildren()
 	return children;
 }
 
-Layer *Layer::replaceChild(int row, Layer *child)
+Layer *Layer::replace(int row, Layer *child)
 {
 	if (!contains(row))
 	{
@@ -137,13 +127,13 @@ Layer *Layer::replaceChild(int row, Layer *child)
 		return 0;
 	}
 	
-	Layer *oldChild = takeChild(row);
-	insertChild(row, child);
+	Layer *oldChild = take(row);
+	insert(row, child);
 	
 	return oldChild;
 }
 
-bool Layer::removeChild(int row)
+bool Layer::remove(int row)
 {
 	if (!contains(row))
 	{
@@ -156,7 +146,7 @@ bool Layer::removeChild(int row)
 	return true;
 }
 
-bool Layer::shiftChildren(int start, int end, int shiftCount)
+bool Layer::shift(int start, int end, int shiftCount)
 {
 	if (start == end)
 		return true;
@@ -194,7 +184,7 @@ Layer *Layer::cloneRecursive() const
 	Layer *dest = clone();
 	
 	for (Layer *child : _children)
-		dest->appendChild(child->cloneRecursive());
+		dest->append(child->cloneRecursive());
 	
 	return dest;
 }

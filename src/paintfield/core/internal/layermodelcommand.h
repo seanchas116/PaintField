@@ -28,7 +28,7 @@ protected:
 	{
 		Q_ASSERT(parent);
 		beginInsertLayers(parent, row, row);
-		parent->insertChild(row, layer);
+		parent->insert(row, layer);
 		endInsertLayers();
 	}
 	
@@ -36,7 +36,7 @@ protected:
 	{
 		Q_ASSERT(parent);
 		beginRemoveLayers(parent, row, row);
-		auto layer = parent->takeChild(row);
+		auto layer = parent->take(row);
 		endRemoveLayers();
 		return layer;
 	}

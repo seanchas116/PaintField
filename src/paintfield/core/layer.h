@@ -35,15 +35,11 @@ public:
 	LayerList children() { return _children; }
 	LayerConstList children() const { return Malachite::constList(_children); }
 	
-	const Layer *child(int row) const;
-	const Layer *child(const QString &name) const;
-	Layer *child(int row) { return const_cast<Layer *>(static_cast<const Layer *>(this)->child(row)); }
-	Layer *child(const QString &name) { return const_cast<Layer *>(static_cast<const Layer *>(this)->child(name)); }
+	const Layer *child(int index) const;
+	Layer *child(int index) { return const_cast<Layer *>(static_cast<const Layer *>(this)->child(index)); }
 	
-	const Layer *sibling(int row) const { return _parent->child(row); }
-	const Layer *sibling(const QString &name) const { return _parent->child(name); }
-	Layer *sibling(int row) { return _parent->child(row); }
-	Layer *sibling(const QString &name) { return _parent->child(name); }
+	const Layer *sibling(int index) const { return _parent->child(index); }
+	Layer *sibling(int index) { return _parent->child(index); }
 	
 	const Layer *parent() const { return _parent; }
 	Layer *parent() { return _parent; }
@@ -76,7 +72,7 @@ public:
 	 * @param row
 	 * @return Whether this layer contains a child layer with row index = "row"
 	 */
-	bool contains(int row) const { return (0 <= row && row < _children.size()) ? true : false; }
+	bool contains(int index) const { return (0 <= index && index < _children.size()) ? true : false; }
 	
 	/**
 	 * @param layer
@@ -88,28 +84,28 @@ public:
 	 * @param row
 	 * @return Whether this contains a child layer with row index = "row".
 	 */
-	bool insertable(int row) const { return (0 <= row && row <= _children.size()) ? true : false; }
+	bool insertable(int index) const { return (0 <= index && index <= _children.size()) ? true : false; }
 	
 	/**
 	 * @return How many child layers this layer has
 	 */
-	int childCount() const { return _children.size(); }
+	int count() const { return _children.size(); }
 	
 	/**
 	 * @return How many child layers "this" parent has
 	 */
-	int siblingCount() const { return _parent->childCount(); }
+	int siblingCount() const { return _parent->count(); }
 	
 	/**
 	 * @param child
-	 * @return The row index of a child layer
+	 * @return The index of a child layer
 	 */
-	int rowForChild(const Layer *child) const { return _children.indexOf(const_cast<Layer *>(child)); }
+	int indexOf(const Layer *child) const { return _children.indexOf(const_cast<Layer *>(child)); }
 	
 	/**
-	 * @return The row index of this layer in its parent.
+	 * @return The index of this layer in its parent.
 	 */
-	int row() const { return _parent ? _parent->rowForChild(this) : 0; }
+	int index() const { return _parent ? _parent->indexOf(this) : 0; }
 	
 	/**
 	 * Inserts a child layer.
@@ -117,7 +113,7 @@ public:
 	 * @param child
 	 * @return Whether succeeded
 	 */
-	bool insertChild(int row, Layer *child);
+	bool insert(int index, Layer *child);
 	
 	/**
 	 * Inserts child layers.
@@ -125,19 +121,23 @@ public:
 	 * @param children
 	 * @return Whether succeeded
 	 */
-	bool insertChildren(int row, const LayerList &children);
+	bool insert(int index, const LayerList &children);
 	
 	/**
 	 * Prepends a child layer.
 	 * @param child
 	 */
-	void prependChild(Layer *child) { insertChild(0, child); }
+	void prepend(Layer *child) { insert(0, child); }
+	
+	void prepend(const LayerList &layers) { insert(0, layers); }
 	
 	/**
 	 * Appends a child layer.
 	 * @param child
 	 */
-	void appendChild(Layer *child) { insertChild(childCount(), child); }
+	void append(Layer *child) { insert(count(), child); }
+	
+	void append(const LayerList &layers) { insert(count(), layers); }
 	
 	/**
 	 * Take a child layer.
@@ -145,13 +145,13 @@ public:
 	 * @param row
 	 * @return The taken layer
 	 */
-	Layer *takeChild(int row);
+	Layer *take(int index);
 	
 	/**
 	 * Take all child layers.
 	 * @return The taken layers
 	 */
-	LayerList takeChildren();
+	LayerList takeAll();
 	
 	/**
 	 * Replace a child layer.
@@ -160,16 +160,16 @@ public:
 	 * @param child
 	 * @return The replaced layer
 	 */
-	Layer *replaceChild(int row, Layer *child);
+	Layer *replace(int index, Layer *child);
 	
 	/**
 	 * Removes a child.
 	 * @param row
 	 * @return whether succeeded
 	 */
-	bool removeChild(int row);
+	bool remove(int index);
 	
-	bool shiftChildren(int start, int end, int shiftCount);
+	bool shift(int start, int end, int shiftCount);
 	
 	/**
 	 * Clones this layer.

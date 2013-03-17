@@ -79,7 +79,7 @@ struct DocumentSaver::Data
 				map["source"] = path;
 			}
 			
-			if (layer->childCount())
+			if (layer->count())
 			{
 				map["children"] = saveLayerChildrenRecursive(layer, sourceFileCount);
 			}
@@ -190,7 +190,7 @@ struct DocumentLoader::Data
 			if (layer->canHaveChildren())
 				loadLayerChildrenRecursive(layer, map["children"].toList());
 			
-			parent->appendChild(layer);
+			parent->append(layer);
 		}
 	}
 };
@@ -236,7 +236,7 @@ Document *DocumentLoader::load(const QString &filePath, QObject *parent)
 		unzClose(d->unzip);
 		d->unzip = 0;
 		
-		auto document = new Document(QString(), size, group.takeChildren(), parent);
+		auto document = new Document(QString(), size, group.takeAll(), parent);
 		document->setFilePath(filePath);
 		return document;
 	}

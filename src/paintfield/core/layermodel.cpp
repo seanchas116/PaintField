@@ -1,6 +1,7 @@
 #include <QTimer>
 #include <QMimeData>
 #include <Malachite/Painter>
+#include <boost/range/algorithm/find_if.hpp>
 
 #include "util.h"
 #include "document.h"
@@ -52,7 +53,7 @@ LayerModel::LayerModel(const LayerList &layers, Document *parent) :
 	connect(this, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SIGNAL(layerMetadataChanged(QModelIndex)));
 	connect(d->document, SIGNAL(modified()), this, SLOT(update()));
 	
-	d->rootLayer->insertChildren(0, layers);
+	d->rootLayer->insert(0, layers);
 	d->rootLayer->updateThumbnailRecursive(d->document->size());
 	
 	{
@@ -309,12 +310,12 @@ QModelIndex LayerModel::parent(const QModelIndex &child) const
 	if (parentItem == rootLayer())
 		return QModelIndex();
 	
-	return createIndex(parentItem->row(), 0, const_cast<Layer *>(parentItem) );
+	return createIndex(parentItem->index(), 0, const_cast<Layer *>(parentItem) );
 }
 
 int LayerModel::rowCount(const QModelIndex &parent) const
 {
-	return layerForIndex(parent)->childCount();
+	return layerForIndex(parent)->count();
 }
 
 QStringList LayerModel::mimeTypes() const
@@ -414,7 +415,7 @@ QModelIndex LayerModel::indexForLayer(const Layer *layer) const
 		PAINTFIELD_WARNING << "invalid layer";
 		return QModelIndex();
 	}
-	return layer != rootLayer() ? createIndex(layer->row(), 0, const_cast<Layer *>(layer) ) : QModelIndex();
+	return layer != rootLayer() ? createIndex(layer->index(), 0, const_cast<Layer *>(layer) ) : QModelIndex();
 }
 
 const Layer *LayerModel::layerForPath(const LayerPath &path) const
@@ -422,9 +423,11 @@ const Layer *LayerModel::layerForPath(const LayerPath &path) const
 	const Layer *layer = rootLayer();
 	for (const QString &name : path)
 	{
-		layer = layer->child(name);
-		if (!layer)
+		auto children = layer->children();
+		auto iter = ::boost::find_if( children, [name]( const Layer *l ){ return l->name()==name; } );
+		if (iter == children.end())
 			return 0;
+		layer = *iter;
 	}
 	return layer;
 }

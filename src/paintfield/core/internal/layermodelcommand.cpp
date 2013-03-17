@@ -72,7 +72,7 @@ void LayerModelAddCommand::undo()
 void LayerModelRemoveCommand::redo()
 {
 	_layer.reset(layerForPath(_path));
-	_row = _layer->row();
+	_row = _layer->index();
 	
 	takeLayer(_layer->parent(), _row);
 	
@@ -95,7 +95,7 @@ LayerModelMoveCommand::LayerModelMoveCommand(const LayerPath &oldPath, const Lay
 	_newName(newPath.name()),
 	_oldName(oldPath.name())
 {
-	_oldRow = layerForPath(oldPath)->row();
+	_oldRow = layerForPath(oldPath)->index();
 	
 	if (_newParentPath == _oldParentPath && _newRow > _oldRow)
 		_newRow--;
@@ -165,7 +165,7 @@ void LayerModelMergeCommand::redo()
 	Layer *parent = layerForPath(_parentPath);
 	
 	for (int i = 0; i < _count; ++i)
-		_group->appendChild(takeLayer(parent, _row));
+		_group->append(takeLayer(parent, _row));
 	
 	LayerRenderer renderer;
 	
@@ -183,7 +183,7 @@ void LayerModelMergeCommand::undo()
 	delete takeLayer(parent, _row);
 	
 	for (int i = 0; i < _count; ++i)
-		insertLayer(parent, _row + i, _group->takeChild(0));
+		insertLayer(parent, _row + i, _group->take(0));
 }
 
 }
