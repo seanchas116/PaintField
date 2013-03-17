@@ -156,6 +156,7 @@ void ColorSlider::updateImage()
 		double value = (x + 0.5) * rwidth;
 		
 		Color color = _color;
+		color.setAlpha(1.0);
 		color.setComponent(_component, value);
 		
 		for (int y = 0; y < height; ++y)
