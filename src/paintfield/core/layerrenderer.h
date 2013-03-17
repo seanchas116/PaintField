@@ -18,16 +18,16 @@ public:
 	
 	/**
 	 * Renders layers to a surface.
-	 * @param layers Layers to render
+	 * @param rootLayer The root layer 
 	 * @param keyClip Tiles to render (Priority 2)
 	 * @param keyRectClip Tiles and their regions to render (Priority 1)
 	 * @return
 	 */
-	Malachite::Surface renderToSurface(const LayerConstList &layers, const QPointSet &keyClip, const QHash<QPoint, QRect> &keyRectClip);
+	Malachite::Surface renderToSurface(const Layer *rootLayer, const QPointSet &keyClip, const QHash<QPoint, QRect> &keyRectClip);
 	
-	Malachite::Surface renderToSurface(const LayerConstList &layers, const QPointSet &keyClip = QPointSet())
+	Malachite::Surface renderToSurface(const Layer *rootLayer, const QPointSet &keyClip = QPointSet())
 	{
-		return renderToSurface(layers, keyClip, QHash<QPoint, QRect>());
+		return renderToSurface(rootLayer, keyClip, QHash<QPoint, QRect>());
 	}
 	
 protected:
@@ -44,13 +44,9 @@ protected:
 	*/
 	virtual void drawLayer(Malachite::SurfacePainter *painter, const Layer *layer);
 	
-	/**
-	 * Renders layers.
-	 * The default implementation calls renderLayer for each layer in reverse order.
-	 * @param painter
-	 * @param layers
-	 */
-	virtual void renderLayers(Malachite::SurfacePainter *painter, const LayerConstList &layers);
+	virtual void renderChildren(Malachite::SurfacePainter *painter, const Layer *parent);
+	
+	void renderLayers(Malachite::SurfacePainter *painter, const LayerConstList &layers);
 	
 private:
 	

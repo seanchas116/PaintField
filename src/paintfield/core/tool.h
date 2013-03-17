@@ -29,6 +29,13 @@ class Tool : public QObject
 	
 public:
 	
+	struct LayerInsertion
+	{
+		const Layer *parent;
+		int index;
+		const Layer *layer;
+	};
+	
 	explicit Tool(Canvas *parent = 0);
 	~Tool();
 	
@@ -58,14 +65,15 @@ public:
 	/**
 	 * Adds a new layer insertion which is performed on rendering.
 	 * The Tool takes ownership of "layer".
-	 * @param insertAt The layer is inserted above this layer
+	 * @param parent Where the layer is inserted
+	 * @param index The index
 	 * @param layer The inserted layer
 	 */
-	void addLayerInsertion(const Layer *insertAt, const Layer *layer);
+	void addLayerInsertion(const Layer *parent, int index, const Layer *layer);
 	
 	void clearLayerInsertions();
 	
-	QHash<const Layer *, const Layer *> layerInsertions() const;
+	QList<LayerInsertion> layerInsertions() const;
 	
 	/**
 	 * Adds a layer delegation which is performed on rendering.

@@ -6,7 +6,8 @@ namespace PaintField
 struct Tool::Data
 {
 	LayerConstList layerDelegations;
-	QHash<const Layer *, const Layer *> layerInsertions;
+	
+	QList<LayerInsertion> layerInsertions;
 	
 	QCursor cursor;
 };
@@ -18,21 +19,25 @@ Tool::Tool(Canvas *parent) :
 
 Tool::~Tool()
 {
+	clearLayerInsertions();
 	delete d;
 }
 
-void Tool::addLayerInsertion(const Layer *insertAt, const Layer *layer)
+void Tool::addLayerInsertion(const Layer *parent, int index, const Layer *layer)
 {
-	d->layerInsertions[insertAt] = layer;
+	LayerInsertion insertion = { .parent = parent, .index = index, .layer = layer };
+	d->layerInsertions << insertion;
 }
 
 void Tool::clearLayerInsertions()
 {
-	qDeleteAll(d->layerInsertions);
+	for (auto insertion : d->layerInsertions)
+		delete insertion.layer;
+	
 	d->layerInsertions.clear();
 }
 
-QHash<const Layer *, const Layer *> Tool::layerInsertions() const
+QList<Tool::LayerInsertion> Tool::layerInsertions() const
 {
 	return d->layerInsertions;
 }

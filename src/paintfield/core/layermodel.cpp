@@ -460,7 +460,7 @@ Malachite::Surface LayerModel::render()
 {
 	LayerRenderer renderer;
 	
-	return renderer.renderToSurface(rootLayer()->children(), document()->tileKeys());
+	return renderer.renderToSurface(rootLayer(), document()->tileKeys());
 }
 
 const Layer *LayerModel::rootLayer() const

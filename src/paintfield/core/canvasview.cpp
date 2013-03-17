@@ -34,7 +34,7 @@ public:
 	
 protected:
 	
-	void drawLayer(SurfacePainter *painter, const Layer *layer)
+	void drawLayer(SurfacePainter *painter, const Layer *layer) override
 	{
 		if (_tool && _tool->layerDelegations().contains(layer))
 			_tool->drawLayer(painter, layer);
@@ -42,27 +42,37 @@ protected:
 			LayerRenderer::drawLayer(painter, layer);
 	}
 	
-	void renderLayers(SurfacePainter *painter, const LayerConstList &layers)
+	void renderChildren(SurfacePainter *painter, const Layer *parent) override
 	{
 		if (!_tool || _tool->layerInsertions().isEmpty())
 		{
-			LayerRenderer::renderLayers(painter, layers);
-			return;
+			LayerRenderer::renderChildren(painter, parent);
 		}
-		
-		QListIterator<LayerConstList::value_type> iter(layers);
-		iter.toBack();
-		
-		while (iter.hasPrevious())
+		else
 		{
-			auto layer = iter.previous();
+			auto originalLayers = parent->children();
+			auto layers = originalLayers;
 			
-			renderLayer(painter, layer);
+			for (auto insertion : _tool->layerInsertions())
+			{
+				if (insertion.parent == parent)
+				{
+					int index = insertion.index;
+					auto layer = insertion.layer;
+					if (index == originalLayers.size())
+					{
+						layers << layer;
+					}
+					else
+					{
+						auto layerAt = originalLayers.at(index);
+						int trueIndex = layers.indexOf(layerAt);
+						layers.insert(trueIndex, layer);
+					}
+				}
+			}
 			
-			auto layerToInsert = _tool->layerInsertions().value(layer, 0);
-			
-			if (layerToInsert)
-				renderLayer(painter, layerToInsert);
+			renderLayers(painter, layers);
 		}
 	}
 	
@@ -136,6 +146,7 @@ CanvasView::CanvasView(Canvas *canvas, QWidget *parent) :
 		d->graphicsView = new QGraphicsView(this);
 		d->graphicsView->setStyleSheet("background: transparent;");
 		d->graphicsView->setAttribute(Qt::WA_TransparentForMouseEvents);
+		d->graphicsView->setVisible(false);
 	}
 	
 	// setup scrollbars
@@ -315,7 +326,7 @@ void CanvasView::updateTiles(const QPointSet &keys, const QHash<QPoint, QRect> &
 	CanvasRenderer renderer;
 	renderer.setTool(d->tool);
 	
-	Surface surface = renderer.renderToSurface(layerModel()->rootLayer()->children(), keys, rects);
+	Surface surface = renderer.renderToSurface(layerModel()->rootLayer(), keys, rects);
 	
 	static const Pixel whitePixel = Color::fromRgbValue(1,1,1).toPixel();
 	

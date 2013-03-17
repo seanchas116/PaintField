@@ -151,22 +151,26 @@ void LayerModelCopyCommand::undo()
 }
 
 
-LayerModelMergeCommand::~LayerModelMergeCommand()
-{
-	qDeleteAll(_oldLayers);
-}
+LayerModelMergeCommand::LayerModelMergeCommand(const LayerPath &parentPath, int row, int count, const QString &name, LayerModel *model, QUndoCommand *parent) :
+	LayerModelCommand(model, parent),
+	_parentPath(parentPath),
+	_row(row),
+	_count(count),
+	_name(name),
+	_group(new GroupLayer())
+{}
 
 void LayerModelMergeCommand::redo()
 {
 	Layer *parent = layerForPath(_parentPath);
 	
 	for (int i = 0; i < _count; ++i)
-		_oldLayers << takeLayer(parent, _row);
+		_group->appendChild(takeLayer(parent, _row));
 	
 	LayerRenderer renderer;
 	
 	auto newLayer = new RasterLayer(_name);
-	newLayer->setSurface(renderer.renderToSurface(Malachite::constList(_oldLayers)));
+	newLayer->setSurface(renderer.renderToSurface(_group.data()));
 	newLayer->updateThumbnail(model()->document()->size());
 	
 	insertLayer(parent, _row, newLayer);
@@ -179,7 +183,7 @@ void LayerModelMergeCommand::undo()
 	delete takeLayer(parent, _row);
 	
 	for (int i = 0; i < _count; ++i)
-		insertLayer(parent, _row, _oldLayers.takeLast());
+		insertLayer(parent, _row + i, _group->takeChild(0));
 }
 
 }

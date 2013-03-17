@@ -6,7 +6,7 @@ namespace PaintField
 
 using namespace Malachite;
 
-Surface LayerRenderer::renderToSurface(const LayerConstList &layers, const QPointSet &keyClip, const QHash<QPoint, QRect> &keyRectClip)
+Surface LayerRenderer::renderToSurface(const Layer *rootLayer, const QPointSet &keyClip, const QHash<QPoint, QRect> &keyRectClip)
 {
 	Surface surface;
 	SurfacePainter painter(&surface);
@@ -14,7 +14,7 @@ Surface LayerRenderer::renderToSurface(const LayerConstList &layers, const QPoin
 	painter.setKeyClip(keyClip);
 	painter.setKeyRectClip(keyRectClip);
 	
-	renderLayers(&painter, layers);
+	renderChildren(&painter, rootLayer);
 	
 	painter.flush();
 	
@@ -31,7 +31,7 @@ void LayerRenderer::renderLayer(SurfacePainter *painter, const Layer *layer)
 	
 	if (layer->blendMode() == BlendMode::PassThrough)
 	{
-		renderLayers(painter, layer->children());
+		renderChildren(painter, layer);
 	}
 	else
 	{
@@ -45,15 +45,23 @@ void LayerRenderer::renderLayer(SurfacePainter *painter, const Layer *layer)
 void LayerRenderer::drawLayer(SurfacePainter *painter, const Layer *layer)
 {
 	if (layer->childCount())
-		painter->drawPreTransformedSurface(QPoint(), renderToSurface(layer->children(), painter->keyClip()));
+		painter->drawPreTransformedSurface(QPoint(), renderToSurface(layer, painter->keyClip()));
 	
 	layer->render(painter);
 }
 
+void LayerRenderer::renderChildren(SurfacePainter *painter, const Layer *parent)
+{
+	renderLayers(painter, parent->children());
+}
+
 void LayerRenderer::renderLayers(SurfacePainter *painter, const LayerConstList &layers)
 {
-	for (const Layer *layer : reverseContainer(layers))
-		renderLayer(painter, layer);
+	QListIterator<const Layer *> iter(layers);
+	iter.toBack();
+	
+	while (iter.hasPrevious())
+		renderLayer(painter, iter.previous());
 }
 
 }

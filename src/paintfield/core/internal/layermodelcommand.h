@@ -158,15 +158,7 @@ class LayerModelMergeCommand : public LayerModelCommand
 {
 public:
 	
-	LayerModelMergeCommand(const LayerPath &parentPath, int row, int count, const QString &name, LayerModel *model, QUndoCommand *parent = 0) :
-		LayerModelCommand(model, parent),
-		_parentPath(parentPath),
-		_row(row),
-		_count(count),
-		_name(name)
-	{}
-	
-	~LayerModelMergeCommand();
+	LayerModelMergeCommand(const LayerPath &parentPath, int row, int count, const QString &name, LayerModel *model, QUndoCommand *parent = 0);
 	
 	void redo();
 	void undo();
@@ -176,7 +168,7 @@ private:
 	LayerPath _parentPath;
 	int _row, _count;
 	QString _name;
-	LayerList _oldLayers;
+	QScopedPointer<GroupLayer> _group;
 };
 
 }

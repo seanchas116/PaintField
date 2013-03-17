@@ -13,9 +13,7 @@ QString randomString(int length)
 	QString str;
 	
 	for (int i = 0; i < length; ++i)
-	{
 		str += QString::number(qrand() % 36, 36);
-	}
 	
 	return str;
 }
