@@ -1,5 +1,6 @@
-#ifndef TESTUTIL_H
-#define TESTUTIL_H
+#pragma once
+
+#ifdef PF_TEST
 
 #include <QtCore>
 #include <Malachite/Surface>
@@ -22,4 +23,4 @@ Malachite::Surface createTestSurface(int patternIndex);
 
 }
 
-#endif // TESTUTIL_H
+#endif

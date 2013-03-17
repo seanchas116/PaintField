@@ -1,3 +1,5 @@
+#ifdef PF_TEST
+
 #include <QtCore>
 #include <Malachite/Painter>
 #include "testutil.h"
@@ -88,3 +90,5 @@ Surface createTestSurface(int patternIndex)
 }
 
 }
+
+#endif
