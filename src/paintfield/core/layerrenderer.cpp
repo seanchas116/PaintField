@@ -1,10 +1,13 @@
 #include <Malachite/Container>
 #include "layerrenderer.h"
 
-namespace PaintField
-{
+#include <boost/range/adaptor/reversed.hpp>
 
 using namespace Malachite;
+using namespace boost;
+
+namespace PaintField
+{
 
 Surface LayerRenderer::renderToSurface(const Layer *rootLayer, const QPointSet &keyClip, const QHash<QPoint, QRect> &keyRectClip)
 {
@@ -57,11 +60,8 @@ void LayerRenderer::renderChildren(SurfacePainter *painter, const Layer *parent)
 
 void LayerRenderer::renderLayers(SurfacePainter *painter, const LayerConstList &layers)
 {
-	QListIterator<const Layer *> iter(layers);
-	iter.toBack();
-	
-	while (iter.hasPrevious())
-		renderLayer(painter, iter.previous());
+	for (auto layer : layers | adaptors::reversed)
+		renderLayer(painter, layer);
 }
 
 }
