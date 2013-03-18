@@ -71,6 +71,8 @@ public:
 	
 	void updateStrokePath();
 	
+	QRectF boundingRect() const;
+	
 protected:
 	
 	void setFillPath(const QPainterPath &path);

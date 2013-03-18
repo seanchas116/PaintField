@@ -10,25 +10,7 @@ namespace PaintField {
 
 QPointSet ShapeLayer::tileKeys() const
 {
-	QRectF rect = _strokePath.boundingRect();
-	double margin;
-	
-	switch (_strokePos)
-	{
-		case StrokePositionInside:
-			margin = 0;
-		default:
-		case StrokePositionCenter:
-			margin = _strokeWidth * 0.5;
-		case StrokePositionOutside:
-			margin = _strokeWidth;
-	}
-	
-	margin += 1.0;
-	
-	rect.adjust(-margin, -margin, margin, margin);
-	
-	return Surface::rectToKeys(rect.toAlignedRect());
+	return Surface::rectToKeys(boundingRect().toAlignedRect());
 }
 
 bool ShapeLayer::setProperty(const QVariant &data, int role)
@@ -335,6 +317,25 @@ void ShapeLayer::setFillPath(const QPainterPath &path)
 {
 	_fillPath = path;
 	updateStrokePath();
+}
+
+QRectF ShapeLayer::boundingRect() const
+{
+	QRectF rect = _strokePath.boundingRect();
+	double margin;
+	
+	switch (_strokePos)
+	{
+		case StrokePositionInside:
+			margin = 0;
+		default:
+		case StrokePositionCenter:
+			margin = _strokeWidth * 0.5;
+		case StrokePositionOutside:
+			margin = _strokeWidth;
+	}
+	
+	return rect.adjusted(-margin, -margin, margin, margin);
 }
 
 

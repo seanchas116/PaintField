@@ -54,13 +54,17 @@ void RectTool::tabletMoveEvent(CanvasTabletEvent *event)
 		return;
 	
 	auto offset = event->data.pos - d->start;
+	
+	auto oldBoundingRect = d->layer->boundingRect();
 	d->layer->setRect(QRectF(d->start.x(), d->start.y(), offset.x(), offset.y()));
 	
-	emit requestUpdate(d->layer->tileKeys());
+	emit requestUpdate(Surface::rectToKeys((oldBoundingRect | d->layer->boundingRect()).toAlignedRect()));
 }
 
 void RectTool::tabletReleaseEvent(CanvasTabletEvent *event)
 {
+	Q_UNUSED(event)
+	
 	auto parentIndex = layerModel()->indexForLayer(d->parent);
 	layerModel()->addLayers({d->layer.take()}, parentIndex, d->index, tr("Add Rectangle"));
 	canvas()->selectionModel()->setCurrentIndex(parentIndex.child(d->index, 0), QItemSelectionModel::Current);
