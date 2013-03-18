@@ -5,11 +5,13 @@
 
 namespace PaintField {
 
-class VectorToolsExtension : public WorkspaceExtension
+class VectorToolsExtension : public CanvasExtension
 {
 	Q_OBJECT
 public:
-	explicit VectorToolsExtension(Workspace *workspace, QObject *parent = 0);
+	explicit VectorToolsExtension(Canvas *canvas, QObject *parent = 0);
+	
+	Tool *createTool(const QString &name, Canvas *canvas) override;
 	
 signals:
 	
@@ -25,12 +27,12 @@ public:
 	
 	void initialize(AppController *app) override;
 	
-	WorkspaceExtensionList createWorkspaceExtensions(Workspace *workspace, QObject *parent) override
+	CanvasExtensionList createCanvasExtensions(Canvas *canvas, QObject *parent) override
 	{
-		return { new VectorToolsExtension(workspace, parent) };
+		return { new VectorToolsExtension(canvas, parent) };
 	}
 };
 
-} // namespace PaintField
+}// namespace PaintField
 
 #endif // PAINTFIELD_VECTORTOOLSEXTENSION_H

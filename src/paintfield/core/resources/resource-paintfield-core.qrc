@@ -12,8 +12,6 @@
         <file>icons/16x16/menuRight.svg</file>
         <file>icons/16x16/subtract.svg</file>
         <file>icons/24x24/move.svg</file>
-        <file>icons/24x24/selectEllipse.svg</file>
-        <file>icons/24x24/selectRect.svg</file>
         <file>icons/24x24/brush.svg</file>
         <file>icons/24x24/select.svg</file>
         <file>icons/32x32/split.svg</file>
@@ -29,5 +27,7 @@
         <file>icons/16x16/rotateLeft.svg</file>
         <file>icons/16x16/rotateRight.svg</file>
         <file>icons/32x32/tinycursor.png</file>
+        <file>icons/24x24/ellipse.svg</file>
+        <file>icons/24x24/rect.svg</file>
     </qresource>
 </RCC>

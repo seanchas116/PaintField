@@ -7,7 +7,9 @@ TARGET = paintfield-vectortools
 include(../extensions.pri)
 
 HEADERS += \
-    vectortoolsextension.h
+    vectortoolsextension.h \
+    recttool.h
 
 SOURCES += \
-    vectortoolsextension.cpp
+    vectortoolsextension.cpp \
+    recttool.cpp

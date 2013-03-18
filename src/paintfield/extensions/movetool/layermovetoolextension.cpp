@@ -11,7 +11,7 @@
 namespace PaintField
 {
 
-const QString _layerMoveToolName = "paintfield.tool.move";
+static const QString _layerMoveToolName = "paintfield.tool.move";
 
 Tool *LayerMoveToolExtension::createTool(const QString &name, Canvas *canvas)
 {

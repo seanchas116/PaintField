@@ -31,9 +31,6 @@ void Tool::addLayerInsertion(const Layer *parent, int index, const Layer *layer)
 
 void Tool::clearLayerInsertions()
 {
-	for (auto insertion : d->layerInsertions)
-		delete insertion.layer;
-	
 	d->layerInsertions.clear();
 }
 
