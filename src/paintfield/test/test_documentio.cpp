@@ -27,7 +27,7 @@ void Test_DocumentIO::saveLoad()
 		openedDoc = loader.load(path, 0);
 	}
 	
-	QCOMPARE(doc->layerModel()->rootLayer()->childCount(), openedDoc->layerModel()->rootLayer()->childCount());
+	QCOMPARE(doc->layerModel()->rootLayer()->count(), openedDoc->layerModel()->rootLayer()->count());
 }
 
 AUTOTEST_ADD_CLASS(Test_DocumentIO)
