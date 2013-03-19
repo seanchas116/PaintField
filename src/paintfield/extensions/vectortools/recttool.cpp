@@ -65,10 +65,11 @@ void RectTool::tabletReleaseEvent(CanvasTabletEvent *event)
 {
 	Q_UNUSED(event)
 	
+	clearLayerInsertions();
+	
 	auto parentIndex = layerModel()->indexForLayer(d->parent);
 	layerModel()->addLayers({d->layer.take()}, parentIndex, d->index, tr("Add Rectangle"));
 	canvas()->selectionModel()->setCurrentIndex(parentIndex.child(d->index, 0), QItemSelectionModel::Current);
-	clearLayerInsertions();
 }
 
 } // namespace PaintField
