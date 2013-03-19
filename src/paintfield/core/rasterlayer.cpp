@@ -40,6 +40,11 @@ RasterLayer *RasterLayer::createFromImage(const QImage &image)
 	return layer;
 }
 
+bool RasterLayer::includes(const QPoint &pos) const
+{
+	return _surface.pixel(pos).a();
+}
+
 void RasterLayer::updateThumbnail(const QSize &size)
 {
 	QPixmap pixmap(size);

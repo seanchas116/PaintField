@@ -246,6 +246,8 @@ public:
 	 */
 	void updateDirtyThumbnailRecursive(const QSize &size);
 	
+	const Layer *descendantAt(const QPoint &pos) const;
+	
 	virtual QPointSet tileKeys() const { return QPointSet(); }
 	QPointSet tileKeysRecursive() const;
 	
@@ -272,6 +274,8 @@ public:
 	virtual QString dataSuffix() const { return "data"; }
 	
 	virtual void render(Malachite::Painter *painter) const { Q_UNUSED(painter) }
+	
+	virtual bool includes(const QPoint &pos) const { Q_UNUSED(pos) return false; }
 	
 protected:
 	

@@ -47,7 +47,7 @@ struct Canvas::Data
 	double memorizedScale = 1, memorizedRotation = 0;
 	QPoint memorizedTranslation;
 	
-	QScopedPointer<Tool> tool;
+	ScopedQObjectPointer<Tool> tool;
 };
 
 Canvas::Canvas(Document *document, Workspace *parent) :

@@ -1,3 +1,4 @@
+#include <QApplication>
 #include "paintfield/core/rectlayer.h"
 
 #include "recttool.h"
@@ -8,17 +9,18 @@ namespace PaintField {
 
 struct RectTool::Data
 {
-	QScopedPointer<RectLayer> layer;
+	const RectLayer *layer = 0;
+	QScopedPointer<RectLayer> layerToAdd;
 	Vec2D start;
 	const Layer *parent;
 	int index;
+	bool isDragged = false;
 };
 
 RectTool::RectTool(Canvas *canvas) :
 	Tool(canvas),
 	d(new Data)
 {
-	
 }
 
 RectTool::~RectTool()
@@ -28,10 +30,57 @@ RectTool::~RectTool()
 
 void RectTool::tabletPressEvent(CanvasTabletEvent *event)
 {
-	d->layer.reset(new RectLayer);
-	d->layer->setFillBrush(Color::fromRgbValue(0.5, 0.5, 0.5));
-	d->layer->setStrokeBrush(Color::fromRgbValue(0, 0, 0));
 	d->start = event->data.pos;
+	d->isDragged = true;
+}
+
+void RectTool::tabletMoveEvent(CanvasTabletEvent *event)
+{
+	auto pos = event->data.pos;
+	
+	if (d->layerToAdd)
+	{
+		resizeAddRect(pos);
+	}
+	else
+	{
+		if (d->isDragged)
+		{
+			auto diff = d->start - pos;
+			if (::std::fabs(diff.x()) + ::std::fabs(diff.y()) >= qApp->startDragDistance())
+			{
+				startAddRect();
+			}
+		}
+	}
+}
+
+void RectTool::tabletReleaseEvent(CanvasTabletEvent *event)
+{
+	Q_UNUSED(event)
+	
+	d->isDragged = false;
+	
+	if (d->layerToAdd)
+	{
+		finishAddRect();
+	}
+	else
+	{
+		auto layer = layerModel()->rootLayer()->descendantAt(event->data.pos.toQPoint());
+		if (layer)
+		{
+			auto index = layerModel()->indexForLayer(layer);
+			canvas()->selectionModel()->setCurrentIndex(index, QItemSelectionModel::Current);
+		}
+	}
+}
+
+void RectTool::startAddRect()
+{
+	d->layerToAdd.reset(new RectLayer);
+	d->layerToAdd->setFillBrush(Color::fromRgbValue(0.5, 0.5, 0.5));
+	d->layerToAdd->setStrokeBrush(Color::fromRgbValue(0, 0, 0));
 	
 	auto current = currentLayer();
 	if (current != layerModel()->rootLayer())
@@ -45,30 +94,25 @@ void RectTool::tabletPressEvent(CanvasTabletEvent *event)
 		d->index = 0;
 	}
 	
-	addLayerInsertion(d->parent, d->index, d->layer.data());
+	addLayerInsertion(d->parent, d->index, d->layerToAdd.data());
 }
 
-void RectTool::tabletMoveEvent(CanvasTabletEvent *event)
+void RectTool::resizeAddRect(const Vec2D &pos)
 {
-	if (!d->layer)
-		return;
+	auto offset = pos - d->start;
 	
-	auto offset = event->data.pos - d->start;
+	auto oldBoundingRect = d->layerToAdd->boundingRect();
+	d->layerToAdd->setRect(QRectF(d->start.x(), d->start.y(), offset.x(), offset.y()));
 	
-	auto oldBoundingRect = d->layer->boundingRect();
-	d->layer->setRect(QRectF(d->start.x(), d->start.y(), offset.x(), offset.y()));
-	
-	emit requestUpdate(Surface::rectToKeys((oldBoundingRect | d->layer->boundingRect()).toAlignedRect()));
+	emit requestUpdate(Surface::rectToKeys((oldBoundingRect | d->layerToAdd->boundingRect()).toAlignedRect()));
 }
 
-void RectTool::tabletReleaseEvent(CanvasTabletEvent *event)
+void RectTool::finishAddRect()
 {
-	Q_UNUSED(event)
-	
 	clearLayerInsertions();
 	
 	auto parentIndex = layerModel()->indexForLayer(d->parent);
-	layerModel()->addLayers({d->layer.take()}, parentIndex, d->index, tr("Add Rectangle"));
+	layerModel()->addLayers({d->layerToAdd.take()}, parentIndex, d->index, tr("Add Rectangle"));
 	canvas()->selectionModel()->setCurrentIndex(parentIndex.child(d->index, 0), QItemSelectionModel::Current);
 }
 

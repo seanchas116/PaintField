@@ -128,7 +128,7 @@ private:
 		Rotating
 	};
 	
-	class Data;
+	struct Data;
 	Data *d;
 };
 

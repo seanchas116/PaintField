@@ -1,3 +1,5 @@
+#include <QGraphicsItem>
+
 #include "tool.h"
 
 namespace PaintField
@@ -10,6 +12,7 @@ struct Tool::Data
 	QList<LayerInsertion> layerInsertions;
 	
 	QCursor cursor;
+	QScopedPointer<QGraphicsItem> graphicsItem;
 };
 
 Tool::Tool(Canvas *parent) :
@@ -62,6 +65,16 @@ QCursor Tool::cursor() const
 void Tool::setCursor(const QCursor &cursor)
 {
 	d->cursor = cursor;
+}
+
+QGraphicsItem *Tool::graphicsItem()
+{
+	return d->graphicsItem.data();
+}
+
+void Tool::setGraphicsItem(QGraphicsItem *item)
+{
+	d->graphicsItem.reset(item);
 }
 
 void Tool::toolEvent(QEvent *event)

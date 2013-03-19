@@ -19,6 +19,10 @@ public:
 	
 private:
 	
+	void startAddRect();
+	void resizeAddRect(const Malachite::Vec2D &pos);
+	void finishAddRect();
+	
 	struct Data;
 	Data *d;
 };

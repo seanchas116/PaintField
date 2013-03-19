@@ -1,5 +1,6 @@
 #include <QPainterPathStroker>
 #include <Malachite/Painter>
+#include <Malachite/SurfacePainter>
 #include "thumbnail.h"
 
 #include "shapelayer.h"
@@ -7,6 +8,11 @@
 using namespace Malachite;
 
 namespace PaintField {
+
+bool ShapeLayer::includes(const QPoint &pos) const
+{
+	return _unitedPath.contains(pos);
+}
 
 QPointSet ShapeLayer::tileKeys() const
 {
@@ -276,6 +282,16 @@ void ShapeLayer::setCapStyleString(const QString &string)
 
 void ShapeLayer::render(Malachite::Painter *painter) const
 {
+	auto surfacePainter = dynamic_cast<SurfacePainter *>(painter);
+	if (surfacePainter)
+	{
+		if (!surfacePainter->keyClip().isEmpty())
+		{
+			if ((tileKeys() & surfacePainter->keyClip()).isEmpty())
+				return;
+		}
+	}
+	
 	painter->setBrush(_fillBrush);
 	painter->drawPath(fillPath());
 	
@@ -283,7 +299,7 @@ void ShapeLayer::render(Malachite::Painter *painter) const
 	painter->drawPath(strokePath());
 }
 
-void ShapeLayer::updateStrokePath()
+void ShapeLayer::updatePaths()
 {
 	QPainterPathStroker stroker;
 	
@@ -311,31 +327,22 @@ void ShapeLayer::updateStrokePath()
 			_strokePath = stroke - fill;
 			break;
 	}
+	
+	if (_strokePos == StrokePositionInside)
+		_unitedPath = _fillPath;
+	else
+		_unitedPath = _fillPath & _strokePath;
 }
 
 void ShapeLayer::setFillPath(const QPainterPath &path)
 {
 	_fillPath = path;
-	updateStrokePath();
+	updatePaths();
 }
 
 QRectF ShapeLayer::boundingRect() const
 {
-	QRectF rect = _strokePath.boundingRect();
-	double margin;
-	
-	switch (_strokePos)
-	{
-		case StrokePositionInside:
-			margin = 0;
-		default:
-		case StrokePositionCenter:
-			margin = _strokeWidth * 0.5;
-		case StrokePositionOutside:
-			margin = _strokeWidth;
-	}
-	
-	return rect.adjusted(-margin, -margin, margin, margin);
+	return _unitedPath.boundingRect();
 }
 
 

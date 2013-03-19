@@ -19,6 +19,7 @@ public:
 	ShapeLayer() : Layer() {}
 	
 	QPointSet tileKeys() const override;
+	bool includes(const QPoint &pos) const;
 	
 	bool setProperty(const QVariant &data, int role) override;
 	QVariant property(int role) const override;
@@ -68,8 +69,7 @@ public:
 	
 	QPainterPath fillPath() const { return _fillPath; }
 	QPainterPath strokePath() const { return _strokePath; }
-	
-	void updateStrokePath();
+	QPainterPath unitedPath() const { return _unitedPath; }
 	
 	QRectF boundingRect() const;
 	
@@ -79,6 +79,8 @@ protected:
 	
 private:
 	
+	void updatePaths();
+	
 	StrokePosition _strokePos = StrokePositionCenter;
 	double _strokeWidth = 1.0;
 	Qt::PenJoinStyle _joinStyle = Qt::MiterJoin;
@@ -87,7 +89,7 @@ private:
 	bool _fillEnabled = true, _strokeEnabled = true;
 	Malachite::Brush _fillBrush, _strokeBrush;
 	
-	QPainterPath _fillPath, _strokePath;
+	QPainterPath _fillPath, _strokePath, _unitedPath;
 };
 
 } // namespace PaintField

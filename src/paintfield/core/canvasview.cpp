@@ -1,5 +1,6 @@
 #include <QTimer>
 #include <QGraphicsView>
+#include <QGraphicsItem>
 
 #include "cursorstack.h"
 #include "scopedtimer.h"
@@ -87,12 +88,10 @@ struct Navigation
 	QPoint translation;
 };
 
-class CanvasView::Data
+struct CanvasView::Data
 {
-public:
-	
 	Canvas *canvas = 0;
-	Tool *tool = 0;
+	QPointer<Tool> tool = 0;
 	
 	double mousePressure = 0;
 	bool tabletActive = false;
@@ -124,6 +123,7 @@ public:
 	bool updateEnabled = true;
 	
 	QGraphicsView *graphicsView = 0;
+	QGraphicsScene *graphicsScene = 0;
 };
 
 CanvasView::CanvasView(Canvas *canvas, QWidget *parent) :
@@ -147,6 +147,9 @@ CanvasView::CanvasView(Canvas *canvas, QWidget *parent) :
 		d->graphicsView->setStyleSheet("background: transparent;");
 		d->graphicsView->setAttribute(Qt::WA_TransparentForMouseEvents);
 		d->graphicsView->setVisible(false);
+		
+		d->graphicsScene = new QGraphicsScene(this);
+		d->graphicsView->setScene(d->graphicsScene);
 	}
 	
 	// setup scrollbars
@@ -223,6 +226,8 @@ CanvasView::CanvasView(Canvas *canvas, QWidget *parent) :
 
 CanvasView::~CanvasView()
 {
+	setTool(0);
+	
 	if (d->viewport)
 		d->viewport->deleteLater();
 	delete d;
@@ -305,14 +310,31 @@ LayerModel *CanvasView::layerModel() { return d->canvas->layerModel(); }
 
 void CanvasView::setTool(Tool *tool)
 {
+	if (d->tool && d->tool->graphicsItem())
+	{
+		d->graphicsScene->removeItem(d->tool->graphicsItem());
+	}
+	
+	d->tool = tool;
+	
 	if (tool)
 	{
-		d->tool = tool;
-		
 		connect(tool, SIGNAL(requestUpdate(QPointSet)), this, SLOT(updateTiles(QPointSet)));
 		connect(tool, SIGNAL(requestUpdate(QHash<QPoint,QRect>)), this, SLOT(updateTiles(QHash<QPoint,QRect>)));
 		
+		// cursor
 		d->toolCursor = tool->cursor();
+		
+		// graphics item
+		if (tool->graphicsItem())
+		{
+			d->graphicsScene->addItem(tool->graphicsItem());
+			d->graphicsView->setVisible(true);
+		}
+		else
+		{
+			d->graphicsView->setVisible(false);
+		}
 	}
 }
 
@@ -908,6 +930,7 @@ void CanvasView::moveChildWidgets()
 	d->scrollBarY->setGeometry(scrollBarYRect);
 	
 	d->graphicsView->setGeometry(widgetRect);
+	d->graphicsView->setSceneRect(widgetRect);
 }
 
 

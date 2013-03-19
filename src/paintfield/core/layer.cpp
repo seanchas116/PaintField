@@ -247,8 +247,6 @@ QVariant Layer::property(int role) const
 	}
 }
 
-
-
 void Layer::updateThumbnailRecursive(const QSize &size)
 {
 	updateThumbnail(size);
@@ -266,6 +264,20 @@ void Layer::updateDirtyThumbnailRecursive(const QSize &size)
 	
 	for (Layer *child : _children)
 		child->updateDirtyThumbnailRecursive(size);
+}
+
+const Layer *Layer::descendantAt(const QPoint &pos) const
+{
+	for (const Layer *child : _children)
+	{
+		if (child->includes(pos))
+			return child;
+		
+		auto descendant = child->descendantAt(pos);
+		if (descendant)
+			return descendant;
+	}
+	return 0;
 }
 
 QPointSet Layer::tileKeysRecursive() const

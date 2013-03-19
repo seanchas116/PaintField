@@ -52,7 +52,7 @@ public:
 	/**
 	 * @return A graphics item which is displayed on top of the canvas
 	 */
-	virtual QGraphicsItem *graphicsItem() { return 0; }
+	QGraphicsItem *graphicsItem();
 	
 	/**
 	 * Draws a layer onto a painter.
@@ -112,6 +112,7 @@ signals:
 protected:
 	
 	void setCursor(const QCursor &cursor);
+	void setGraphicsItem(QGraphicsItem *item);
 	
 	Canvas *canvas() { return static_cast<Canvas *>(parent()); }
 	Document *document() { return canvas()->document(); }

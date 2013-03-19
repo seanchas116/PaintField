@@ -14,8 +14,10 @@ Surface LayerRenderer::renderToSurface(const Layer *rootLayer, const QPointSet &
 	Surface surface;
 	SurfacePainter painter(&surface);
 	
-	painter.setKeyClip(keyClip);
-	painter.setKeyRectClip(keyRectClip);
+	if (!keyRectClip.isEmpty())
+		painter.setKeyRectClip(keyRectClip);
+	else
+		painter.setKeyClip(keyClip);
 	
 	renderChildren(&painter, rootLayer);
 	
