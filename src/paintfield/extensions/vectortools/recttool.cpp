@@ -47,7 +47,7 @@ void RectTool::tabletMoveEvent(CanvasTabletEvent *event)
 		if (d->isDragged)
 		{
 			auto diff = d->start - pos;
-			if (::std::fabs(diff.x()) + ::std::fabs(diff.y()) >= qApp->startDragDistance())
+			if ((::std::fabs(diff.x()) + ::std::fabs(diff.y())) >= qApp->startDragDistance())
 			{
 				startAddRect();
 			}
