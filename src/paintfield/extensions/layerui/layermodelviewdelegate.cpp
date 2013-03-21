@@ -17,24 +17,24 @@ struct LayerModelViewDelegate::Data
 	LayerUIController *actionController;
 	QIcon visibleIcon, lockedIcon;
 	
-	static constexpr int iconMargin = 8;
-	static constexpr int iconWH = 16;
+	static constexpr int buttonMargin = 8;
+	static constexpr int buttonWH = 16;
 	static constexpr int pixmapMargin = 8;
 	static constexpr int pixmapWH = Thumbnail::Margin * 2 + Thumbnail::PixmapSize;
 	static constexpr int textVerticalMargin = 16, textHorizontalMargin = 8;
 	static constexpr int height = pixmapWH + 2 * pixmapMargin;
 	
-	static QRect iconRect(const QRect &wholeRect, const int countFromRight)
+	static QRect buttonRect(const QRect &wholeRect, const int indexFromRight)
 	{
-		const int y = wholeRect.y() + (wholeRect.height() - iconWH) / 2;
-		const int x = wholeRect.x() + wholeRect.width() - (iconMargin + iconWH) * (countFromRight + 1);
-		return QRect(x, y, iconWH, iconWH);
+		const int y = wholeRect.y() + (wholeRect.height() - buttonWH) / 2;
+		const int x = wholeRect.x() + wholeRect.width() - (buttonMargin + buttonWH) * (indexFromRight + 1);
+		return QRect(x, y, buttonWH, buttonWH);
 	}
 	
 	static QRect textRect(const QRect &wholeRect)
 	{
 		constexpr int leftOffset = pixmapWH + pixmapMargin;
-		constexpr int rightOffset = (iconMargin + iconWH) * 2 + iconMargin;
+		constexpr int rightOffset = (buttonMargin + buttonWH) * 2 + buttonMargin;
 		return wholeRect.adjusted(leftOffset + textHorizontalMargin, textVerticalMargin, -rightOffset - textHorizontalMargin, -textVerticalMargin);
 	}
 	
@@ -45,7 +45,7 @@ struct LayerModelViewDelegate::Data
 	
 	static void drawIcon(QPainter *painter, const QRect &wholeRect, const int countFromRight, const QIcon &icon, const bool on)
 	{
-		auto rect = iconRect(wholeRect, countFromRight);
+		auto rect = buttonRect(wholeRect, countFromRight);
 		icon.paint(painter, rect, Qt::AlignCenter, on ? QIcon::Normal : QIcon::Disabled, on ? QIcon::On : QIcon::Off);
 	}
 };
@@ -93,7 +93,7 @@ bool LayerModelViewDelegate::editorEvent(QEvent *event, QAbstractItemModel *mode
 			{
 				auto toggle = [&](int buttonIndex, int role)->bool
 				{
-					if (d->iconRect(option.rect, buttonIndex).contains(mouseEvent->pos()))
+					if (d->buttonRect(option.rect, buttonIndex).contains(mouseEvent->pos()))
 					{
 						bool visible = index.data(role).toBool();
 						d->actionController->canvas()->layerModel()->setData(index, visible ? false : true, role);
@@ -115,7 +115,7 @@ bool LayerModelViewDelegate::editorEvent(QEvent *event, QAbstractItemModel *mode
 			
 			auto buttonDblClicked = [&](int buttonIndex)
 			{
-				return d->iconRect(option.rect, buttonIndex).contains(mouseEvent->pos());
+				return d->buttonRect(option.rect, buttonIndex).contains(mouseEvent->pos());
 			};
 			
 			if (buttonDblClicked(0) || buttonDblClicked(1))
@@ -185,6 +185,8 @@ void LayerModelViewDelegate::paint(QPainter *painter, const QStyleOptionViewItem
 
 QSize LayerModelViewDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
+	Q_UNUSED(option)
+	Q_UNUSED(index)
 	return QSize(1, d->height);
 }
 
