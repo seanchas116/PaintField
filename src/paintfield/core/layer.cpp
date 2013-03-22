@@ -15,10 +15,14 @@ using namespace Malachite;
 Layer::Layer(const QString &name)
     : _name(name),
       _blendMode(BlendMode::Normal)
-{}
+{
+}
 
 Layer::~Layer()
 {
+	for (auto i : _indexes)
+		i->_layer = 0;
+	
 	qDeleteAll(_children);
 }
 
@@ -321,6 +325,21 @@ void Layer::decode(QDataStream &stream)
 	int blend;
 	stream >> _name >> _isVisible >> _isLocked >> _opacity >> blend >> _thumbnail >> _isThumbnailDirty;
 	_blendMode = blend;
+}
+
+QList<LayerIndex> LayerIndex::children() const
+{
+	Q_ASSERT(_layer);
+	
+	QList<LayerIndex> result;
+	
+	auto list = _layer->children();
+	result.reserve(list.size());
+	
+	for (auto layer : list)
+		result << LayerIndex(layer);
+	
+	return result;
 }
 
 

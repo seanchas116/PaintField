@@ -87,7 +87,9 @@ HEADERS += \
     unittest/test_documentio.h \
     unittest/test_document.h \
     unittest/autotest.h \
-    unittest/testutil.h
+    unittest/testutil.h \
+    layerscene.h \
+    unittest/test_layerindex.h
 FORMS += dialogs/exportdialog.ui dialogs/newdocumentdialog.ui
 SOURCES += \
            document.cpp \
@@ -158,7 +160,9 @@ SOURCES += \
     unittest/test_documentio.cpp \
     unittest/test_document.cpp \
     unittest/autotest.cpp \
-    unittest/testutil.cpp
+    unittest/testutil.cpp \
+    layerscene.cpp \
+    unittest/test_layerindex.cpp
 
 RESOURCES += \
     resources/resource-paintfield-core.qrc

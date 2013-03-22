@@ -25,6 +25,8 @@ class Layer;
 typedef QList<Layer *> LayerList;
 typedef QList<const Layer *> LayerConstList;
 
+class LayerIndex;
+
 class Layer
 {
 public:
@@ -281,6 +283,8 @@ protected:
 	
 private:
 	
+	friend class LayerIndex;
+	
 	Layer *_parent = 0;	// 0 : root item
 	LayerList _children;
 	
@@ -291,6 +295,8 @@ private:
 	QPixmap _thumbnail;
 	
 	bool _isThumbnailDirty = false;
+	
+	mutable QList<LayerIndex *> _indexes;
 };
 
 class LayerFactory
@@ -302,6 +308,66 @@ public:
 	virtual QString name() const = 0;
 	virtual Layer *create() const = 0;
 	virtual const ::std::type_info &typeInfo() const = 0;
+};
+
+class LayerIndex
+{
+public:
+	
+	LayerIndex(const Layer *layer) :
+		_layer(layer)
+	{
+		if (layer)
+			layer->_indexes << this;
+	}
+	
+	~LayerIndex()
+	{
+		if (_layer)
+			_layer->_indexes.removeAll(this);
+	}
+	
+	const Layer *layer() const { return _layer; }
+	
+	int index() const
+	{
+		Q_ASSERT(_layer);
+		return _layer->index();
+	}
+	
+	int count() const
+	{
+		Q_ASSERT(_layer);
+		return _layer->count();
+	}
+	
+	QList<LayerIndex> children() const;
+	
+	LayerIndex child(int index) const
+	{
+		Q_ASSERT(_layer);
+		return _layer->child(index);
+	}
+	
+	LayerIndex sibling(int index) const
+	{
+		Q_ASSERT(_layer);
+		return _layer->sibling(index);
+	}
+	
+	LayerIndex parent() const
+	{
+		Q_ASSERT(_layer);
+		return _layer->parent();
+	}
+	
+	bool isValid() const { return _layer; }
+	
+private:
+	
+	friend class Layer;
+	
+	const Layer *_layer = 0;
 };
 
 }
