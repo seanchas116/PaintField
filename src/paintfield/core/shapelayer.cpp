@@ -331,7 +331,7 @@ void ShapeLayer::updatePaths()
 	if (_strokePos == StrokePositionInside)
 		_unitedPath = _fillPath;
 	else
-		_unitedPath = _fillPath & _strokePath;
+		_unitedPath = _fillPath | _strokePath;
 }
 
 void ShapeLayer::setFillPath(const QPainterPath &path)
