@@ -46,8 +46,8 @@ Document *createTestDocument(QObject *parent)
 	}
 	
 	GroupLayer *group = new GroupLayer("group");
-	group->appendChild(layer[1]);
-	group->appendChild(layer[2]);
+	group->append(layer[1]);
+	group->append(layer[2]);
 	
 	LayerList layers = { layer[0], group };
 	
