@@ -79,6 +79,7 @@ void RectTool::tabletReleaseEvent(CanvasTabletEvent *event)
 void RectTool::startAddRect()
 {
 	d->layerToAdd.reset(new RectLayer);
+	d->layerToAdd->setName(tr("Rectangle"));
 	d->layerToAdd->setFillBrush(Color::fromRgbValue(0.5, 0.5, 0.5));
 	d->layerToAdd->setStrokeBrush(Color::fromRgbValue(0, 0, 0));
 	
