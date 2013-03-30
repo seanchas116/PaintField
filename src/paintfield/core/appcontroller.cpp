@@ -132,6 +132,12 @@ void AppController::openFile(const QString &path)
 {
 	PAINTFIELD_DEBUG << "file open requested:" << path;
 	
+	if (!QFileInfo(path).exists())
+	{
+		PAINTFIELD_DEBUG << "file does not exist";
+		return;
+	}
+	
 	auto workspace = workspaceManager()->currentWorkspace();
 	
 	if (workspace)
