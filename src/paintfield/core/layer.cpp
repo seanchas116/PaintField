@@ -2,6 +2,8 @@
 
 #include <Malachite/Painter>
 
+#include "layerfactorymanager.h"
+
 #include "thumbnail.h"
 #include "drawutil.h"
 
@@ -295,6 +297,44 @@ QPointSet Layer::tileKeysRecursive() const
 	return keys;
 }
 
+void Layer::encodeRecursive(QDataStream &stream) const
+{
+	auto typeName = layerFactoryManager()->nameForTypeInfo(typeid(*this));
+	stream << typeName;
+	encode(stream);
+	
+	stream << _children.size();
+	for (auto child : _children)
+		child->encodeRecursive(stream);
+}
+
+Layer *Layer::decodeRecursive(QDataStream &stream)
+{
+	QString typeName;
+	stream >> typeName;
+	
+	auto layer = layerFactoryManager()->createLayer(typeName);
+	
+	if (!layer)
+		return 0;
+	
+	layer->decode(stream);
+	
+	int count;
+	stream >> count;
+	
+	for (int i = 0; i < count; ++i)
+	{
+		auto child = decodeRecursive(stream);
+		if (!child)
+			return layer;
+		
+		layer->append(child);
+	}
+	
+	return layer;
+}
+
 QVariantMap Layer::saveProperies() const
 {
 	QVariantMap map;
@@ -327,17 +367,17 @@ void Layer::decode(QDataStream &stream)
 	_blendMode = blend;
 }
 
-QList<LayerIndex> LayerIndex::children() const
+QList<LayerRef> LayerRef::children() const
 {
 	Q_ASSERT(_layer);
 	
-	QList<LayerIndex> result;
+	QList<LayerRef> result;
 	
 	auto list = _layer->children();
 	result.reserve(list.size());
 	
 	for (auto layer : list)
-		result << LayerIndex(layer);
+		result << LayerRef(layer);
 	
 	return result;
 }

@@ -1,4 +1,6 @@
 #include <QApplication>
+
+#include "paintfield/core/layerscene.h"
 #include "paintfield/core/rectlayer.h"
 
 #include "recttool.h"
@@ -12,7 +14,7 @@ struct RectTool::Data
 	const RectLayer *layer = 0;
 	QScopedPointer<RectLayer> layerToAdd;
 	Vec2D start;
-	const Layer *parent;
+	LayerRef parent;
 	int index;
 	bool isDragged = false;
 };
@@ -67,12 +69,9 @@ void RectTool::tabletReleaseEvent(CanvasTabletEvent *event)
 	}
 	else
 	{
-		auto layer = layerModel()->rootLayer()->descendantAt(event->data.pos.toQPoint());
+		auto layer = canvas()->document()->layerScene()->rootLayer()->descendantAt(event->data.pos.toQPoint());
 		if (layer)
-		{
-			auto index = layerModel()->indexForLayer(layer);
-			canvas()->selectionModel()->setCurrentIndex(index, QItemSelectionModel::Current);
-		}
+			canvas()->document()->layerScene()->setCurrent(layer);
 	}
 }
 
@@ -84,14 +83,14 @@ void RectTool::startAddRect()
 	d->layerToAdd->setStrokeBrush(Color::fromRgbValue(0, 0, 0));
 	
 	auto current = currentLayer();
-	if (current != layerModel()->rootLayer())
+	if (current)
 	{
 		d->parent = current->parent();
 		d->index = current->index();
 	}
 	else
 	{
-		d->parent = layerModel()->rootLayer();
+		d->parent = canvas()->document()->layerScene()->rootLayer();
 		d->index = 0;
 	}
 	
@@ -112,9 +111,8 @@ void RectTool::finishAddRect()
 {
 	clearLayerInsertions();
 	
-	auto parentIndex = layerModel()->indexForLayer(d->parent);
-	layerModel()->addLayers({d->layerToAdd.take()}, parentIndex, d->index, tr("Add Rectangle"));
-	canvas()->selectionModel()->setCurrentIndex(parentIndex.child(d->index, 0), QItemSelectionModel::Current);
+	canvas()->document()->layerScene()->addLayers({d->layerToAdd.take()}, d->parent, d->index, tr("Add Rectangle"));
+	canvas()->document()->layerScene()->setCurrent(d->parent.child(d->index));
 }
 
 } // namespace PaintField

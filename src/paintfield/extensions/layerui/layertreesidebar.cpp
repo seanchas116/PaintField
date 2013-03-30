@@ -8,6 +8,8 @@
 #include <Malachite/Painter>
 #include <Malachite/ImageIO>
 
+#include "paintfield/core/layeritemmodel.h"
+#include "paintfield/core/layerscene.h"
 #include "paintfield/core/util.h"
 #include "paintfield/core/widgets/doubleslider.h"
 #include "paintfield/core/widgets/simplebutton.h"
@@ -23,133 +25,194 @@
 namespace PaintField
 {
 
+struct LayerTreeSidebar::Data
+{
+	LayerUIController *uiController = 0;
+	Document *document = 0;
+	QTreeView *view = 0;
+	
+	DoubleSlider *opacitySlider = 0;
+	LooseSpinBox *opacitySpinBox = 0;
+	QComboBox *blendModeComboBox = 0;
+	
+	QWidget *formWidget = 0;
+	
+	LayerRef current;
+};
+
 LayerTreeSidebar::LayerTreeSidebar(LayerUIController *layerUIController, QWidget *parent) :
     QWidget(parent),
-    _layerUIController(layerUIController),
-    _canvas(layerUIController ? layerUIController->canvas() : 0)
+	d(new Data)
 {
+	d->uiController = layerUIController;
+	d->document = layerUIController ? layerUIController->document() : 0;
+	
 	createForms();
 	
-	if (_canvas)
+	if (d->document)
 	{
-		_treeView->setModel(_canvas->layerModel());
-		connect(_canvas->document(), SIGNAL(modified()), this, SLOT(updatePropertyView()));
-		connect(_canvas->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(updatePropertyView()));
-		updatePropertyView();
-		_treeView->setSelectionModel(_canvas->selectionModel());
+		auto document = d->document;
 		
-		connect(_canvas->document()->layerModel(), SIGNAL(thumbnailsUpdated()), _treeView, SLOT(update()));
+		d->view->setModel(document->layerScene()->itemModel());
+		connect(document, SIGNAL(modified()), this, SLOT(updateView()));
+		connect(document->layerScene(), SIGNAL(currentChanged(LayerRef,LayerRef)), this, SLOT(onCurrentChanged(LayerRef)));
+		onCurrentChanged(document->layerScene()->current());
+		d->view->setSelectionModel(document->layerScene()->itemSelectionModel());
+		
+		connect(document->layerScene(), SIGNAL(thumbnailsUpdated()), d->view, SLOT(update()));
 	}
 	else
 	{
 		setEnabled(false);
+		onCurrentChanged(LayerRef());
 	}
-	updatePropertyView();
 }
 
-void LayerTreeSidebar::updatePropertyView()
+LayerTreeSidebar::~LayerTreeSidebar()
 {
-	if (_canvas && _canvas->selectionModel()->currentIndex().isValid())
+	delete d;
+}
+
+void LayerTreeSidebar::onCurrentChanged(const LayerRef &current)
+{
+	d->current = current;
+	updateView();
+}
+
+void LayerTreeSidebar::updateView()
+{
+	d->opacitySpinBox->setEnabled(d->current);
+	
+	if (d->current)
 	{
-		_formWidget->setEnabled(true);
-		_opacitySpinBox->setValue(_canvas->selectionModel()->currentIndex().data(PaintField::RoleOpacity).toDouble() * 100.0);
+		d->opacitySpinBox->setValue(d->current.pointer()->property(RoleOpacity).toDouble() * 100.0);
 	}
-	else
-		_formWidget->setEnabled(false);
 }
 
 void LayerTreeSidebar::setOpacityPercentage(double value)
 {
-	_canvas->layerModel()->setData(_canvas->selectionModel()->currentIndex(), value / 100.0, PaintField::RoleOpacity);
+	d->document->layerScene()->setLayerProperty(d->current, value / 100.0, RoleOpacity, tr("Set Layer Opacity"));
 }
 
 void LayerTreeSidebar::createForms()
 {
-	_treeView = new QTreeView();
-	_treeView->setItemDelegate(new LayerModelViewDelegate(_layerUIController, this));
-	_treeView->setHeaderHidden(true);
-	_treeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
-	_treeView->setDragDropMode(QAbstractItemView::DragDrop);
-	_treeView->setDefaultDropAction(Qt::MoveAction);
-	_treeView->setDropIndicatorShown(true);
-	
-	_opacitySlider = new DoubleSlider(Qt::Horizontal);
-	_opacitySlider->setMinimum(0);
-	_opacitySlider->setMaximum(1000);
-	_opacitySlider->setDoubleMinimum(0.0);
-	_opacitySlider->setDoubleMaximum(100.0);
-	
-	_opacitySpinBox = new LooseSpinBox();
-	_opacitySpinBox->setDecimals(1);
-	_opacitySpinBox->setMinimum(0);
-	_opacitySpinBox->setMaximum(100);
-	_opacitySpinBox->setSingleStep(1.0);
-	
-	connect(_opacitySlider, SIGNAL(doubleValueChanged(double)), _opacitySpinBox, SLOT(setValue(double)));
-	connect(_opacitySpinBox, SIGNAL(valueChanged(double)), _opacitySlider, SLOT(setDoubleValue(double)));
-	connect(_opacitySlider, SIGNAL(doubleValueChanged(double)), this, SLOT(setOpacityPercentage(double)));
-	
-	QHBoxLayout *opacityLayout = new QHBoxLayout();
-	opacityLayout->addWidget(_opacitySlider);
-	opacityLayout->addWidget(_opacitySpinBox);
-	opacityLayout->addWidget(new QLabel("%"));
-	
-	_blendModeComboBox = new QComboBox();
-	_blendModeComboBox->addItem("Unimplemented");
-	
-	QFormLayout *formLayout = new QFormLayout();
-	formLayout->addRow(tr("Opacity"), opacityLayout);
-	formLayout->addRow(tr("Blend"), _blendModeComboBox);
-	formLayout->setHorizontalSpacing(5);
-	formLayout->setVerticalSpacing(5);
-	formLayout->setContentsMargins(5, 5, 5, 5);
-	
-	_formWidget = new QWidget();
-	_formWidget->setLayout(formLayout);
-	
-	auto addButton = new SimpleButton(":/icons/16x16/add.svg", QSize(16,16));
-	addButton->setMargins(4, 0, 4, 0);
-	auto removeButton = new SimpleButton(":/icons/16x16/subtract.svg", QSize(16,16));
-	removeButton->setMargins(4, 0, 4, 0);
-	auto miscButton = new SimpleButton(":/icons/16x16/menuDown.svg", QSize(16,16));
-	miscButton->setMargins(4, 0, 4, 0);
-	
-	if (_layerUIController)
-	{
-		QMenu *addMenu = new QMenu(this);
-		
-		addMenu->addAction(_layerUIController->newRasterAction());
-		addMenu->addAction(_layerUIController->newGroupAction());
-		addMenu->addAction(_layerUIController->importAction());
-		
-		addButton->setMenu(addMenu);
-		
-		connect(removeButton, SIGNAL(pressed()), _layerUIController, SLOT(removeLayers()));
-		
-		QMenu *miscMenu = new QMenu(this);
-		miscMenu->addAction(_layerUIController->mergeAction());
-		
-		miscButton->setMenu(miscMenu);
-	}
-	
-	QHBoxLayout *buttonLayout = new QHBoxLayout();
-	buttonLayout->addWidget(addButton);
-	buttonLayout->addWidget(removeButton);
-	buttonLayout->addWidget(miscButton);
-	buttonLayout->addStretch(1);
-	buttonLayout->setContentsMargins(5, 5, 5, 5);
-	buttonLayout->setSpacing(0);
-	
-	QVBoxLayout *propertyLayout = new QVBoxLayout();
-	propertyLayout->addWidget(_formWidget);
-	propertyLayout->addLayout(buttonLayout);
-	propertyLayout->setContentsMargins(5, 5, 5, 5);
-	
 	QVBoxLayout *mainLayout = new QVBoxLayout();
-	mainLayout->addWidget(_treeView);
-	mainLayout->addLayout(propertyLayout);
 	mainLayout->setContentsMargins(0, 0, 0, 0);
 	mainLayout->setSpacing(0);
+	
+	{
+		auto view = new QTreeView();
+		
+		if (d->uiController)
+			view->setItemDelegate(new LayerModelViewDelegate(d->uiController, this));
+		
+		view->setHeaderHidden(true);
+		view->setSelectionMode(QAbstractItemView::ExtendedSelection);
+		view->setDragDropMode(QAbstractItemView::DragDrop);
+		view->setDefaultDropAction(Qt::MoveAction);
+		view->setDropIndicatorShown(true);
+		d->view = view;
+		
+		mainLayout->addWidget(view);
+	}
+	
+	{
+		auto propertyLayout = new QVBoxLayout();
+		propertyLayout->setContentsMargins(5, 5, 5, 5);
+		
+		// form
+		{
+			auto formLayout = new QFormLayout();
+			formLayout->setHorizontalSpacing(5);
+			formLayout->setVerticalSpacing(5);
+			formLayout->setContentsMargins(5, 5, 5, 5);
+			
+			// opacity
+			{
+				auto layout = new QHBoxLayout();
+				
+				{
+					auto slider = new DoubleSlider(Qt::Horizontal);
+					slider->setMinimum(0);
+					slider->setMaximum(1000);
+					slider->setDoubleMinimum(0.0);
+					slider->setDoubleMaximum(100.0);
+					d->opacitySlider = slider;
+					
+					auto spin = new LooseSpinBox();
+					spin->setDecimals(1);
+					spin->setMinimum(0);
+					spin->setMaximum(100);
+					spin->setSingleStep(1.0);
+					d->opacitySpinBox = spin;
+					
+					connect(slider, SIGNAL(doubleValueChanged(double)), spin, SLOT(setValue(double)));
+					connect(spin, SIGNAL(valueChanged(double)), slider, SLOT(setDoubleValue(double)));
+					connect(slider, SIGNAL(doubleValueChanged(double)), this, SLOT(setOpacityPercentage(double)));
+					
+					layout->addWidget(slider);
+					layout->addWidget(spin);
+					layout->addWidget(new QLabel("%"));
+				}
+				
+				formLayout->addRow(tr("Opacity"), layout);
+			}
+			
+			{
+				auto combo = new QComboBox();
+				combo->addItem(tr("Unimplemented"));
+				d->blendModeComboBox = combo;
+				
+				formLayout->addRow(tr("Blend"), combo);
+			}
+			
+			d->formWidget = new QWidget();
+			d->formWidget->setLayout(formLayout);
+			
+			propertyLayout->addWidget(d->formWidget);
+		}
+		
+		// buttons
+		{
+			auto layout = new QHBoxLayout();
+			layout->setContentsMargins(5, 5, 5, 5);
+			layout->setSpacing(0);
+			
+			auto addButton = new SimpleButton(":/icons/16x16/add.svg", QSize(16,16));
+			addButton->setMargins(4, 0, 4, 0);
+			auto removeButton = new SimpleButton(":/icons/16x16/subtract.svg", QSize(16,16));
+			removeButton->setMargins(4, 0, 4, 0);
+			auto miscButton = new SimpleButton(":/icons/16x16/menuDown.svg", QSize(16,16));
+			miscButton->setMargins(4, 0, 4, 0);
+			
+			if (d->uiController)
+			{
+				QMenu *addMenu = new QMenu(this);
+				
+				addMenu->addAction(d->uiController->action(LayerUIController::ActionNewRaster));
+				addMenu->addAction(d->uiController->action(LayerUIController::ActionNewGroup));
+				addMenu->addAction(d->uiController->action(LayerUIController::ActionImport));
+				
+				addButton->setMenu(addMenu);
+				
+				connect(removeButton, SIGNAL(pressed()), d->uiController, SLOT(removeLayers()));
+				
+				QMenu *miscMenu = new QMenu(this);
+				miscMenu->addAction(d->uiController->action(LayerUIController::ActionMerge));
+				
+				miscButton->setMenu(miscMenu);
+			}
+			
+			layout->addWidget(addButton);
+			layout->addWidget(removeButton);
+			layout->addWidget(miscButton);
+			layout->addStretch(1);
+			
+			propertyLayout->addLayout(layout);
+		}
+		
+		mainLayout->addLayout(propertyLayout);
+	}
 	
 	setLayout(mainLayout);
 }

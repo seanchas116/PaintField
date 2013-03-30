@@ -10,10 +10,8 @@ namespace PaintField
 {
 
 class WidgetTabletEvent;
-class Document;
 class Tool;
 class Canvas;
-class LayerModel;
 
 class CanvasView : public QWidget
 {
@@ -27,8 +25,6 @@ public:
 	~CanvasView();
 	
 	Canvas *canvas();
-	Document *document();
-	LayerModel *layerModel();
 	
 	QPoint viewCenter() const;
 	

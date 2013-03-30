@@ -18,7 +18,6 @@ HEADERS += \
            global.h \
            layer.h \
            layeredit.h \
-           layermodel.h \
            layerrenderer.h \
            palettemanager.h \
            randomstring.h \
@@ -32,7 +31,6 @@ HEADERS += \
            workspaceview.h \
            dialogs/exportdialog.h \
            dialogs/newdocumentdialog.h \
-           internal/layermodelcommand.h \
            widgets/colorbutton.h \
            widgets/colorslider.h \
            widgets/colorwheel.h \
@@ -89,7 +87,9 @@ HEADERS += \
     unittest/autotest.h \
     unittest/testutil.h \
     layerscene.h \
-    unittest/test_layerindex.h
+    unittest/test_layerindex.h \
+    unittest/test_layerscene.h \
+    layeritemmodel.h
 FORMS += dialogs/exportdialog.ui dialogs/newdocumentdialog.ui
 SOURCES += \
            document.cpp \
@@ -97,7 +97,6 @@ SOURCES += \
            drawutil.cpp \
            layer.cpp \
            layeredit.cpp \
-           layermodel.cpp \
            layerrenderer.cpp \
            palettemanager.cpp \
            randomstring.cpp \
@@ -108,7 +107,6 @@ SOURCES += \
            workspaceview.cpp \
            dialogs/exportdialog.cpp \
            dialogs/newdocumentdialog.cpp \
-           internal/layermodelcommand.cpp \
            widgets/colorbutton.cpp \
            widgets/colorslider.cpp \
            widgets/colorwheel.cpp \
@@ -162,7 +160,9 @@ SOURCES += \
     unittest/autotest.cpp \
     unittest/testutil.cpp \
     layerscene.cpp \
-    unittest/test_layerindex.cpp
+    unittest/test_layerindex.cpp \
+    unittest/test_layerscene.cpp \
+    layeritemmodel.cpp
 
 RESOURCES += \
     resources/resource-paintfield-core.qrc

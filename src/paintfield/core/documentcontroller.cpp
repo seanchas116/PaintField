@@ -3,6 +3,7 @@
 #include <QClipboard>
 #include <Malachite/ImageIO>
 
+#include "layerscene.h"
 #include "layerrenderer.h"
 #include "documentio.h"
 #include "rasterlayer.h"
@@ -179,7 +180,7 @@ bool DocumentController::exportToImage(Document *document)
 	
 	{
 		LayerRenderer renderer;
-		surface = renderer.renderToSurface(document->layerModel()->rootLayer(), document->tileKeys());
+		surface = renderer.renderToSurface(document->layerScene()->rootLayer().pointer(), document->tileKeys());
 	}
 	
 	QString path = FileDialog::getSaveFilePath(0, tr("Export"), dialog.currentText(), dialog.currentFormat());

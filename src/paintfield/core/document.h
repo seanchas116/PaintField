@@ -3,12 +3,11 @@
 
 #include <QUndoStack>
 
-#include "layermodel.h"
 #include "layer.h"
 
 namespace PaintField {
 
-class LayerModel;
+class LayerScene;
 class Selection;
 
 class Document : public QObject
@@ -72,7 +71,9 @@ public:
 	QPointSet tileKeys() const;
 	
 	QUndoStack *undoStack();
-	LayerModel *layerModel();
+	
+	LayerScene *layerScene();
+	
 	Selection *selection();
 	
 	void setModified(bool modified);

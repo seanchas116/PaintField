@@ -1,6 +1,7 @@
 
 #include <Malachite/SurfacePainter>
 
+#include "paintfield/core/layerscene.h"
 #include "paintfield/core/layeredit.h"
 #include "paintfield/core/canvas.h"
 #include "paintfield/core/workspace.h"
@@ -88,12 +89,12 @@ void BrushTool::beginStroke(const TabletInputData &data)
 	if (!_strokerFactory)
 		return;
 	
-	_layer = dynamic_cast<const RasterLayer *>(currentLayer());
+	_layer = dynamic_cast<const RasterLayer *>(currentLayer().pointer());
 	
 	if (!_layer)
 		return;
 	
-	layerModel()->startEditing();
+	canvas()->document()->layerScene()->abortThumbnailUpdate();
 	
 	//PAINTFIELD_CALC_SCOPE_ELAPSED_TIME;
 	
@@ -149,11 +150,11 @@ void BrushTool::endStroke(const TabletInputData &data)
 	_stroker->end();
 	updateTiles();
 	
-	if (_layer && _layer == currentLayer())
+	if (_layer && _layer == currentLayer().pointer())
 	{
 		_surface.squeeze(_stroker->totalEditedKeys());
 		canvas()->view()->setUpdateTilesEnabled(false);
-		document()->layerModel()->editLayer(document()->layerModel()->indexForLayer(_layer), new LayerSurfaceEdit(_surface, _stroker->totalEditedKeys()), tr("Brush"));
+		canvas()->document()->layerScene()->editLayer(_layer, new LayerSurfaceEdit(_surface, _stroker->totalEditedKeys()), tr("Brush"));
 		canvas()->view()->setUpdateTilesEnabled(true);
 	}
 	

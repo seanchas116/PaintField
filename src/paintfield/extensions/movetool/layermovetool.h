@@ -34,7 +34,7 @@ protected:
 	
 private:
 	
-	const Layer *_layer = 0;
+	LayerRef _layer = 0;
 	QPoint _dragStartPoint, _offset;
 	QPointSet _lastKeys;
 	bool _layerIsDragged = false;

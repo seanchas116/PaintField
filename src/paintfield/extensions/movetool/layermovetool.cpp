@@ -1,5 +1,6 @@
 #include <Malachite/Division>
 
+#include "paintfield/core/layerscene.h"
 #include "paintfield/core/tabletevent.h"
 #include "paintfield/core/layer.h"
 #include "paintfield/core/widgets/simplebutton.h"
@@ -91,9 +92,9 @@ void LayerMoveTool::tabletPressEvent(CanvasTabletEvent *event)
 	_layer = currentLayer();
 	if (_layer && _layer->isType<RasterLayer>())
 	{
-		layerModel()->startEditing();
+		canvas()->document()->layerScene()->abortThumbnailUpdate();
 		_layerIsDragged = true;
-		addLayerDelegation(_layer);
+		addLayerDelegation(_layer.pointer());
 		_dragStartPoint = event->data.pos.toQPoint();
 		_lastKeys = _layer->tileKeys();
 	}
@@ -107,7 +108,7 @@ void LayerMoveTool::tabletReleaseEvent(CanvasTabletEvent *event)
 		_offset = event->data.pos.toQPoint() - _dragStartPoint;
 		_layerIsDragged = false;
 		clearLayerDelegation();
-		layerModel()->editLayer(currentLayerIndex(), new LayerMoveEdit(_offset), tr("Layer Move"));
+		canvas()->document()->layerScene()->editLayer(currentLayer(), new LayerMoveEdit(_offset), tr("Layer Move"));
 	}
 }
 

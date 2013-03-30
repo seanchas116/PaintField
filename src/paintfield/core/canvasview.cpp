@@ -15,6 +15,7 @@
 #include "workspace.h"
 #include "keytracker.h"
 #include "widgets/vanishingscrollbar.h"
+#include "layerscene.h"
 
 #include "canvasviewport.h"
 
@@ -62,13 +63,13 @@ protected:
 					auto layer = insertion.layer;
 					if (index == originalLayers.size())
 					{
-						layers << layer;
+						layers << layer.pointer();
 					}
 					else
 					{
 						auto layerAt = originalLayers.at(index);
 						int trueIndex = layers.indexOf(layerAt);
-						layers.insert(trueIndex, layer);
+						layers.insert(trueIndex, layer.pointer());
 					}
 				}
 			}
@@ -179,7 +180,7 @@ CanvasView::CanvasView(Canvas *canvas, QWidget *parent) :
 		
 		viewport->setDocumentSize(d->sceneSize);
 		updateTransforms();
-		updateTiles(layerModel()->document()->tileKeys());
+		updateTiles(canvas->document()->tileKeys());
 	}
 	
 	// connect to canvas
@@ -202,7 +203,7 @@ CanvasView::CanvasView(Canvas *canvas, QWidget *parent) :
 		canvas->setView(this);
 	}
 	
-	connect(layerModel(), SIGNAL(tilesUpdated(QPointSet)),
+	connect(canvas->document()->layerScene(), SIGNAL(tilesUpdated(QPointSet)),
 	        this, SLOT(updateTiles(QPointSet)));
 	
 	connect(appController()->app(), SIGNAL(tabletActiveChanged(bool)),
@@ -305,8 +306,6 @@ void CanvasView::updateTransforms()
 }
 
 Canvas *CanvasView::canvas() { return d->canvas; }
-Document *CanvasView::document() { return d->canvas->document(); }
-LayerModel *CanvasView::layerModel() { return d->canvas->layerModel(); }
 
 void CanvasView::setTool(Tool *tool)
 {
@@ -348,7 +347,7 @@ void CanvasView::updateTiles(const QPointSet &keys, const QHash<QPoint, QRect> &
 	CanvasRenderer renderer;
 	renderer.setTool(d->tool);
 	
-	Surface surface = renderer.renderToSurface(layerModel()->rootLayer(), keys, rects);
+	Surface surface = renderer.renderToSurface(canvas()->document()->layerScene()->rootLayer().pointer(), keys, rects);
 	
 	static const Pixel whitePixel = Color::fromRgbValue(1,1,1).toPixel();
 	

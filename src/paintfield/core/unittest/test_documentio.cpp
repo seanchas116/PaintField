@@ -2,6 +2,7 @@
 
 #include <QtCore>
 #include "paintfield/core/documentio.h"
+#include "paintfield/core/layerscene.h"
 
 #include "testutil.h"
 #include "test_documentio.h"
@@ -32,7 +33,7 @@ void Test_DocumentIO::saveLoad()
 		openedDoc = loader.load(path, 0);
 	}
 	
-	QCOMPARE(doc->layerModel()->rootLayer()->count(), openedDoc->layerModel()->rootLayer()->count());
+	QCOMPARE(doc->layerScene()->rootLayer().count(), openedDoc->layerScene()->rootLayer().count());
 }
 
 PF_ADD_TESTCLASS(Test_DocumentIO)

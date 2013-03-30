@@ -1,6 +1,6 @@
 #include <Malachite/ImageIO>
 
-#include "layermodel.h"
+#include "layerscene.h"
 #include "selection.h"
 
 #include "document.h"
@@ -20,7 +20,7 @@ struct Document::Data
 	bool modified = false;
 	QUndoStack *undoStack = 0;
 	
-	LayerModel *layerModel = 0;
+	LayerScene *layerScene = 0;
 	Selection *selection = 0;
 };
 
@@ -32,7 +32,8 @@ Document::Document(const QString &tempName, const QSize &size, const LayerList &
 	d->tempName = tempName;
 	d->undoStack = new QUndoStack(this);
 	
-	d->layerModel = new LayerModel(layers, this);
+	d->layerScene = new LayerScene(layers, this);
+	
 	d->selection = new Selection(this);
 	
 	d->tileXCount = ceil(double(size.width()) / double(Surface::tileWidth()));
@@ -67,7 +68,8 @@ QPointSet Document::tileKeys() const { return d->tileKeys; }
 
 QUndoStack *Document::undoStack() { return d->undoStack; }
 
-LayerModel *Document::layerModel() { return d->layerModel; }
+LayerScene *Document::layerScene() { return d->layerScene; }
+
 Selection *Document::selection() { return d->selection; }
 
 void Document::setModified(bool modified)

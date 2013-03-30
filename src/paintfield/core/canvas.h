@@ -6,6 +6,8 @@
 #include "document.h"
 #include "extension.h"
 
+class QItemSelectionModel;
+
 namespace PaintField
 {
 
@@ -46,16 +48,6 @@ public:
 	 * @return The document the canvas handles
 	 */
 	Document *document();
-	
-	/**
-	 * @return The layer model of the document
-	 */
-	LayerModel *layerModel() { return document()->layerModel(); }
-	
-	/**
-	 * @return The selection model of the layer model
-	 */
-	QItemSelectionModel *selectionModel();
 	
 	/**
 	 * Adds actions that will belong to the canvas.

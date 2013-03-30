@@ -16,7 +16,6 @@ namespace PaintField
 {
 
 class Document;
-class LayerModel;
 class Workspace;
 class Canvas;
 class LayerUIController;
@@ -31,6 +30,7 @@ class LayerTreeSidebar : public QWidget
 public:
 	
 	explicit LayerTreeSidebar(LayerUIController *layerUIController, QWidget *parent = 0);
+	~LayerTreeSidebar();
 	
 public slots:
 	
@@ -40,27 +40,16 @@ protected:
 	
 private slots:
 	
-	void updatePropertyView();
+	void onCurrentChanged(const LayerRef &current);
+	void updateView();
 	void setOpacityPercentage(double value);
 	
 private:
 	
 	void createForms();
 	
-	LayerUIController *_layerUIController = 0;
-	
-	Canvas *_canvas = 0;
-	
-	// forms
-	
-	QTreeView *_treeView = 0;
-	
-	DoubleSlider *_opacitySlider = 0;
-	LooseSpinBox *_opacitySpinBox = 0;
-	
-	QComboBox *_blendModeComboBox = 0;
-	
-	QWidget *_formWidget = 0;
+	struct Data;
+	Data *d;
 };
 
 }

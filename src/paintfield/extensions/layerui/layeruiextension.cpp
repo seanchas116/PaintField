@@ -17,21 +17,15 @@ const QString _layerTreeSidebarName = "paintfield.sidebar.layerTree";
 LayerUIExtension::LayerUIExtension(Canvas *canvas, QObject *parent) :
     CanvasExtension(canvas, parent)
 {
-	LayerUIController *layerUIController;
-	if (canvas)
-		layerUIController = new LayerUIController(canvas);
-	else
-		layerUIController = 0;
+	LayerUIController *uiController = canvas ? new LayerUIController(canvas->document(), this) : 0;
 	
-	auto sideBar = new LayerTreeSidebar(layerUIController, 0);
+	auto sideBar = new LayerTreeSidebar(uiController, 0);
 	addSideBar(_layerTreeSidebarName, sideBar);
 	
-	if (layerUIController)
+	if (uiController)
 	{
-		addAction(layerUIController->importAction());
-		addAction(layerUIController->newRasterAction());
-		addAction(layerUIController->newGroupAction());
-		addAction(layerUIController->mergeAction());
+		for (auto action : uiController->actions())
+			addAction(action);
 	}
 }
 

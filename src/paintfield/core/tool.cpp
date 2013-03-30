@@ -1,5 +1,8 @@
 #include <QGraphicsItem>
 
+#include "layerscene.h"
+#include "document.h"
+
 #include "tool.h"
 
 namespace PaintField
@@ -7,7 +10,7 @@ namespace PaintField
 
 struct Tool::Data
 {
-	LayerConstList layerDelegations;
+	LayerRefList layerDelegations;
 	
 	QList<LayerInsertion> layerInsertions;
 	
@@ -26,7 +29,12 @@ Tool::~Tool()
 	delete d;
 }
 
-void Tool::addLayerInsertion(const Layer *parent, int index, const Layer *layer)
+LayerRef Tool::currentLayer()
+{
+	return canvas()->document()->layerScene()->current();
+}
+
+void Tool::addLayerInsertion(LayerRef parent, int index, LayerRef layer)
 {
 	LayerInsertion insertion = { .parent = parent, .index = index, .layer = layer };
 	d->layerInsertions << insertion;
@@ -42,7 +50,7 @@ QList<Tool::LayerInsertion> Tool::layerInsertions() const
 	return d->layerInsertions;
 }
 
-void Tool::addLayerDelegation(const Layer *layer)
+void Tool::addLayerDelegation(LayerRef layer)
 {
 	d->layerDelegations << layer;
 }
@@ -52,7 +60,7 @@ void Tool::clearLayerDelegation()
 	d->layerDelegations.clear();
 }
 
-LayerConstList Tool::layerDelegations() const
+LayerRefList Tool::layerDelegations() const
 {
 	return d->layerDelegations;
 }

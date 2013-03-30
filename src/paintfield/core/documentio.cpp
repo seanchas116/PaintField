@@ -6,6 +6,7 @@
 #include <Minizip/unzip.h>
 #include <Minizip/zip.h>
 
+#include "layerscene.h"
 #include "grouplayer.h"
 #include "layerfactorymanager.h"
 #include "randomstring.h"
@@ -124,7 +125,7 @@ bool DocumentSaver::save(const QString &filePath)
 			
 			{
 				int count = 0;
-				headerMap["stack"] = d->saveLayerChildrenRecursive(d->document->layerModel()->rootLayer(), count);
+				headerMap["stack"] = d->saveLayerChildrenRecursive(d->document->layerScene()->rootLayer().pointer(), count);
 			}
 			
 			{

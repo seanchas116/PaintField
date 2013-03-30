@@ -12,7 +12,6 @@ public:
 	LayerEdit() {}
 	virtual ~LayerEdit() {}
 	
-	virtual void saveUndoState(const Layer *layer);
 	virtual void redo(Layer *layer);
 	virtual void undo(Layer *layer);
 	
@@ -36,13 +35,15 @@ private:
 class LayerPropertyEdit : public LayerEdit
 {
 public:
-	LayerPropertyEdit(const QVariant &property, int role);
-	void saveUndoState(const Layer *layer);
+	
+	LayerPropertyEdit(const Layer *layer, const QVariant &property, int role);
 	void redo(Layer *layer);
 	void undo(Layer *layer);
 	
 private:
-	QVariant _newProperty, _oldProperty;
+	void change(Layer *layer);
+	
+	QVariant _newProperty;
 	int _role;
 };
 

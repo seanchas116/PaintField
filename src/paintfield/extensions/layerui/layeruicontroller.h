@@ -5,6 +5,8 @@
 #include "paintfield/core/workspace.h"
 #include "paintfield/core/canvas.h"
 
+class QItemSelection;
+
 namespace PaintField
 {
 
@@ -13,15 +15,22 @@ class LayerUIController : public QObject
 	Q_OBJECT
 public:
 	
-	LayerUIController(Canvas *parent);
+	LayerUIController(Document *document, QObject *parent);
+	~LayerUIController();
 	
-	QAction *importAction() { return _importAction; }
-	QAction *newRasterAction() { return _newRasterAction; }
-	QAction *newGroupAction() { return _newGroupAction; }
-	QAction *removeAction() { return _removeAction; }
-	QAction *mergeAction() { return _mergeAction; }
+	enum ActionType
+	{
+		ActionImport,
+		ActionNewRaster,
+		ActionNewGroup,
+		ActionRemove,
+		ActionMerge
+	};
 	
-	Canvas *canvas() { return static_cast<Canvas *>(parent()); }
+	QAction *action(ActionType type);
+	QList<QAction *> actions();
+	
+	Document *document();
 	
 signals:
 	
@@ -40,13 +49,9 @@ private slots:
 private:
 	
 	void addLayer(Layer *layer, const QString &description);
-	void setActionsEnabled(const QList<QAction *> &actions, bool enabled);
 	
-	Canvas *_canvas = nullptr;
-	
-	QAction *_importAction = nullptr, *_newRasterAction = nullptr, *_newGroupAction = nullptr, *_removeAction = nullptr, *_mergeAction = nullptr;
-	
-	QList<QAction *> _actionsForLayers;
+	struct Data;
+	Data *d;
 };
 
 }

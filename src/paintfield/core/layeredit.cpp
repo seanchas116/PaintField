@@ -10,34 +10,44 @@ namespace PaintField
 
 using namespace Malachite;
 
-void LayerEdit::saveUndoState(const Layer */*layer*/)
-{}
-
 void LayerEdit::redo(Layer */*layer*/)
 {}
 
 void LayerEdit::undo(Layer */*layer*/)
 {}
 
-LayerPropertyEdit::LayerPropertyEdit(const QVariant &property, int role) :
+LayerPropertyEdit::LayerPropertyEdit(const Layer *layer, const QVariant &property, int role) :
       LayerEdit(),
       _newProperty(property),
       _role(role)
-{}
-
-void LayerPropertyEdit::saveUndoState(const Layer *layer)
 {
-	_oldProperty = layer->property(_role);
+	switch (role)
+	{
+		case RoleOpacity:
+		case RoleVisible:
+		case RoleBlendMode:
+			setModifiedKeys(layer->tileKeysRecursive());
+			break;
+		default:
+			break;
+	}
 }
 
 void LayerPropertyEdit::redo(Layer *layer)
 {
-	layer->setProperty(_newProperty, _role);
+	change(layer);
 }
 
 void LayerPropertyEdit::undo(Layer *layer)
 {
-	layer->setProperty(_oldProperty, _role);
+	change(layer);
+}
+
+void LayerPropertyEdit::change(Layer *layer)
+{
+	auto property = layer->property(_role);
+	layer->setProperty(_newProperty, _role);
+	_newProperty = property;
 }
 
 LayerSurfaceEdit::LayerSurfaceEdit(const Surface &surface, const QPointSet &tileKeys) :

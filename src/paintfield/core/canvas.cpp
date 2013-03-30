@@ -1,6 +1,8 @@
 #include <QAction>
 #include <QApplication>
 #include <QClipboard>
+#include <QItemSelectionModel>
+
 #include <Malachite/ImageIO>
 
 #include "documentcontroller.h"
@@ -16,6 +18,7 @@
 #include "rasterlayer.h"
 #include "appcontroller.h"
 #include "documentreferencemanager.h"
+#include "layeritemmodel.h"
 
 #include "dialogs/messagebox.h"
 
@@ -33,8 +36,6 @@ struct Canvas::Data
 	Workspace *workspace = 0;
 	Document *document = 0;
 	int *documentRefCount = 0;
-	
-	QItemSelectionModel *selectionModel = 0;
 	
 	CanvasView *view = 0;
 	QActionList actions;
@@ -85,11 +86,6 @@ void Canvas::commonInit()
 	
 	connect(d->document, SIGNAL(filePathChanged(QString)), this, SIGNAL(documentPropertyChanged()));
 	connect(d->document, SIGNAL(modifiedChanged(bool)), this, SIGNAL(documentPropertyChanged()));
-	
-	// create selection model
-	
-	d->selectionModel = new QItemSelectionModel(d->document->layerModel(), this);
-	d->selectionModel->setCurrentIndex(d->document->layerModel()->index(0, QModelIndex()), QItemSelectionModel::Current);
 	
 	// create actions
 	
@@ -211,7 +207,6 @@ void Canvas::setRetinaMode(bool mode)
 
 Workspace *Canvas::workspace() { return d->workspace; }
 Document *Canvas::document() { return d->document; }
-QItemSelectionModel *Canvas::selectionModel() { return d->selectionModel; }
 
 void Canvas::addActions(const QActionList &actions)
 {

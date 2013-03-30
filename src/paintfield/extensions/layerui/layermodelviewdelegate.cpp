@@ -1,8 +1,10 @@
 #include <QMouseEvent>
 #include <QMenu>
 #include <QLineEdit>
+#include <QItemSelectionModel>
 
-#include "paintfield/core/layermodel.h"
+#include "paintfield/core/layeritemmodel.h"
+#include "paintfield/core/layerscene.h"
 #include "paintfield/core/thumbnail.h"
 #include "paintfield/core/widgets/simplebutton.h"
 
@@ -14,7 +16,8 @@ namespace PaintField
 
 struct LayerModelViewDelegate::Data
 {
-	LayerUIController *actionController;
+	LayerUIController *actionController = 0;
+	LayerScene *layerScene = 0;
 	QIcon visibleIcon, lockedIcon;
 	
 	static constexpr int buttonMargin = 8;
@@ -55,6 +58,7 @@ LayerModelViewDelegate::LayerModelViewDelegate(LayerUIController *actionControll
 	d(new Data)
 {
 	d->actionController = actionController;
+	d->layerScene = actionController->document()->layerScene();
 	d->visibleIcon = SimpleButton::createSimpleIconSet(":/icons/16x16/visible.svg", QSize(16, 16));
 	d->lockedIcon = SimpleButton::createSimpleIconSet(":/icons/16x16/locked.svg", QSize(16, 16));
 }
@@ -76,11 +80,7 @@ bool LayerModelViewDelegate::editorEvent(QEvent *event, QAbstractItemModel *mode
 			
 			if (mouseEvent->button() == Qt::RightButton)
 			{
-				LayerModel *layerModel = d->actionController->canvas()->layerModel();
-				Q_CHECK_PTR(layerModel);
-				Q_ASSERT(layerModel == qobject_cast<LayerModel *>(model));
-				
-				d->actionController->canvas()->selectionModel()->select(index, QItemSelectionModel::Select);
+				d->layerScene->itemSelectionModel()->select(index, QItemSelectionModel::Select);
 				
 				QMenu menu;
 				menu.addAction(tr("Remove"), d->actionController, SLOT(removeLayers()));
@@ -96,7 +96,7 @@ bool LayerModelViewDelegate::editorEvent(QEvent *event, QAbstractItemModel *mode
 					if (d->buttonRect(option.rect, buttonIndex).contains(mouseEvent->pos()))
 					{
 						bool visible = index.data(role).toBool();
-						d->actionController->canvas()->layerModel()->setData(index, visible ? false : true, role);
+						d->layerScene->setLayerProperty(d->layerScene->itemModel()->layerForIndex(index), visible ? false : true, role);
 						return true;
 					}
 					return false;
@@ -135,10 +135,10 @@ void LayerModelViewDelegate::paint(QPainter *painter, const QStyleOptionViewItem
 	painter->save();
 	
 	const bool selected = option.state & QStyle::State_Selected;
-	const bool current = index == d->actionController->canvas()->selectionModel()->currentIndex();
+	const bool current = ( index == d->layerScene->itemSelectionModel()->currentIndex() );
 	
 	if (selected)
-		painter->fillRect(option.rect, option.palette.highlight());
+		painter->fillRect( option.rect, option.palette.highlight() );
 	
 	const auto wholeRect = option.rect;
 	
@@ -204,7 +204,8 @@ void LayerModelViewDelegate::setEditorData(QWidget *editor, const QModelIndex &i
 {
 	QLineEdit *lineEdit = qobject_cast<QLineEdit *>(editor);
 	Q_ASSERT(lineEdit);
-	d->actionController->canvas()->layerModel()->setData(index, lineEdit->text(), RoleName);
+	auto layer = d->layerScene->itemModel()->layerForIndex(index);
+	d->layerScene->setLayerProperty(layer, lineEdit->text(), RoleName);
 }
 
 }

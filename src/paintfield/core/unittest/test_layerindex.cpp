@@ -23,13 +23,13 @@ void Test_LayerIndex::test()
 	layer->append(new GroupLayer());
 	layer->append(new GroupLayer());
 	
-	LayerIndex index = layer;
+	LayerRef index = layer;
 	
-	QCOMPARE(index.child(1).layer(), layer->child(1));
+	QCOMPARE(index.child(1).pointer(), layer->child(1));
 	
 	delete layer;
 	
-	QCOMPARE(index.layer(), static_cast<const Layer *>(0));
+	QCOMPARE(index.pointer(), static_cast<const Layer *>(0));
 }
 
 PF_ADD_TESTCLASS(Test_LayerIndex)

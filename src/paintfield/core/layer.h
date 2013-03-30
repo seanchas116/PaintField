@@ -4,6 +4,7 @@
 #include <QList>
 #include <QPixmap>
 #include <QVariant>
+#include <tuple>
 
 #include <Malachite/Surface>
 #include <Malachite/Misc>
@@ -25,7 +26,7 @@ class Layer;
 typedef QList<Layer *> LayerList;
 typedef QList<const Layer *> LayerConstList;
 
-class LayerIndex;
+class LayerRef;
 
 class Layer
 {
@@ -232,15 +233,15 @@ public:
 	
 	/**
 	 * Updates only this layer's thumbnail
-	 * @param size
+	 * @param documentSize
 	 */
-	virtual void updateThumbnail(const QSize &size) { Q_UNUSED(size) }
+	virtual void updateThumbnail(const QSize &documentSize) { Q_UNUSED(documentSize) }
 	
 	/**
 	 * Updates the thumbnail of each of ths and this descendant layers.
-	 * @param size
+	 * @param documentSize
 	 */
-	void updateThumbnailRecursive(const QSize &size);
+	void updateThumbnailRecursive(const QSize &documentSize);
 	
 	/**
 	 * Updates the thumbnail of each of ths and this descendant layers, if its isThumbnailDirty() is true.
@@ -252,6 +253,9 @@ public:
 	
 	virtual QPointSet tileKeys() const { return QPointSet(); }
 	QPointSet tileKeysRecursive() const;
+	
+	void encodeRecursive(QDataStream &stream) const;
+	static Layer *decodeRecursive(QDataStream &stream);
 	
 	/**
 	 * Creates another instance of the layer.
@@ -283,7 +287,7 @@ protected:
 	
 private:
 	
-	friend class LayerIndex;
+	friend class LayerRef;
 	
 	Layer *_parent = 0;	// 0 : root item
 	LayerList _children;
@@ -296,7 +300,7 @@ private:
 	
 	bool _isThumbnailDirty = false;
 	
-	mutable QList<LayerIndex *> _indexes;
+	mutable QList<LayerRef *> _indexes;
 };
 
 class LayerFactory
@@ -310,24 +314,36 @@ public:
 	virtual const ::std::type_info &typeInfo() const = 0;
 };
 
-class LayerIndex
+class LayerRef
 {
 public:
 	
-	LayerIndex(const Layer *layer) :
-		_layer(layer)
+	LayerRef() :
+		_layer(0)
+	{}
+	
+	LayerRef(const Layer *layer)
 	{
-		if (layer)
-			layer->_indexes << this;
+		setLayer(layer);
 	}
 	
-	~LayerIndex()
+	LayerRef(const LayerRef &other)
 	{
-		if (_layer)
-			_layer->_indexes.removeAll(this);
+		setLayer(other.pointer());
 	}
 	
-	const Layer *layer() const { return _layer; }
+	~LayerRef()
+	{
+		clear();
+	}
+	
+	LayerRef &operator=(const LayerRef &other)
+	{
+		setLayer(other.pointer());
+		return *this;
+	}
+	
+	const Layer *pointer() const { return _layer; }
 	
 	int index() const
 	{
@@ -341,21 +357,21 @@ public:
 		return _layer->count();
 	}
 	
-	QList<LayerIndex> children() const;
+	QList<LayerRef> children() const;
 	
-	LayerIndex child(int index) const
+	LayerRef child(int index) const
 	{
 		Q_ASSERT(_layer);
 		return _layer->child(index);
 	}
 	
-	LayerIndex sibling(int index) const
+	LayerRef sibling(int index) const
 	{
 		Q_ASSERT(_layer);
 		return _layer->sibling(index);
 	}
 	
-	LayerIndex parent() const
+	LayerRef parent() const
 	{
 		Q_ASSERT(_layer);
 		return _layer->parent();
@@ -363,12 +379,45 @@ public:
 	
 	bool isValid() const { return _layer; }
 	
+	void setLayer(const Layer *layer)
+	{
+		clear();
+		
+		if (layer)
+		{
+			layer->_indexes << this;
+			_layer = layer;
+		}
+	}
+	
+	void clear()
+	{
+		if (_layer)
+		{
+			_layer->_indexes.removeAll(this);
+			_layer = 0;
+		}
+	}
+	
+	bool operator==(const LayerRef &other) const
+	{
+		return _layer == other._layer;
+	}
+	
+	bool operator!=(const LayerRef &other) const { return !operator==(other); }
+	
+	operator bool() const { return isValid(); }
+	
+	const Layer &operator*() const { return *_layer; }
+	const Layer *operator->() const { return _layer; }
+	
 private:
 	
 	friend class Layer;
-	
 	const Layer *_layer = 0;
 };
+
+typedef QList<LayerRef> LayerRefList;
 
 }
 

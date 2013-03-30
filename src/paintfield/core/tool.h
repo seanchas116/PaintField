@@ -31,23 +31,18 @@ public:
 	
 	struct LayerInsertion
 	{
-		const Layer *parent;
+		LayerRef parent;
 		int index;
-		const Layer *layer;
+		LayerRef layer;
 	};
 	
 	explicit Tool(Canvas *parent = 0);
 	~Tool();
 	
 	/**
-	 * @return The document's current layer index
-	 */
-	QModelIndex currentLayerIndex() { return selectionModel()->currentIndex(); }
-	
-	/**
 	 * @return The document's current layer
 	 */
-	const Layer *currentLayer() { return layerModel()->layerForIndex(currentLayerIndex()); }
+	LayerRef currentLayer();
 	
 	/**
 	 * @return A graphics item which is displayed on top of the canvas
@@ -69,7 +64,7 @@ public:
 	 * @param index The index
 	 * @param layer The inserted layer
 	 */
-	void addLayerInsertion(const Layer *parent, int index, const Layer *layer);
+	void addLayerInsertion(LayerRef parent, int index, LayerRef layer);
 	
 	void clearLayerInsertions();
 	
@@ -80,11 +75,11 @@ public:
 	 * Tool::drawLayer is called instead of the default layer drawing function of canvas, when the layer is going to be rendered.
 	 * @param layer
 	 */
-	void addLayerDelegation(const Layer *layer);
+	void addLayerDelegation(LayerRef layer);
 	
 	void clearLayerDelegation();
 	
-	LayerConstList layerDelegations() const;
+	LayerRefList layerDelegations() const;
 	
 	QCursor cursor() const;
 	
@@ -115,9 +110,6 @@ protected:
 	void setGraphicsItem(QGraphicsItem *item);
 	
 	Canvas *canvas() { return static_cast<Canvas *>(parent()); }
-	Document *document() { return canvas()->document(); }
-	LayerModel *layerModel() { return document()->layerModel(); }
-	QItemSelectionModel *selectionModel() { return canvas()->selectionModel(); }
 	
 private:
 	
