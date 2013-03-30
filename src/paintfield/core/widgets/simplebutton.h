@@ -27,8 +27,8 @@ public:
 	void setMargins(int left, int top, int right, int bottom) { setMargins(QMargins(left, top, right, bottom)); }
 	QMargins margin() const { return _margins; }
 	
-	static QIcon createSimpleIconSet(const QString &basePixmapFile, const QSize &size);
-	static QIcon createSimpleIconSet(const QPixmap &basePixmap, const QSize &size);
+	static QIcon createIcon(const QPixmap &basePixmap, const QBrush &onBrush = QBrush(), const QBrush &offBrush = QBrush());
+	static QIcon createIcon(const QString &path, const QBrush &onBrush = QBrush(), const QBrush &offBrush = QBrush());
 	
 signals:
 	

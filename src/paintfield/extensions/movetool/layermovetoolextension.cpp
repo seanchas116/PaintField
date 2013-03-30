@@ -23,7 +23,7 @@ Tool *LayerMoveToolExtension::createTool(const QString &name, Canvas *canvas)
 void LayerMoveToolExtensionFactory::initialize(AppController *app)
 {
 	QString text = QObject::tr("Layer Move");
-	QIcon icon = SimpleButton::createSimpleIconSet(":/icons/24x24/move.svg", QSize(24,24));
+	QIcon icon = SimpleButton::createIcon(":/icons/24x24/move.svg");
 	app->settingsManager()->declareTool(_layerMoveToolName, ToolInfo(text, icon, {"raster"}));
 }
 

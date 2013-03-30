@@ -1,51 +1,53 @@
 #include <QPainter>
+#include <QApplication>
+#include <QPalette>
+
 #include "simplebutton.h"
 
 namespace PaintField
 {
 
-QIcon SimpleButton::createSimpleIconSet(const QString &basePixmapFile, const QSize &size)
-{
-	return createSimpleIconSet(QPixmap(basePixmapFile), size);
-}
-
-void paintPixmapWithColor(QPixmap *pixmap, const QColor &color)
+static void paintPixmapWithBrush(QPixmap *pixmap, const QBrush &brush)
 {
 	QPainter painter(pixmap);
 	painter.setCompositionMode(QPainter::CompositionMode_SourceIn);
 	painter.setPen(Qt::NoPen);
-	painter.setBrush(color);
+	painter.setBrush(brush);
 	painter.drawRect(pixmap->rect());
 }
 
-QIcon SimpleButton::createSimpleIconSet(const QPixmap &originalPixmap, const QSize &size)
+QIcon SimpleButton::createIcon(const QPixmap &basePixmap, const QBrush &onBrush, const QBrush &offBrush)
 {
-	QPixmap basePixmap = originalPixmap.scaled(size);
-	
 	if (basePixmap.isNull())
 	{
-		PAINTFIELD_DEBUG << "pixmap is null";
+		PAINTFIELD_WARNING << "pixmap is null";
 		return QIcon();
 	}
 	
-	QPixmap pixmapOff = basePixmap;
-	//QPixmap pixmapActiveOff = basePixmap;
-	QPixmap pixmapOn = basePixmap;
-	//QPixmap pixmapActiveOn = basePixmap;
+	QPixmap pmOn = basePixmap, pmOff = basePixmap;
 	
-	paintPixmapWithColor(&pixmapOff, QColor(102, 102, 102));
-	//fsPaintPixmapWithColor(&pixmapActiveOff, QColor(77, 77, 77));
-	paintPixmapWithColor(&pixmapOn, QColor(39, 96, 209));
-	//fsPaintPixmapWithColor(&pixmapOn, QColor(255, 60, 60));
-	//fsPaintPixmapWithColor(&pixmapActiveOn, QColor(35, 84, 184));
+	
+	QBrush actualOnBrush = onBrush, actualOffBrush = offBrush;
+	
+	if (onBrush.style() == Qt::NoBrush)
+		actualOnBrush = QColor(39, 96, 209);
+	
+	if (offBrush.style() == Qt::NoBrush)
+		actualOffBrush = QColor(102, 102, 102);
+	
+	paintPixmapWithBrush(&pmOn, actualOnBrush);
+	paintPixmapWithBrush(&pmOff, actualOffBrush);
 	
 	QIcon icon;
-	icon.addPixmap(pixmapOff, QIcon::Normal, QIcon::Off);
-	//icon.addPixmap(pixmapActiveOff, QIcon::Active, QIcon::Off);
-	icon.addPixmap(pixmapOn, QIcon::Normal, QIcon::On);
-	//icon.addPixmap(pixmapActiveOn, QIcon::Active, QIcon::On);
+	icon.addPixmap(pmOff, QIcon::Normal, QIcon::Off);
+	icon.addPixmap(pmOn, QIcon::Normal, QIcon::On);
 	
 	return icon;
+}
+
+QIcon SimpleButton::createIcon(const QString &path, const QBrush &onBrush, const QBrush &offBrush)
+{
+	return createIcon(QPixmap(path), onBrush, offBrush);
 }
 
 SimpleButton::SimpleButton(QWidget *parent) :
@@ -64,12 +66,12 @@ SimpleButton::SimpleButton(const QIcon &icon, QWidget *parent) :
 SimpleButton::SimpleButton(const QString &basePixmapFile, const QSize &size, QWidget *parent) :
 	SimpleButton(parent)
 {
-	QIcon icon = createSimpleIconSet(basePixmapFile, size);
+	QIcon icon = createIcon(basePixmapFile);
 	
 	if (!icon.isNull())
 	{
 		setIcon(icon);
-		setIconSize(icon.availableSizes().at(0));
+		setIconSize(size);
 	}
 }
 

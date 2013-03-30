@@ -29,7 +29,7 @@ void VectorToolsExtensionFactory::initialize(AppController *app)
 {
 	{
 		auto text = QObject::tr("Rectangle");
-		auto icon = SimpleButton::createSimpleIconSet(":/icons/24x24/rect.svg", QSize(24,24));
+		auto icon = SimpleButton::createIcon(":/icons/24x24/rect.svg");
 		app->settingsManager()->declareTool(_rectToolName, ToolInfo(text, icon, QStringList()));
 	}
 }

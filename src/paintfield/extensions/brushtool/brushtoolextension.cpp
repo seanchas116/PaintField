@@ -85,7 +85,7 @@ void BrushToolExtensionFactory::initialize(AppController *app)
 {
 	{
 		QString text = QObject::tr("Brush");
-		QIcon icon = SimpleButton::createSimpleIconSet(":/icons/24x24/brush.svg", QSize(24,24));
+		QIcon icon = SimpleButton::createIcon(":/icons/24x24/brush.svg");
 		QStringList supportedTypes = { "raster" };
 		app->settingsManager()->declareTool(_brushToolName, ToolInfo(text, icon, QStringList()));
 	}

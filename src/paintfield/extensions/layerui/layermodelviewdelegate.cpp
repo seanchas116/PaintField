@@ -26,6 +26,7 @@ struct LayerModelViewDelegate::Data
 	static constexpr int pixmapWH = Thumbnail::Margin * 2 + Thumbnail::PixmapSize;
 	static constexpr int textVerticalMargin = 16, textHorizontalMargin = 8;
 	static constexpr int height = pixmapWH + 2 * pixmapMargin;
+	static constexpr int buttonBackgroundRadius = 4;
 	
 	static QRect buttonRect(const QRect &wholeRect, const int indexFromRight)
 	{
@@ -59,8 +60,12 @@ LayerModelViewDelegate::LayerModelViewDelegate(LayerUIController *actionControll
 {
 	d->actionController = actionController;
 	d->layerScene = actionController->document()->layerScene();
-	d->visibleIcon = SimpleButton::createSimpleIconSet(":/icons/16x16/visible.svg", QSize(16, 16));
-	d->lockedIcon = SimpleButton::createSimpleIconSet(":/icons/16x16/locked.svg", QSize(16, 16));
+	
+	auto onColor = QColor(0x20, 0x20, 0x20);
+	auto offColor = QColor(0xa0, 0xa0, 0xa0);
+	
+	d->visibleIcon = SimpleButton::createIcon(":/icons/16x16/visible.svg", onColor, offColor);
+	d->lockedIcon = SimpleButton::createIcon(":/icons/16x16/locked.svg", onColor, offColor);
 }
 
 LayerModelViewDelegate::~LayerModelViewDelegate()
@@ -133,6 +138,7 @@ bool LayerModelViewDelegate::editorEvent(QEvent *event, QAbstractItemModel *mode
 void LayerModelViewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
 	painter->save();
+	//painter->setRenderHint(QPainter::Antialiasing);
 	
 	const bool selected = option.state & QStyle::State_Selected;
 	const bool current = ( index == d->layerScene->itemSelectionModel()->currentIndex() );
