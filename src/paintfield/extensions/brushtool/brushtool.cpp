@@ -91,7 +91,7 @@ void BrushTool::beginStroke(const TabletInputData &data)
 	
 	_layer = dynamic_cast<const RasterLayer *>(currentLayer().pointer());
 	
-	if (!_layer)
+	if (!_layer || _layer->isLocked())
 		return;
 	
 	canvas()->document()->layerScene()->abortThumbnailUpdate();

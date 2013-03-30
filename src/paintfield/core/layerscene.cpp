@@ -38,7 +38,7 @@ public:
 		parent->insert(index, layer);
 		emit _scene->layerInserted(parent, index);
 		
-		_scene->enqueueTileUpdate(layer->tileKeysRecursive());
+		enqueueTileUpdate(layer->tileKeysRecursive());
 	}
 	
 	Layer *takeLayer(Layer *parent, int index)
@@ -47,7 +47,7 @@ public:
 		auto layer = parent->take(index);
 		emit _scene->layerRemoved(parent, index);
 		
-		_scene->enqueueTileUpdate(layer->tileKeysRecursive());
+		enqueueTileUpdate(layer->tileKeysRecursive());
 		
 		return layer;
 	}
@@ -128,6 +128,53 @@ private:
 	
 	Path _path;
 	QScopedPointer<LayerEdit> _edit;
+};
+
+class LayerScenePropertyChangeCommand : public LayerSceneCommand
+{
+public:
+	
+	LayerScenePropertyChangeCommand(const LayerRef &layer, const QVariant &data, int role, LayerScene *scene, QUndoCommand *parent = 0) :
+		LayerSceneCommand(scene, parent),
+		_path(pathForLayer(layer)),
+		_data(data),
+		_role(role)
+	{}
+	
+	void redo()
+	{
+		change();
+	}
+	
+	void undo()
+	{
+		change();
+	}
+	
+private:
+	
+	void change()
+	{
+		auto layer = layerForPath(_path);
+		auto old = layer->property(_role);
+		layer->setProperty(_data, _role);
+		_data = old;
+		
+		switch (_role)
+		{
+			case RoleOpacity:
+			case RoleVisible:
+			case RoleBlendMode:
+				enqueueTileUpdate(layer->tileKeysRecursive());
+				break;
+			default:
+				break;
+		}
+	}
+	
+	Path _path;
+	QVariant _data;
+	int _role;
 };
 
 class LayerSceneAddCommand : public LayerSceneCommand
@@ -541,6 +588,9 @@ void LayerScene::mergeLayers(const LayerRef &parent, int index, int count)
 
 void LayerScene::editLayer(const LayerRef &ref, LayerEdit *edit, const QString &description)
 {
+	if (ref->isLocked())
+		return;
+	
 	auto command = new LayerSceneEditCommand(ref, edit, this, 0);
 	command->setText(description);
 	pushCommand(command);
@@ -548,6 +598,9 @@ void LayerScene::editLayer(const LayerRef &ref, LayerEdit *edit, const QString &
 
 void LayerScene::setLayerProperty(const LayerRef &ref, const QVariant &data, int role, const QString &description)
 {
+	if (ref->isLocked() && role != RoleLocked)
+		return;
+	
 	if (ref->property(role) == data)
 		return;
 	
@@ -575,7 +628,9 @@ void LayerScene::setLayerProperty(const LayerRef &ref, const QVariant &data, int
 		}
 	}
 	
-	editLayer(ref, new LayerPropertyEdit(ref.pointer(), data, role), text);
+	auto command = new LayerScenePropertyChangeCommand(ref, data, role, this, 0);
+	command->setText(text);
+	pushCommand(command);
 }
 
 LayerRef LayerScene::rootLayer() const

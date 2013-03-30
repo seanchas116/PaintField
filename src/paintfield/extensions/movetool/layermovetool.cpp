@@ -90,7 +90,7 @@ void LayerMoveTool::tabletPressEvent(CanvasTabletEvent *event)
 {
 	PAINTFIELD_DEBUG << "pressed";
 	_layer = currentLayer();
-	if (_layer && _layer->isType<RasterLayer>())
+	if (_layer && _layer->isType<RasterLayer>() && !_layer->isLocked())
 	{
 		canvas()->document()->layerScene()->abortThumbnailUpdate();
 		_layerIsDragged = true;

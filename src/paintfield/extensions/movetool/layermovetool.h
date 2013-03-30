@@ -28,10 +28,6 @@ protected:
 	void tabletMoveEvent(CanvasTabletEvent *event);
 	void tabletReleaseEvent(CanvasTabletEvent *event);
 	
-	void beginMoveLayer();
-	void moveLayer(CanvasTabletEvent *event);
-	void endMoveLayer();
-	
 private:
 	
 	LayerRef _layer = 0;

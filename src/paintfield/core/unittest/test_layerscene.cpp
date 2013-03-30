@@ -159,10 +159,17 @@ void Test_LayerScene::test_setLayerProperty()
 	auto doc = new Document("temp", QSize(400, 300), {new RasterLayer("layer")});
 	
 	auto dir = doc->layerScene()->rootLayer();
-	doc->layerScene()->setLayerProperty(dir.child(0), "newname", RoleName);
-	QCOMPARE(dir.child(0)->name(), QString("newname"));
+	auto layer = dir.child(0);
+	doc->layerScene()->setLayerProperty(layer, "newname", RoleName);
+	QCOMPARE(layer->name(), QString("newname"));
 	doc->undoStack()->undo();
-	QCOMPARE(dir.child(0)->name(), QString("layer"));
+	QCOMPARE(layer->name(), QString("layer"));
+	
+	doc->layerScene()->setLayerProperty(layer, true, RoleLocked);
+	QCOMPARE(layer->isLocked(), true);
+	
+	doc->layerScene()->setLayerProperty(layer, "newname", RoleName);
+	QCOMPARE(layer->name(), QString("layer"));
 }
 
 PF_ADD_TESTCLASS(Test_LayerScene)
