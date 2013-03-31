@@ -106,6 +106,7 @@ bool LayerTreeSidebar::eventFilter(QObject *object, QEvent *event)
 void LayerTreeSidebar::createForms()
 {
 	QVBoxLayout *mainLayout = new QVBoxLayout();
+	mainLayout->setSpacing(0);
 	mainLayout->setContentsMargins(0, 0, 0, 0);
 	
 	{
@@ -138,8 +139,8 @@ void LayerTreeSidebar::createForms()
 	
 	{
 		auto lowerLayout = new QVBoxLayout();
-		lowerLayout->setSpacing(0);
-		lowerLayout->setContentsMargins(0,0,0,0);
+		lowerLayout->setSpacing(6);
+		lowerLayout->setContentsMargins(6,6,6,6);
 		
 		{
 			auto editor = new LayerPropertyEditor(d->document ? d->document->layerScene() : 0);
@@ -149,7 +150,6 @@ void LayerTreeSidebar::createForms()
 		// buttons
 		{
 			auto layout = new QHBoxLayout();
-			layout->setContentsMargins(12, 12, 12, 12);
 			layout->setSpacing(0);
 			
 			auto addButton = new SimpleButton(":/icons/16x16/add.svg", QSize(16,16));

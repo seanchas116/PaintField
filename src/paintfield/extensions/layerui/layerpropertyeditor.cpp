@@ -34,7 +34,7 @@ LayerPropertyEditor::LayerPropertyEditor(LayerScene *scene, QWidget *parent) :
 	{
 		auto formLayout = new QFormLayout();
 		formLayout->setSpacing(5);
-		//formLayout->setContentsMargins(0,0,0,0);
+		formLayout->setContentsMargins(5,5,5,5);
 		
 		// opacity
 		{
