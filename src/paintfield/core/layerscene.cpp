@@ -525,9 +525,9 @@ void LayerScene::addLayers(const LayerList &layers, const LayerRef &parent, int 
 	pushCommand(command);
 }
 
-void LayerScene::removeLayers(const LayerRefList &refs)
+void LayerScene::removeLayers(const LayerRefList &refs, const QString &description)
 {
-	auto command = new QUndoCommand(tr("Remove Layers"));
+	auto command = new QUndoCommand(description.isEmpty() ? tr("Remove Layers") : description);
 	for (auto ref : refs)
 		new LayerSceneRemoveCommand(ref, this, command);
 	pushCommand(command);

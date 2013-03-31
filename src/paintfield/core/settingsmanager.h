@@ -65,6 +65,8 @@ public:
 	QVariantMap &settings();
 	void addSettings(const QVariantMap &settings);
 	
+	QVariant value(const QStringList &path, const QVariant &defaultValue = QVariant());
+	
 	void declareTool(const QString &name, const ToolInfo &info);
 	void declareAction(const QString &name, const ActionInfo &info);
 	void declareSideBar(const QString &name, const SideBarInfo &info);

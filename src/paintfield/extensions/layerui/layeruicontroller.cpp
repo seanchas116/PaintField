@@ -3,12 +3,17 @@
 #include <QDir>
 #include <Malachite/ImageIO>
 #include <QItemSelectionModel>
+#include <QMimeData>
+#include <QApplication>
+#include <QClipboard>
 
 #include "paintfield/core/layeritemmodel.h"
 #include "paintfield/core/layerscene.h"
 #include "paintfield/core/rasterlayer.h"
 #include "paintfield/core/grouplayer.h"
 #include "paintfield/core/util.h"
+#include "paintfield/core/appcontroller.h"
+#include "paintfield/core/settingsmanager.h"
 
 #include "layeruicontroller.h"
 
@@ -28,6 +33,8 @@ LayerUIController::LayerUIController(Document *document, QObject *parent) :
 {
 	d->document = document;
 	
+	auto settingsManager = appController()->settingsManager();
+	
 	{
 		auto a = Util::createAction("paintfield.layer.import", this, SLOT(importLayer()));
 		a->setText(tr("Import..."));
@@ -37,28 +44,57 @@ LayerUIController::LayerUIController(Document *document, QObject *parent) :
 	{
 		auto a = Util::createAction("paintfield.layer.newRaster", this, SLOT(newRasterLayer()));
 		a->setText(tr("New Layer"));
+		a->setShortcut(settingsManager->value({".key-bindings", "paintfield.layer.newRaster"}).toString());
 		d->actions[ActionNewRaster] = a;
 	}
 	
 	{
 		auto a = Util::createAction("paintfield.layer.newGroup", this, SLOT(newGroupLayer()));
 		a->setText(tr("New Group"));
+		a->setShortcut(settingsManager->value({".key-bindings", "paintfield.layer.newGroup"}).toString());
 		d->actions[ActionNewGroup] = a;
 	}
 	
 	{
 		auto a = Util::createAction("paintfield.layer.remove", this, SLOT(removeLayers()));
-		a->setText(tr("Remove"));
+		a->setText(tr("Delete"));
+		a->setShortcut(settingsManager->value({".key-bindings", "paintfield.edit.delete"}).toString());
 		d->actions[ActionRemove] = a;
+		d->actionsForLayers << a;
 	}
 	
 	{
 		auto a = Util::createAction("paintfield.layer.merge", this, SLOT(mergeLayers()));
 		a->setText(tr("Merge"));
+		a->setShortcut(settingsManager->value({".key-bindings", "paintfield.layer.merge"}).toString());
 		d->actions[ActionMerge] = a;
 	}
 	
+	{
+		auto a = Util::createAction("paintfield.layer.copy", this, SLOT(copyLayers()));
+		a->setText(tr("Copy"));
+		a->setShortcut(settingsManager->value({".key-bindings", "paintfield.edit.copy"}).toString());
+		d->actions[ActionCopy] = a;
+		d->actionsForLayers << a;
+	}
+	
+	{
+		auto a = Util::createAction("paintfield.layer.cut", this, SLOT(cutLayers()));
+		a->setText(tr("Cut"));
+		a->setShortcut(settingsManager->value({".key-bindings", "paintfield.edit.cut"}).toString());
+		d->actions[ActionCut] = a;
+		d->actionsForLayers << a;
+	}
+	
+	{
+		auto a = Util::createAction("paintfield.layer.paste", this, SLOT(pasteLayers()));
+		a->setText(tr("Paste"));
+		a->setShortcut(settingsManager->value({".key-bindings", "paintfield.edit.paste"}).toString());
+		d->actions[ActionPaste] = a;
+	}
+	
 	connect(document->layerScene()->itemSelectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(onSelectionChanged(QItemSelection)));
+	onSelectionChanged(document->layerScene()->itemSelectionModel()->selection());
 }
 
 LayerUIController::~LayerUIController()
@@ -93,17 +129,17 @@ void LayerUIController::importLayer()
 	auto layer = RasterLayer::createFromImageFile(filePath);
 	
 	if (layer)
-		addLayer(layer, tr("Add From Image File"));
+		addLayers( { layer} , tr("Add From Image File") );
 }
 
 void LayerUIController::newRasterLayer()
 {
-	addLayer(new RasterLayer(tr("New Layer")), tr("Add Layer"));
+	addLayers( { new RasterLayer(tr("New Layer") ) }, tr("Add Layer") );
 }
 
 void LayerUIController::newGroupLayer()
 {
-	addLayer(new GroupLayer(tr("New Group")), tr("Add Group"));
+	addLayers( { new GroupLayer(tr("New Group") ) }, tr("Add Group") );
 }
 
 void LayerUIController::removeLayers()
@@ -122,14 +158,76 @@ void LayerUIController::mergeLayers()
 	}
 }
 
-void LayerUIController::addLayer(Layer *layer, const QString &description)
+static const QString layersMimeType = "application/x-paintfield-layers";
+
+void LayerUIController::copyLayers()
+{
+	copyOrCutLayers(false);
+}
+
+void LayerUIController::cutLayers()
+{
+	copyOrCutLayers(true);
+}
+
+void LayerUIController::copyOrCutLayers(bool cut)
+{
+	auto layers = d->document->layerScene()->selection();
+	if (layers.size() == 0)
+		return;
+	
+	auto mime = new QMimeData();
+	
+	{
+		QByteArray data;
+		QDataStream stream(&data, QIODevice::WriteOnly);
+		
+		stream << layers.size();
+		
+		for (auto layer : layers)
+			layer->encodeRecursive(stream);
+		
+		mime->setData(layersMimeType, data);
+	}
+	
+	qApp->clipboard()->setMimeData(mime);
+	
+	if (cut)
+		d->document->layerScene()->removeLayers(layers, tr("Cut Layers"));
+}
+
+void LayerUIController::pasteLayers()
+{
+	auto mime = qApp->clipboard()->mimeData();
+	if (mime->hasFormat(layersMimeType))
+	{
+		QByteArray data = mime->data(layersMimeType);
+		QDataStream stream(&data, QIODevice::ReadOnly);
+		
+		int count;
+		stream >> count;
+		
+		if (count == 0)
+			return;
+		
+		LayerList layers;
+		layers.reserve(count);
+		
+		for (int i = 0; i < count; ++i)
+			layers << Layer::decodeRecursive(stream);
+		
+		addLayers(layers, tr("Paste Layers"));
+	}
+}
+
+void LayerUIController::addLayers(const LayerList &layers, const QString &description)
 {
 	auto scene = d->document->layerScene();
 	
 	auto current = scene->current();
 	int row = current ? current.index() : scene->rootLayer().count();
 	auto parent = current ? current.parent() : scene->rootLayer();
-	scene->addLayers({layer}, parent, row, description);
+	scene->addLayers(layers, parent, row, description);
 }
 
 void LayerUIController::onSelectionChanged(const QItemSelection &selection)

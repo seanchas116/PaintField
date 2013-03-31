@@ -24,6 +24,9 @@ public:
 		ActionNewRaster,
 		ActionNewGroup,
 		ActionRemove,
+		ActionCopy,
+		ActionCut,
+		ActionPaste,
 		ActionMerge
 	};
 	
@@ -42,13 +45,19 @@ public slots:
 	void removeLayers();
 	void mergeLayers();
 	
+	void copyLayers();
+	void cutLayers();
+	void pasteLayers();
+	
 private slots:
 	
 	void onSelectionChanged(const QItemSelection &selection);
 	
 private:
 	
-	void addLayer(Layer *layer, const QString &description);
+	void copyOrCutLayers(bool cut);
+	
+	void addLayers(const LayerList &layers, const QString &description);
 	
 	struct Data;
 	Data *d;

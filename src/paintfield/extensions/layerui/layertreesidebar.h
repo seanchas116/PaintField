@@ -32,6 +32,8 @@ public:
 	explicit LayerTreeSidebar(LayerUIController *layerUIController, QWidget *parent = 0);
 	~LayerTreeSidebar();
 	
+	bool eventFilter(QObject *object, QEvent *event);
+	
 public slots:
 	
 signals:
@@ -40,9 +42,7 @@ protected:
 	
 private slots:
 	
-	void onCurrentChanged(const LayerRef &current);
-	void updateView();
-	void setOpacityPercentage(double value);
+	void showViewContextMenu(const QPoint &pos);
 	
 private:
 	

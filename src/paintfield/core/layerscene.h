@@ -22,7 +22,7 @@ public:
 	~LayerScene();
 	
 	void addLayers(const LayerList &layers, const LayerRef &parent, int index, const QString &description);
-	void removeLayers(const LayerRefList &refs);
+	void removeLayers(const LayerRefList &refs, const QString &description = QString());
 	void moveLayers(const LayerRefList &refs, const LayerRef &parent, int index);
 	void copyLayers(const LayerRefList &refs, const LayerRef &parent, int index);
 	void mergeLayers(const LayerRef &parent, int index, int count);

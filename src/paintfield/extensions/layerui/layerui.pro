@@ -10,8 +10,10 @@ include(../extensions.pri)
 HEADERS += layermodelviewdelegate.h \
            layertreesidebar.h \
            layeruicontroller.h \
-           layeruiextension.h
+           layeruiextension.h \
+    layerpropertyeditor.h
 SOURCES += layermodelviewdelegate.cpp \
            layertreesidebar.cpp \
            layeruicontroller.cpp \
-           layeruiextension.cpp
+           layeruiextension.cpp \
+    layerpropertyeditor.cpp

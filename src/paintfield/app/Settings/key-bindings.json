@@ -15,7 +15,7 @@
 		"paintfield.edit.paste": "Ctrl+V",
 		"paintfield.edit.selectAll": "Ctrl+A",
 
-		"paintfield.layer.newRaster": "Ctrl+N",
+		"paintfield.layer.newRaster": "Ctrl+L",
 
 		"paintfield.window.minimize": "Ctrl+M",
 		"paintfield.window.newWorkspace": "Ctrl+Shift+N",

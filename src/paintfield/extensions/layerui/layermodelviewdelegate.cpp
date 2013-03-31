@@ -80,19 +80,9 @@ bool LayerModelViewDelegate::editorEvent(QEvent *event, QAbstractItemModel *mode
 	switch (event->type())
 	{
 		case QEvent::MouseButtonPress:
+		case QEvent::MouseButtonDblClick:
 		{
 			auto mouseEvent = static_cast<QMouseEvent *>(event);
-			
-			if (mouseEvent->button() == Qt::RightButton)
-			{
-				d->layerScene->itemSelectionModel()->select(index, QItemSelectionModel::Select);
-				
-				QMenu menu;
-				menu.addAction(tr("Remove"), d->actionController, SLOT(removeLayers()));
-				menu.exec(mouseEvent->globalPos());
-				
-				return true;
-			}
 			
 			if (mouseEvent->button() == Qt::LeftButton)
 			{
@@ -114,20 +104,6 @@ bool LayerModelViewDelegate::editorEvent(QEvent *event, QAbstractItemModel *mode
 			}
 			break;
 		}
-		case QEvent::MouseButtonDblClick:
-		{
-			auto mouseEvent = static_cast<QMouseEvent *>(event);
-			
-			auto buttonDblClicked = [&](int buttonIndex)
-			{
-				return d->buttonRect(option.rect, buttonIndex).contains(mouseEvent->pos());
-			};
-			
-			if (buttonDblClicked(0) || buttonDblClicked(1))
-				return true;
-			
-			break;
-		}
 		default:
 			break;
 	}
@@ -138,7 +114,6 @@ bool LayerModelViewDelegate::editorEvent(QEvent *event, QAbstractItemModel *mode
 void LayerModelViewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
 	painter->save();
-	//painter->setRenderHint(QPainter::Antialiasing);
 	
 	const bool selected = option.state & QStyle::State_Selected;
 	const bool current = ( index == d->layerScene->itemSelectionModel()->currentIndex() );

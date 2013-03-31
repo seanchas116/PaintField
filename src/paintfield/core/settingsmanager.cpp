@@ -92,6 +92,23 @@ QVariantMap &SettingsManager::settings()
 	return d->settings;
 }
 
+QVariant SettingsManager::value(const QStringList &path, const QVariant &defaultValue)
+{
+	auto map = d->settings;
+	QVariant data;
+	
+	for (auto key : path)
+	{
+		if (!map.contains(key))
+			return defaultValue;
+		
+		data = map[key];
+		map = data.toMap();
+	}
+	
+	return data;
+}
+
 QVariantMap joinSettings(const QVariantMap &dst, const QVariantMap &src)
 {
 	QVariantMap result = dst;
