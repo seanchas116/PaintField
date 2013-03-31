@@ -106,7 +106,7 @@ bool LayerTreeSidebar::eventFilter(QObject *object, QEvent *event)
 void LayerTreeSidebar::createForms()
 {
 	QVBoxLayout *mainLayout = new QVBoxLayout();
-	mainLayout->setContentsMargins(0, 0, 0, 12);
+	mainLayout->setContentsMargins(0, 0, 0, 0);
 	
 	{
 		auto view = new QTreeView();
@@ -137,8 +137,55 @@ void LayerTreeSidebar::createForms()
 	}
 	
 	{
-		auto editor = new LayerPropertyEditor(d->document ? d->document->layerScene() : 0);
-		mainLayout->addWidget(editor);
+		auto lowerLayout = new QVBoxLayout();
+		lowerLayout->setSpacing(0);
+		lowerLayout->setContentsMargins(0,0,0,0);
+		
+		{
+			auto editor = new LayerPropertyEditor(d->document ? d->document->layerScene() : 0);
+			lowerLayout->addWidget(editor);
+		}
+		
+		// buttons
+		{
+			auto layout = new QHBoxLayout();
+			layout->setContentsMargins(12, 12, 12, 12);
+			layout->setSpacing(0);
+			
+			auto addButton = new SimpleButton(":/icons/16x16/add.svg", QSize(16,16));
+			addButton->setMargins(4, 0, 4, 0);
+			auto removeButton = new SimpleButton(":/icons/16x16/subtract.svg", QSize(16,16));
+			removeButton->setMargins(4, 0, 4, 0);
+			auto miscButton = new SimpleButton(":/icons/16x16/menuDown.svg", QSize(16,16));
+			miscButton->setMargins(4, 0, 4, 0);
+			
+			if (d->uiController)
+			{
+				auto addMenu = new QMenu(this);
+				
+				addMenu->addAction(d->uiController->action(LayerUIController::ActionNewRaster));
+				addMenu->addAction(d->uiController->action(LayerUIController::ActionNewGroup));
+				addMenu->addAction(d->uiController->action(LayerUIController::ActionImport));
+				
+				addButton->setMenu(addMenu);
+				
+				connect(removeButton, SIGNAL(pressed()), d->uiController, SLOT(removeLayers()));
+				
+				QMenu *miscMenu = new QMenu(this);
+				miscMenu->addAction(d->uiController->action(LayerUIController::ActionMerge));
+				
+				miscButton->setMenu(miscMenu);
+			}
+			
+			layout->addWidget(addButton);
+			layout->addWidget(removeButton);
+			layout->addWidget(miscButton);
+			layout->addStretch(1);
+			
+			lowerLayout->addLayout(layout);
+		}
+		
+		mainLayout->addLayout(lowerLayout);
 	}
 	
 	setLayout(mainLayout);

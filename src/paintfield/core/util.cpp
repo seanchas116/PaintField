@@ -4,6 +4,7 @@
 #include <QTreeView>
 #include <QApplication>
 #include <QDesktopWidget>
+#include <QMenu>
 
 #include <qjson/parser.h>
 #include <qjson/serializer.h>
@@ -62,6 +63,10 @@ bool saveJsonToFile(const QString &path, const QVariant &data)
 
 void applyMacSmallSize(QWidget *widget)
 {
+	// does not apply to QMenu objects
+	if (qobject_cast<QMenu *>(widget))
+		return;
+	
 	widget->setAttribute(Qt::WA_MacSmallSize);
 	
 	for (QObject *object : widget->children())
