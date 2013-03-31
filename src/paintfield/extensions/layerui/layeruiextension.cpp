@@ -19,14 +19,14 @@ LayerUIExtension::LayerUIExtension(Canvas *canvas, QObject *parent) :
 {
 	LayerUIController *uiController = canvas ? new LayerUIController(canvas->document(), this) : 0;
 	
-	auto sideBar = new LayerTreeSidebar(uiController, 0);
-	addSideBar(_layerTreeSidebarName, sideBar);
-	
 	if (uiController)
 	{
 		for (auto action : uiController->actions())
 			addAction(action);
 	}
+	
+	auto sideBar = new LayerTreeSidebar(uiController, 0);
+	addSideBar(_layerTreeSidebarName, sideBar);
 }
 
 void LayerUIExtensionFactory::initialize(AppController *app)

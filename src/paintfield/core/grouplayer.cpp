@@ -4,6 +4,8 @@ namespace PaintField {
 
 void GroupLayer::updateThumbnail(const QSize &size)
 {
+	Q_UNUSED(size)
+	
 	QPixmap folderIcon(":/icons/22x22/folder.png");
 	if (folderIcon.isNull())
 		qDebug() << "resource not found";

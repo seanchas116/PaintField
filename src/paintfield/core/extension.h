@@ -24,8 +24,7 @@ class Extension : public QObject
 	Q_OBJECT
 public:
 	
-	explicit Extension(QObject *parent = 0) : QObject(parent) {}
-	
+	explicit Extension(QObject *parent = 0);
 	~Extension();
 	
 	/**
@@ -45,28 +44,30 @@ public:
 	 */
 	virtual void updateToolBar(QToolBar *toolBar, const QString &name);
 	
-	QActionList actions() { return _actions; }
+	QActionList actions();
 	
 	/**
 	 * Adds an action which is used in the menubar.
 	 * @param action
 	 */
-	void addAction(QAction *action) { _actions << action; }
+	void addAction(QAction *action);
 	
-	QHash<QString, QWidget *> sideBars() { return _sideBars; }
+	void addActions(const QList<QAction *> &actions);
+	
+	QHash<QString, QWidget *> sideBars();
 	
 	/**
 	 * Adds an side bar which is used in the workspace view.
 	 * @param name
 	 * @return 
 	 */
-	QWidget *sideBar(const QString &id) { return _sideBars.value(id, 0); }
+	QWidget *sideBar(const QString &id);
 	void addSideBar(const QString &id, QWidget *sideBar);
 	
 private:
 	
-	QActionList _actions;
-	QHash<QString, QWidget *> _sideBars;
+	struct Data;
+	Data *d;
 };
 
 class CanvasExtension : public Extension

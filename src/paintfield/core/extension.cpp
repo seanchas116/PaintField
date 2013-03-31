@@ -5,23 +5,57 @@
 namespace PaintField
 {
 
+struct Extension::Data
+{
+	QActionList actions;
+	QHash<QString, QWidget *> sideBars;
+};
+
+Extension::Extension(QObject *parent) :
+	QObject(parent),
+	d(new Data)
+{
+	
+}
+
 Extension::~Extension()
 {
-	for (auto sideBar : _sideBars)
+	for (auto sideBar : d->sideBars)
 		sideBar->deleteLater();
+	
+	delete d;
+}
+
+QList<QAction *> Extension::actions() { return d->actions; }
+
+void Extension::addAction(QAction *action)
+{
+	d->actions << action;
+}
+
+void Extension::addActions(const QList<QAction *> &actions)
+{
+	d->actions += actions;
+}
+
+QHash<QString, QWidget *> Extension::sideBars() { return d->sideBars; }
+
+QWidget *Extension::sideBar(const QString &id)
+{
+	return d->sideBars.value(id, 0);
 }
 
 void Extension::addSideBar(const QString &id, QWidget *sideBar)
 {
 	Q_CHECK_PTR(sideBar);
 	
-	if (_sideBars.contains(id) && _sideBars.value(id) == sideBar)
+	if (d->sideBars.contains(id) && d->sideBars.value(id) != sideBar)
 	{
 		sideBar->deleteLater();
 		return;
 	}
 	
-	_sideBars.insert(id, sideBar);
+	d->sideBars.insert(id, sideBar);
 }
 
 Tool *Extension::createTool(const QString &, Canvas *)
