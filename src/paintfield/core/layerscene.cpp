@@ -719,7 +719,7 @@ void LayerScene::pushCommand(QUndoCommand *command)
 
 void LayerScene::onCurrentIndexChanged(const QModelIndex &now, const QModelIndex &old)
 {
-	emit currentChanged(d->itemModel->layerForIndex(now), d->itemModel->layerForIndex(old));
+	emit currentChanged(d->itemModel->layerExceptRootForIndex(now), d->itemModel->layerExceptRootForIndex(old));
 }
 
 void LayerScene::onItemSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected)

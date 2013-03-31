@@ -180,6 +180,14 @@ LayerRef LayerItemModel::layerForIndex(const QModelIndex &index) const
 		return d->scene->rootLayer();
 }
 
+LayerRef LayerItemModel::layerExceptRootForIndex(const QModelIndex &index) const
+{
+	if (index.isValid())
+		return static_cast<const Layer *>(index.internalPointer());
+	else
+		return LayerRef();
+}
+
 QModelIndex LayerItemModel::indexForLayer(const LayerRef &ref) const
 {
 	if (ref == d->scene->rootLayer())

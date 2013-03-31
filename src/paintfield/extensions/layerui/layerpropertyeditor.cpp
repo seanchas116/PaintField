@@ -34,6 +34,7 @@ LayerPropertyEditor::LayerPropertyEditor(LayerScene *scene, QWidget *parent) :
 	{
 		auto formLayout = new QFormLayout();
 		formLayout->setSpacing(5);
+		//formLayout->setContentsMargins(0,0,0,0);
 		
 		// opacity
 		{
@@ -96,6 +97,7 @@ LayerPropertyEditor::~LayerPropertyEditor()
 
 void LayerPropertyEditor::setCurrentLayer(const LayerRef &current)
 {
+	PAINTFIELD_DEBUG << current;
 	d->current = current;
 	updateEditor();
 }

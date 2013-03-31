@@ -27,7 +27,22 @@ public:
 	QMimeData *mimeData(const QModelIndexList &indexes) const;
 	bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent);
 	
+	/**
+	 * Returns the layer that is associated with the given index.
+	 * If the index is invalid, returns the root layer.
+	 * @param index
+	 * @return 
+	 */
 	LayerRef layerForIndex(const QModelIndex &index) const;
+	
+	/**
+	 * Returns the layer that is associated with the given index.
+	 * If the index is invalid, returns the invalid layer.
+	 * @param index
+	 * @return 
+	 */
+	LayerRef layerExceptRootForIndex(const QModelIndex &index) const;
+	
 	QModelIndex indexForLayer(const LayerRef &ref) const;
 	
 	LayerRefList layersForIndexes(const QModelIndexList &indexes) const;
