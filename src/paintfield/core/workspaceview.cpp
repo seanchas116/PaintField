@@ -51,7 +51,7 @@ namespace MenuArranger
 
 QMenu *createMenu(const QHash<QString, ActionInfo> &actionDeclarations, const QHash<QString, MenuInfo> &menuDeclarations, const QVariantMap &order);
 QMenuBar *createMenuBar(const QHash<QString, ActionInfo> &actionDeclarations, const QHash<QString, MenuInfo> &menuDeclarations, const QVariant &order);
-	
+
 void associateMenuWithActions(QMenu *menu, const QActionList &actions);
 void associateMenuBarWithActions(QMenuBar *menuBar, const QActionList &actions);
 
@@ -89,7 +89,9 @@ QMenu *createMenu(const QHash<QString, ActionInfo> &actionDeclarations, const QH
 					
 					auto action = new ProxyAction(menu);
 					action->setObjectName(id);
+					PAINTFIELD_DEBUG << actionInfo.text;
 					action->setText(actionInfo.text);
+					PAINTFIELD_DEBUG << actionInfo.shortcut;
 					action->setShortcut(actionInfo.shortcut);
 					menu->addAction(action);
 				}

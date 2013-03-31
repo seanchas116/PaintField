@@ -19,6 +19,24 @@ struct SettingsManager::Data
 	QHash<QString, MenuInfo> menuDeclarationHash;
 	
 	QString lastFileDialogPath;
+	
+	QKeySequence findKeyBinding(const QString &actionId)
+	{
+		QVariantMap keyBindMap = settings[".key-bindings"].toMap();
+		
+		for (auto keyIter = keyBindMap.begin(); keyIter != keyBindMap.end(); ++keyIter)
+		{
+			if (keyIter.key() == actionId)
+				return keyIter.value().toString();
+		}
+		return QKeySequence();
+	}
+	
+	void applyKeyBindingsToActionDeclarations()
+	{
+		for (auto actionIter = actionDeclarationHash.begin(); actionIter != actionDeclarationHash.end(); ++actionIter)
+			actionIter->shortcut = findKeyBinding(actionIter.key());
+	}
 };
 
 SettingsManager::SettingsManager(QObject *parent) :
@@ -79,7 +97,7 @@ void SettingsManager::loadSettingsFromDir(const QString &dirPath)
 			loadSettingsFromJsonFile(fileInfo.absoluteFilePath());
 	}
 	
-	applyKeyBindingsToActionDeclarations();
+	d->applyKeyBindingsToActionDeclarations();
 }
 
 void SettingsManager::loadSettingsFromJsonFile(const QString &path)
@@ -139,7 +157,9 @@ void SettingsManager::declareTool(const QString &name, const ToolInfo &info)
 
 void SettingsManager::declareAction(const QString &name, const ActionInfo &info)
 {
-	d->actionDeclarationHash[name] = info;
+	auto actualInfo = info;
+	actualInfo.shortcut = d->findKeyBinding(name);
+	d->actionDeclarationHash[name] = actualInfo;
 }
 
 void SettingsManager::declareSideBar(const QString &name, const SideBarInfo &info)
@@ -178,20 +198,6 @@ QStringList SettingsManager::actionNames() const { return d->actionDeclarationHa
 QStringList SettingsManager::sidebarNames() const { return d->sideBarDeclarationHash.keys(); }
 QStringList SettingsManager::toolbarNames() const { return d->toolbarInfoHash.keys(); }
 QStringList SettingsManager::menuNames() const { return d->menuDeclarationHash.keys(); }
-
-void SettingsManager::applyKeyBindingsToActionDeclarations()
-{
-	QVariantMap keyBindMap = d->settings[".key-bindings"].toMap();
-	
-	for (auto keyIter = keyBindMap.begin(); keyIter != keyBindMap.end(); ++keyIter)
-	{
-		for (auto actionIter = d->actionDeclarationHash.begin(); actionIter != d->actionDeclarationHash.end(); ++actionIter)
-		{
-			if (actionIter.key() == keyIter.key())
-				actionIter->shortcut = keyIter.value().toString();
-		}
-	}
-}
 
 QString SettingsManager::builtinDataDir() const
 {

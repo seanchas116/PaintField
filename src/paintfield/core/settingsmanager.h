@@ -100,8 +100,6 @@ public slots:
 	
 private:
 	
-	void applyKeyBindingsToActionDeclarations();
-	
 	struct Data;
 	Data *d;
 };
