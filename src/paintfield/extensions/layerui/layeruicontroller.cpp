@@ -187,7 +187,10 @@ void LayerUIController::mergeLayers()
 	tie(parent, start, count) = layerRangeFromLayers(d->document->layerScene()->selection());
 	
 	if (count >= 2)
+	{
 		d->document->layerScene()->mergeLayers(parent, start, count);
+		d->document->layerScene()->setCurrent(parent.child(start));
+	}
 }
 
 static const QString layersMimeType = "application/x-paintfield-layers";
@@ -260,6 +263,7 @@ void LayerUIController::addLayers(const LayerList &layers, const QString &descri
 	int row = current ? current.index() : scene->rootLayer().count();
 	auto parent = current ? current.parent() : scene->rootLayer();
 	scene->addLayers(layers, parent, row, description);
+	scene->setCurrent(parent.child(row));
 }
 
 void LayerUIController::onSelectionChanged()
