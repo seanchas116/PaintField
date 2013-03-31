@@ -6,6 +6,7 @@
 #include <QMimeData>
 #include <QApplication>
 #include <QClipboard>
+#include <tuple>
 
 #include "paintfield/core/layeritemmodel.h"
 #include "paintfield/core/layerscene.h"
@@ -16,6 +17,8 @@
 #include "paintfield/core/settingsmanager.h"
 
 #include "layeruicontroller.h"
+
+using namespace std;
 
 namespace PaintField
 {
@@ -93,8 +96,8 @@ LayerUIController::LayerUIController(Document *document, QObject *parent) :
 		d->actions[ActionPaste] = a;
 	}
 	
-	connect(document->layerScene()->itemSelectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(onSelectionChanged(QItemSelection)));
-	onSelectionChanged(document->layerScene()->itemSelectionModel()->selection());
+	connect(document->layerScene(), SIGNAL(selectionChanged(LayerRefList,LayerRefList)), this, SLOT(onSelectionChanged()));
+	onSelectionChanged();
 }
 
 LayerUIController::~LayerUIController()
@@ -147,15 +150,44 @@ void LayerUIController::removeLayers()
 	d->document->layerScene()->removeLayers(d->document->layerScene()->selection());
 }
 
+static tuple<LayerRef, int , int> layerRangeFromLayers(const LayerRefList &layers)
+{
+	auto defaultValue = make_tuple(LayerRef(), 0, 0);
+	
+	if (layers.size() == 0)
+		return defaultValue;
+	
+	LayerRef parent = layers[0].parent();
+	QList<int> indexes;
+	
+	for (auto layer : layers)
+	{
+		if (layer.parent() != parent)
+			return defaultValue;
+		
+		indexes << layer.index();
+	}
+	
+	qSort(indexes);
+	
+	QList<int> uniqueIndexes;
+	for (int i = 0; i < indexes.size(); ++i)
+		uniqueIndexes << i;
+	
+	if (uniqueIndexes == indexes)
+		return make_tuple(parent, indexes.first(), indexes.size());
+	else
+		return defaultValue;
+}
+
 void LayerUIController::mergeLayers()
 {
-	auto selection = d->document->layerScene()->itemSelectionModel()->selection();
+	LayerRef parent;
+	int start, count;
+	tie(parent, start, count) = layerRangeFromLayers(d->document->layerScene()->selection());
 	
-	if (selection.size() == 1)
-	{
-		QItemSelectionRange range = selection.at(0);
-		d->document->layerScene()->mergeLayers(d->document->layerScene()->itemModel()->layerForIndex(range.parent()), range.top(), range.bottom() - range.top());
-	}
+	if (count >= 2)
+		d->document->layerScene()->mergeLayers(parent, start, count);
 }
 
 static const QString layersMimeType = "application/x-paintfield-layers";
@@ -230,9 +262,16 @@ void LayerUIController::addLayers(const LayerList &layers, const QString &descri
 	scene->addLayers(layers, parent, row, description);
 }
 
-void LayerUIController::onSelectionChanged(const QItemSelection &selection)
+void LayerUIController::onSelectionChanged()
 {
-	d->actions[ActionMerge]->setEnabled(selection.size() == 1);
+	auto selection = d->document->layerScene()->selection();
+	
+	{
+		LayerRef parent;
+		int start, count;
+		tie(parent, start, count) = layerRangeFromLayers(selection);
+		d->actions[ActionMerge]->setEnabled(count >= 2);
+	}
 	
 	for (auto action : d->actionsForLayers)
 		action->setEnabled(selection.size());

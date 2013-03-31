@@ -382,6 +382,11 @@ QList<LayerRef> LayerRef::children() const
 	return result;
 }
 
+}
 
+QDebug operator<<(QDebug debug, const PaintField::LayerRef &layer)
+{
+	debug.nospace() << "(" << layer.pointer() << ", " << layer->name() << ")";
+	return debug.space();
 }
 

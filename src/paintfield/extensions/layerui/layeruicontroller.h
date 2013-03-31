@@ -51,7 +51,7 @@ public slots:
 	
 private slots:
 	
-	void onSelectionChanged(const QItemSelection &selection);
+	void onSelectionChanged();
 	
 private:
 	

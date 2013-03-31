@@ -421,4 +421,6 @@ typedef QList<LayerRef> LayerRefList;
 
 }
 
+QDebug operator<<(QDebug debug, const PaintField::LayerRef &layer);
+
 #endif // FSLAYER_H

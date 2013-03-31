@@ -572,6 +572,8 @@ void LayerScene::copyLayers(const LayerRefList &refs, const LayerRef &parent, in
 
 void LayerScene::mergeLayers(const LayerRef &parent, int index, int count)
 {
+	PAINTFIELD_DEBUG << index << count;
+	
 	QString mergedName;
 	
 	for (int i = index; i < index + count; ++i)
