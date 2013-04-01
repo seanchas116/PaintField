@@ -164,6 +164,8 @@ private:
 		_data = old;
 		
 		enqueueLayerTileUpdate(layer);
+		
+		emitLayerPropertyChanged(layer);
 	}
 	
 	void enqueueLayerTileUpdate(const Layer *layer)
