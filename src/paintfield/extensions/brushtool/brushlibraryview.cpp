@@ -15,6 +15,8 @@ BrushLibraryView::BrushLibraryView(BrushLibraryModel *model, QItemSelectionModel
     QWidget(parent)
 {
 	auto layout = new QVBoxLayout;
+	layout->setContentsMargins(0,0,0,0);
+	layout->setSpacing(0);
 	
 	{
 		auto treeView = new QTreeView;
@@ -30,6 +32,7 @@ BrushLibraryView::BrushLibraryView(BrushLibraryModel *model, QItemSelectionModel
 	
 	{
 		auto buttonLayout = new QHBoxLayout;
+		buttonLayout->setContentsMargins(6,6,6,6);
 		
 		/*
 		// save button

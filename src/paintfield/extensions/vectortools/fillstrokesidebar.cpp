@@ -36,6 +36,7 @@ FillStrokeSideBar::FillStrokeSideBar(LayerScene *scene, QWidget *parent) :
 	
 	{
 		auto vLayout = new QVBoxLayout();
+		vLayout->setContentsMargins(6,6,6,6);
 		
 		{
 			auto l = new QHBoxLayout();
