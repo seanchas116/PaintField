@@ -24,28 +24,28 @@ bool ShapeLayer::setProperty(const QVariant &data, int role)
 	switch (role)
 	{
 		case RoleStrokePosition:
-			_strokePos = StrokePosition(data.toInt());
+			setStrokePosition(StrokePosition(data.toInt()));
 			return true;
 		case RoleStrokeWidth:
-			_strokeWidth = data.toDouble();
+			setStrokeWidth(data.toDouble());
 			return true;
 		case RoleJoinStyle:
-			_joinStyle = Qt::PenJoinStyle(data.toInt());
+			setJoinStyle(Qt::PenJoinStyle(data.toInt()));
 			return true;
 		case RoleCapStyle:
-			_capStyle = Qt::PenCapStyle(data.toInt());
+			setCapStyle(Qt::PenCapStyle(data.toInt()));
 			return true;
 		case RoleFillBrush:
-			_fillBrush = data.value<Brush>();
+			setFillBrush(data.value<Brush>());
 			return true;
 		case RoleStrokeBrush:
-			_strokeBrush = data.value<Brush>();
+			setStrokeBrush(data.value<Brush>());
 			return true;
 		case RoleFillEnabled:
-			_fillEnabled = data.toBool();
+			setFillEnabled(data.toBool());
 			return true;
 		case RoleStrokeEnabled:
-			_strokeEnabled = data.toBool();
+			setStrokeEnabled(data.toBool());
 			return true;
 		default:
 			return super::setProperty(data, role);
@@ -96,6 +96,8 @@ void ShapeLayer::decode(QDataStream &stream)
 	_capStyle = (Qt::PenCapStyle)capStyle;
 	_fillBrush = fillColor;
 	_strokeBrush = strokeColor;
+	
+	updatePaths();
 }
 
 
@@ -188,6 +190,8 @@ void ShapeLayer::loadProperties(const QVariantMap &map)
 		setFillEnabled(fm["enabled"].toBool());
 		setFillBrush(brushFromMap(fm["brush"].toMap()));
 	}
+	
+	updatePaths();
 }
 
 void ShapeLayer::updateThumbnail(const QSize &size)
@@ -198,11 +202,17 @@ void ShapeLayer::updateThumbnail(const QSize &size)
 	{
 		QPainter painter(&pixmap);
 		
-		painter.setBrush(_fillBrush.color().toQColor());
-		painter.drawPath(fillPath());
+		if (_fillEnabled)
+		{
+			painter.setBrush(_fillBrush.color().toQColor());
+			painter.drawPath(fillPath());
+		}
 		
-		painter.setBrush(_fillBrush.color().toQColor());
-		painter.drawPath(strokePath());
+		if (_strokeEnabled)
+		{
+			painter.setBrush(_fillBrush.color().toQColor());
+			painter.drawPath(strokePath());
+		}
 	}
 	
 	setThumbnail(Thumbnail::createThumbnail(pixmap));
@@ -225,11 +235,11 @@ QString ShapeLayer::strokePositionString() const
 void ShapeLayer::setStrokePositionString(const QString &string)
 {
 	if (string == "inside")
-		_strokePos = StrokePositionInside;
+		setStrokePosition(StrokePositionInside);
 	else if (string == "outside")
-		_strokePos = StrokePositionOutside;
+		setStrokePosition(StrokePositionOutside);
 	else
-		_strokePos = StrokePositionCenter;
+		setStrokePosition(StrokePositionCenter);
 }
 
 QString ShapeLayer::joinStyleString() const
@@ -249,11 +259,11 @@ QString ShapeLayer::joinStyleString() const
 void ShapeLayer::setJoinStyleString(const QString &string)
 {
 	if (string == "bevel")
-		_joinStyle = Qt::BevelJoin;
+		setJoinStyle(Qt::BevelJoin);
 	else if (string == "round")
-		_joinStyle = Qt::RoundJoin;
+		setJoinStyle(Qt::RoundJoin);
 	else
-		_joinStyle = Qt::MiterJoin;
+		setJoinStyle(Qt::MiterJoin);
 }
 
 QString ShapeLayer::capStyleString() const
@@ -273,11 +283,11 @@ QString ShapeLayer::capStyleString() const
 void ShapeLayer::setCapStyleString(const QString &string)
 {
 	if (string == "square")
-		_capStyle = Qt::SquareCap;
+		setCapStyle(Qt::SquareCap);
 	else if (string == "round")
-		_capStyle = Qt::RoundCap;
+		setCapStyle(Qt::RoundCap);
 	else
-		_capStyle = Qt::FlatCap;
+		setCapStyle(Qt::FlatCap);
 }
 
 void ShapeLayer::render(Malachite::Painter *painter) const
@@ -292,11 +302,17 @@ void ShapeLayer::render(Malachite::Painter *painter) const
 		}
 	}
 	
-	painter->setBrush(_fillBrush);
-	painter->drawPath(fillPath());
+	if (_fillEnabled)
+	{
+		painter->setBrush(_fillBrush);
+		painter->drawPath(fillPath());
+	}
 	
-	painter->setBrush(_strokeBrush);
-	painter->drawPath(strokePath());
+	if (_strokeEnabled)
+	{
+		painter->setBrush(_strokeBrush);
+		painter->drawPath(strokePath());
+	}
 }
 
 void ShapeLayer::updatePaths()
@@ -312,7 +328,7 @@ void ShapeLayer::updatePaths()
 	stroker.setJoinStyle(_joinStyle);
 	
 	auto fill = _fillPath;
-	auto stroke = stroker.createStroke(fill);
+	auto stroke = stroker.createStroke(fill).simplified();
 	
 	switch (_strokePos)
 	{
@@ -332,6 +348,8 @@ void ShapeLayer::updatePaths()
 		_unitedPath = _fillPath;
 	else
 		_unitedPath = _fillPath | _strokePath;
+	
+	setThumbnailDirty(true);
 }
 
 void ShapeLayer::setFillPath(const QPainterPath &path)

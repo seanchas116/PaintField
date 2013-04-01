@@ -33,37 +33,37 @@ public:
 	void loadProperties(const QVariantMap &map) override;
 	
 	StrokePosition strokePosition() const { return _strokePos; }
-	void setStrokePosition(StrokePosition pos) { _strokePos = pos; }
+	void setStrokePosition(StrokePosition pos) { _strokePos = pos; updatePaths(); }
 	
 	QString strokePositionString() const;
 	void setStrokePositionString(const QString &string);
 	
 	double strokeWidth() const { return _strokeWidth; }
-	void setStrokeWidth(double w) { _strokeWidth = w; }
+	void setStrokeWidth(double w) { _strokeWidth = w; updatePaths(); }
 	
 	Qt::PenJoinStyle joinStyle() const { return _joinStyle; }
-	void setJoinStyle(Qt::PenJoinStyle style) { _joinStyle = style; }
+	void setJoinStyle(Qt::PenJoinStyle style) { _joinStyle = style; updatePaths(); }
 	
 	QString joinStyleString() const;
 	void setJoinStyleString(const QString &string);
 	
 	Qt::PenCapStyle capStyle() const { return _capStyle; }
-	void setCapStyle(Qt::PenCapStyle style) { _capStyle = style; }
+	void setCapStyle(Qt::PenCapStyle style) { _capStyle = style; updatePaths(); }
 	
 	QString capStyleString() const;
 	void setCapStyleString(const QString &string);
 	
 	bool isFillEnabled() const { return _fillEnabled; }
-	void setFillEnabled(bool enabled) { _fillEnabled = enabled; }
+	void setFillEnabled(bool enabled) { _fillEnabled = enabled; setThumbnailDirty(true); }
 	
 	Malachite::Brush fillBrush() const { return _fillBrush; }
-	void setFillBrush(const Malachite::Brush &brush) { _fillBrush = brush; }
+	void setFillBrush(const Malachite::Brush &brush) { _fillBrush = brush; setThumbnailDirty(true); }
 	
 	bool isStrokeEnabled() const { return _strokeEnabled; }
-	void setStrokeEnabled(bool enabled) { _strokeEnabled = enabled; }
+	void setStrokeEnabled(bool enabled) { _strokeEnabled = enabled; setThumbnailDirty(true); }
 	
 	Malachite::Brush strokeBrush() const { return _strokeBrush; }
-	void setStrokeBrush(const Malachite::Brush &brush) { _strokeBrush = brush; }
+	void setStrokeBrush(const Malachite::Brush &brush) { _strokeBrush = brush; setThumbnailDirty(true); }
 	
 	void render(Malachite::Painter *painter) const override;
 	

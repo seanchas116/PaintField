@@ -156,18 +156,25 @@ private:
 	void change()
 	{
 		auto layer = layerForPath(_path);
+		
+		enqueueLayerTileUpdate(layer);
+		
 		auto old = layer->property(_role);
 		layer->setProperty(_data, _role);
 		_data = old;
 		
+		enqueueLayerTileUpdate(layer);
+	}
+	
+	void enqueueLayerTileUpdate(const Layer *layer)
+	{
 		switch (_role)
 		{
-			case RoleOpacity:
-			case RoleVisible:
-			case RoleBlendMode:
-				enqueueTileUpdate(layer->tileKeysRecursive());
+			case RoleName:
+			case RoleLocked:
 				break;
 			default:
+				enqueueTileUpdate(layer->tileKeysRecursive());
 				break;
 		}
 	}

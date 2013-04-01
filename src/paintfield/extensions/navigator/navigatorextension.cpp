@@ -10,7 +10,7 @@
 namespace PaintField
 {
 
-const QString _navigatorSidebarName = "paintfield.sidebar.navigator";
+static const QString _navigatorSidebarName = "paintfield.sidebar.navigator";
 
 NavigatorExtension::NavigatorExtension(Canvas *canvas, QObject *parent) :
     CanvasExtension(canvas, parent)

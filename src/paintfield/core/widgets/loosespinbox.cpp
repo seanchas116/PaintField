@@ -1,5 +1,6 @@
 #include <QLineEdit>
 #include <Malachite/Division>
+#include <cfloat>
 
 #include "loosespinbox.h"
 
@@ -27,8 +28,8 @@ LooseSpinBox::LooseSpinBox(QWidget *parent) :
     QAbstractSpinBox(parent),
     _decimals(1),
     _value(0),
-    _min(0),
-    _max(1),
+    _min(DBL_MIN),
+    _max(DBL_MAX),
     _singleStep(0.1)
 {
 	connect(this, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));

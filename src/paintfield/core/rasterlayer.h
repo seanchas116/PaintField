@@ -14,7 +14,7 @@ public:
 	Layer *createAnother() const override { return new RasterLayer(); }
 	
 	Malachite::Surface surface() const { return _surface; }
-	void setSurface(const Malachite::Surface &surface) { _surface = surface; }
+	void setSurface(const Malachite::Surface &surface) { _surface = surface; setThumbnailDirty(true); }
 	
 	Malachite::Surface *psurface() { return &_surface; }
 	

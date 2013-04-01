@@ -8,8 +8,10 @@ include(../extensions.pri)
 
 HEADERS += \
     vectortoolsextension.h \
-    recttool.h
+    recttool.h \
+    fillstrokesidebar.h
 
 SOURCES += \
     vectortoolsextension.cpp \
-    recttool.cpp
+    recttool.cpp \
+    fillstrokesidebar.cpp

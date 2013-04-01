@@ -15,6 +15,7 @@
 				[
 					
 					["paintfield.sidebar.color"],
+					["paintfield.sidebar.fillStroke"],
 					["paintfield.sidebar.brush"],
 					["paintfield.sidebar.brushLibrary"]
 				]

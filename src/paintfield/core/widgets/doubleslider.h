@@ -2,6 +2,7 @@
 #define FSDOUBLESLIDER_H
 
 #include <QSlider>
+#include "../global.h"
 
 namespace PaintField
 {

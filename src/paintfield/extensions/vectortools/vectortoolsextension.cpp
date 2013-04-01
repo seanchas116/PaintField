@@ -4,22 +4,25 @@
 #include "paintfield/core/appcontroller.h"
 #include "paintfield/core/widgets/simplebutton.h"
 
+#include "fillstrokesidebar.h"
 #include "recttool.h"
 #include "vectortoolsextension.h"
 
 namespace PaintField {
 
+static const QString fillStrokeSideBarId = "paintfield.sidebar.fillStroke";
+
 VectorToolsExtension::VectorToolsExtension(Canvas *canvas, QObject *parent) :
 	CanvasExtension(canvas, parent)
 {
-	
+	addSideBar(fillStrokeSideBarId, new FillStrokeSideBar(canvas ? canvas->document()->layerScene() : 0));
 }
 
-static const QString _rectToolName = "paintfield.tool.rectangle";
+static const QString rectToolId = "paintfield.tool.rectangle";
 
 Tool *VectorToolsExtension::createTool(const QString &name, Canvas *canvas)
 {
-	if (name == _rectToolName)
+	if (name == rectToolId)
 		return new RectTool(canvas);
 	
 	return 0;
@@ -28,9 +31,13 @@ Tool *VectorToolsExtension::createTool(const QString &name, Canvas *canvas)
 void VectorToolsExtensionFactory::initialize(AppController *app)
 {
 	{
-		auto text = QObject::tr("Rectangle");
+		auto text = tr("Rectangle");
 		auto icon = SimpleButton::createIcon(":/icons/24x24/rect.svg");
-		app->settingsManager()->declareTool(_rectToolName, ToolInfo(text, icon, QStringList()));
+		app->settingsManager()->declareTool(rectToolId, ToolInfo(text, icon, QStringList()));
+	}
+	
+	{
+		app->settingsManager()->declareSideBar(fillStrokeSideBarId, SideBarInfo(tr("Fill & Stroke")));
 	}
 }
 
