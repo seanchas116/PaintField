@@ -89,7 +89,8 @@ HEADERS += \
     layerscene.h \
     unittest/test_layerindex.h \
     unittest/test_layerscene.h \
-    layeritemmodel.h
+    layeritemmodel.h \
+    colorbuttonmanager.h
 FORMS += dialogs/exportdialog.ui dialogs/newdocumentdialog.ui
 SOURCES += \
            document.cpp \
@@ -162,7 +163,8 @@ SOURCES += \
     layerscene.cpp \
     unittest/test_layerindex.cpp \
     unittest/test_layerscene.cpp \
-    layeritemmodel.cpp
+    layeritemmodel.cpp \
+    colorbuttonmanager.cpp
 
 RESOURCES += \
     resources/resource-paintfield-core.qrc

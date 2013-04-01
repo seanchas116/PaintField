@@ -11,6 +11,7 @@
 #include "canvas.h"
 #include "rasterlayer.h"
 #include "documentcontroller.h"
+#include "colorbuttonmanager.h"
 
 #include "workspace.h"
 
@@ -24,6 +25,7 @@ struct Workspace::Data
 	
 	ToolManager *toolManager = 0;
 	PaletteManager *paletteManager = 0;
+	ColorButtonManager *colorButtonManager = 0;
 	
 	QActionList actions;
 	WorkspaceExtensionList extensions;
@@ -40,6 +42,7 @@ Workspace::Workspace(QObject *parent) :
 {
 	d->toolManager = new ToolManager(this);
 	d->paletteManager = new PaletteManager(this);
+	d->colorButtonManager = new ColorButtonManager(this);
 	
 	d->actions << Util::createAction("paintfield.window.splitVertically", this, SIGNAL(splitVerticallyRequested()));
 	d->actions << Util::createAction("paintfield.window.splitHorizontally", this, SIGNAL(splitHorizontallyRequested()));
@@ -69,6 +72,11 @@ ToolManager *Workspace::toolManager()
 PaletteManager *Workspace::paletteManager()
 {
 	return d->paletteManager;
+}
+
+ColorButtonManager *Workspace::colorButtonManager()
+{
+	return d->colorButtonManager;
 }
 
 void Workspace::setView(WorkspaceView *view)

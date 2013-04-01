@@ -7,6 +7,8 @@
 namespace PaintField
 {
 
+class ColorButton;
+
 class PaletteManager : public QObject
 {
 	Q_OBJECT
