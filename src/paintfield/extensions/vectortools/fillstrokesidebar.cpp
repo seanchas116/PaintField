@@ -136,6 +136,7 @@ FillStrokeSideBar::FillStrokeSideBar(LayerScene *scene, QWidget *parent) :
 	if (scene)
 	{
 		connect(scene, SIGNAL(currentChanged(LayerRef,LayerRef)), this, SLOT(setCurrentLayer(LayerRef)));
+		connect(scene, SIGNAL(currentLayerPropertyChanged()), this, SLOT(updateEditor()));
 		setCurrentLayer(scene->current());
 	}
 	else

@@ -63,6 +63,8 @@ signals:
 	void currentChanged(const LayerRef &now, const LayerRef &old);
 	void selectionChanged(const LayerRefList &selected, const LayerRefList &deselected);
 	
+	void currentLayerPropertyChanged();
+	
 protected:
 	
 	void enqueueTileUpdate(const QPointSet &keys);
@@ -76,6 +78,7 @@ private slots:
 	
 	void onCurrentIndexChanged(const QModelIndex &now, const QModelIndex &old);
 	void onItemSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
+	void onLayerPropertyChanged(const LayerRef &layer);
 	
 private:
 	

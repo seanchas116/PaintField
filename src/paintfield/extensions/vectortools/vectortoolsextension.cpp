@@ -37,7 +37,7 @@ void VectorToolsExtensionFactory::initialize(AppController *app)
 	}
 	
 	{
-		app->settingsManager()->declareSideBar(fillStrokeSideBarId, SideBarInfo(tr("Fill & Stroke")));
+		app->settingsManager()->declareSideBar(fillStrokeSideBarId, SideBarInfo(tr("Fill and Stroke")));
 	}
 }
 

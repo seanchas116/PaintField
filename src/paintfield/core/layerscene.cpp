@@ -438,12 +438,16 @@ struct LayerScene::Data
 	
 	LayerItemModel *itemModel = 0;
 	QItemSelectionModel *selectionModel = 0;
+	
+	LayerRef current;
 };
 
 LayerScene::LayerScene(const LayerList &layers, Document *document) :
 	QObject(document),
 	d(new Data)
 {
+	connect(this, SIGNAL(layerPropertyChanged(LayerRef)), this, SLOT(onLayerPropertyChanged(LayerRef)));
+	
 	d->document = document;
 	connect(d->document, SIGNAL(modified()), this, SLOT(update()));
 	
@@ -465,9 +469,12 @@ LayerScene::LayerScene(const LayerList &layers, Document *document) :
 	{
 		auto im = new LayerItemModel( this, this );
 		auto sm = new QItemSelectionModel(im, this );
-		sm->setCurrentIndex( im->index( 0, 0, QModelIndex() ), QItemSelectionModel::Current );
+		
 		connect( sm, SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(onCurrentIndexChanged(QModelIndex,QModelIndex)) );
 		connect( sm, SIGNAL(selectionChanged(QItemSelection,QItemSelection)), this, SLOT(onItemSelectionChanged(QItemSelection,QItemSelection)) );
+		
+		sm->setCurrentIndex( im->index( 0, 0, QModelIndex() ), QItemSelectionModel::Current );
+		
 		d->itemModel = im;
 		d->selectionModel = sm;
 	}
@@ -664,12 +671,7 @@ QItemSelectionModel *LayerScene::itemSelectionModel()
 
 LayerRef LayerScene::current() const
 {
-	auto layer = d->itemModel->layerForIndex(d->selectionModel->currentIndex());
-	
-	if (layer == rootLayer())
-		return LayerRef();
-	else
-		return layer;
+	return d->current;
 }
 
 LayerRefList LayerScene::selection() const
@@ -726,12 +728,19 @@ void LayerScene::pushCommand(QUndoCommand *command)
 
 void LayerScene::onCurrentIndexChanged(const QModelIndex &now, const QModelIndex &old)
 {
-	emit currentChanged(d->itemModel->layerExceptRootForIndex(now), d->itemModel->layerExceptRootForIndex(old));
+	d->current = d->itemModel->layerExceptRootForIndex(now);
+	emit currentChanged(d->current, d->itemModel->layerExceptRootForIndex(old));
 }
 
 void LayerScene::onItemSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
 {
 	emit selectionChanged(d->itemModel->layersForIndexes(selected.indexes()), d->itemModel->layersForIndexes(deselected.indexes()));
+}
+
+void LayerScene::onLayerPropertyChanged(const LayerRef &layer)
+{
+	if (layer == d->current)
+		emit currentLayerPropertyChanged();
 }
 
 } // namespace PaintField

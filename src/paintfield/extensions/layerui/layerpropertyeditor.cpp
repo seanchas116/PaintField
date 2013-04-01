@@ -80,7 +80,7 @@ LayerPropertyEditor::LayerPropertyEditor(LayerScene *scene, QWidget *parent) :
 	
 	if (scene)
 	{
-		connect(scene->document(), SIGNAL(modified()), this, SLOT(updateEditor()));
+		connect(scene, SIGNAL(currentLayerPropertyChanged()), this, SLOT(updateEditor()));
 		connect(scene, SIGNAL(currentChanged(LayerRef,LayerRef)), this, SLOT(setCurrentLayer(LayerRef)));
 		setCurrentLayer(scene->current());
 	}
