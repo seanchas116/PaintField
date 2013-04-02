@@ -19,6 +19,7 @@
 #include "paintfield/core/widgets/widgetgroup.h"
 #include "paintfield/core/widgets/doubleslider.h"
 #include "paintfield/core/signalconverter.h"
+#include "paintfield/core/workspace.h"
 
 #include "colorsidebar.h"
 
@@ -239,11 +240,161 @@ void WebColorPanel::onLineEditEditingFinished()
 	}
 }
 
+ColorSideBar::ColorSideBar(QWidget *parent) :
+	QWidget(parent)
+{
+	auto mainLayout = new QVBoxLayout();
+	
+	auto wheelButton = new SimpleButton(":/icons/24x24/colorWheel.svg", QSize(24,24));
+	auto sliderButton = new SimpleButton(":/icons/24x24/colorSlider.svg", QSize(24,24));
+	auto webButton = new SimpleButton(":/icons/24x24/webColor.svg", QSize(24,24));
+	auto dialogButton = new SimpleButton(":/icons/24x24/colorDialog.svg", QSize(24,24));
+	
+	wheelButton->setCheckable(true);
+	sliderButton->setCheckable(true);
+	webButton->setCheckable(true);
+	
+	// buttons
+	{
+		auto layout = new QHBoxLayout();
+		
+		layout->setMargin(0);
+		layout->addStretch(1);
+		layout->addWidget(wheelButton);
+		layout->addWidget(sliderButton);
+		layout->addWidget(webButton);
+		layout->addWidget(dialogButton);
+		layout->addStretch(1);
+		
+		mainLayout->addLayout(layout);
+	}
+	
+	// color buttons
+	{
+		auto layout = new QHBoxLayout();
+		
+		layout->setSpacing(0);
+		layout->addStretch(1);
+		
+		for (int i = 0; i < 7; ++i)
+		{
+			auto button = new ColorButton();
+			_colorButtons << button;
+			layout->addWidget(button);
+			connect(button, SIGNAL(colorChanged(Malachite::Color)), this, SLOT(onColorButtonChanged(Malachite::Color)));
+		}
+		
+		layout->addStretch(1);
+		
+		mainLayout->addLayout(layout);
+	}
+	
+	// widgets
+	{
+		auto colorWheel = new ColorWheel();
+		auto sliderPanel = new ColorSliderPanel();
+		auto webColorPanel = new WebColorPanel();
+		
+		mainLayout->addWidget(colorWheel, 0, Qt::AlignCenter);
+		mainLayout->addWidget(sliderPanel);
+		mainLayout->addWidget(webColorPanel);
+		
+		connect(colorWheel, SIGNAL(colorChanged(Malachite::Color)), this, SLOT(setCurrentColor(Malachite::Color)));
+		connect(sliderPanel, SIGNAL(colorChanged(Malachite::Color)), this, SLOT(setCurrentColor(Malachite::Color)));
+		connect(webColorPanel, SIGNAL(colorChanged(Malachite::Color)), this, SLOT(setCurrentColor(Malachite::Color)));
+		
+		connect(this, SIGNAL(currentColorChanged(Malachite::Color)), colorWheel, SLOT(setColor(Malachite::Color)));
+		connect(this, SIGNAL(currentColorChanged(Malachite::Color)), sliderPanel, SLOT(setColor(Malachite::Color)));
+		connect(this, SIGNAL(currentColorChanged(Malachite::Color)), webColorPanel, SLOT(setColor(Malachite::Color)));
+		
+		connect(wheelButton, SIGNAL(toggled(bool)), colorWheel, SLOT(setVisible(bool)));
+		connect(sliderButton, SIGNAL(toggled(bool)), sliderPanel, SLOT(setVisible(bool)));
+		connect(webButton, SIGNAL(toggled(bool)), webColorPanel, SLOT(setVisible(bool)));
+		
+		wheelButton->setChecked(true);
+		
+		colorWheel->setVisible(wheelButton->isChecked());
+		sliderPanel->setVisible(sliderButton->isChecked());
+		webColorPanel->setVisible(webButton->isChecked());
+	}
+	
+	mainLayout->addStretch(1);
+	
+	// opacity
+	{
+		auto layout = new QHBoxLayout;
+		
+		layout->addWidget(new QLabel(tr("Opacity:")));
+		
+		{
+			auto slider = new DoubleSlider(Qt::Horizontal);
+			slider->setMinimum(0);
+			slider->setMaximum(1000);
+			slider->setDoubleMinimum(0);
+			slider->setDoubleMaximum(100);
+			
+			auto spinBox = new LooseSpinBox;
+			spinBox->setDecimals(1);
+			spinBox->setMinimum(0);
+			spinBox->setMaximum(100);
+			spinBox->setSingleStep(1);
+			
+			connect(slider, SIGNAL(doubleValueChanged(double)), spinBox, SLOT(setValue(double)));
+			connect(spinBox, SIGNAL(valueChanged(double)), slider, SLOT(setDoubleValue(double)));
+			
+			auto toPercent = [](double x) { return x * 100; };
+			auto fromPercent = [](double x) { return x / 100; };
+			
+			auto converter = SignalConverter::fromDoubleFunc(toPercent, fromPercent,this);
+			converter->connectChannelADouble(this, SIGNAL(currentOpacityChanged(double)), SLOT(setCurrentOpacity(double)));
+			converter->connectChannelBDouble(slider, SIGNAL(doubleValueChanged(double)), SLOT(setDoubleValue(double)));
+			
+			layout->addWidget(slider);
+			layout->addWidget(spinBox);
+			layout->addWidget(new QLabel(tr("%")));
+		}
+		
+		mainLayout->addLayout(layout);
+	}
+	
+	setLayout(mainLayout);
+}
+
+void ColorSideBar::setColorButtonColor(int index, const Color &color)
+{
+	_colorButtons.at(index)->setColor(color);
+}
+
+void ColorSideBar::setCurrentColor(const Color &color)
+{
+	if (_color != color)
+	{
+		_color = color;
+		emit currentColorChanged(color);
+		emit currentOpacityChanged(color.alpha());
+	}
+}
+
+void ColorSideBar::setCurrentOpacity(double opacity)
+{
+	auto color = _color;
+	color.setAlpha(opacity);
+	setCurrentColor(color);
+}
+
+void ColorSideBar::onColorButtonChanged(const Color &color)
+{
+	auto button = qobject_cast<ColorButton *>(sender());
+	if (button && _colorButtons.contains(button))
+	{
+		emit colorButtonColorChanged(_colorButtons.indexOf(button), color);
+	}
+}
+
+/*
 ColorSidebar::ColorSidebar(QWidget *parent) :
 	QWidget(parent)
 {
-	setWindowTitle(tr("Color"));
-	
 	// buttons
 	
 	QHBoxLayout *buttonLayout = new QHBoxLayout();
@@ -288,7 +439,7 @@ ColorSidebar::ColorSidebar(QWidget *parent) :
 	
 	// color wheel
 	
-	 ColorWheel *colorWheel = new ColorWheel();
+	ColorWheel *colorWheel = new ColorWheel();
 	
 	// color sliders
 	
@@ -420,6 +571,6 @@ void ColorSidebar::setCurrentOpacity(double opacity)
 	Color currentColor = _colorButtons.at(_currentIndex)->color();
 	currentColor.setAlpha(opacity);
 	setCurrentColor(currentColor);
-}
+}*/
 
 }

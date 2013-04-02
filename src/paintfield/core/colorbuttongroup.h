@@ -1,8 +1,14 @@
-#ifndef PAINTFIELD_COLORBUTTONMANAGER_H
-#define PAINTFIELD_COLORBUTTONMANAGER_H
+#ifndef PAINTFIELD_COLORBUTTONGROUP_H
+#define PAINTFIELD_COLORBUTTONGROUP_H
 
 #include <QObject>
 #include <Malachite/Color>
+#include "global.h"
+
+namespace Malachite
+{
+class Color;
+}
 
 class QAbstractButton;
 
@@ -10,33 +16,32 @@ namespace PaintField {
 
 class ColorButton;
 
-class ColorButtonManager : public QObject
+class ColorButtonGroup : public QObject
 {
 	Q_OBJECT
 public:
-	
-	explicit ColorButtonManager(QObject *parent = 0);
-	~ColorButtonManager();
+	explicit ColorButtonGroup(QObject *parent = 0);
+	~ColorButtonGroup();
 	
 	void add(ColorButton *button);
-	void remove(ColorButton *button);
 	
 	Malachite::Color currentColor() const;
-	ColorButton *currentButton();
+	
+	bool eventFilter(QObject *object, QEvent *event);
 	
 signals:
 	
 	void currentColorChanged(const Malachite::Color &color);
-	void currentButtonChanged(ColorButton *button);
 	
 public slots:
 	
 	void setCurrentColor(const Malachite::Color &color);
 	void setCurrentButton(ColorButton *button);
 	
-private:
+private slots:
 	
 	void onCurrentButtonChanged(QAbstractButton *button);
+	void changeDisabledCurrentButton();
 	
 private:
 	
@@ -46,4 +51,4 @@ private:
 
 } // namespace PaintField
 
-#endif // PAINTFIELD_COLORBUTTONMANAGER_H
+#endif // PAINTFIELD_COLORBUTTONGROUP_H

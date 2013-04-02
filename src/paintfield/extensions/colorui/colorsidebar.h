@@ -71,6 +71,39 @@ private:
 	Malachite::Color _color;
 };
 
+class ColorSideBar : public QWidget
+{
+	Q_OBJECT
+	
+public:
+	
+	explicit ColorSideBar(QWidget *parent = 0);
+	
+	QList<ColorButton *> colorButtons() { return _colorButtons; }
+	
+signals:
+	
+	void currentColorChanged(const Malachite::Color &color);
+	void colorButtonColorChanged(int index, const Malachite::Color &color);
+	void currentOpacityChanged(double opacity);
+	
+public slots:
+	
+	void setColorButtonColor(int index, const Malachite::Color &color);
+	void setCurrentColor(const Malachite::Color &color);
+	
+private slots:
+	
+	void onColorButtonChanged(const Malachite::Color &color);
+	void setCurrentOpacity(double opacity);
+	
+private:
+	
+	QList<ColorButton *> _colorButtons;
+	Malachite::Color _color;
+};
+
+/*
 class ColorSidebar : public QWidget
 {
 	Q_OBJECT
@@ -100,7 +133,7 @@ private:
 	
 	QList<ColorButton *> _colorButtons;
 	int _currentIndex = -1;
-};
+};*/
 
 }
 

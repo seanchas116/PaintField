@@ -12,12 +12,13 @@ namespace PaintField {
 
 class LayerScene;
 class LayerRef;
+class Workspace;
 
 class FillStrokeSideBar : public QWidget
 {
 	Q_OBJECT
 public:
-	explicit FillStrokeSideBar(LayerScene *scene, QWidget *parent = 0);
+	explicit FillStrokeSideBar(Workspace *workspace, LayerScene *scene, QWidget *parent = 0);
 	~FillStrokeSideBar();
 	
 signals:

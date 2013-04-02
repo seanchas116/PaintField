@@ -16,7 +16,7 @@ class ToolManager;
 class PaletteManager;
 class CanvasSplitAreaController;
 class Document;
-class ColorButtonManager;
+class ColorButtonGroup;
 
 class Workspace : public QObject
 {
@@ -27,7 +27,7 @@ public:
 	
 	ToolManager *toolManager();
 	PaletteManager *paletteManager();
-	ColorButtonManager *colorButtonManager();
+	ColorButtonGroup *colorButtonGroup();
 	
 	void setView(WorkspaceView *view);
 	WorkspaceView *view();

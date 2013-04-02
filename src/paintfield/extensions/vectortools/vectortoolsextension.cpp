@@ -15,7 +15,7 @@ static const QString fillStrokeSideBarId = "paintfield.sidebar.fillStroke";
 VectorToolsExtension::VectorToolsExtension(Canvas *canvas, QObject *parent) :
 	CanvasExtension(canvas, parent)
 {
-	addSideBar(fillStrokeSideBarId, new FillStrokeSideBar(canvas ? canvas->document()->layerScene() : 0));
+	addSideBar(fillStrokeSideBarId, new FillStrokeSideBar(canvas ? canvas->workspace() : 0, canvas ? canvas->document()->layerScene() : 0));
 }
 
 static const QString rectToolId = "paintfield.tool.rectangle";

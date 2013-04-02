@@ -13,6 +13,8 @@
 #include "paintfield/core/widgets/doubleslider.h"
 #include "paintfield/core/widgets/loosespinbox.h"
 #include "paintfield/core/widgets/colorbutton.h"
+#include "paintfield/core/workspace.h"
+#include "paintfield/core/colorbuttongroup.h"
 
 #include "fillstrokesidebar.h"
 
@@ -28,7 +30,7 @@ struct FillStrokeSideBar::Data
 	QButtonGroup *strokePosGroup = 0;
 };
 
-FillStrokeSideBar::FillStrokeSideBar(LayerScene *scene, QWidget *parent) :
+FillStrokeSideBar::FillStrokeSideBar(Workspace *workspace, LayerScene *scene, QWidget *parent) :
 	QWidget(parent),
 	d(new Data)
 {
@@ -52,6 +54,9 @@ FillStrokeSideBar::FillStrokeSideBar(LayerScene *scene, QWidget *parent) :
 			connect(this, SIGNAL(fillColorChanged(Malachite::Color)), color, SLOT(setColor(Malachite::Color)));
 			l->addWidget(color);
 			
+			if (workspace)
+				workspace->colorButtonGroup()->add(color);
+			
 			vLayout->addLayout(l);
 		}
 		
@@ -67,6 +72,9 @@ FillStrokeSideBar::FillStrokeSideBar(LayerScene *scene, QWidget *parent) :
 			connect(color, SIGNAL(colorChanged(Malachite::Color)), this, SLOT(onStrokeColorSet(Malachite::Color)));
 			connect(this, SIGNAL(strokeColorChanged(Malachite::Color)), color, SLOT(setColor(Malachite::Color)));
 			l->addWidget(color);
+			
+			if (workspace)
+				workspace->colorButtonGroup()->add(color);
 			
 			vLayout->addLayout(l);
 		}
@@ -126,8 +134,6 @@ FillStrokeSideBar::FillStrokeSideBar(LayerScene *scene, QWidget *parent) :
 			strokeWidget->setLayout(strokeLayout);
 			vLayout->addWidget(strokeWidget);
 		}
-		
-		
 		
 		vLayout->addStretch(1);
 		
