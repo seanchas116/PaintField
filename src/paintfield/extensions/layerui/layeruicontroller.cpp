@@ -249,7 +249,12 @@ void LayerUIController::pasteLayers()
 		layers.reserve(count);
 		
 		for (int i = 0; i < count; ++i)
-			layers << Layer::decodeRecursive(stream);
+		{
+			auto layer = Layer::decodeRecursive(stream);
+			if (!layer)
+				return;
+			layers << layer;
+		}
 		
 		addLayers(layers, tr("Paste Layers"));
 	}

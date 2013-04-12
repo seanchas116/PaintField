@@ -103,38 +103,6 @@ private:
 	Malachite::Color _color;
 };
 
-/*
-class ColorSidebar : public QWidget
-{
-	Q_OBJECT
-public:
-	explicit ColorSidebar(QWidget *parent = 0);
-	
-signals:
-	
-	void colorChanged(int index, const Malachite::Color &color);
-	void currentColorChanged(const Malachite::Color &color);
-	void currentOpacityChanged(double opacity);
-	void currentIndexChanged(int index);
-	
-public slots:
-	
-	void setColor(int index, const Malachite::Color &color);
-	void setCurrentColor(const Malachite::Color &color) { setColor(_currentIndex, color); }
-	void setCurrentIndex(int index);
-	
-private slots:
-	
-	void onButtonColorChanged(const Malachite::Color &color);
-	void onColorButtonPressed();
-	void setCurrentOpacity(double opacity);
-	
-private:
-	
-	QList<ColorButton *> _colorButtons;
-	int _currentIndex = -1;
-};*/
-
 }
 
 #endif // FSCOLORPANEL_H

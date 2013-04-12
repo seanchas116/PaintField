@@ -13,15 +13,36 @@ public:
 	explicit RectTool(Canvas *canvas);
 	~RectTool();
 	
-	void tabletMoveEvent(CanvasTabletEvent *event);
-	void tabletPressEvent(CanvasTabletEvent *event);
-	void tabletReleaseEvent(CanvasTabletEvent *event);
+	void drawLayer(Malachite::SurfacePainter *painter, const Layer *layer) override;
+	
+protected:
+	
+	void tabletMoveEvent(CanvasTabletEvent *event) override;
+	void tabletPressEvent(CanvasTabletEvent *event) override;
+	void tabletReleaseEvent(CanvasTabletEvent *event) override;
+	
+private slots:
+	
+	void onCurrentChanged(const LayerRef &layer);
+	void moveHandles();
 	
 private:
 	
-	void startAddRect();
-	void resizeAddRect(const Malachite::Vec2D &pos);
-	void finishAddRect();
+	enum HandleType
+	{
+		Left = 1,
+		Right = 1 << 1,
+		Top = 1 << 2,
+		Bottom = 1 << 3
+	};
+	
+	void onHandleMoved(const QPointF &pos, int handleTypes);
+	void onHandleMoveFinished();
+	
+	void addHandle(int handleTypes);
+	
+	friend class RectInserter;
+	friend class RectHandleItem;
 	
 	struct Data;
 	Data *d;
