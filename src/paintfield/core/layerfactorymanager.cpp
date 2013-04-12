@@ -1,5 +1,6 @@
 #include "rasterlayer.h"
 #include "grouplayer.h"
+#include "rectlayer.h"
 
 #include "layerfactorymanager.h"
 
@@ -8,7 +9,7 @@ namespace PaintField {
 LayerFactoryManager::LayerFactoryManager(QObject *parent) :
 	QObject(parent)
 {
-	_factories << new RasterLayerFactory() << new GroupLayerFactory();
+	_factories << new RasterLayerFactory() << new GroupLayerFactory() << new RectLayerFactory();
 }
 
 Layer *LayerFactoryManager::createLayer(const QString &name) const
