@@ -44,4 +44,16 @@ private:
 	ShapeType _shapeType = ShapeTypeRect;
 };
 
+class RectLayerFactory : public LayerFactory
+{
+public:
+	
+	RectLayerFactory() : LayerFactory() {}
+	
+	QString name() const override;
+	Layer *create() const override { return new RectLayer(); }
+	const ::std::type_info &typeInfo() const override { return typeid(RectLayer); }
+	
+};
+
 } // namespace PaintField

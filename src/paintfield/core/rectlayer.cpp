@@ -107,4 +107,9 @@ QString RectLayer::shapeTypeString() const
 	}
 }
 
+QString RectLayerFactory::name() const
+{
+	return "rect";
+}
+
 } // namespace PaintField
