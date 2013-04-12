@@ -110,6 +110,8 @@ protected:
 	void setGraphicsItem(QGraphicsItem *item);
 	
 	Canvas *canvas() { return static_cast<Canvas *>(parent()); }
+	Document *document() { return canvas()->document(); }
+	LayerScene *layerScene() { return document()->layerScene(); }
 	
 private:
 	
