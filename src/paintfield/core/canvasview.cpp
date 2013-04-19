@@ -189,6 +189,8 @@ CanvasViewController::CanvasViewController(Canvas *canvas) :
 		connect(canvas, SIGNAL(scaleChanged(double)), this, SLOT(setScale(double)));
 		connect(canvas, SIGNAL(rotationChanged(double)), this, SLOT(setRotation(double)));
 		connect(canvas, SIGNAL(translationChanged(QPoint)), this, SLOT(setTranslation(QPoint)));
+		connect(canvas, SIGNAL(mirroredChanged(bool)), this, SLOT(setMirrored(bool)));
+		connect(canvas, SIGNAL(retinaModeChanged(bool)), this, SLOT(setRetinaMode(bool)));
 		
 		setScale(canvas->scale());
 		setRotation(canvas->rotation());
