@@ -1,15 +1,12 @@
-#ifndef CANVASVIEW_H
-#define CANVASVIEW_H
+#pragma once
 
-#include <Malachite/Affine2D>
-#include <Malachite/Surface>
-#include "global.h"
+#include <QObject>
 #include <QWidget>
+#include <Malachite/Surface>
+#include <Malachite/Affine2D>
 
-namespace PaintField
-{
+namespace PaintField {
 
-class WidgetTabletEvent;
 class Tool;
 class Canvas;
 
@@ -17,75 +14,69 @@ class CanvasView : public QWidget
 {
 	Q_OBJECT
 	
-	typedef QWidget super;
-	
 public:
 	
-	CanvasView(Canvas *canvas, QWidget *parent = 0);
-	~CanvasView();
+	explicit CanvasView(Canvas *canvas, QWidget *parent = 0) :
+		QWidget(parent),
+		_canvas(canvas)
+	{}
 	
-	Canvas *canvas();
+	Canvas *canvas() { return _canvas; }
 	
-	QPoint viewCenter() const;
+private:
+	
+	Canvas *_canvas;
+};
+
+class CanvasViewController : public QObject
+{
+	Q_OBJECT
+public:
+	explicit CanvasViewController(Canvas *canvas);
+	~CanvasViewController();
+	
+	CanvasView *view();
+	bool eventFilter(QObject *watched, QEvent *event) override;
 	
 	Malachite::Affine2D transformToScene() const;
 	Malachite::Affine2D transformFromScene() const;
 	
+	QPoint viewCenter() const;
+	
 	bool isUpdateTilesEnabled() const;
 	
-public slots:
-	
-	void setUpdateTilesEnabled(bool enable);
-	
-	void setTool(Tool *tool);
+	Canvas *canvas();
 	
 signals:
 	
 	void transformUpdated();
 	
-protected:
+public slots:
 	
-	void keyPressEvent(QKeyEvent *event);
-	void keyReleaseEvent(QKeyEvent *event);
-	void mouseDoubleClickEvent(QMouseEvent *event);
-	void mouseMoveEvent(QMouseEvent *event);
-	void mousePressEvent(QMouseEvent *event);
-	void mouseReleaseEvent(QMouseEvent *event);
-	void tabletEvent(QTabletEvent *event);
-	void customTabletEvent(WidgetTabletEvent *event);
-	void focusInEvent(QFocusEvent *);
-	void enterEvent(QEvent *);
-	void leaveEvent(QEvent *);
-	void wheelEvent(QWheelEvent *event);
-	void resizeEvent(QResizeEvent *);
-	void changeEvent(QEvent *event);
-	void showEvent(QShowEvent *);
-	void hideEvent(QHideEvent *);
+	void setUpdateTilesEnabled(bool enable);
+	void setTool(Tool *tool);
 	
-	bool event(QEvent *event);
+	void updateViewportAccurately();
 	
 private slots:
-	
-	void onPressedKeysChanged();
 	
 	void setScale(double value);
 	void setRotation(double value);
 	void setTranslation(const QPoint &value);
-	void setMirrored(bool mirrored);
-	void setRetinaMode(bool mode);
+	void setMirrored(bool value);
+	void setRetinaMode(bool value);
 	
 	void updateTiles(const QPointSet &keys) { updateTiles(keys, QHash<QPoint, QRect>()); }
 	void updateTiles(const QHash<QPoint, QRect> &rects) { updateTiles(QPointSet(), rects); }
 	
 	void onClicked();
-	void onTabletActiveChanged(bool active);
-	
-	void onViewportAccurateUpdate();
 	
 	void onScrollBarXChanged(int x);
 	void onScrollBarYChanged(int y);
 	void updateScrollBarRange();
 	void updateScrollBarValue();
+	
+	void onCanvasWillBeDeleted();
 	
 private:
 	
@@ -93,41 +84,10 @@ private:
 	
 	void updateTiles(const QPointSet &keys, const QHash<QPoint, QRect> &rects);
 	
-	bool sendCanvasMouseEvent(QMouseEvent *event);
-	bool sendCanvasTabletEvent(QMouseEvent *mouseEvent);
-	bool sendCanvasTabletEvent(WidgetTabletEvent *event);
-	
-	bool tryBeginDragNavigation(const QPoint &pos);
-	bool continueDragNavigation(const QPoint &pos);
-	void endDragNavigation();
-	
-	void beginDragTranslation(const QPoint &pos);
-	void continueDragTranslation(const QPoint &pos);
-	void endDragTranslation();
-	
-	void beginDragScaling(const QPoint &pos);
-	void continueDragScaling(const QPoint &pos);
-	void endDragScaling();
-	
-	void beginDragRotation(const QPoint &pos);
-	void continueDragRotation(const QPoint &pos);
-	void endDragRotation();
-	
-	void moveViewport();
-	void moveChildWidgets();
-	
-	enum DragNavigationMode
-	{
-		NoNavigation,
-		Translating,
-		Scaling,
-		Rotating
-	};
+	void moveWidgets();
 	
 	struct Data;
 	Data *d;
 };
 
-}
-
-#endif // CANVASVIEW_H
+} // namespace PaintField

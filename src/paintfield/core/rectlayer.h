@@ -32,13 +32,15 @@ public:
 	void setRect(const QRectF &rect);
 	QRectF rect() const { return _rect; }
 	
-	void setShapeType(ShapeType type) { _shapeType = type; }
+	void setShapeType(ShapeType type);
 	ShapeType shapeType() const { return _shapeType; }
 	
 	void setShapeTypeString(const QString &str);
 	QString shapeTypeString() const;
 	
 private:
+	
+	void setShapeFromRect();
 	
 	QRectF _rect;
 	ShapeType _shapeType = ShapeTypeRect;

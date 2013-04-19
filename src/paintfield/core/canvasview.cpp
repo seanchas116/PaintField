@@ -1,31 +1,26 @@
 #include <QTimer>
+#include <QPointer>
 #include <QGraphicsView>
 #include <QGraphicsItem>
-
-#include "cursorstack.h"
-#include "scopedtimer.h"
-#include "application.h"
-#include "settingsmanager.h"
-#include "smartpointer.h"
-#include "drawutil.h"
-#include "tool.h"
-#include "layerrenderer.h"
-#include "canvas.h"
-#include "appcontroller.h"
-#include "workspace.h"
-#include "keytracker.h"
+#include <QGraphicsSceneMouseEvent>
 #include "widgets/vanishingscrollbar.h"
-#include "layerscene.h"
-
+#include "canvasnavigator.h"
+#include "canvastooleventsender.h"
 #include "canvasviewport.h"
+#include "canvas.h"
+#include "document.h"
+#include "layerscene.h"
+#include "keytracker.h"
+#include "appcontroller.h"
+#include "tool.h"
+#include "workspace.h"
+#include "cursorstack.h"
 
 #include "canvasview.h"
 
-namespace PaintField
-{
-
 using namespace Malachite;
 
+namespace PaintField {
 
 class CanvasRenderer : public LayerRenderer
 {
@@ -83,113 +78,117 @@ private:
 	Tool *_tool = 0;
 };
 
-struct Navigation
-{
-	double scale = 1, rotation = 0;
-	QPoint translation;
-};
-
-struct CanvasView::Data
+struct CanvasViewController::Data
 {
 	Canvas *canvas = 0;
-	QPointer<Tool> tool = 0;
 	
-	double mousePressure = 0;
-	bool tabletActive = false;
-	
-	KeyTracker *keyTracker = 0;
-	
-	QCursor toolCursor;
-	
-	QKeySequence scaleKeys, rotationKeys, translationKeys;
-	
-	DragNavigationMode navigationMode = NoNavigation;
-	QPoint navigationOrigin;
-	
-	Navigation nav, backupNav;
-	bool mirrored = false, retinaMode = false;
-	
+	// metrics
 	QSize sceneSize;
 	QPoint viewCenter;
 	
+	// tool
+	QPointer<Tool> tool;
+	QCursor toolCursor;
+	
+	// transform
+	double scale = 1, rotation = 0;
+	QPoint translation;
 	Affine2D transformToScene, transformFromScene;
-	
-	QPointer<CanvasViewport> viewport = 0;
-	VanishingScrollBar *scrollBarX = 0, *scrollBarY = 0;
-	
-	QTimer *accurateUpdateTimer = 0;
-	
+	bool mirrored = false, retinaMode = false;
 	QPoint maxAbsTranslation;
 	
-	bool updateEnabled = true;
-	
+	// widgets
+	CanvasViewport *viewport = 0;
+	CanvasView *view = 0;
 	QGraphicsView *graphicsView = 0;
+	VanishingScrollBar *scrollBarX = 0, *scrollBarY = 0;
+	
+	// other objects
+	KeyTracker *keyTracker = 0;
 	QGraphicsScene *graphicsScene = 0;
+	QTimer *accurateUpdateTimer = 0;
+	CanvasToolEventSender *eventSender = 0;
+	CanvasNavigator *navigator = 0;
+	
+	// other
+	bool updateEnabled = true;
+	bool graphicsViewDraggingItem = false;
 };
 
-CanvasView::CanvasView(Canvas *canvas, QWidget *parent) :
-    QWidget(parent),
-    d(new Data)
+CanvasViewController::CanvasViewController(Canvas *canvas) :
+	QObject(canvas),
+	d(new Data)
 {
 	d->canvas = canvas;
 	d->sceneSize = canvas->document()->size();
-	d->nav.translation = canvas->translation();
-	d->nav.scale = canvas->scale();
-	d->nav.rotation = canvas->rotation();
+	d->translation = canvas->translation();
+	d->scale = canvas->scale();
+	d->rotation = canvas->rotation();
 	
-	d->keyTracker = new KeyTracker(this);
-	connect(d->keyTracker, SIGNAL(pressedKeysChanged(QSet<int>)), this, SLOT(onPressedKeysChanged()));
-	
-	d->viewCenter = QPoint(width() / 2, height() / 2);
-	
-	// setup graphics view
+	// setup objects
 	{
-		d->graphicsView = new QGraphicsView(this);
-		d->graphicsView->setStyleSheet("background: transparent;");
-		d->graphicsView->setAttribute(Qt::WA_TransparentForMouseEvents);
-		d->graphicsView->setVisible(false);
-		
+		d->keyTracker = new KeyTracker(this);
 		d->graphicsScene = new QGraphicsScene(this);
-		d->graphicsView->setScene(d->graphicsScene);
-	}
-	
-	// setup scrollbars
-	{
-		d->scrollBarX = new VanishingScrollBar(Qt::Horizontal, this);
-		d->scrollBarY = new VanishingScrollBar(Qt::Vertical, this);
 		
-		connect(d->scrollBarX, SIGNAL(valueChanged(int)), this, SLOT(onScrollBarXChanged(int)));
-		connect(d->scrollBarY, SIGNAL(valueChanged(int)), this, SLOT(onScrollBarYChanged(int)));
-	}
-	
-	moveChildWidgets();
-	
-	// setup viewport
-	{
-		auto viewport = new CanvasViewport(window());
-		d->viewport = viewport;
-		moveViewport();
+		d->graphicsScene->installEventFilter(this);
+		
+		d->eventSender = new CanvasToolEventSender(this);
+		d->navigator = new CanvasNavigator(d->keyTracker, this);
 		
 		{
 			auto timer = new QTimer(this);
 			timer->setSingleShot(true);
 			timer->setInterval(100);
-			connect(timer, SIGNAL(timeout()), this, SLOT(onViewportAccurateUpdate()));
+			connect(timer, SIGNAL(timeout()), this, SLOT(updateViewportAccurately()));
 			d->accurateUpdateTimer = timer;
 		}
+	}
+	
+	// setup views
+	{
+		d->view = new CanvasView(canvas);
+		d->view->setMouseTracking(true);
+		d->view->installEventFilter(this);
+		connect(canvas, SIGNAL(shouldBeDeleted(Canvas*)), d->view, SLOT(deleteLater()));
 		
-		viewport->setDocumentSize(d->sceneSize);
+		d->graphicsView = new QGraphicsView(d->view);
+		d->graphicsView->viewport()->installEventFilter(this);
+		//d->graphicsView->installEventFilter(this);
+		d->graphicsView->setStyleSheet("QGraphicsView { border-style: none; background: transparent; }");
+		d->graphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+		d->graphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+		d->graphicsView->setRenderHint(QPainter::Antialiasing, true);
+		d->graphicsView->setScene(d->graphicsScene);
+		d->graphicsView->setInteractive(true);
+		
+		// setup scrollbars
+		{
+			d->scrollBarX = new VanishingScrollBar(Qt::Horizontal, d->view);
+			d->scrollBarY = new VanishingScrollBar(Qt::Vertical, d->view);
+			
+			connect(d->scrollBarX, SIGNAL(valueChanged(int)), this, SLOT(onScrollBarXChanged(int)));
+			connect(d->scrollBarY, SIGNAL(valueChanged(int)), this, SLOT(onScrollBarYChanged(int)));
+		}
+	}
+	
+	// setup viewport
+	{
+		auto vp = new CanvasViewport();
+		d->viewport = vp;
+		connect(canvas, SIGNAL(shouldBeDeleted(Canvas*)), vp, SLOT(deleteLater()));
+		
+		vp->setDocumentSize(d->sceneSize);
 		updateTransforms();
 		updateTiles(canvas->document()->tileKeys());
 	}
+	
+	moveWidgets();
 	
 	// connect to canvas
 	{
 		connect(canvas, SIGNAL(scaleChanged(double)), this, SLOT(setScale(double)));
 		connect(canvas, SIGNAL(rotationChanged(double)), this, SLOT(setRotation(double)));
 		connect(canvas, SIGNAL(translationChanged(QPoint)), this, SLOT(setTranslation(QPoint)));
-		connect(canvas, SIGNAL(mirroredChanged(bool)), this, SLOT(setMirrored(bool)));
-		connect(canvas, SIGNAL(retinaModeChanged(bool)), this, SLOT(setRetinaMode(bool)));
 		
 		setScale(canvas->scale());
 		setRotation(canvas->rotation());
@@ -198,116 +197,55 @@ CanvasView::CanvasView(Canvas *canvas, QWidget *parent) :
 		connect(canvas, SIGNAL(toolChanged(Tool*)), this, SLOT(setTool(Tool*)));
 		setTool(canvas->tool());
 		
-		connect(canvas, SIGNAL(shouldBeDeleted(Canvas*)), this, SLOT(deleteLater()));
+		canvas->setViewController(this);
 		
-		canvas->setView(this);
+		connect(canvas, SIGNAL(shouldBeDeleted(Canvas*)), this, SLOT(onCanvasWillBeDeleted()));
 	}
 	
-	connect(canvas->document()->layerScene(), SIGNAL(tilesUpdated(QPointSet)),
-	        this, SLOT(updateTiles(QPointSet)));
-	
-	connect(appController()->app(), SIGNAL(tabletActiveChanged(bool)),
-	        this, SLOT(onTabletActiveChanged(bool)));
-	onTabletActiveChanged(appController()->app()->isTabletActive());
-	
-	// setup key bindings
-	{
-		auto keyBindingHash = appController()->settingsManager()->settings()[".key-bindings"].toMap();
-		
-		d->translationKeys = keyBindingHash["paintfield.canvas.dragTranslation"].toString();
-		d->scaleKeys = keyBindingHash["paintfield.canvas.dragScale"].toString();
-		d->rotationKeys = keyBindingHash["paintfield.canvas.dragRotation"].toString();
-	}
-	
-	// set widget properties
-	{
-		setMouseTracking(true);
-	}
+	connect(canvas->document()->layerScene(), SIGNAL(tilesUpdated(QPointSet)), this, SLOT(updateTiles(QPointSet)));
 }
 
-CanvasView::~CanvasView()
+CanvasViewController::~CanvasViewController()
 {
-	setTool(0);
-	
-	if (d->viewport)
-		d->viewport->deleteLater();
 	delete d;
 }
 
-bool CanvasView::isUpdateTilesEnabled() const { return d->updateEnabled; }
+CanvasView *CanvasViewController::view()
+{
+	return d->view;
+}
 
-void CanvasView::setUpdateTilesEnabled(bool enable)
+Malachite::Affine2D CanvasViewController::transformToScene() const
+{
+	return d->transformToScene;
+}
+
+Malachite::Affine2D CanvasViewController::transformFromScene() const
+{
+	return d->transformFromScene;
+}
+
+QPoint CanvasViewController::viewCenter() const
+{
+	return d->viewCenter;
+}
+
+bool CanvasViewController::isUpdateTilesEnabled() const
+{
+	return d->updateEnabled;
+}
+
+Canvas *CanvasViewController::canvas()
+{
+	return d->canvas;
+}
+
+void CanvasViewController::setUpdateTilesEnabled(bool enable)
 {
 	d->updateEnabled = enable;
 }
 
-QPoint CanvasView::viewCenter() const { return d->viewCenter; }
-
-void CanvasView::setScale(double value)
-{
-	d->nav.scale = value;
-	updateTransforms();
-}
-
-void CanvasView::setRotation(double value)
-{
-	d->nav.rotation = value;
-	updateTransforms();
-}
-
-void CanvasView::setTranslation(const QPoint &value)
-{
-	d->nav.translation = value;
-	updateTransforms();
-}
-
-void CanvasView::setMirrored(bool mirrored)
-{
-	d->mirrored = mirrored;
-	updateTransforms();
-}
-
-void CanvasView::setRetinaMode(bool mode)
-{
-	d->retinaMode = mode;
-	updateTransforms();
-}
-
-Affine2D CanvasView::transformToScene() const { return d->transformToScene; }
-Affine2D CanvasView::transformFromScene() const { return d->transformFromScene; }
-
-void CanvasView::updateTransforms()
-{
-	QPoint sceneOffset = QPoint(d->sceneSize.width(), d->sceneSize.height()) / 2;
-	QPoint viewOffset = viewCenter() + d->nav.translation;
-	
-	double scale = d->retinaMode ? d->nav.scale * 0.5 : d->nav.scale;
-	
-	auto transform = Affine2D::fromTranslation(Vec2D(viewOffset)) *
-	                 Affine2D::fromRotationDegrees(d->nav.rotation) *
-	                 Affine2D::fromScale(scale) *
-	                 Affine2D::fromTranslation(Vec2D(-sceneOffset));
-	
-	if (d->mirrored)
-		transform = transform * Affine2D(-1, 0, 0, 1, d->sceneSize.width(), 0);
-	
-	d->transformFromScene = transform;
-	d->transformToScene = transform.inverted();
-	d->viewport->setTransform(transform, d->nav.translation, scale, d->nav.rotation, d->retinaMode);
-	
-	updateScrollBarRange();
-	updateScrollBarValue();
-	
-	emit transformUpdated();
-	
-	d->accurateUpdateTimer->start();
-	
-	d->viewport->update();
-}
-
-Canvas *CanvasView::canvas() { return d->canvas; }
-
-void CanvasView::setTool(Tool *tool)
+void CanvasViewController::setTool(Tool *tool)
 {
 	if (d->tool && d->tool->graphicsItem())
 	{
@@ -315,16 +253,15 @@ void CanvasView::setTool(Tool *tool)
 	}
 	
 	d->tool = tool;
+	d->eventSender->setTool(tool);
 	
 	if (tool)
 	{
 		connect(tool, SIGNAL(requestUpdate(QPointSet)), this, SLOT(updateTiles(QPointSet)));
 		connect(tool, SIGNAL(requestUpdate(QHash<QPoint,QRect>)), this, SLOT(updateTiles(QHash<QPoint,QRect>)));
 		
-		// cursor
 		d->toolCursor = tool->cursor();
 		
-		// graphics item
 		if (tool->graphicsItem())
 		{
 			d->graphicsScene->addItem(tool->graphicsItem());
@@ -337,7 +274,114 @@ void CanvasView::setTool(Tool *tool)
 	}
 }
 
-void CanvasView::updateTiles(const QPointSet &keys, const QHash<QPoint, QRect> &rects)
+void CanvasViewController::updateViewportAccurately()
+{
+	if (d->navigator->dragMode() != CanvasNavigator::NoNavigation)
+		return;
+	
+	d->viewport->updateWholeAccurately();
+}
+
+void CanvasViewController::setScale(double value)
+{
+	d->scale = value;
+	updateTransforms();
+}
+
+void CanvasViewController::setRotation(double value)
+{
+	d->rotation = value;
+	updateTransforms();
+}
+
+void CanvasViewController::setTranslation(const QPoint &value)
+{
+	d->translation = value;
+	updateTransforms();
+}
+
+void CanvasViewController::setMirrored(bool value)
+{
+	d->mirrored = value;
+	updateTransforms();
+}
+
+void CanvasViewController::setRetinaMode(bool value)
+{
+	d->retinaMode = value;
+	updateTransforms();
+}
+
+void CanvasViewController::onClicked()
+{
+	d->view->setFocus();
+	d->canvas->workspace()->setCurrentCanvas(d->canvas);
+}
+
+void CanvasViewController::onScrollBarXChanged(int x)
+{
+	d->canvas->setTranslationX(d->maxAbsTranslation.x() - x);
+}
+
+void CanvasViewController::onScrollBarYChanged(int y)
+{
+	d->canvas->setTranslationY(d->maxAbsTranslation.y() - y);
+}
+
+void CanvasViewController::updateScrollBarRange()
+{
+	int radius = ceil(hypot(d->sceneSize.width(), d->sceneSize.height()) * d->scale * 0.5);
+	
+	d->maxAbsTranslation = QPoint(radius + d->view->width(), radius + d->view->height());
+	
+	d->scrollBarX->setRange(0, 2 * d->maxAbsTranslation.x());
+	d->scrollBarY->setRange(0, 2 * d->maxAbsTranslation.y());
+	
+	d->scrollBarX->setPageStep(d->view->width());
+	d->scrollBarY->setPageStep(d->view->height());
+}
+
+void CanvasViewController::updateScrollBarValue()
+{
+	d->scrollBarX->setValue(d->maxAbsTranslation.x() - d->translation.x());
+	d->scrollBarY->setValue(d->maxAbsTranslation.y() - d->translation.y());
+}
+
+void CanvasViewController::onCanvasWillBeDeleted()
+{
+	setTool(0);
+}
+
+void CanvasViewController::updateTransforms()
+{
+	QPoint sceneOffset = QPoint(d->sceneSize.width(), d->sceneSize.height()) / 2;
+	QPoint viewOffset = viewCenter() + d->translation;
+	
+	double scale = d->retinaMode ? d->scale * 0.5 : d->scale;
+	
+	auto transform = Affine2D::fromTranslation(Vec2D(viewOffset)) *
+	                 Affine2D::fromRotationDegrees(d->rotation) *
+	                 Affine2D::fromScale(scale) *
+	                 Affine2D::fromTranslation(Vec2D(-sceneOffset));
+	
+	if (d->mirrored)
+		transform = transform * Affine2D(-1, 0, 0, 1, d->sceneSize.width(), 0);
+	
+	d->transformFromScene = transform;
+	d->transformToScene = transform.inverted();
+	d->viewport->setTransform(transform, d->translation, scale, d->rotation, d->retinaMode);
+	
+	updateScrollBarRange();
+	updateScrollBarValue();
+	
+	emit transformUpdated();
+	
+	d->accurateUpdateTimer->start();
+	
+	d->viewport->update();
+}
+
+void CanvasViewController::updateTiles(const QPointSet &keys, const QHash<QPoint, QRect> &rects)
 {
 	if (!d->updateEnabled)
 		return;
@@ -384,553 +428,157 @@ void CanvasView::updateTiles(const QPointSet &keys, const QHash<QPoint, QRect> &
 	d->viewport->afterUpdateTile();
 }
 
-void CanvasView::onClicked()
+void CanvasViewController::moveWidgets()
 {
-	setFocus();
-	canvas()->workspace()->setCurrentCanvas(canvas());
-}
-
-void CanvasView::onTabletActiveChanged(bool active)
-{
-	d->tabletActive = active;
-}
-
-void CanvasView::onViewportAccurateUpdate()
-{
-	if (d->navigationMode == NoNavigation)
-		d->viewport->updateWholeAccurately();
-}
-
-void CanvasView::onScrollBarXChanged(int value)
-{
-	d->canvas->setTranslationX(d->maxAbsTranslation.x() - value);
-}
-
-void CanvasView::onScrollBarYChanged(int value)
-{
-	d->canvas->setTranslationY(d->maxAbsTranslation.y() - value);
-}
-
-void CanvasView::updateScrollBarRange()
-{
-	int radius = ceil(hypot(d->sceneSize.width(), d->sceneSize.height()) * d->nav.scale * 0.5);
+	// move viewport
+	{
+		QRect geom(Util::mapToWindow(d->view, QPoint()), d->view->geometry().size());
+		
+		d->viewport->setParent(d->view->window());
+		d->viewport->setGeometry(geom);
+		d->viewport->show();
+		d->viewport->lower();
+		d->viewport->setEnabled(d->view->isEnabled());
+		d->viewport->setVisible(d->view->isVisible());
+	}
 	
-	d->maxAbsTranslation = QPoint(radius + this->width(), radius + this->height());
+	// move graphics view & scroll bars
+	{
+		int barWidthX = d->scrollBarX->totalBarWidth();
+		int barWidthY = d->scrollBarY->totalBarWidth();
+		
+		auto widgetRect = QRect(QPoint(), d->view->geometry().size());
+		d->graphicsScene->setSceneRect(widgetRect);
+		
+		auto scrollBarXRect = widgetRect.adjusted(0, widgetRect.height() - barWidthY, -barWidthX, 0);
+		auto scrollBarYRect = widgetRect.adjusted(widgetRect.width() - barWidthX, 0, 0, -barWidthY);
+		
+		d->scrollBarX->setGeometry(scrollBarXRect);
+		d->scrollBarY->setGeometry(scrollBarYRect);
+		
+		d->graphicsView->setGeometry(widgetRect);
+		d->graphicsView->setSceneRect(widgetRect);
+	}
 	
-	d->scrollBarX->setRange(0, 2 * d->maxAbsTranslation.x());
-	d->scrollBarY->setRange(0, 2 * d->maxAbsTranslation.y());
-	
-	d->scrollBarX->setPageStep(this->width());
-	d->scrollBarY->setPageStep(this->height());
-}
-
-void CanvasView::updateScrollBarValue()
-{
-	d->scrollBarX->setValue(d->maxAbsTranslation.x() - d->nav.translation.x());
-	d->scrollBarY->setValue(d->maxAbsTranslation.y() - d->nav.translation.y());
-}
-
-void CanvasView::keyPressEvent(QKeyEvent *event)
-{
-	if (d->tool)
-		d->tool->toolEvent(event);
-	
-	PAINTFIELD_DEBUG << "pressed:" << event->key() << "modifiers" << event->modifiers() << "at" << this;
-	d->keyTracker->pressKey(event->key());
-	d->keyTracker->setModifiers(event->modifiers());
-}
-
-void CanvasView::keyReleaseEvent(QKeyEvent *event)
-{
-	if (d->tool)
-		d->tool->toolEvent(event);
-	
-	PAINTFIELD_DEBUG << "released:" << event->key() << "modifiers" << event->modifiers() << "at" << this;
-	d->keyTracker->releaseKey(event->key());
-}
-
-void CanvasView::focusInEvent(QFocusEvent *)
-{
-	d->viewport->updateWholeAccurately();
+	updateTransforms();
 }
 
 static const QString toolCursorId = "paintfield.canvas.tool";
 
-void CanvasView::enterEvent(QEvent *e)
-{
-	super::enterEvent(e);
-	setFocus();
-	
-	appController()->cursorStack()->add(toolCursorId, d->toolCursor);
-}
 
-void CanvasView::leaveEvent(QEvent *e)
+bool CanvasViewController::eventFilter(QObject *watched, QEvent *event)
 {
-	super::leaveEvent(e);
-	
-	appController()->cursorStack()->remove(toolCursorId);
-}
-
-void CanvasView::mouseDoubleClickEvent(QMouseEvent *event)
-{
-	if (d->tool)
-		event->setAccepted(sendCanvasMouseEvent(event));
-}
-
-void CanvasView::mousePressEvent(QMouseEvent *event)
-{
-	onClicked();
-	
-	if (event->button() == Qt::LeftButton)
+	if (watched == d->graphicsScene)
 	{
-		if (tryBeginDragNavigation(event->pos()))
+		PAINTFIELD_DEBUG << "graphics view event:" << event->type();
+		
+		switch (event->type())
 		{
-			event->accept();
-			return;
-		}
-	}
-	
-	if (d->tool)
-		event->setAccepted(sendCanvasTabletEvent(event) || sendCanvasMouseEvent(event));
-}
-
-void CanvasView::mouseMoveEvent(QMouseEvent *event)
-{
-	if (continueDragNavigation(event->pos()))
-	{
-		event->accept();
-		return;
-	}
-	
-	if (d->tool)
-		event->setAccepted(sendCanvasTabletEvent(event) || sendCanvasMouseEvent(event));
-}
-
-void CanvasView::mouseReleaseEvent(QMouseEvent *event)
-{
-	endDragNavigation();
-	
-	if (d->tool)
-		event->setAccepted(sendCanvasTabletEvent(event) || sendCanvasMouseEvent(event));
-}
-
-void CanvasView::tabletEvent(QTabletEvent *event)
-{
-	auto toNewEventType = [](QEvent::Type type)
-	{
-		switch (type)
-		{
+			case QEvent::GraphicsSceneMouseMove:
+			case QEvent::GraphicsSceneMousePress:
+			case QEvent::GraphicsSceneMouseRelease:
+			{
+				auto mouseEvent = static_cast<QGraphicsSceneMouseEvent *>(event);
+				PAINTFIELD_DEBUG << "pos : " << mouseEvent->pos();
+				PAINTFIELD_DEBUG << "scene pos : " << mouseEvent->scenePos();
+				break;
+			}
 			default:
-			case QEvent::TabletMove:
-				return PaintField::EventWidgetTabletMove;
-			case QEvent::TabletPress:
-				return PaintField::EventWidgetTabletPress;
-			case QEvent::TabletRelease:
-				return PaintField::EventWidgetTabletRelease;
+				break;
 		}
-	};
-	
-	switch (event->type())
-	{
-		case QEvent::TabletPress:
-			
-			onClicked();
-			if (tryBeginDragNavigation(event->pos()))
-			{
-				event->accept();
-				return;
-			}
-			break;
-			
-		case QEvent::TabletMove:
-			
-			if (continueDragNavigation(event->pos()))
-			{
-				event->accept();
-				return;
-			}
-			break;
-			
-		case QEvent::TabletRelease:
-			
-			endDragNavigation();
-			break;
-			
-		default:
-			break;
+		
+		return false;
 	}
 	
-	TabletInputData data(event->hiResGlobalPos(), event->pressure(), event->rotation(), event->tangentialPressure(), Vec2D(event->xTilt(), event->yTilt()));
-	WidgetTabletEvent widgetTabletEvent(toNewEventType(event->type()), event->globalPos(), event->pos(), data, event->modifiers());
+	PAINTFIELD_DEBUG << event->type();
 	
-	customTabletEvent(&widgetTabletEvent);
-	event->setAccepted(widgetTabletEvent.isAccepted());
-}
-
-void CanvasView::customTabletEvent(WidgetTabletEvent *event)
-{
+	bool willFilterInput = (watched == d->view);
 	
-	switch (int(event->type()))
-	{
-		case EventWidgetTabletPress:
-			
-			onClicked();
-			if (tryBeginDragNavigation(event->posInt))
-			{
-				event->accept();
-				return;
-			}
-			break;
-			
-		case EventWidgetTabletMove:
-			
-			if (continueDragNavigation(event->posInt))
-			{
-				event->accept();
-				return;
-			}
-			break;
-			
-		case EventWidgetTabletRelease:
-			
-			endDragNavigation();
-			break;
-			
-		default:
-			break;
-	}
-	
-	if (d->tool)
-	{
-		event->setAccepted(sendCanvasTabletEvent(event));
-	}
-}
-
-void CanvasView::wheelEvent(QWheelEvent *event)
-{
-	QPoint translation = d->canvas->translation();
-	
-	if (event->orientation() == Qt::Horizontal)
-		translation += QPoint(event->delta(), 0);
-	else
-		translation += QPoint(0, event->delta());
-	
-	d->canvas->setTranslation(translation);
-}
-
-void CanvasView::resizeEvent(QResizeEvent *)
-{
-	moveChildWidgets();
-	moveViewport();
-	d->viewCenter = QPoint(width() / 2, height() / 2);
-	updateTransforms();
-}
-
-void CanvasView::changeEvent(QEvent *event)
-{
-	switch (event->type())
-	{
-		case QEvent::ParentChange:
-			moveViewport();
-			break;
-		case QEvent::EnabledChange:
-			d->viewport->setEnabled(isEnabled());
-			break;
-		default:
-			break;
-	}
-}
-
-void CanvasView::showEvent(QShowEvent *)
-{
-	d->viewport->show();
-}
-
-void CanvasView::hideEvent(QHideEvent *)
-{
-	d->viewport->hide();
-}
-
-bool CanvasView::event(QEvent *event)
-{
 	switch ((int)event->type())
 	{
+		case QEvent::KeyPress:
+		case QEvent::KeyRelease:
+			
+			d->keyTracker->keyEvent(static_cast<QKeyEvent *>(event));
+			d->eventSender->keyEvent(static_cast<QKeyEvent *>(event));
+			return willFilterInput;
+			
+		case QEvent::MouseButtonPress:
+		case QEvent::MouseButtonRelease:
+		case QEvent::MouseMove:
+		
+			d->navigator->mouseEvent(static_cast<QMouseEvent *>(event));
+			if (event->isAccepted())
+				return true;
+			
+		case QEvent::MouseButtonDblClick:
+			
+			d->eventSender->mouseEvent(static_cast<QMouseEvent *>(event));
+			return false;
+			
+		case QEvent::TabletMove:
+		case QEvent::TabletRelease:
+		case QEvent::TabletPress:
+			
+			d->eventSender->tabletEvent(static_cast<QTabletEvent *>(event));
+			return willFilterInput;
+			
 		case EventWidgetTabletMove:
 		case EventWidgetTabletPress:
 		case EventWidgetTabletRelease:
-			customTabletEvent(static_cast<WidgetTabletEvent *>(event));
-			return event->isAccepted();
+			
+			PAINTFIELD_DEBUG << "custom tablet event";
+			d->eventSender->customTabletEvent(static_cast<WidgetTabletEvent *>(event));
+			return willFilterInput;
+			
+		case QEvent::Wheel:
+			
+			d->navigator->wheelEvent(static_cast<QWheelEvent *>(event));
+			return willFilterInput;
+			
 		default:
-			return QWidget::event(event);
+			break;
 	}
-}
-
-bool CanvasView::sendCanvasMouseEvent(QMouseEvent *event)
-{
-	auto toCanvasEventType = [](QEvent::Type type)
+	
+	if (watched == d->view)
 	{
-		switch (type)
+		switch (event->type())
 		{
+			case QEvent::Resize:
+				
+				d->viewCenter = QPoint(d->view->width() / 2, d->view->height() / 2);
+				
+			case QEvent::ParentChange:
+			case QEvent::EnabledChange:
+			case QEvent::Show:
+			case QEvent::Hide:
+				
+				moveWidgets();
+				return false;
+				
+			case QEvent::FocusIn:
+				
+				d->viewport->updateWholeAccurately();
+				return false;
+				
+			case QEvent::Enter:
+				
+				appController()->cursorStack()->add(toolCursorId, d->toolCursor);
+				return false;
+				
+			case QEvent::Leave:
+				
+				appController()->cursorStack()->remove(toolCursorId);
+				return false;
+				
 			default:
-			case QEvent::MouseMove:
-				return EventCanvasMouseMove;
-			case QEvent::MouseButtonPress:
-				return EventCanvasMousePress;
-			case QEvent::MouseButtonRelease:
-				return EventCanvasMouseRelease;
-			case QEvent::MouseButtonDblClick:
-				return EventCanvasMouseDoubleClick;
+				break;
 		}
-	};
-	
-	CanvasMouseEvent canvasEvent(toCanvasEventType(event->type()), event->globalPos(), transformToScene() * event->posF(), event->modifiers());
-	d->tool->toolEvent(&canvasEvent);
-	
-	return canvasEvent.isAccepted();
-}
-
-bool CanvasView::sendCanvasTabletEvent(WidgetTabletEvent *event)
-{
-	TabletInputData data = event->globalData;
-	Vec2D globalPos = data.pos;
-	data.pos += Vec2D(event->posInt - event->globalPosInt);
-	data.pos = transformToScene() * data.pos;
-	
-	auto toCanvasEventType = [](int type)
-	{
-		switch (type)
-		{
-			default:
-			case EventWidgetTabletMove:
-				return EventCanvasTabletMove;
-			case EventWidgetTabletPress:
-				return EventCanvasTabletPress;
-			case EventWidgetTabletRelease:
-				return EventCanvasTabletRelease;
-		}
-	};
-	
-	CanvasTabletEvent canvasEvent(toCanvasEventType(event->type()), globalPos, event->globalPosInt, data, event->modifiers());
-	d->tool->toolEvent(&canvasEvent);
-	
-	return canvasEvent.isAccepted();
-}
-
-bool CanvasView::sendCanvasTabletEvent(QMouseEvent *mouseEvent)
-{
-	auto toCanvasEventType = [](QEvent::Type type)
-	{
-		switch (type)
-		{
-			default:
-			case QEvent::MouseMove:
-				return EventCanvasTabletMove;
-			case QEvent::MouseButtonPress:
-				return EventCanvasTabletPress;
-			case QEvent::MouseButtonRelease:
-				return EventCanvasTabletRelease;
-		}
-	};
-	
-	int type = toCanvasEventType(mouseEvent->type());
-	
-	if (type == EventCanvasTabletPress)
-		d->mousePressure = 1.0;
-	if (type == EventCanvasTabletRelease)
-		d->mousePressure = 0.0;
-	
-	TabletInputData data(transformToScene() * mouseEvent->posF(), d->mousePressure, 0, 0, Vec2D(0));
-	CanvasTabletEvent tabletEvent(type, mouseEvent->globalPos(), mouseEvent->globalPos(), data, mouseEvent->modifiers());
-	d->tool->toolEvent(&tabletEvent);
-	return tabletEvent.isAccepted();
-}
-
-bool CanvasView::tryBeginDragNavigation(const QPoint &pos)
-{
-	if (d->keyTracker->match(d->scaleKeys))
-	{
-		beginDragScaling(pos);
-		return true;
-	}
-	if (d->keyTracker->match(d->rotationKeys))
-	{
-		beginDragRotation(pos);
-		return true;
-	}
-	 if (d->keyTracker->match(d->translationKeys))
-	{
-		beginDragTranslation(pos);
-		return true;
 	}
 	
 	return false;
 }
 
-bool CanvasView::continueDragNavigation(const QPoint &pos)
-{
-	switch (d->navigationMode)
-	{
-		default:
-		case NoNavigation:
-			return false;
-		case Translating:
-			continueDragTranslation(pos);
-			return true;
-		case Scaling:
-			continueDragScaling(pos);
-			return true;
-		case Rotating:
-			continueDragRotation(pos);
-			return true;
-	}
-}
-
-void CanvasView::endDragNavigation()
-{
-	endDragTranslation();
-	endDragScaling();
-	endDragRotation();
-}
-
-static const QString navigatingCursorId = "paintfield.canvas.navigate";
-
-static const QString readyToTranslateCursorId = "paintfield.canvas.readyToTranslate";
-static const QString readyToScaleCursorId = "paintfield.canvas.readyToScale";
-static const QString readyToRotateCursorId = "paintfield.canvas.readyToRotate";
-
-void CanvasView::onPressedKeysChanged()
-{
-	PAINTFIELD_DEBUG;
-	
-	auto cs = appController()->cursorStack();
-	auto kt = d->keyTracker;
-	
-	auto addOrRemove = [cs, kt](const QKeySequence &seq, const QString &id, const QCursor &cursor)
-	{
-		if (kt->match(seq))
-			cs->add(id, cursor);
-		else
-			cs->remove(id);
-	};
-	
-	addOrRemove(d->translationKeys, readyToTranslateCursorId, Qt::OpenHandCursor);
-	addOrRemove(d->scaleKeys, readyToScaleCursorId, Qt::SizeVerCursor);
-	addOrRemove(d->rotationKeys, readyToRotateCursorId, Qt::OpenHandCursor);
-}
-
-void CanvasView::beginDragTranslation(const QPoint &pos)
-{
-	appController()->cursorStack()->add(navigatingCursorId, Qt::ClosedHandCursor);
-	
-	d->navigationMode = Translating;
-	d->navigationOrigin = pos;
-	d->backupNav = d->nav;
-}
-
-void CanvasView::continueDragTranslation(const QPoint &pos)
-{
-	d->canvas->setTranslation(d->backupNav.translation + (pos - d->navigationOrigin));
-}
-
-void CanvasView::endDragTranslation()
-{
-	appController()->cursorStack()->remove(navigatingCursorId);
-	d->navigationMode = NoNavigation;
-}
-
-void CanvasView::beginDragScaling(const QPoint &pos)
-{
-	appController()->cursorStack()->add(navigatingCursorId, Qt::SizeVerCursor);
-	
-	d->navigationMode = Scaling;
-	d->navigationOrigin = pos;
-	d->backupNav = d->nav;
-}
-
-void CanvasView::continueDragScaling(const QPoint &pos)
-{
-	auto delta = pos - d->navigationOrigin;
-	
-	constexpr double divisor = 100;
-	
-	
-	double scaleRatio = exp2(-delta.y() / divisor);
-	double scale = d->backupNav.scale * scaleRatio;
-	
-	auto navigationOffset = d->navigationOrigin - viewCenter();
-	
-	auto translation = (d->backupNav.translation - navigationOffset) * scaleRatio + navigationOffset;
-	
-	d->canvas->setScale(scale);
-	d->canvas->setTranslation(translation);
-}
-
-void CanvasView::endDragScaling()
-{
-	appController()->cursorStack()->remove(navigatingCursorId);
-	d->navigationMode = NoNavigation;
-}
-
-void CanvasView::beginDragRotation(const QPoint &pos)
-{
-	appController()->cursorStack()->add(navigatingCursorId, Qt::ClosedHandCursor);
-	
-	d->navigationMode = Rotating;
-	d->navigationOrigin = pos;
-	d->backupNav = d->nav;
-}
-
-void CanvasView::continueDragRotation(const QPoint &pos)
-{
-	auto originalDelta = d->navigationOrigin - viewCenter();
-	auto delta = pos - viewCenter();
-	if (originalDelta != QPoint() && delta != QPoint())
-	{
-		auto originalRotation = atan2(originalDelta.y(), originalDelta.x()) / M_PI * 180.0;
-		auto deltaRotation = atan2(delta.y(), delta.x()) / M_PI * 180.0;
-		
-		QTransform transform;
-		transform.rotate(deltaRotation - originalRotation);
-		
-		auto translation = d->backupNav.translation * transform;
-		d->canvas->setRotation(d->backupNav.rotation + deltaRotation - originalRotation);
-		d->canvas->setTranslation(translation);
-	}
-}
-
-void CanvasView::endDragRotation()
-{
-	appController()->cursorStack()->remove(navigatingCursorId);
-	d->navigationMode = NoNavigation;
-}
-
-void CanvasView::moveViewport()
-{
-	PAINTFIELD_DEBUG << "moving viewport";
-	
-	d->viewport->setParent(window());
-	QRect geom(Util::mapToWindow(this, QPoint()), this->geometry().size());
-	d->viewport->setGeometry(geom);
-	d->viewport->show();
-	d->viewport->lower();
-}
-
-void CanvasView::moveChildWidgets()
-{
-	int barWidthX = d->scrollBarX->totalBarWidth();
-	int barWidthY = d->scrollBarY->totalBarWidth();
-	
-	auto widgetRect = QRect(QPoint(), geometry().size());
-	
-	auto scrollBarXRect = widgetRect.adjusted(0, widgetRect.height() - barWidthY, -barWidthX, 0);
-	auto scrollBarYRect = widgetRect.adjusted(widgetRect.width() - barWidthX, 0, 0, -barWidthY);
-	
-	d->scrollBarX->setGeometry(scrollBarXRect);
-	d->scrollBarY->setGeometry(scrollBarYRect);
-	
-	d->graphicsView->setGeometry(widgetRect);
-	d->graphicsView->setSceneRect(widgetRect);
-}
 
 
-}
+} // namespace PaintField

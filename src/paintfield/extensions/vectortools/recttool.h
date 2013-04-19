@@ -24,6 +24,7 @@ protected:
 private slots:
 	
 	void onCurrentChanged(const LayerRef &layer);
+	void onLayerPropertyChanged(const LayerRef &layer);
 	void moveHandles();
 	
 private:

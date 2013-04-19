@@ -1,6 +1,8 @@
 #include <QApplication>
 #include <QSet>
 #include <QKeySequence>
+#include <QKeyEvent>
+
 #include "keytracker.h"
 
 namespace PaintField {
@@ -37,6 +39,27 @@ KeyTracker::KeyTracker(QObject *parent) :
 KeyTracker::~KeyTracker()
 {
 	delete d;
+}
+
+void KeyTracker::keyEvent(QKeyEvent *event)
+{
+	switch (event->type())
+	{
+		case QEvent::KeyPress:
+			
+			pressKey(event->key());
+			setModifiers(event->modifiers());
+			break;
+			
+		case QEvent::KeyRelease:
+			
+			releaseKey(event->key());
+			break;
+			
+		default:
+			
+			break;
+	}
 }
 
 void KeyTracker::pressKey(int key)

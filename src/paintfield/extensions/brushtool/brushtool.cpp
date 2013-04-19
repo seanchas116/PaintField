@@ -61,6 +61,8 @@ void BrushTool::tabletPressEvent(CanvasTabletEvent *event)
 
 void BrushTool::tabletMoveEvent(CanvasTabletEvent *event)
 {
+	PAINTFIELD_DEBUG << QPointF(event->data.pos);
+	
 	if (event->data.pressure)
 	{
 		if (isStroking())
@@ -153,9 +155,9 @@ void BrushTool::endStroke(const TabletInputData &data)
 	if (_layer && _layer == currentLayer().pointer())
 	{
 		_surface.squeeze(_stroker->totalEditedKeys());
-		canvas()->view()->setUpdateTilesEnabled(false);
+		canvas()->viewController()->setUpdateTilesEnabled(false);
 		canvas()->document()->layerScene()->editLayer(_layer, new LayerSurfaceEdit(_surface, _stroker->totalEditedKeys()), tr("Brush"));
-		canvas()->view()->setUpdateTilesEnabled(true);
+		canvas()->viewController()->setUpdateTilesEnabled(true);
 	}
 	
 	_stroker.reset();

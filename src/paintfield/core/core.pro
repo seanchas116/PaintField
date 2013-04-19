@@ -65,7 +65,6 @@ HEADERS += \
     workspace.h \
     extension.h \
     extensionmanager.h \
-    canvasviewwrapper.h \
     canvasviewport.h \
     selection.h \
     tabletpointerinfo.h \
@@ -90,7 +89,9 @@ HEADERS += \
     unittest/test_layerindex.h \
     unittest/test_layerscene.h \
     layeritemmodel.h \
-    colorbuttongroup.h
+    colorbuttongroup.h \
+    canvasnavigator.h \
+    canvastooleventsender.h
 FORMS += dialogs/exportdialog.ui dialogs/newdocumentdialog.ui
 SOURCES += \
            document.cpp \
@@ -140,7 +141,6 @@ SOURCES += \
     workspace.cpp \
     extension.cpp \
     extensionmanager.cpp \
-    canvasviewwrapper.cpp \
     canvasviewport.cpp \
     selection.cpp \
     cursorstack.cpp \
@@ -164,7 +164,9 @@ SOURCES += \
     unittest/test_layerindex.cpp \
     unittest/test_layerscene.cpp \
     layeritemmodel.cpp \
-    colorbuttongroup.cpp
+    colorbuttongroup.cpp \
+    canvasnavigator.cpp \
+    canvastooleventsender.cpp
 
 RESOURCES += \
     resources/resource-paintfield-core.qrc

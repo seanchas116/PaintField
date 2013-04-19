@@ -37,7 +37,7 @@ struct Canvas::Data
 	Document *document = 0;
 	int *documentRefCount = 0;
 	
-	CanvasView *view = 0;
+	CanvasViewController *viewController = 0;
 	QActionList actions;
 	CanvasExtensionList extensions;
 	
@@ -216,12 +216,9 @@ void Canvas::addActions(const QActionList &actions)
 QActionList Canvas::actions() { return d->actions; }
 CanvasExtensionList Canvas::extensions() { return d->extensions; }
 
-void Canvas::setView(CanvasView *view)
-{
-	d->view = view;
-}
-
-CanvasView *Canvas::view() { return d->view; }
+void Canvas::setViewController(CanvasViewController *controller) { d->viewController = controller; }
+CanvasViewController *Canvas::viewController() { return d->viewController; }
+CanvasView *Canvas::view() { return d->viewController->view(); }
 
 void Canvas::addExtensions(const CanvasExtensionList &extensions)
 {
@@ -232,7 +229,7 @@ void Canvas::addExtensions(const CanvasExtensionList &extensions)
 
 void Canvas::onSetCurrent()
 {
-	d->view->setFocus();
+	view()->setFocus();
 }
 
 Tool *Canvas::tool() { return d->tool.data(); }

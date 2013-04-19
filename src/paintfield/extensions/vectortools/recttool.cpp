@@ -2,6 +2,7 @@
 #include <QGraphicsItemGroup>
 #include <QGraphicsPathItem>
 #include <QGraphicsSceneMouseEvent>
+#include <QGraphicsScene>
 
 #include "paintfield/core/layerscene.h"
 #include "paintfield/core/rectlayer.h"
@@ -26,19 +27,23 @@ public:
 		//setPen(Qt::NoPen);
 		setBrush(Qt::white);
 		setPath(path);
+		
+		PAINTFIELD_DEBUG << acceptedMouseButtons();
 	}
 	
 protected:
 	
 	void mousePressEvent(QGraphicsSceneMouseEvent *event)
 	{
-		m_dragStartPos = event->pos();
+		PAINTFIELD_DEBUG << event->pos();
+		m_dragStartPos = event->scenePos();
 		m_originalPos = pos();
 	}
 	
 	void mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 	{
-		auto newPos = m_originalPos + (event->pos() - m_dragStartPos);
+		PAINTFIELD_DEBUG << event->pos();
+		auto newPos = m_originalPos + (event->scenePos() - m_dragStartPos);
 		m_tool->onHandleMoved(newPos, m_handleTypes);
 	}
 	
@@ -152,7 +157,12 @@ RectTool::RectTool(Canvas *canvas) :
 	Tool(canvas),
 	d(new Data)
 {
-	setGraphicsItem(new QGraphicsItemGroup());
+	{
+		auto group = new QGraphicsItemGroup();
+		//group->setFiltersChildEvents(false);
+		group->setHandlesChildEvents(false);
+		setGraphicsItem(group);
+	}
 	
 	addHandle(Top | Left);
 	addHandle(Top | Right);
@@ -166,7 +176,8 @@ RectTool::RectTool(Canvas *canvas) :
 	graphicsItem()->setVisible(false);
 	
 	connect(layerScene(), SIGNAL(currentChanged(LayerRef,LayerRef)), this, SLOT(onCurrentChanged(LayerRef)));
-	connect(canvas->view(), SIGNAL(transformUpdated()), this, SLOT(moveHandles()));
+	connect(layerScene(), SIGNAL(layerPropertyChanged(LayerRef)), this, SLOT(onLayerPropertyChanged(LayerRef)));
+	connect(canvas->viewController(), SIGNAL(transformUpdated()), this, SLOT(moveHandles()));
 }
 
 RectTool::~RectTool()
@@ -184,11 +195,18 @@ void RectTool::drawLayer(SurfacePainter *painter, const Layer *layer)
 
 void RectTool::tabletPressEvent(CanvasTabletEvent *event)
 {
+	if (graphicsItem()->scene()->itemAt(event->viewPos))
+	{
+		event->ignore();
+		return;
+	}
+	
 	auto layer = layerScene()->rootLayer()->descendantAt(event->data.pos.toQPoint());
 	
 	if (layer)
 		layerScene()->setCurrent(layer);
 	
+	// inserting new rect
 	if (!d->rectLayer || !layer)
 	{
 		d->inserter.reset(new RectInserter(this));
@@ -239,6 +257,14 @@ void RectTool::onCurrentChanged(const LayerRef &layer)
 	graphicsItem()->setVisible(false);
 }
 
+void RectTool::onLayerPropertyChanged(const LayerRef &layer)
+{
+	if (d->current == layer && d->rectLayer && layer->isType<RectLayer>())
+	{
+		d->rectLayer.reset(static_cast<RectLayer *>(layer->clone()));
+	}
+}
+
 void RectTool::addHandle(int handleTypes)
 {
 	auto handle = new RectHandleItem(this, handleTypes, graphicsItem());
@@ -253,7 +279,7 @@ void RectTool::moveHandles()
 	
 	auto rect = d->rectLayer->rect();
 	
-	auto transformToView = canvas()->view()->transformFromScene().toQTransform();
+	auto transformToView = canvas()->viewController()->transformFromScene().toQTransform();
 	auto topLeft = rect.topLeft() * transformToView;
 	auto topRight = rect.topRight() * transformToView;
 	auto bottomLeft = rect.bottomLeft() * transformToView;
@@ -261,15 +287,15 @@ void RectTool::moveHandles()
 	
 	PAINTFIELD_DEBUG << topLeft;
 	
-	d->handles[Left | Top]->setPos(topLeft);
-	d->handles[Left | Bottom]->setPos(bottomLeft);
-	d->handles[Right | Top]->setPos(topRight);
-	d->handles[Right | Bottom]->setPos(bottomRight);
-	
 	d->handles[Left]->setPos( (topLeft + bottomLeft) * 0.5 );
 	d->handles[Right]->setPos( (topRight + bottomRight) * 0.5 );
 	d->handles[Top]->setPos( (topLeft + topRight) * 0.5 );
 	d->handles[Bottom]->setPos( (bottomLeft + bottomRight) * 0.5 );
+	
+	d->handles[Left | Top]->setPos(topLeft);
+	d->handles[Left | Bottom]->setPos(bottomLeft);
+	d->handles[Right | Top]->setPos(topRight);
+	d->handles[Right | Bottom]->setPos(bottomRight);
 }
 
 void RectTool::onHandleMoved(const QPointF &pos, int handleTypes)
@@ -279,8 +305,10 @@ void RectTool::onHandleMoved(const QPointF &pos, int handleTypes)
 	if (!d->rectLayer)
 		return;
 	
+	QPointSet oldKeys = d->rectLayer->tileKeys();
+	
 	auto rect = d->rectLayer->rect();
-	auto scenePos = pos * canvas()->view()->transformToScene().toQTransform();
+	auto scenePos = pos * canvas()->viewController()->transformToScene().toQTransform();
 	
 	if (handleTypes & Left)
 		rect.setLeft(scenePos.x());
@@ -295,11 +323,14 @@ void RectTool::onHandleMoved(const QPointF &pos, int handleTypes)
 		rect.setBottom(scenePos.y());
 	
 	d->rectLayer->setRect(rect);
+	emit requestUpdate(d->rectLayer->tileKeys() | oldKeys);
 	moveHandles();
 }
 
 void RectTool::onHandleMoveFinished()
 {
+	PAINTFIELD_DEBUG;
+	
 	if (!d->rectLayer)
 		return;
 	

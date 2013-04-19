@@ -7,10 +7,10 @@ bool RectLayer::setProperty(const QVariant &data, int role)
 	switch (role)
 	{
 		case RoleRect:
-			_rect = data.toRect();
+			setRect(data.toRect());
 			return true;
 		case RoleRectShapeType:
-			_shapeType = ShapeType(data.toInt());
+			setShapeType(ShapeType(data.toInt()));
 			return true;
 		default:
 			return super::setProperty(data, role);
@@ -42,6 +42,8 @@ void RectLayer::decode(QDataStream &stream)
 	int shapeTypeInt;
 	stream >> _rect >> shapeTypeInt;
 	_shapeType = ShapeType(shapeTypeInt);
+	
+	setShapeFromRect();
 }
 
 QVariantMap mapFromRect(const QRectF &rect)
@@ -80,19 +82,22 @@ void RectLayer::loadProperties(const QVariantMap &map)
 
 void RectLayer::setRect(const QRectF &rect)
 {
-	this->_rect = rect;
-	
-	QPainterPath path;
-	path.addRect(rect);
-	this->setFillPath(path);
+	_rect = rect;
+	setShapeFromRect();
+}
+
+void RectLayer::setShapeType(ShapeType type)
+{
+	_shapeType = type;
+	setShapeFromRect();
 }
 
 void RectLayer::setShapeTypeString(const QString &str)
 {
 	if (str == "ellipse")
-		_shapeType = ShapeTypeEllipse;
+		setShapeType(ShapeTypeEllipse);
 	else
-		_shapeType = ShapeTypeRect;
+		setShapeType(ShapeTypeRect);
 }
 
 QString RectLayer::shapeTypeString() const
@@ -110,6 +115,13 @@ QString RectLayer::shapeTypeString() const
 QString RectLayerFactory::name() const
 {
 	return "rect";
+}
+
+void RectLayer::setShapeFromRect()
+{
+	QPainterPath path;
+	path.addRect(_rect);
+	this->setFillPath(path);
 }
 
 } // namespace PaintField

@@ -5,6 +5,7 @@
 #include "global.h"
 
 class QKeySequence;
+class QKeyEvent;
 
 namespace PaintField {
 
@@ -22,6 +23,8 @@ public:
 	Qt::KeyboardModifiers modifiers() const;
 	
 	bool match(const QKeySequence &sequence) const;
+	
+	void keyEvent(QKeyEvent *event);
 	
 public slots:
 	

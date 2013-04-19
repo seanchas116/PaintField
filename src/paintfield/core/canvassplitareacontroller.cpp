@@ -32,7 +32,8 @@ void CanvasSplitAreaController::closeCurrent()
 
 void CanvasSplitAreaController::addCanvas(Canvas *canvas)
 {
-	new CanvasView(canvas);
+	if (!canvas->viewController())
+		new CanvasViewController(canvas);
 	_currentSplit->tabWidget()->addCanvas(canvas);
 }
 
