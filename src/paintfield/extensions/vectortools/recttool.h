@@ -37,6 +37,13 @@ private:
 		Bottom = 1 << 3
 	};
 	
+	enum Mode
+	{
+		NoOperation,
+		Dragging,
+		Inserting
+	};
+	
 	void onHandleMoved(const QPointF &pos, int handleTypes);
 	void onHandleMoveFinished();
 	

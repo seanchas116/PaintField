@@ -151,6 +151,10 @@ struct RectTool::Data
 	QScopedPointer<RectLayer> rectLayer;
 	LayerRef current;
 	QHash<int, RectHandleItem *> handles;
+	
+	Mode mode = NoOperation;
+	Vec2D dragStartPos;
+	Vec2D originalRectPos;
 };
 
 RectTool::RectTool(Canvas *canvas) :
@@ -195,6 +199,7 @@ void RectTool::drawLayer(SurfacePainter *painter, const Layer *layer)
 
 void RectTool::tabletPressEvent(CanvasTabletEvent *event)
 {
+	// pass event to the graphics item
 	if (graphicsItem()->scene()->itemAt(event->viewPos))
 	{
 		event->ignore();
@@ -203,22 +208,54 @@ void RectTool::tabletPressEvent(CanvasTabletEvent *event)
 	
 	auto layer = layerScene()->rootLayer()->descendantAt(event->data.pos.toQPoint());
 	
+	// set clicked layer to current
 	if (layer)
 		layerScene()->setCurrent(layer);
 	
-	// inserting new rect
-	if (!d->rectLayer || !layer)
+	if (d->rectLayer && layer)
+		d->mode = Dragging;
+	else // other than rect layer or no layer selected
+		d->mode = Inserting;
+	
+	switch (d->mode)
 	{
-		d->inserter.reset(new RectInserter(this));
-		d->inserter->press(event->data);
+		case Dragging:
+		{
+			d->dragStartPos = event->data.pos;
+			d->originalRectPos = d->rectLayer->rect().topLeft();
+			break;
+		}
+		case Inserting:
+		{
+			d->inserter.reset(new RectInserter(this));
+			d->inserter->press(event->data);
+			break;
+		}
+		default:
+			break;
 	}
 }
 
 void RectTool::tabletMoveEvent(CanvasTabletEvent *event)
 {
-	if (d->inserter)
+	switch (d->mode)
 	{
-		d->inserter->move(event->data);
+		case Dragging:
+		{
+			auto delta = event->data.pos - d->dragStartPos;
+			auto originalKeys = d->rectLayer->tileKeys();
+			d->rectLayer->setRect(QRectF(delta + d->originalRectPos, d->rectLayer->rect().size()));
+			emit requestUpdate(originalKeys | d->rectLayer->tileKeys());
+			moveHandles();
+			break;
+		}
+		case Inserting:
+		{
+			d->inserter->move(event->data);
+			break;
+		}
+		default:
+			break;
 	}
 }
 
@@ -226,11 +263,24 @@ void RectTool::tabletReleaseEvent(CanvasTabletEvent *event)
 {
 	Q_UNUSED(event)
 	
-	if (d->inserter)
+	switch (d->mode)
 	{
-		d->inserter->release();
-		d->inserter.reset();
+		case Dragging:
+		{
+			onHandleMoveFinished();
+			break;
+		}
+		case Inserting:
+		{
+			d->inserter->release();
+			d->inserter.reset();
+			break;
+		}
+		default:
+			break;
 	}
+	
+	d->mode = NoOperation;
 }
 
 void RectTool::onCurrentChanged(const LayerRef &layer)
