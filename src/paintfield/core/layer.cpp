@@ -272,14 +272,14 @@ void Layer::updateDirtyThumbnailRecursive(const QSize &size)
 		child->updateDirtyThumbnailRecursive(size);
 }
 
-const Layer *Layer::descendantAt(const QPoint &pos) const
+const Layer *Layer::descendantAt(const QPoint &pos, int margin) const
 {
 	for (const Layer *child : _children)
 	{
-		if (child->includes(pos))
+		if (child->includes(pos, margin))
 			return child;
 		
-		auto descendant = child->descendantAt(pos);
+		auto descendant = child->descendantAt(pos, margin);
 		if (descendant)
 			return descendant;
 	}

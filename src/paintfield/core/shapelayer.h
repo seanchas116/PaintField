@@ -19,7 +19,7 @@ public:
 	ShapeLayer() : Layer() {}
 	
 	QPointSet tileKeys() const override;
-	bool includes(const QPoint &pos) const;
+	bool includes(const QPoint &pos, int margin) const override;
 	
 	bool setProperty(const QVariant &data, int role) override;
 	QVariant property(int role) const override;

@@ -9,9 +9,12 @@ using namespace Malachite;
 
 namespace PaintField {
 
-bool ShapeLayer::includes(const QPoint &pos) const
+bool ShapeLayer::includes(const QPoint &pos, int margin) const
 {
-	return _unitedPath.contains(pos);
+	QPainterPath marginPath;
+	marginPath.addRect(pos.x() - margin, pos.y() - margin, margin * 2, margin * 2);
+	return !(_unitedPath & marginPath).isEmpty();
+	//return _unitedPath.contains(pos);
 }
 
 QPointSet ShapeLayer::tileKeys() const

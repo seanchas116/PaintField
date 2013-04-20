@@ -13,22 +13,35 @@ using namespace Malachite;
 
 namespace PaintField {
 
-class RectHandleItem : public QGraphicsPathItem
+class RectHandleItem : public QGraphicsItem
 {
 public:
 	
 	RectHandleItem(RectTool *tool, int handleTypes, QGraphicsItem *parent = 0) :
-		QGraphicsPathItem(parent),
+		QGraphicsItem(parent),
 		m_tool(tool),
 		m_handleTypes(handleTypes)
 	{
-		QPainterPath path;
-		path.addEllipse(QPointF(), 5, 5);
-		//setPen(Qt::NoPen);
-		setBrush(Qt::white);
-		setPath(path);
+	}
+	
+	QRectF boundingRect() const override
+	{
+		return QRectF(-m_radius, -m_radius, 2 * m_radius, 2 * m_radius);
+	}
+	
+	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override
+	{
+		Q_UNUSED(option)
+		Q_UNUSED(widget)
 		
-		PAINTFIELD_DEBUG << acceptedMouseButtons();
+		QRect rect(-m_radius, -m_radius, 2 * m_radius, 2 * m_radius);
+		QRect innerRect = rect.adjusted(1,1,-1,-1);
+		
+		painter->setPen(Qt::NoPen);
+		painter->setBrush(Qt::black);
+		painter->drawRect(rect);
+		painter->setBrush(Qt::white);
+		painter->drawRect(innerRect);
 	}
 	
 protected:
@@ -59,6 +72,7 @@ private:
 	QPointF m_dragStartPos;
 	QPointF m_originalPos;
 	int m_handleTypes;
+	int m_radius = 4;
 };
 
 class RectInserter
@@ -168,14 +182,14 @@ RectTool::RectTool(Canvas *canvas) :
 		setGraphicsItem(group);
 	}
 	
-	addHandle(Top | Left);
-	addHandle(Top | Right);
-	addHandle(Bottom | Left);
-	addHandle(Bottom | Right);
-	addHandle(Top);
-	addHandle(Bottom);
-	addHandle(Left);
-	addHandle(Right);
+	addHandle(Top | Left, 1);
+	addHandle(Top | Right, 1);
+	addHandle(Bottom | Left, 1);
+	addHandle(Bottom | Right, 1);
+	addHandle(Top, 0);
+	addHandle(Bottom, 0);
+	addHandle(Left, 0);
+	addHandle(Right, 0);
 	
 	graphicsItem()->setVisible(false);
 	
@@ -206,11 +220,10 @@ void RectTool::tabletPressEvent(CanvasTabletEvent *event)
 		return;
 	}
 	
-	auto layer = layerScene()->rootLayer()->descendantAt(event->data.pos.toQPoint());
+	auto layer = layerScene()->rootLayer()->descendantAt(event->data.pos.toQPoint(), 3);
 	
 	// set clicked layer to current
-	if (layer)
-		layerScene()->setCurrent(layer);
+	layerScene()->setCurrent(layer);
 	
 	if (d->rectLayer && layer)
 		d->mode = Dragging;
@@ -315,10 +328,11 @@ void RectTool::onLayerPropertyChanged(const LayerRef &layer)
 	}
 }
 
-void RectTool::addHandle(int handleTypes)
+void RectTool::addHandle(int handleTypes, qreal zValue)
 {
 	auto handle = new RectHandleItem(this, handleTypes, graphicsItem());
 	handle->setVisible(true);
+	handle->setZValue(zValue);
 	d->handles[handleTypes] = handle;
 }
 

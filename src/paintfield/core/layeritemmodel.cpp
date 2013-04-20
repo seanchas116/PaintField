@@ -190,6 +190,9 @@ LayerRef LayerItemModel::layerExceptRootForIndex(const QModelIndex &index) const
 
 QModelIndex LayerItemModel::indexForLayer(const LayerRef &ref) const
 {
+	if (!ref.isValid())
+		return QModelIndex();
+	
 	if (ref == d->scene->rootLayer())
 		return QModelIndex();
 	else

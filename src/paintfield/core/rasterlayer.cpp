@@ -1,3 +1,4 @@
+#include <boost/range/irange.hpp>
 #include <Malachite/ImageIO>
 #include <Malachite/Painter>
 #include <QFileInfo>
@@ -40,9 +41,17 @@ RasterLayer *RasterLayer::createFromImage(const QImage &image)
 	return layer;
 }
 
-bool RasterLayer::includes(const QPoint &pos) const
+bool RasterLayer::includes(const QPoint &pos, int margin) const
 {
-	return _surface.pixel(pos).a();
+	for (int y = pos.y() - margin; y < pos.y() + margin; ++y)
+	{
+		for (int x = pos.x() - margin; x < pos.x() + margin; ++x)
+		{
+			if (_surface.pixel(QPoint(x, y)).a())
+				return true;
+		}
+	}
+	return false;
 }
 
 void RasterLayer::updateThumbnail(const QSize &size)

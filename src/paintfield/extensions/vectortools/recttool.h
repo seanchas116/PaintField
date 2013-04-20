@@ -47,7 +47,7 @@ private:
 	void onHandleMoved(const QPointF &pos, int handleTypes);
 	void onHandleMoveFinished();
 	
-	void addHandle(int handleTypes);
+	void addHandle(int handleTypes, qreal zValue);
 	
 	friend class RectInserter;
 	friend class RectHandleItem;
