@@ -129,9 +129,6 @@ CanvasViewController::CanvasViewController(Canvas *canvas) :
 	{
 		d->keyTracker = new KeyTracker(this);
 		d->graphicsScene = new QGraphicsScene(this);
-		
-		d->graphicsScene->installEventFilter(this);
-		
 		d->eventSender = new CanvasToolEventSender(this);
 		d->navigator = new CanvasNavigator(d->keyTracker, this);
 		
@@ -153,7 +150,6 @@ CanvasViewController::CanvasViewController(Canvas *canvas) :
 		
 		d->graphicsView = new QGraphicsView(d->view);
 		d->graphicsView->viewport()->installEventFilter(this);
-		//d->graphicsView->installEventFilter(this);
 		d->graphicsView->setStyleSheet("QGraphicsView { border-style: none; background: transparent; }");
 		d->graphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 		d->graphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -470,30 +466,6 @@ static const QString toolCursorId = "paintfield.canvas.tool";
 
 bool CanvasViewController::eventFilter(QObject *watched, QEvent *event)
 {
-	if (watched == d->graphicsScene)
-	{
-		PAINTFIELD_DEBUG << "graphics view event:" << event->type();
-		
-		switch (event->type())
-		{
-			case QEvent::GraphicsSceneMouseMove:
-			case QEvent::GraphicsSceneMousePress:
-			case QEvent::GraphicsSceneMouseRelease:
-			{
-				auto mouseEvent = static_cast<QGraphicsSceneMouseEvent *>(event);
-				PAINTFIELD_DEBUG << "pos : " << mouseEvent->pos();
-				PAINTFIELD_DEBUG << "scene pos : " << mouseEvent->scenePos();
-				break;
-			}
-			default:
-				break;
-		}
-		
-		return false;
-	}
-	
-	PAINTFIELD_DEBUG << event->type();
-	
 	bool willFilterInput = (watched == d->view);
 	
 	switch ((int)event->type())
@@ -529,7 +501,6 @@ bool CanvasViewController::eventFilter(QObject *watched, QEvent *event)
 		case EventWidgetTabletPress:
 		case EventWidgetTabletRelease:
 			
-			PAINTFIELD_DEBUG << "custom tablet event";
 			d->eventSender->customTabletEvent(static_cast<WidgetTabletEvent *>(event));
 			return willFilterInput;
 			

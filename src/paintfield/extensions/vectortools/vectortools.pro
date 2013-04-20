@@ -9,9 +9,11 @@ include(../extensions.pri)
 HEADERS += \
     vectortoolsextension.h \
     recttool.h \
-    fillstrokesidebar.h
+    fillstrokesidebar.h \
+    shapesidebar.h
 
 SOURCES += \
     vectortoolsextension.cpp \
     recttool.cpp \
-    fillstrokesidebar.cpp
+    fillstrokesidebar.cpp \
+    shapesidebar.cpp

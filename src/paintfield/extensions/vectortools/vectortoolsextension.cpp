@@ -4,6 +4,7 @@
 #include "paintfield/core/appcontroller.h"
 #include "paintfield/core/widgets/simplebutton.h"
 
+#include "shapesidebar.h"
 #include "fillstrokesidebar.h"
 #include "recttool.h"
 #include "vectortoolsextension.h"
@@ -11,11 +12,13 @@
 namespace PaintField {
 
 static const QString fillStrokeSideBarId = "paintfield.sidebar.fillStroke";
+static const QString shapeSideBarId = "paintfield.sidebar.shape";
 
 VectorToolsExtension::VectorToolsExtension(Canvas *canvas, QObject *parent) :
 	CanvasExtension(canvas, parent)
 {
 	addSideBar(fillStrokeSideBarId, new FillStrokeSideBar(canvas ? canvas->workspace() : 0, canvas ? canvas->document()->layerScene() : 0));
+	addSideBar(shapeSideBarId, canvas ? new ShapeSideBar(canvas->document()->layerScene()) : new QWidget());
 }
 
 static const QString rectToolId = "paintfield.tool.rectangle";
@@ -38,6 +41,7 @@ void VectorToolsExtensionFactory::initialize(AppController *app)
 	
 	{
 		app->settingsManager()->declareSideBar(fillStrokeSideBarId, SideBarInfo(tr("Fill and Stroke")));
+		app->settingsManager()->declareSideBar(shapeSideBarId, SideBarInfo(tr("Shape")));
 	}
 }
 
