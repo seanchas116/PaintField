@@ -13,6 +13,8 @@ using namespace Malachite;
 
 namespace PaintField {
 
+static constexpr int handleRadius = 4;
+
 class RectHandleItem : public QGraphicsItem
 {
 public:
@@ -72,7 +74,7 @@ private:
 	QPointF m_dragStartPos;
 	QPointF m_originalPos;
 	int m_handleTypes;
-	int m_radius = 4;
+	int m_radius = handleRadius;
 };
 
 class RectInserter
@@ -220,7 +222,7 @@ void RectTool::tabletPressEvent(CanvasTabletEvent *event)
 		return;
 	}
 	
-	auto layer = layerScene()->rootLayer()->descendantAt(event->data.pos.toQPoint(), 3);
+	auto layer = layerScene()->rootLayer()->descendantAt(event->data.pos.toQPoint(), handleRadius);
 	
 	// set clicked layer to current
 	layerScene()->setCurrent(layer);
