@@ -22,9 +22,9 @@ struct LayerModelViewDelegate::Data
 	
 	static constexpr int buttonMargin = 8;
 	static constexpr int buttonWH = 16;
-	static constexpr int pixmapMargin = 8;
+	static constexpr int pixmapMargin = 0;
 	static constexpr int pixmapWH = Thumbnail::Margin * 2 + Thumbnail::PixmapSize;
-	static constexpr int textVerticalMargin = 16, textHorizontalMargin = 8;
+	static constexpr int textVerticalMargin = 8, textHorizontalMargin = 8;
 	static constexpr int height = pixmapWH + 2 * pixmapMargin;
 	static constexpr int buttonBackgroundRadius = 4;
 	
