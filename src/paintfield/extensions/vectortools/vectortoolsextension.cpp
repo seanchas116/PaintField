@@ -3,6 +3,7 @@
 #include "paintfield/core/settingsmanager.h"
 #include "paintfield/core/appcontroller.h"
 #include "paintfield/core/widgets/simplebutton.h"
+#include "paintfield/core/rectlayer.h"
 
 #include "shapesidebar.h"
 #include "fillstrokesidebar.h"
@@ -22,11 +23,15 @@ VectorToolsExtension::VectorToolsExtension(Canvas *canvas, QObject *parent) :
 }
 
 static const QString rectToolId = "paintfield.tool.rectangle";
+static const QString ellipseToolId = "paintfield.tool.ellipse";
 
 Tool *VectorToolsExtension::createTool(const QString &name, Canvas *canvas)
 {
 	if (name == rectToolId)
-		return new RectTool(canvas);
+		return new RectTool(RectLayer::ShapeTypeRect, canvas);
+	
+	if (name == ellipseToolId)
+		return new RectTool(RectLayer::ShapeTypeEllipse, canvas);
 	
 	return 0;
 }
@@ -37,6 +42,12 @@ void VectorToolsExtensionFactory::initialize(AppController *app)
 		auto text = tr("Rectangle");
 		auto icon = SimpleButton::createIcon(":/icons/24x24/rect.svg");
 		app->settingsManager()->declareTool(rectToolId, ToolInfo(text, icon, QStringList()));
+	}
+	
+	{
+		auto text = tr("Rectangle");
+		auto icon = SimpleButton::createIcon(":/icons/24x24/ellipse.svg");
+		app->settingsManager()->declareTool(ellipseToolId, ToolInfo(text, icon, QStringList()));
 	}
 	
 	{

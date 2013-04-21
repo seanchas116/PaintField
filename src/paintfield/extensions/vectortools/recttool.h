@@ -1,6 +1,7 @@
 #pragma once
 
 #include "paintfield/core/tool.h"
+#include "paintfield/core/rectlayer.h"
 
 namespace PaintField {
 
@@ -10,7 +11,7 @@ class RectTool : public Tool
 	
 public:
 	
-	explicit RectTool(Canvas *canvas);
+	explicit RectTool(RectLayer::ShapeType shapeType, Canvas *canvas);
 	~RectTool();
 	
 	void drawLayer(Malachite::SurfacePainter *painter, const Layer *layer) override;

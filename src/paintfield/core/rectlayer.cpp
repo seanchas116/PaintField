@@ -120,7 +120,18 @@ QString RectLayerFactory::name() const
 void RectLayer::setShapeFromRect()
 {
 	QPainterPath path;
-	path.addRect(_rect);
+	
+	switch (_shapeType)
+	{
+		default:
+		case ShapeTypeRect:
+			path.addRect(_rect);
+			break;
+		case ShapeTypeEllipse:
+			path.addEllipse(_rect);
+			break;
+	}
+	
 	this->setFillPath(path);
 }
 

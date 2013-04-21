@@ -81,7 +81,8 @@ class RectInserter
 {
 public:
 	
-	RectInserter(RectTool *tool) :
+	RectInserter(RectLayer::ShapeType shapeType, RectTool *tool) :
+		m_shapeType(shapeType),
 		m_tool(tool),
 		m_scene(tool->layerScene())
 	{}
@@ -116,6 +117,7 @@ private:
 	void start()
 	{
 		m_layerToAdd.reset(new RectLayer);
+		m_layerToAdd->setShapeType(m_shapeType);
 		m_layerToAdd->setName(QObject::tr("Rectangle"));
 		m_layerToAdd->setFillBrush(Color::fromRgbValue(0.5, 0.5, 0.5));
 		m_layerToAdd->setStrokeBrush(Color::fromRgbValue(0, 0, 0));
@@ -151,6 +153,8 @@ private:
 		m_scene->setCurrent(m_parent.child(m_index));
 	}
 	
+	RectLayer::ShapeType m_shapeType;
+	
 	QScopedPointer<RectLayer> m_layerToAdd;
 	Vec2D m_start;
 	LayerRef m_parent;
@@ -162,6 +166,8 @@ private:
 
 struct RectTool::Data
 {
+	RectLayer::ShapeType shapeType = RectLayer::ShapeTypeRect;
+	
 	QScopedPointer<RectInserter> inserter;
 	
 	QScopedPointer<RectLayer> rectLayer;
@@ -173,10 +179,12 @@ struct RectTool::Data
 	Vec2D originalRectPos;
 };
 
-RectTool::RectTool(Canvas *canvas) :
+RectTool::RectTool(RectLayer::ShapeType shapeType, Canvas *canvas) :
 	Tool(canvas),
 	d(new Data)
 {
+	d->shapeType = shapeType;
+	
 	{
 		auto group = new QGraphicsItemGroup();
 		//group->setFiltersChildEvents(false);
@@ -242,7 +250,7 @@ void RectTool::tabletPressEvent(CanvasTabletEvent *event)
 		}
 		case Inserting:
 		{
-			d->inserter.reset(new RectInserter(this));
+			d->inserter.reset(new RectInserter(d->shapeType, this));
 			d->inserter->press(event->data);
 			break;
 		}
