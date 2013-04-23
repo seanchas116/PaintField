@@ -3,10 +3,15 @@
 #include <QSpinBox>
 #include <QLabel>
 #include <QComboBox>
+#include <QTextEdit>
+#include <QPushButton>
+#include <QFontDialog>
+
 #include "paintfield/core/widgets/widgetgroup.h"
 #include "paintfield/core/layerscene.h"
 #include "paintfield/core/shapelayer.h"
 #include "paintfield/core/rectlayer.h"
+#include "paintfield/core/textlayer.h"
 
 #include "shapesidebar.h"
 
@@ -16,6 +21,8 @@ struct ShapeSideBar::Data
 {
 	LayerScene *scene = 0;
 	LayerRef current;
+	
+	QTextEdit *textEdit = 0;
 	
 	template <typename T>
 	const T *currentLayerWithType()
@@ -93,6 +100,27 @@ ShapeSideBar::ShapeSideBar(LayerScene *scene, QWidget *parent) :
 		addWidget(w);
 	}
 	
+	{
+		auto w = new QWidget();
+		auto layout = new QFormLayout();
+		
+		{
+			auto b = new QPushButton(tr("Change"));
+			connect(b, SIGNAL(pressed()), this, SLOT(onFontChangeRequested()));
+			layout->addRow(tr("Font"), b);
+		}
+		
+		{
+			auto t = new QTextEdit();
+			connect(t, SIGNAL(textChanged()), this, SLOT(onTextChanged()));
+			d->textEdit = t;
+			layout->addRow(tr("Text"), t);
+		}
+		
+		w->setLayout(layout);
+		addWidget(w);
+	}
+	
 	connect(scene, SIGNAL(currentChanged(LayerRef,LayerRef)), this, SLOT(onCurrentChanged(LayerRef)));
 	connect(scene, SIGNAL(currentLayerPropertyChanged()), this, SLOT(updateEditors()));
 	onCurrentChanged(scene->current());
@@ -153,17 +181,40 @@ void ShapeSideBar::onRectShapeTypeChanged(int type)
 	
 }
 
-void ShapeSideBar::onTextChanged(const QString &text)
+void ShapeSideBar::onTextChanged()
 {
-	
+	auto layer = d->currentLayerWithType<TextLayer>();
+	if (layer)
+	{
+		auto text = d->textEdit->toPlainText();
+		d->scene->setLayerProperty(d->current, text, RoleText, tr("Change Text"));
+	}
+}
+
+void ShapeSideBar::onFontChangeRequested()
+{
+	auto layer = d->currentLayerWithType<TextLayer>();
+	if (layer)
+	{
+		bool ok;
+		auto font = QFontDialog::getFont(&ok, layer->font());
+		if (ok)
+		{
+			PAINTFIELD_DEBUG << font.pointSize();
+			d->scene->setLayerProperty(d->current, font, RoleFont, tr("Change Font"));
+		}
+	}
 }
 
 void ShapeSideBar::updateEditors()
 {
 	auto rectLayer = d->currentLayerWithType<RectLayer>();
+	auto textLayer = d->currentLayerWithType<TextLayer>();
 	
 	if (rectLayer)
 		setCurrentIndex(StackIndexRect);
+	else if (textLayer)
+		setCurrentIndex(StackIndexText);
 	else
 		setCurrentIndex(StackIndexEmpty);
 	
@@ -173,6 +224,12 @@ void ShapeSideBar::updateEditors()
 		emit yChanged(rectLayer->rect().y());
 		emit widthChanged(rectLayer->rect().width());
 		emit heightChanged(rectLayer->rect().height());
+	}
+	
+	if (textLayer)
+	{
+		if (d->textEdit->toPlainText() != textLayer->text())
+			d->textEdit->setText(textLayer->text());
 	}
 }
 

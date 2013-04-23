@@ -24,14 +24,18 @@ VectorToolsExtension::VectorToolsExtension(Canvas *canvas, QObject *parent) :
 
 static const QString rectToolId = "paintfield.tool.rectangle";
 static const QString ellipseToolId = "paintfield.tool.ellipse";
+static const QString textToolId = "paintfield.tool.text";
 
 Tool *VectorToolsExtension::createTool(const QString &name, Canvas *canvas)
 {
 	if (name == rectToolId)
-		return new RectTool(RectLayer::ShapeTypeRect, canvas);
+		return new RectTool(RectTool::AddRect, canvas);
 	
 	if (name == ellipseToolId)
-		return new RectTool(RectLayer::ShapeTypeEllipse, canvas);
+		return new RectTool(RectTool::AddEllipse, canvas);
+	
+	if (name == textToolId)
+		return new RectTool(RectTool::AddText, canvas);
 	
 	return 0;
 }
@@ -45,9 +49,15 @@ void VectorToolsExtensionFactory::initialize(AppController *app)
 	}
 	
 	{
-		auto text = tr("Rectangle");
+		auto text = tr("Ellipse");
 		auto icon = SimpleButton::createIcon(":/icons/24x24/ellipse.svg");
 		app->settingsManager()->declareTool(ellipseToolId, ToolInfo(text, icon, QStringList()));
+	}
+	
+	{
+		auto text = tr("Text");
+		auto icon = SimpleButton::createIcon(":/icons/24x24/text.svg");
+		app->settingsManager()->declareTool(textToolId, ToolInfo(text, icon, QStringList()));
 	}
 	
 	{

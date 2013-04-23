@@ -35,7 +35,8 @@ private slots:
 	void onHeightChanged(int h);
 	
 	void onRectShapeTypeChanged(int type);
-	void onTextChanged(const QString &text);
+	void onTextChanged();
+	void onFontChangeRequested();
 	
 	void updateEditors();
 	
@@ -45,7 +46,7 @@ private:
 	{
 		StackIndexEmpty,
 		StackIndexRect,
-		StackIndexTex
+		StackIndexText
 	};
 	
 	struct Data;

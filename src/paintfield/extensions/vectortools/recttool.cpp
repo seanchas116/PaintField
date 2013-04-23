@@ -4,6 +4,7 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsScene>
 
+#include "paintfield/core/textlayer.h"
 #include "paintfield/core/layerscene.h"
 #include "paintfield/core/rectlayer.h"
 
@@ -81,8 +82,8 @@ class RectInserter
 {
 public:
 	
-	RectInserter(RectLayer::ShapeType shapeType, RectTool *tool) :
-		m_shapeType(shapeType),
+	RectInserter(RectTool::AddingType addingType, RectTool *tool) :
+		m_addingType(addingType),
 		m_tool(tool),
 		m_scene(tool->layerScene())
 	{}
@@ -116,11 +117,41 @@ private:
 	
 	void start()
 	{
-		m_layerToAdd.reset(new RectLayer);
-		m_layerToAdd->setShapeType(m_shapeType);
-		m_layerToAdd->setName(QObject::tr("Rectangle"));
-		m_layerToAdd->setFillBrush(Color::fromRgbValue(0.5, 0.5, 0.5));
-		m_layerToAdd->setStrokeBrush(Color::fromRgbValue(0, 0, 0));
+		auto createNew = [this]()
+		{
+			AbstractRectLayer *layer;
+			
+			if (m_addingType == RectTool::AddText)
+			{
+				auto textLayer = new TextLayer();
+				textLayer->setText(QObject::tr("Text"));
+				textLayer->setName(QObject::tr("Text"));
+				
+				layer = textLayer;
+			}
+			else
+			{
+				layer = new RectLayer();
+				
+				if (m_addingType == RectTool::AddEllipse)
+				{
+					layer->setShapeType(AbstractRectLayer::ShapeTypeEllipse);
+					layer->setName(QObject::tr("Ellipse"));
+				}
+				else
+				{
+					layer->setShapeType(AbstractRectLayer::ShapeTypeRect);
+					layer->setName(QObject::tr("Rectangle"));
+				}
+			}
+			
+			layer->setFillBrush(Color::fromRgbValue(0.5, 0.5, 0.5));
+			layer->setStrokeBrush(Color::fromRgbValue(0, 0, 0));
+			
+			return layer;
+		};
+		
+		m_layerToAdd.reset(createNew());
 		
 		auto current = m_scene->current();
 		if (current)
@@ -153,9 +184,9 @@ private:
 		m_scene->setCurrent(m_parent.child(m_index));
 	}
 	
-	RectLayer::ShapeType m_shapeType;
+	RectTool::AddingType m_addingType;
 	
-	QScopedPointer<RectLayer> m_layerToAdd;
+	QScopedPointer<AbstractRectLayer> m_layerToAdd;
 	Vec2D m_start;
 	LayerRef m_parent;
 	int m_index;
@@ -166,24 +197,30 @@ private:
 
 struct RectTool::Data
 {
-	RectLayer::ShapeType shapeType = RectLayer::ShapeTypeRect;
+	AddingType addingType = NoAdding;
 	
 	QScopedPointer<RectInserter> inserter;
 	
-	QScopedPointer<RectLayer> rectLayer;
+	QScopedPointer<AbstractRectLayer> rectLayer;
 	LayerRef current;
 	QHash<int, RectHandleItem *> handles;
 	
 	Mode mode = NoOperation;
 	Vec2D dragStartPos;
 	Vec2D originalRectPos;
+	
+	QPointSet rectKeys() const
+	{
+		auto rect = rectLayer->rect().adjusted(-handleRadius, -handleRadius, handleRadius, handleRadius);
+		return Surface::rectToKeys(rect.toAlignedRect());
+	}
 };
 
-RectTool::RectTool(RectLayer::ShapeType shapeType, Canvas *canvas) :
+RectTool::RectTool(AddingType type, Canvas *canvas) :
 	Tool(canvas),
 	d(new Data)
 {
-	d->shapeType = shapeType;
+	d->addingType = type;
 	
 	{
 		auto group = new QGraphicsItemGroup();
@@ -237,7 +274,7 @@ void RectTool::tabletPressEvent(CanvasTabletEvent *event)
 	
 	if (d->rectLayer && layer)
 		d->mode = Dragging;
-	else // other than rect layer or no layer selected
+	else if (d->addingType != NoAdding) // other than rect layer or no layer selected
 		d->mode = Inserting;
 	
 	switch (d->mode)
@@ -250,7 +287,7 @@ void RectTool::tabletPressEvent(CanvasTabletEvent *event)
 		}
 		case Inserting:
 		{
-			d->inserter.reset(new RectInserter(d->shapeType, this));
+			d->inserter.reset(new RectInserter(d->addingType, this));
 			d->inserter->press(event->data);
 			break;
 		}
@@ -266,9 +303,9 @@ void RectTool::tabletMoveEvent(CanvasTabletEvent *event)
 		case Dragging:
 		{
 			auto delta = event->data.pos - d->dragStartPos;
-			auto originalKeys = d->rectLayer->tileKeys();
+			auto originalKeys = d->rectKeys();
 			d->rectLayer->setRect(QRectF(delta + d->originalRectPos, d->rectLayer->rect().size()));
-			emit requestUpdate(originalKeys | d->rectLayer->tileKeys());
+			emit requestUpdate(originalKeys | d->rectKeys());
 			moveHandles();
 			break;
 		}
@@ -314,10 +351,10 @@ void RectTool::onCurrentChanged(const LayerRef &layer)
 	
 	if (layer)
 	{
-		auto rectLayer = dynamic_cast<const RectLayer *>(layer.pointer());
+		auto rectLayer = dynamic_cast<const AbstractRectLayer *>(layer.pointer());
 		if (rectLayer)
 		{
-			d->rectLayer.reset(static_cast<RectLayer *>(rectLayer->clone()));
+			d->rectLayer.reset(static_cast<AbstractRectLayer *>(rectLayer->clone()));
 			moveHandles();
 			graphicsItem()->setVisible(true);
 			addLayerDelegation(layer);
@@ -332,9 +369,9 @@ void RectTool::onCurrentChanged(const LayerRef &layer)
 
 void RectTool::onLayerPropertyChanged(const LayerRef &layer)
 {
-	if (d->current == layer && d->rectLayer && layer->isType<RectLayer>())
+	if (d->current == layer && d->rectLayer && layer->isType<AbstractRectLayer>())
 	{
-		d->rectLayer.reset(static_cast<RectLayer *>(layer->clone()));
+		d->rectLayer.reset(static_cast<AbstractRectLayer *>(layer->clone()));
 	}
 }
 
@@ -379,7 +416,7 @@ void RectTool::onHandleMoved(const QPointF &pos, int handleTypes)
 	if (!d->rectLayer)
 		return;
 	
-	QPointSet oldKeys = d->rectLayer->tileKeys();
+	QPointSet oldKeys = d->rectKeys();
 	
 	auto rect = d->rectLayer->rect();
 	auto scenePos = pos * canvas()->viewController()->transformToScene().toQTransform();
@@ -397,7 +434,8 @@ void RectTool::onHandleMoved(const QPointF &pos, int handleTypes)
 		rect.setBottom(scenePos.y());
 	
 	d->rectLayer->setRect(rect);
-	emit requestUpdate(d->rectLayer->tileKeys() | oldKeys);
+	
+	emit requestUpdate(d->rectKeys() | oldKeys);
 	moveHandles();
 }
 

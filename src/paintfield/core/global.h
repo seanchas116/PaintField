@@ -38,7 +38,10 @@ enum LayerPropertyRole
 	RoleStrokeEnabled,
 	
 	RoleRect,
-	RoleRectShapeType
+	RoleRectShapeType,
+	
+	RoleText,
+	RoleFont
 };
 
 enum EventType

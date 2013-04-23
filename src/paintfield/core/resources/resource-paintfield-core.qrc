@@ -31,5 +31,6 @@
         <file>icons/24x24/rect.svg</file>
         <file>icons/16x16/locked.svg</file>
         <file>icons/16x16/visible.svg</file>
+        <file>icons/24x24/text.svg</file>
     </qresource>
 </RCC>

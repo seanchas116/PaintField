@@ -91,7 +91,10 @@ HEADERS += \
     layeritemmodel.h \
     colorbuttongroup.h \
     canvasnavigator.h \
-    canvastooleventsender.h
+    canvastooleventsender.h \
+    textlayer.h \
+    pathrecorder.h \
+    abstractrectlayer.h
 FORMS += dialogs/exportdialog.ui dialogs/newdocumentdialog.ui
 SOURCES += \
            document.cpp \
@@ -166,7 +169,10 @@ SOURCES += \
     layeritemmodel.cpp \
     colorbuttongroup.cpp \
     canvasnavigator.cpp \
-    canvastooleventsender.cpp
+    canvastooleventsender.cpp \
+    textlayer.cpp \
+    pathrecorder.cpp \
+    abstractrectlayer.cpp
 
 RESOURCES += \
     resources/resource-paintfield-core.qrc

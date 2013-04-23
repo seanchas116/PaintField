@@ -11,7 +11,15 @@ class RectTool : public Tool
 	
 public:
 	
-	explicit RectTool(RectLayer::ShapeType shapeType, Canvas *canvas);
+	enum AddingType
+	{
+		NoAdding,
+		AddRect,
+		AddEllipse,
+		AddText
+	};
+	
+	explicit RectTool(AddingType type, Canvas *canvas);
 	~RectTool();
 	
 	void drawLayer(Malachite::SurfacePainter *painter, const Layer *layer) override;

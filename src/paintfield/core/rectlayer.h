@@ -1,14 +1,14 @@
 #pragma once
 
-#include "shapelayer.h"
+#include "abstractrectlayer.h"
 
 namespace PaintField {
 
-class RectLayer : public ShapeLayer
+class RectLayer : public AbstractRectLayer
 {
 public:
 	
-	typedef ShapeLayer super;
+	typedef AbstractRectLayer super;
 	
 	enum ShapeType
 	{
@@ -20,30 +20,9 @@ public:
 	
 	Layer *createAnother() const override { return new RectLayer(); }
 	
-	bool setProperty(const QVariant &data, int role) override;
-	QVariant property(int role) const override;
+protected:
 	
-	void encode(QDataStream &stream) const override;
-	void decode(QDataStream &stream) override;
-	
-	QVariantMap saveProperies() const override;
-	void loadProperties(const QVariantMap &map) override;
-	
-	void setRect(const QRectF &rect);
-	QRectF rect() const { return _rect; }
-	
-	void setShapeType(ShapeType type);
-	ShapeType shapeType() const { return _shapeType; }
-	
-	void setShapeTypeString(const QString &str);
-	QString shapeTypeString() const;
-	
-private:
-	
-	void setShapeFromRect();
-	
-	QRectF _rect;
-	ShapeType _shapeType = ShapeTypeRect;
+	void updateFillPath() override;
 };
 
 class RectLayerFactory : public LayerFactory
