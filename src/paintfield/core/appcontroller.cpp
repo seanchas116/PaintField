@@ -60,8 +60,6 @@ void AppController::begin()
 	d->settingsManager->loadBuiltinSettings();
 	d->settingsManager->loadUserSettings();
 	
-	loadExtensions();
-	
 	extensionManager()->initialize(this);
 	addExtensions(extensionManager()->createAppExtensions(this, this));
 	
@@ -229,28 +227,6 @@ void AppController::createActions()
 	d->actions << new GeneralEditAction("paintfield.edit.paste", this);
 	d->actions << new GeneralEditAction("paintfield.edit.delete", this);
 	d->actions << new GeneralEditAction("paintfield.edit.selectAll", this);
-}
-
-void AppController::loadExtensions()
-{
-	QDir dir(d->settingsManager->builtinDataDir());
-	
-	if (!dir.exists())
-		return;
-	
-	if (!dir.cd("Extensions"))
-		return;
-	
-	for (const QFileInfo &fileInfo : dir.entryInfoList())
-	{
-		QPluginLoader loader(fileInfo.absoluteFilePath());
-		auto factory = qobject_cast<ExtensionFactory *>(loader.instance());
-		
-		if (factory)
-		{
-			d->extensionManager->addExtensionFactory(factory);
-		}
-	}
 }
 
 

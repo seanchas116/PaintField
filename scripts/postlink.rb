@@ -42,14 +42,6 @@ end
 
 FileUtils.mkpath(destination)
 
-out_pwd_extensions = "#{out_pwd_root}/src/paintfield/extensions"
-
-if platform == :mac
-  extension_suffix = "dylib"
-else
-  extension_suffix = "so"
-end
-
 # copy and modify info.plist (Mac)
 
 if platform == :mac
@@ -67,6 +59,7 @@ if platform == :mac
   `cp #{out_pwd_root}/src/libs/Minizip/lib*.1.dylib #{destination_frameworks}`
   `cp #{out_pwd_root}/src/libs/QtSingleApplication/lib*.1.dylib #{destination_frameworks}`
   `cp #{out_pwd_root}/src/paintfield/core/lib*.1.dylib #{destination_frameworks}`
+  `cp #{out_pwd_root}/src/paintfield/extensions/lib*.1.dylib #{destination_frameworks}`
 end
 
 # copy paintfield-launch.sh (other than Mac)
@@ -81,21 +74,12 @@ end
 
 FileUtils.rm_rf("#{destination}/Contents")
 FileUtils.rm_rf("#{destination}/Settings")
-FileUtils.rm_rf("#{destination}/Extensions")
 
 FileUtils.cp_r("#{in_pwd_app}/Contents", destination)
 FileUtils.cp_r("#{in_pwd_app}/Settings", destination)
 
 if platform != :mac
   FileUtils.rm("#{destination}/Settings/override-key-bindings-mac.json")
-end
-
-FileUtils.mkdir("#{destination}/Extensions")
-
-Pathname.glob("#{out_pwd_extensions}/*/*.#{extension_suffix}").each do |path|
-
-  FileUtils.cp(path.to_s, "#{destination}/Extensions")
-
 end
 
 

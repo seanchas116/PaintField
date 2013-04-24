@@ -30,5 +30,3 @@ CanvasExtensionList NavigatorExtensionFactory::createCanvasExtensions(Canvas *ca
 }
 
 }
-
-Q_EXPORT_PLUGIN2(paintfield-navigator, PaintField::NavigatorExtensionFactory)

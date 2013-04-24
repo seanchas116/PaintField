@@ -1,3 +1,3 @@
 TEMPLATE = subdirs
 
-SUBDIRS = core app extensions
+SUBDIRS = core extensions app

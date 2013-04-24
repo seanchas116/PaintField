@@ -17,7 +17,7 @@ const QString _layerTreeSidebarName = "paintfield.sidebar.layerTree";
 LayerUIExtension::LayerUIExtension(Canvas *canvas, QObject *parent) :
     CanvasExtension(canvas, parent)
 {
-	LayerUIController *uiController = canvas ? new LayerUIController(canvas->document(), this) : 0;
+	LayerUIController *uiController = canvas ? new LayerUIController(canvas->document(), canvas) : 0;
 	
 	if (uiController)
 	{
@@ -42,5 +42,3 @@ void LayerUIExtensionFactory::initialize(AppController *app)
 }
 
 }
-
-Q_EXPORT_PLUGIN2(paintfield-layerui, PaintField::LayerUIExtensionFactory)

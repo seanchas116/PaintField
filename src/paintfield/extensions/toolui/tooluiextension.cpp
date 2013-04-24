@@ -26,7 +26,7 @@ void ToolUIExtension::updateToolBar(QToolBar *toolBar, const QString &name)
 		auto toolOrder = appController()->settingsManager()->value({"tool-order"}).toList();
 		auto actions = workspace()->toolManager()->actions();
 		
-		for (auto toolNameVariant : toolOrder)
+		for (auto &toolNameVariant : toolOrder)
 		{
 			if (toolNameVariant.toString().isEmpty())
 			{
@@ -62,6 +62,4 @@ void ToolUIExtensionFactory::initialize(AppController *app)
 }
 
 }
-
-Q_EXPORT_PLUGIN2(paintfield-toolui, PaintField::ToolUIExtensionFactory)
 

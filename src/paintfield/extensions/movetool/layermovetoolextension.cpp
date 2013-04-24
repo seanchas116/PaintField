@@ -29,5 +29,3 @@ void LayerMoveToolExtensionFactory::initialize(AppController *app)
 
 }
 
-Q_EXPORT_PLUGIN2(paintfield-layermove, PaintField::LayerMoveToolExtensionFactory)
-

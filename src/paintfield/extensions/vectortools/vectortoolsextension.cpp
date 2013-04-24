@@ -67,5 +67,3 @@ void VectorToolsExtensionFactory::initialize(AppController *app)
 }
 
 } // namespace PaintField
-
-Q_EXPORT_PLUGIN2(paintfield-vectortools, PaintField::VectorToolsExtensionFactory)

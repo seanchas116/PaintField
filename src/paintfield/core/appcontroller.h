@@ -64,8 +64,6 @@ private:
 	void declareMenus();
 	void createActions();
 	
-	void loadExtensions();
-	
 	struct Data;
 	Data *d;
 	

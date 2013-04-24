@@ -47,5 +47,3 @@ void ColorUIExtensionFactory::initialize(AppController *app)
 }
 
 }
-
-Q_EXPORT_PLUGIN2(paintfield-colorui, PaintField::ColorUIExtensionFactory)

@@ -97,5 +97,3 @@ void BrushToolExtensionFactory::initialize(AppController *app)
 }
 
 }
-
-Q_EXPORT_PLUGIN2(paintfield-brushtool, PaintField::BrushToolExtensionFactory)

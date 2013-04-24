@@ -47,5 +47,3 @@ void AboutDialogExtensionFactory::initialize(AppController *appController)
 }
 
 } // namespace PaintField
-
-Q_EXPORT_PLUGIN2(paintfield-aboutdialog, PaintField::AboutDialogExtensionFactory)
