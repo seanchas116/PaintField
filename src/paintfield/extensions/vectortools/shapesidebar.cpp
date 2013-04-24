@@ -6,6 +6,7 @@
 #include <QTextEdit>
 #include <QPushButton>
 #include <QFontDialog>
+#include <QToolButton>
 
 #include "paintfield/core/widgets/widgetgroup.h"
 #include "paintfield/core/layerscene.h"
@@ -23,6 +24,7 @@ struct ShapeSideBar::Data
 	LayerRef current;
 	
 	QTextEdit *textEdit = 0;
+	QToolButton *fontButton = 0;
 	
 	template <typename T>
 	const T *currentLayerWithType()
@@ -105,9 +107,11 @@ ShapeSideBar::ShapeSideBar(LayerScene *scene, QWidget *parent) :
 		auto layout = new QFormLayout();
 		
 		{
-			auto b = new QPushButton(tr("Change"));
+			auto b = new QToolButton();
+			b->setText(tr("Change"));
 			connect(b, SIGNAL(pressed()), this, SLOT(onFontChangeRequested()));
 			layout->addRow(tr("Font"), b);
+			d->fontButton = b;
 		}
 		
 		{
@@ -197,7 +201,7 @@ void ShapeSideBar::onFontChangeRequested()
 	if (layer)
 	{
 		bool ok;
-		auto font = QFontDialog::getFont(&ok, layer->font());
+		auto font = QFontDialog::getFont(&ok, layer->font(), 0, tr("Select Font"), QFontDialog::DontUseNativeDialog);
 		if (ok)
 		{
 			PAINTFIELD_DEBUG << font.pointSize();
@@ -230,6 +234,10 @@ void ShapeSideBar::updateEditors()
 	{
 		if (d->textEdit->toPlainText() != textLayer->text())
 			d->textEdit->setText(textLayer->text());
+		
+		QFont font = textLayer->font();
+		QString fontText = font.family() + " / " + font.styleName() + " / " + QString::number(font.pointSize()) + "pt";
+		d->fontButton->setText(fontText);
 	}
 }
 
