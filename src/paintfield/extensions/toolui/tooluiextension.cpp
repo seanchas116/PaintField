@@ -1,8 +1,10 @@
 #include <QToolBar>
 #include <QtPlugin>
+#include <QAction>
 #include "paintfield/core/workspace.h"
 #include "paintfield/core/appcontroller.h"
 #include "paintfield/core/toolmanager.h"
+#include "paintfield/core/settingsmanager.h"
 #include "tooluiextension.h"
 
 namespace PaintField
@@ -20,7 +22,36 @@ void ToolUIExtension::updateToolBar(QToolBar *toolBar, const QString &name)
 	if (name == _toolToolbarName)
 	{
 		toolBar->clear();
-		toolBar->addActions(workspace()->toolManager()->actions());
+		
+		auto toolOrder = appController()->settingsManager()->value({"tool-order"}).toList();
+		auto actions = workspace()->toolManager()->actions();
+		
+		for (auto toolNameVariant : toolOrder)
+		{
+			if (toolNameVariant.toString().isEmpty())
+			{
+				toolBar->addSeparator();
+				continue;
+			}
+			
+			QAction *addedAction = 0;
+			
+			for (auto action : actions)
+			{
+				if (action->objectName() == toolNameVariant.toString())
+				{
+					toolBar->addAction(action);
+					addedAction = action;
+					break;
+				}
+			}
+			
+			if (addedAction)
+				actions.removeAll(addedAction);
+		}
+		
+		if (actions.size())
+			toolBar->addActions(actions);
 	}
 }
 

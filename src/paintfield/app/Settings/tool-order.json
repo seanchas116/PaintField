@@ -1,0 +1,11 @@
+{
+  "tool-order":
+  [
+    "paintfield.tool.brush",
+    "paintfield.tool.move",
+    "",
+    "paintfield.tool.rectangle",
+    "paintfield.tool.ellipse",
+    "paintfield.tool.text"
+    ]
+}
