@@ -379,9 +379,10 @@ void RectTool::onCurrentChanged(const LayerRef &layer)
 		if (rectLayer)
 		{
 			d->rectLayer.reset(static_cast<AbstractRectLayer *>(rectLayer->clone()));
+			addLayerDelegation(layer);
+			
 			moveHandles();
 			graphicsItem()->setVisible(true);
-			addLayerDelegation(layer);
 			
 			return;
 		}
