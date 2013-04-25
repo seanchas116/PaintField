@@ -281,7 +281,21 @@ public:
 	
 	virtual void render(Malachite::Painter *painter) const { Q_UNUSED(painter) }
 	
+	/**
+	 * Returns whether the layer is not transparent
+	 * in the rectangle ( pos.x() - margin, pos.y() - margin, margin * 2, margin * 2 ).
+	 * @param pos
+	 * @param margin
+	 * @return 
+	 */
 	virtual bool includes(const QPoint &pos, int margin) const { Q_UNUSED(pos) Q_UNUSED(margin) return false; }
+	
+	/**
+	 * Return whether the layer is "selectable" graphically.
+	 * This function returns false if and only if includes() returns false for any position.
+	 * @return 
+	 */
+	virtual bool isGraphicallySelectable() const { return false; }
 	
 protected:
 	

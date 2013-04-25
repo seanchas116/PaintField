@@ -26,6 +26,7 @@ public:
 	
 protected:
 	
+	void keyPressEvent(QKeyEvent *event);
 	void tabletMoveEvent(CanvasTabletEvent *event) override;
 	void tabletPressEvent(CanvasTabletEvent *event) override;
 	void tabletReleaseEvent(CanvasTabletEvent *event) override;

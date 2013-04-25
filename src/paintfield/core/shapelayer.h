@@ -20,6 +20,7 @@ public:
 	
 	QPointSet tileKeys() const override;
 	bool includes(const QPoint &pos, int margin) const override;
+	bool isGraphicallySelectable() const override;
 	
 	bool setProperty(const QVariant &data, int role) override;
 	QVariant property(int role) const override;

@@ -17,6 +17,11 @@ bool ShapeLayer::includes(const QPoint &pos, int margin) const
 	//return _unitedPath.contains(pos);
 }
 
+bool ShapeLayer::isGraphicallySelectable() const
+{
+	return !_unitedPath.isEmpty();
+}
+
 QPointSet ShapeLayer::tileKeys() const
 {
 	return Surface::rectToKeys(boundingRect().toAlignedRect());

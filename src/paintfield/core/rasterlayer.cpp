@@ -54,6 +54,11 @@ bool RasterLayer::includes(const QPoint &pos, int margin) const
 	return false;
 }
 
+bool RasterLayer::isGraphicallySelectable() const
+{
+	return !_surface.isEmpty();
+}
+
 void RasterLayer::updateThumbnail(const QSize &size)
 {
 	QPixmap pixmap(size);

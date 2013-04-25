@@ -3,10 +3,15 @@
 #include <QGraphicsPathItem>
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsScene>
+#include <QAction>
+#include <QItemSelectionModel>
+
+#include "paintfield/extensions/layerui/layeruicontroller.h"
 
 #include "paintfield/core/textlayer.h"
 #include "paintfield/core/layerscene.h"
 #include "paintfield/core/rectlayer.h"
+#include "paintfield/core/layeritemmodel.h"
 
 #include "recttool.h"
 
@@ -197,6 +202,8 @@ private:
 
 struct RectTool::Data
 {
+	LayerUIController *layerController = 0;
+	
 	AddingType addingType = NoAdding;
 	
 	QScopedPointer<RectInserter> inserter;
@@ -220,6 +227,8 @@ RectTool::RectTool(AddingType type, Canvas *canvas) :
 	Tool(canvas),
 	d(new Data)
 {
+	d->layerController = canvas->findChild<LayerUIController *>();
+	
 	d->addingType = type;
 	
 	{
@@ -243,6 +252,8 @@ RectTool::RectTool(AddingType type, Canvas *canvas) :
 	connect(layerScene(), SIGNAL(currentChanged(LayerRef,LayerRef)), this, SLOT(onCurrentChanged(LayerRef)));
 	connect(layerScene(), SIGNAL(layerPropertyChanged(LayerRef)), this, SLOT(onLayerPropertyChanged(LayerRef)));
 	connect(canvas->viewController(), SIGNAL(transformUpdated()), this, SLOT(moveHandles()));
+	
+	onCurrentChanged(layerScene()->current());
 }
 
 RectTool::~RectTool()
@@ -255,6 +266,14 @@ void RectTool::drawLayer(SurfacePainter *painter, const Layer *layer)
 	if (layer == d->current.pointer())
 	{
 		d->rectLayer->render(painter);
+	}
+}
+
+void RectTool::keyPressEvent(QKeyEvent *event)
+{
+	if (event->key() == Qt::Key_Backspace)
+	{
+		d->layerController->action(LayerUIController::ActionRemove)->trigger();
 	}
 }
 
@@ -348,6 +367,11 @@ void RectTool::onCurrentChanged(const LayerRef &layer)
 	clearLayerDelegation();
 	
 	d->current = layer;
+	
+	if (layer && layer->isGraphicallySelectable())
+		layerScene()->setSelection({layer});
+	else
+		layerScene()->setSelection({});
 	
 	if (layer)
 	{
