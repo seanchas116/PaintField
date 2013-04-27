@@ -33,31 +33,27 @@ protected:
 	
 private slots:
 	
-	void onCurrentChanged(const LayerRef &layer);
-	void onLayerPropertyChanged(const LayerRef &layer);
-	void moveHandles();
+	void updateCurrent(const LayerRef &layer);
+	void updateHandles();
 	
 private:
-	
-	enum HandleType
-	{
-		Left = 1,
-		Right = 1 << 1,
-		Top = 1 << 2,
-		Bottom = 1 << 3
-	};
 	
 	enum Mode
 	{
 		NoOperation,
 		Dragging,
-		Inserting
+		Inserting,
+		MovingHandle
 	};
 	
 	void onHandleMoved(const QPointF &pos, int handleTypes);
 	void onHandleMoveFinished();
+	void commit();
 	
 	void addHandle(int handleTypes, qreal zValue);
+	
+	void startAdding();
+	void finishAdding();
 	
 	friend class RectInserter;
 	friend class RectHandleItem;
