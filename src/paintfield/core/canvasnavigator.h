@@ -50,7 +50,7 @@ private:
 	
 	bool tryBeginDragNavigation(const QPoint &pos);
 	bool continueDragNavigation(const QPoint &pos);
-	void endDragNavigation();
+	bool endDragNavigation();
 	
 	void beginDragTranslation(const QPoint &pos);
 	void continueDragTranslation(const QPoint &pos);

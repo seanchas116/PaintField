@@ -75,15 +75,15 @@ void CanvasNavigator::onPressedKeysChanged()
 {
 	PAINTFIELD_DEBUG;
 	
-	auto cs = appController()->cursorStack();
-	auto kt = d->keyTracker;
+	auto cursorStack = appController()->cursorStack();
+	auto keyTracker = d->keyTracker;
 	
-	auto addOrRemove = [cs, kt](const QKeySequence &seq, const QString &id, const QCursor &cursor)
+	auto addOrRemove = [cursorStack, keyTracker](const QKeySequence &seq, const QString &id, const QCursor &cursor)
 	{
-		if (kt->match(seq))
-			cs->add(id, cursor);
+		if (keyTracker->match(seq))
+			cursorStack->add(id, cursor);
 		else
-			cs->remove(id);
+			cursorStack->remove(id);
 	};
 	
 	addOrRemove(d->translationKeys, readyToTranslateCursorId, Qt::OpenHandCursor);
@@ -93,93 +93,95 @@ void CanvasNavigator::onPressedKeysChanged()
 
 void CanvasNavigator::mouseEvent(QMouseEvent *event)
 {
-	event->ignore();
+	bool accepted;
 	
 	switch (event->type())
 	{
 		case QEvent::MouseButtonPress:
 			
 			emit clicked();
-			
-			if (event->button() == Qt::LeftButton)
-			{
-				if (tryBeginDragNavigation(event->pos()))
-					event->accept();
-			}
+			accepted = tryBeginDragNavigation(event->pos());
 			break;
 			
 		case QEvent::MouseMove:
 			
-			if (continueDragNavigation(event->pos()))
-				event->accept();
+			accepted = continueDragNavigation(event->pos());
 			break;
 			
 		case QEvent::MouseButtonRelease:
 			
-			endDragNavigation();
+			accepted = endDragNavigation();
 			break;
 			
 		default:
+			
+			accepted = false;
 			break;
 	}
+	
+	event->setAccepted(accepted);
 }
 
 void CanvasNavigator::tabletEvent(QTabletEvent *event)
 {
-	event->ignore();
+	bool accepted;
 	
 	switch (event->type())
 	{
 		case QEvent::TabletPress:
 			
 			emit clicked();
-			if (tryBeginDragNavigation(event->pos()))
-				event->accept();
+			accepted = tryBeginDragNavigation(event->pos());
 			break;
 			
 		case QEvent::TabletMove:
 			
-			if (continueDragNavigation(event->pos()))
-				event->accept();
+			accepted = continueDragNavigation(event->pos());
 			break;
 			
 		case QEvent::TabletRelease:
 			
-			endDragNavigation();
+			accepted = endDragNavigation();
 			break;
 			
 		default:
+			
+			accepted = false;
 			break;
 	}
+	
+	event->setAccepted(accepted);
 }
 
 void CanvasNavigator::customTabletEvent(WidgetTabletEvent *event)
 {
-	event->ignore();
+	bool accepted;
 	
 	switch (int(event->type()))
 	{
 		case EventWidgetTabletPress:
 			
 			emit clicked();
-			if (tryBeginDragNavigation(event->posInt))
-				event->accept();
+			accepted = tryBeginDragNavigation(event->posInt);
 			break;
 			
 		case EventWidgetTabletMove:
 			
-			if (continueDragNavigation(event->posInt))
-				event->accept();
+			accepted = continueDragNavigation(event->posInt);
 			break;
 			
 		case EventWidgetTabletRelease:
 			
-			endDragNavigation();
+			accepted = endDragNavigation();
 			break;
 			
 		default:
+			
+			accepted = false;
 			break;
 	}
+	
+	event->setAccepted(accepted);
 }
 
 void CanvasNavigator::wheelEvent(QWheelEvent *event)
@@ -234,11 +236,23 @@ bool CanvasNavigator::continueDragNavigation(const QPoint &pos)
 	}
 }
 
-void CanvasNavigator::endDragNavigation()
+bool CanvasNavigator::endDragNavigation()
 {
-	endDragTranslation();
-	endDragScaling();
-	endDragRotation();
+	switch (d->navigationMode)
+	{
+		default:
+		case NoNavigation:
+			return false;
+		case Translating:
+			endDragTranslation();
+			return true;
+		case Scaling:
+			endDragScaling();
+			return true;
+		case Rotating:
+			endDragRotation();
+			return true;
+	}
 }
 
 void CanvasNavigator::beginDragTranslation(const QPoint &pos)

@@ -146,6 +146,7 @@ CanvasViewController::CanvasViewController(Canvas *canvas) :
 		d->view = new CanvasView(canvas);
 		d->view->setMouseTracking(true);
 		d->view->installEventFilter(this);
+		d->view->setFocusPolicy(Qt::ClickFocus);
 		connect(canvas, SIGNAL(shouldBeDeleted(Canvas*)), d->view, SLOT(deleteLater()));
 		
 		d->graphicsView = new QGraphicsView(d->view);
@@ -494,12 +495,20 @@ bool CanvasViewController::eventFilter(QObject *watched, QEvent *event)
 		case QEvent::TabletRelease:
 		case QEvent::TabletPress:
 			
+			d->navigator->tabletEvent(static_cast<QTabletEvent *>(event));
+			if (event->isAccepted())
+				return true;
+			
 			d->eventSender->tabletEvent(static_cast<QTabletEvent *>(event));
 			return willFilterInput;
 			
 		case EventWidgetTabletMove:
 		case EventWidgetTabletPress:
 		case EventWidgetTabletRelease:
+			
+			d->navigator->customTabletEvent(static_cast<WidgetTabletEvent *>(event));
+			if (event->isAccepted())
+				return true;
 			
 			d->eventSender->customTabletEvent(static_cast<WidgetTabletEvent *>(event));
 			return willFilterInput;
@@ -536,6 +545,7 @@ bool CanvasViewController::eventFilter(QObject *watched, QEvent *event)
 				
 			case QEvent::Enter:
 				
+				d->view->setFocus();
 				appController()->cursorStack()->add(toolCursorId, d->toolCursor);
 				return false;
 				
