@@ -87,10 +87,16 @@ void TextLayer::updateFillPath()
 	auto font = _font;
 	font.setPixelSize(font.pointSize());
 	
-	painter.setFont(font);
-	painter.drawText(rect(), _text);
+	QTextOption option;
+	option.setWrapMode(QTextOption::WrapAnywhere);
 	
-	setFillPath(recorder.path());
+	painter.setFont(font);
+	painter.drawText(rect(), _text, option);
+	
+	QPainterPath rectPath;
+	rectPath.addRect(rect());
+	
+	setFillPath(recorder.path() & rectPath);
 }
 
 } // namespace PaintField
