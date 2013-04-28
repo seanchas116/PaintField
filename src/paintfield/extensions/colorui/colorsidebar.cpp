@@ -290,11 +290,12 @@ ColorSideBar::ColorSideBar(QWidget *parent) :
 	}
 	
 	// widgets
+	
+	auto colorWheel = new ColorWheel();
+	auto sliderPanel = new ColorSliderPanel();
+	auto webColorPanel = new WebColorPanel();
+	
 	{
-		auto colorWheel = new ColorWheel();
-		auto sliderPanel = new ColorSliderPanel();
-		auto webColorPanel = new WebColorPanel();
-		
 		mainLayout->addWidget(colorWheel, 0, Qt::AlignCenter);
 		mainLayout->addWidget(sliderPanel);
 		mainLayout->addWidget(webColorPanel);
@@ -310,12 +311,6 @@ ColorSideBar::ColorSideBar(QWidget *parent) :
 		connect(wheelButton, SIGNAL(toggled(bool)), colorWheel, SLOT(setVisible(bool)));
 		connect(sliderButton, SIGNAL(toggled(bool)), sliderPanel, SLOT(setVisible(bool)));
 		connect(webButton, SIGNAL(toggled(bool)), webColorPanel, SLOT(setVisible(bool)));
-		
-		wheelButton->setChecked(true);
-		
-		colorWheel->setVisible(wheelButton->isChecked());
-		sliderPanel->setVisible(sliderButton->isChecked());
-		webColorPanel->setVisible(webButton->isChecked());
 	}
 	
 	mainLayout->addStretch(1);
@@ -358,6 +353,12 @@ ColorSideBar::ColorSideBar(QWidget *parent) :
 	}
 	
 	setLayout(mainLayout);
+	
+	colorWheel->setVisible(false);
+	sliderPanel->setVisible(false);
+	webColorPanel->setVisible(false);
+	
+	wheelButton->setChecked(true);
 }
 
 void ColorSideBar::setColorButtonColor(int index, const Color &color)
