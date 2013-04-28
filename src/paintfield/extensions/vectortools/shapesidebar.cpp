@@ -66,7 +66,17 @@ ShapeSideBar::ShapeSideBar(LayerScene *scene, QWidget *parent) :
 		group->addLayout(field);
 	};
 	
+	QFont boldFont;
+	boldFont.setBold(true);
+	
 	{
+		{
+			auto label = new QLabel("RECTANGLE");
+			label->setFont(boldFont);
+			d->rectGroup->addWidget(label);
+			layout->addRow(label);
+		}
+		
 		auto createSpinBox = []()
 		{
 			auto s = new QSpinBox();
@@ -118,6 +128,13 @@ ShapeSideBar::ShapeSideBar(LayerScene *scene, QWidget *parent) :
 	}
 	
 	{
+		{
+			auto label = new QLabel("TEXT");
+			label->setFont(boldFont);
+			d->textGroup->addWidget(label);
+			layout->addRow(label);
+		}
+		
 		{
 			auto b = new QToolButton();
 			connect(b, SIGNAL(pressed()), this, SLOT(onFontSelectRequested()));
