@@ -35,7 +35,9 @@ protected:
 	
 private slots:
 	
-	void onStrokePosButtonPressed(int id);
+	void onStrokePosChanged(int strokePos);
+	void onStrokeJoinChanged(int join);
+	void onStrokeCapChanged(int cap);
 	void onFillEnabledToggled(bool checked);
 	void onStrokeEnabledToggled(bool checked);
 	void onStrokeWidthSet(double width);

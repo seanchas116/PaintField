@@ -7,7 +7,9 @@
 #include <QButtonGroup>
 #include <QFormLayout>
 #include <QGroupBox>
+#include <QSignalMapper>
 
+#include "paintfield/core/widgets/simplebutton.h"
 #include "paintfield/core/shapelayer.h"
 #include "paintfield/core/layerscene.h"
 #include "paintfield/core/widgets/doubleslider.h"
@@ -26,116 +28,123 @@ struct FillStrokeSideBar::Data
 {
 	const ShapeLayer *current = 0;
 	
-	QButtonGroup *strokePosGroup = 0;
+	QHash<int, QAbstractButton *> strokePosButtons, joinStyleButtons, capStyleButtons;
 };
 
 FillStrokeSideBar::FillStrokeSideBar(Workspace *workspace, LayerScene *scene, QWidget *parent) :
 	AbstractLayerPropertyEditor(scene, parent),
 	d(new Data)
 {
+	auto formLayout = new QFormLayout();
+	
+	QFont boldFont;
+	boldFont.setBold(true);
+	
+	// fill heading with checkbox
 	{
-		auto vLayout = new QVBoxLayout();
-		vLayout->setContentsMargins(6,6,6,6);
-		
-		{
-			auto l = new QHBoxLayout();
-			l->setAlignment(Qt::AlignVCenter);
-			
-			auto check = new QCheckBox(tr("Fill"));
-			connect(check, SIGNAL(toggled(bool)), this, SLOT(onFillEnabledToggled(bool)));
-			connect(this, SIGNAL(fillEnabledChanged(bool)), check, SLOT(setChecked(bool)));
-			l->addWidget(check);
-			
-			auto color = new ColorButton();
-			connect(color, SIGNAL(colorChanged(Malachite::Color)), this, SLOT(onFillColorSet(Malachite::Color)));
-			connect(this, SIGNAL(fillColorChanged(Malachite::Color)), color, SLOT(setColor(Malachite::Color)));
-			l->addWidget(color);
-			
-			if (workspace)
-				workspace->colorButtonGroup()->add(color);
-			
-			vLayout->addLayout(l);
-		}
-		
-		{
-			auto l = new QHBoxLayout();
-			
-			auto check = new QCheckBox(tr("Stroke"));
-			connect(check, SIGNAL(toggled(bool)), this, SLOT(onStrokeEnabledToggled(bool)));
-			connect(this, SIGNAL(strokeEnabledChanged(bool)), check, SLOT(setChecked(bool)));
-			l->addWidget(check);
-			
-			auto color = new ColorButton();
-			connect(color, SIGNAL(colorChanged(Malachite::Color)), this, SLOT(onStrokeColorSet(Malachite::Color)));
-			connect(this, SIGNAL(strokeColorChanged(Malachite::Color)), color, SLOT(setColor(Malachite::Color)));
-			l->addWidget(color);
-			
-			if (workspace)
-				workspace->colorButtonGroup()->add(color);
-			
-			vLayout->addLayout(l);
-		}
-		
-		{
-			auto strokeWidget = new QWidget();
-			
-			auto strokeLayout = new QVBoxLayout();
-			strokeLayout->setContentsMargins(12, 0, 0, 0);
-			
-			{
-				auto l = new QHBoxLayout();
-				
-				l->addWidget(new QLabel(tr("Width:")));
-				
-				auto spin = new LooseSpinBox();
-				spin->setDecimals(1);
-				spin->setSingleStep(1.0);
-				
-				connect(spin, SIGNAL(valueChanged(double)), this, SLOT(onStrokeWidthSet(double)));
-				connect(this, SIGNAL(strokeWidthChanged(double)), spin, SLOT(setValue(double)));
-				
-				l->addWidget(spin);
-				
-				l->addStretch(1);
-				
-				strokeLayout->addLayout(l);
-			}
-			
-			{
-				auto l = new QHBoxLayout();
-				
-				d->strokePosGroup = new QButtonGroup(this);
-				connect(d->strokePosGroup, SIGNAL(buttonPressed(int)), this, SLOT(onStrokePosButtonPressed(int)));
-				
-				{
-					auto radio = new QRadioButton(tr("Inside"));
-					d->strokePosGroup->addButton(radio, StrokePositionInside);
-					l->addWidget(radio);
-				}
-				
-				{
-					auto radio = new QRadioButton(tr("Center"));
-					d->strokePosGroup->addButton(radio, StrokePositionCenter);
-					l->addWidget(radio);
-				}
-				
-				{
-					auto radio = new QRadioButton(tr("Outside"));
-					d->strokePosGroup->addButton(radio, StrokePositionOutside);
-					l->addWidget(radio);
-				}
-				
-				strokeLayout->addLayout(l);
-			}
-			
-			strokeWidget->setLayout(strokeLayout);
-			vLayout->addWidget(strokeWidget);
-		}
-		
-		vLayout->addStretch(1);
-		
-		setLayout(vLayout);
+		auto check = new QCheckBox(tr("FILL"));
+		check->setFont(boldFont);
+		connect(check, SIGNAL(toggled(bool)), this, SLOT(onFillEnabledToggled(bool)));
+		connect(this, SIGNAL(fillEnabledChanged(bool)), check, SLOT(setChecked(bool)));
+		formLayout->addRow(check);
 	}
+	
+	// fill color
+	{
+		auto color = new ColorButton();
+		color->setToolTip(tr("Click to edit color"));
+		connect(color, SIGNAL(colorChanged(Malachite::Color)), this, SLOT(onFillColorSet(Malachite::Color)));
+		connect(this, SIGNAL(fillColorChanged(Malachite::Color)), color, SLOT(setColor(Malachite::Color)));
+		formLayout->addRow(tr("Color"), color);
+		
+		if (workspace)
+			workspace->colorButtonGroup()->add(color);
+	}
+	
+	{
+		auto check = new QCheckBox(tr("STROKE"));
+		check->setFont(boldFont);
+		connect(check, SIGNAL(toggled(bool)), this, SLOT(onStrokeEnabledToggled(bool)));
+		connect(this, SIGNAL(strokeEnabledChanged(bool)), check, SLOT(setChecked(bool)));
+		formLayout->addRow(check);
+	}
+	
+	{
+		auto color = new ColorButton();
+		color->setToolTip(tr("Click to edit color"));
+		connect(color, SIGNAL(colorChanged(Malachite::Color)), this, SLOT(onStrokeColorSet(Malachite::Color)));
+		connect(this, SIGNAL(strokeColorChanged(Malachite::Color)), color, SLOT(setColor(Malachite::Color)));
+		formLayout->addRow(tr("Color"), color);
+		
+		if (workspace)
+			workspace->colorButtonGroup()->add(color);
+	}
+	
+	{
+		auto spin = new LooseSpinBox();
+		connect(this, SIGNAL(strokeWidthChanged(double)), spin, SLOT(setValue(double)));
+		connect(spin, SIGNAL(valueChanged(double)), this, SLOT(onStrokeWidthSet(double)));
+		formLayout->addRow(tr("Width"), spin);
+	}
+	
+	auto addButtonFunction = [this](QHBoxLayout *layout, QSignalMapper *mapper, QHash<int, QAbstractButton *> *buttonHash)
+	{
+		auto group = new QButtonGroup(this);
+		
+		return [layout, mapper, group, buttonHash](const QString &iconPath, int id)
+		{
+			auto b = new SimpleButton(iconPath, QSize(16, 16));
+			b->setCheckable(true);
+			mapper->setMapping(b, id);
+			connect(b, SIGNAL(pressed()), mapper, SLOT(map()));
+			(*buttonHash)[id] = b;
+			layout->addWidget(b);
+			group->addButton(b);
+		};
+	};
+	
+	{
+		auto hlayout = new QHBoxLayout();
+		auto mapper = new QSignalMapper(this);
+		connect(mapper, SIGNAL(mapped(int)), this, SLOT(onStrokePosChanged(int)));
+		
+		auto addButton = addButtonFunction(hlayout, mapper, &d->strokePosButtons);
+		addButton(":/icons/16x16/strokeInside.svg", StrokePositionInside);
+		addButton(":/icons/16x16/strokeCenter.svg", StrokePositionCenter);
+		addButton(":/icons/16x16/strokeOutside.svg", StrokePositionOutside);
+		
+		formLayout->addRow(tr("Position"), hlayout);
+	}
+	
+	{
+		auto hlayout = new QHBoxLayout();
+		auto mapper = new QSignalMapper(this);
+		connect(mapper, SIGNAL(mapped(int)), this, SLOT(onStrokeCapChanged(int)));
+		
+		auto addButton = addButtonFunction(hlayout, mapper, &d->capStyleButtons);
+		addButton(":/icons/16x16/capFlat.svg", Qt::FlatCap);
+		addButton(":/icons/16x16/capSquare.svg", Qt::SquareCap);
+		addButton(":/icons/16x16/capRound.svg", Qt::RoundCap);
+		
+		formLayout->addRow(tr("Cap"), hlayout);
+	}
+	
+	{
+		auto hlayout = new QHBoxLayout();
+		auto mapper = new QSignalMapper(this);
+		connect(mapper, SIGNAL(mapped(int)), this, SLOT(onStrokeJoinChanged(int)));
+		
+		auto addButton = addButtonFunction(hlayout, mapper, &d->joinStyleButtons);
+		addButton(":/icons/16x16/joinBevel.svg", Qt::BevelJoin);
+		addButton(":/icons/16x16/joinMiter.svg", Qt::MiterJoin);
+		addButton(":/icons/16x16/joinRound.svg", Qt::RoundJoin);
+		
+		formLayout->addRow(tr("Join"), hlayout);
+	}
+	
+	setLayout(formLayout);
+	
+	updateForCurrentPropertyChange();
 }
 
 FillStrokeSideBar::~FillStrokeSideBar()
@@ -159,7 +168,23 @@ void FillStrokeSideBar::updateForCurrentPropertyChange()
 	
 	if (d->current)
 	{
-		d->strokePosGroup->button(d->current->strokePosition())->setChecked(true);
+		{
+			auto b = d->strokePosButtons.value(d->current->strokePosition(), 0);
+			if (b)
+				b->setChecked(true);
+		}
+		
+		{
+			auto b = d->capStyleButtons.value(d->current->capStyle(), 0);
+			if (b)
+				b->setChecked(true);
+		}
+		
+		{
+			auto b = d->joinStyleButtons.value(d->current->joinStyle(), 0);
+			if (b)
+				b->setChecked(true);
+		}
 		
 		fillEnabledChanged(d->current->isFillEnabled());
 		strokeEnabledChanged(d->current->isStrokeEnabled());
@@ -169,12 +194,28 @@ void FillStrokeSideBar::updateForCurrentPropertyChange()
 	}
 }
 
-void FillStrokeSideBar::onStrokePosButtonPressed(int id)
+void FillStrokeSideBar::onStrokePosChanged(int strokePos)
 {
-	if (!d->current)
-		return;
-	
-	layerScene()->setLayerProperty(d->current, id, RoleStrokePosition, tr("Change Stroke Position"));
+	if (d->current)
+	{
+		layerScene()->setLayerProperty(d->current, strokePos, RoleStrokePosition, tr("Change Stroke Position"));
+	}
+}
+
+void FillStrokeSideBar::onStrokeJoinChanged(int join)
+{
+	if (d->current)
+	{
+		layerScene()->setLayerProperty(d->current, join, RoleJoinStyle, tr("Change Stroke Join Style"));
+	}
+}
+
+void FillStrokeSideBar::onStrokeCapChanged(int cap)
+{
+	if (d->current)
+	{
+		layerScene()->setLayerProperty(d->current, cap, RoleCapStyle, tr("Change Stroke Cap Style"));
+	}
 }
 
 void FillStrokeSideBar::onFillEnabledToggled(bool checked)
