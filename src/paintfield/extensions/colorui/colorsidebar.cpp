@@ -319,7 +319,7 @@ ColorSideBar::ColorSideBar(QWidget *parent) :
 	{
 		auto layout = new QHBoxLayout;
 		
-		layout->addWidget(new QLabel(tr("Opacity:")));
+		layout->addWidget(new QLabel(tr("Opacity")));
 		
 		{
 			auto slider = new DoubleSlider(Qt::Horizontal);

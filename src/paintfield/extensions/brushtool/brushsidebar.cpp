@@ -3,6 +3,7 @@
 #include <QLabel>
 #include <QSlider>
 #include <QSpinBox>
+#include <QFormLayout>
 
 #include "brushsidebar.h"
 
@@ -11,19 +12,16 @@ namespace PaintField {
 BrushSideBar::BrushSideBar(QWidget *parent) :
     QWidget(parent)
 {
-	auto mainLayout = new QVBoxLayout;
+	auto formLayout = new QFormLayout();
 	
 	{
-		auto label = new QLabel;
-		mainLayout->addWidget(label);
-		
+		auto label = new QLabel();
+		formLayout->addRow(tr("Preset"), label);
 		_presetLabel = label;
 	}
 	
 	{
-		auto prefLayout = new QGridLayout;
-		
-		prefLayout->addWidget(new QLabel("Size:"), 0, 0);
+		auto hlayout = new QHBoxLayout();
 		
 		{
 			auto slider = new QSlider(Qt::Horizontal);
@@ -34,7 +32,7 @@ BrushSideBar::BrushSideBar(QWidget *parent) :
 			connect(slider, SIGNAL(valueChanged(int)), this, SLOT(setBrushSize(int)));
 			connect(this, SIGNAL(brushSizeChanged(int)), slider, SLOT(setValue(int)));
 			
-			prefLayout->addWidget(slider, 0, 1);
+			hlayout->addWidget(slider, 0);
 		}
 		
 		{
@@ -46,13 +44,13 @@ BrushSideBar::BrushSideBar(QWidget *parent) :
 			connect(spinBox, SIGNAL(valueChanged(int)), this, SLOT(setBrushSize(int)));
 			connect(this, SIGNAL(brushSizeChanged(int)), spinBox, SLOT(setValue(int)));
 			
-			prefLayout->addWidget(spinBox, 0, 2);
+			hlayout->addWidget(spinBox, 0);
 		}
 		
-		mainLayout->addLayout(prefLayout);
+		formLayout->addRow(tr("Size"), hlayout);
 	}
 	
-	setLayout(mainLayout);
+	setLayout(formLayout);
 }
 
 void BrushSideBar::setPresetMetadata(const BrushPresetMetadata &metadata)
@@ -60,11 +58,10 @@ void BrushSideBar::setPresetMetadata(const BrushPresetMetadata &metadata)
 	QString presetText;
 	
 	if (metadata.title().isEmpty())
-		presetText = "Preset : <b>[Not Selected]</b>";
+		presetText = "<b>[Not Selected]</b>";
 	else
-		presetText = "Preset : <b>" + metadata.title() + "</b>";
+		presetText = "<b>" + metadata.title() + "</b>";
 	
-	//_presetLabel->setText("<font size=\"+1\">" + presetText + "</font>");
 	_presetLabel->setText(presetText);
 }
 
