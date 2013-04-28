@@ -95,7 +95,8 @@ HEADERS += \
     textlayer.h \
     pathrecorder.h \
     abstractrectlayer.h \
-    serializationutil.h
+    serializationutil.h \
+    widgets/abstractlayerpropertyeditor.h
 FORMS += dialogs/exportdialog.ui dialogs/newdocumentdialog.ui
 SOURCES += \
            document.cpp \
@@ -174,7 +175,8 @@ SOURCES += \
     textlayer.cpp \
     pathrecorder.cpp \
     abstractrectlayer.cpp \
-    serializationutil.cpp
+    serializationutil.cpp \
+    widgets/abstractlayerpropertyeditor.cpp
 
 RESOURCES += \
     resources/resource-paintfield-core.qrc

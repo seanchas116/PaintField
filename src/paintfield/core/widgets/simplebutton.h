@@ -17,7 +17,7 @@ class SimpleButton : public QToolButton
 	Q_OBJECT
 public:
 	explicit SimpleButton(QWidget *parent = 0);
-	SimpleButton(const QIcon &icon, QWidget *parent = 0);
+	explicit SimpleButton(const QIcon &icon, QWidget *parent = 0);
 	SimpleButton(const QString &basePixmapFile, const QSize &size, QWidget *parent = 0);
 	SimpleButton(const QString &basePixmapFile, const QSize &size, QObject *obj, const char *slot, QWidget *parent = 0);
 	

@@ -1,7 +1,6 @@
-#ifndef PAINTFIELD_FILLSTROKESIDEBAR_H
-#define PAINTFIELD_FILLSTROKESIDEBAR_H
+#pragma once
 
-#include <QWidget>
+#include "paintfield/core/widgets/abstractlayerpropertyeditor.h"
 
 namespace Malachite
 {
@@ -10,11 +9,9 @@ class Color;
 
 namespace PaintField {
 
-class LayerScene;
-class LayerRef;
 class Workspace;
 
-class FillStrokeSideBar : public QWidget
+class FillStrokeSideBar : public AbstractLayerPropertyEditor
 {
 	Q_OBJECT
 public:
@@ -31,8 +28,10 @@ signals:
 	
 public slots:
 	
-	void setCurrentLayer(const LayerRef &current);
-	void updateEditor();
+protected:
+	
+	void updateForCurrentChange(const LayerRef &current);
+	void updateForCurrentPropertyChange() override;
 	
 private slots:
 	
@@ -50,5 +49,3 @@ private:
 };
 
 } // namespace PaintField
-
-#endif // PAINTFIELD_FILLSTROKESIDEBAR_H

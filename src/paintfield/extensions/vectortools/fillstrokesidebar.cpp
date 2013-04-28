@@ -24,18 +24,15 @@ namespace PaintField {
 
 struct FillStrokeSideBar::Data
 {
-	LayerScene *scene = 0;
 	const ShapeLayer *current = 0;
 	
 	QButtonGroup *strokePosGroup = 0;
 };
 
 FillStrokeSideBar::FillStrokeSideBar(Workspace *workspace, LayerScene *scene, QWidget *parent) :
-	QWidget(parent),
+	AbstractLayerPropertyEditor(scene, parent),
 	d(new Data)
 {
-	d->scene = scene;
-	
 	{
 		auto vLayout = new QVBoxLayout();
 		vLayout->setContentsMargins(6,6,6,6);
@@ -139,17 +136,6 @@ FillStrokeSideBar::FillStrokeSideBar(Workspace *workspace, LayerScene *scene, QW
 		
 		setLayout(vLayout);
 	}
-	
-	if (scene)
-	{
-		connect(scene, SIGNAL(currentChanged(LayerRef,LayerRef)), this, SLOT(setCurrentLayer(LayerRef)));
-		connect(scene, SIGNAL(currentLayerPropertyChanged()), this, SLOT(updateEditor()));
-		setCurrentLayer(scene->current());
-	}
-	else
-	{
-		setCurrentLayer(0);
-	}
 }
 
 FillStrokeSideBar::~FillStrokeSideBar()
@@ -157,17 +143,17 @@ FillStrokeSideBar::~FillStrokeSideBar()
 	delete d;
 }
 
-void FillStrokeSideBar::setCurrentLayer(const LayerRef &current)
+void FillStrokeSideBar::updateForCurrentChange(const LayerRef &current)
 {
 	if (current)
 		d->current = dynamic_cast<const ShapeLayer *>(current.pointer());
 	else
 		d->current = 0;
 	
-	updateEditor();
+	updateForCurrentPropertyChange();
 }
 
-void FillStrokeSideBar::updateEditor()
+void FillStrokeSideBar::updateForCurrentPropertyChange()
 {
 	setEnabled(d->current);
 	
@@ -188,7 +174,7 @@ void FillStrokeSideBar::onStrokePosButtonPressed(int id)
 	if (!d->current)
 		return;
 	
-	d->scene->setLayerProperty(d->current, id, RoleStrokePosition, tr("Change Stroke Position"));
+	layerScene()->setLayerProperty(d->current, id, RoleStrokePosition, tr("Change Stroke Position"));
 }
 
 void FillStrokeSideBar::onFillEnabledToggled(bool checked)
@@ -197,7 +183,7 @@ void FillStrokeSideBar::onFillEnabledToggled(bool checked)
 		return;
 	
 	QString text = checked ? tr("Enable Fill") : tr("Disable Fill");
-	d->scene->setLayerProperty(d->current, checked, RoleFillEnabled, text);
+	layerScene()->setLayerProperty(d->current, checked, RoleFillEnabled, text);
 }
 
 void FillStrokeSideBar::onStrokeEnabledToggled(bool checked)
@@ -206,7 +192,7 @@ void FillStrokeSideBar::onStrokeEnabledToggled(bool checked)
 		return;
 	
 	QString text = checked ? tr("Enable Stroke") : tr("Disable Stroke");
-	d->scene->setLayerProperty(d->current, checked, RoleStrokeEnabled, text);
+	layerScene()->setLayerProperty(d->current, checked, RoleStrokeEnabled, text);
 }
 
 void FillStrokeSideBar::onStrokeWidthSet(double width)
@@ -214,9 +200,7 @@ void FillStrokeSideBar::onStrokeWidthSet(double width)
 	if (!d->current)
 		return;
 	
-	PAINTFIELD_DEBUG << width;
-	
-	d->scene->setLayerProperty(d->current, width, RoleStrokeWidth, tr("Change Stroke Width"));
+	layerScene()->setLayerProperty(d->current, width, RoleStrokeWidth, tr("Change Stroke Width"));
 }
 
 void FillStrokeSideBar::onFillColorSet(const Color &color)
@@ -225,10 +209,7 @@ void FillStrokeSideBar::onFillColorSet(const Color &color)
 		return;
 	
 	if (d->current->fillBrush().color() != color)
-	{
-		PAINTFIELD_DEBUG << color.alpha() << color.red() << color.green() << color.blue();
-		d->scene->setLayerProperty(d->current, QVariant::fromValue(Brush(color)), RoleFillBrush, tr("Change Fill Color"));
-	}
+		layerScene()->setLayerProperty(d->current, QVariant::fromValue(Brush(color)), RoleFillBrush, tr("Change Fill Color"));
 }
 
 void FillStrokeSideBar::onStrokeColorSet(const Color &color)
@@ -237,10 +218,7 @@ void FillStrokeSideBar::onStrokeColorSet(const Color &color)
 		return;
 	
 	if (d->current->strokeBrush().color() != color)
-	{
-		PAINTFIELD_DEBUG << color.alpha() << color.red() << color.green() << color.blue();
-		d->scene->setLayerProperty(d->current, QVariant::fromValue(Brush(color)), RoleStrokeBrush, tr("Change Stroke Color"));
-	}
+		layerScene()->setLayerProperty(d->current, QVariant::fromValue(Brush(color)), RoleStrokeBrush, tr("Change Stroke Color"));
 }
 
 } // namespace PaintField

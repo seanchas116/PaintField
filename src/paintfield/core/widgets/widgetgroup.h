@@ -3,6 +3,9 @@
 
 #include <QObject>
 
+class QWidget;
+class QLayout;
+
 namespace PaintField
 {
 
@@ -14,6 +17,7 @@ public:
 	~WidgetGroup();
 	
 	void addWidget(QWidget *widget);
+	void addLayout(QLayout *layout);
 	
 	bool isVisible() const;
 	bool isEnabled() const;

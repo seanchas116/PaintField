@@ -32,5 +32,20 @@
         <file>icons/16x16/locked.svg</file>
         <file>icons/16x16/visible.svg</file>
         <file>icons/24x24/text.svg</file>
+        <file>icons/16x16/alignBottom.svg</file>
+        <file>icons/16x16/alignHCenter.svg</file>
+        <file>icons/16x16/alignLeft.svg</file>
+        <file>icons/16x16/alignRight.svg</file>
+        <file>icons/16x16/alignTop.svg</file>
+        <file>icons/16x16/alignVCenter.svg</file>
+        <file>icons/16x16/capFlat.svg</file>
+        <file>icons/16x16/capRound.svg</file>
+        <file>icons/16x16/capSquare.svg</file>
+        <file>icons/16x16/joinBevel.svg</file>
+        <file>icons/16x16/joinMiter.svg</file>
+        <file>icons/16x16/joinRound.svg</file>
+        <file>icons/16x16/strokeCenter.svg</file>
+        <file>icons/16x16/strokeInside.svg</file>
+        <file>icons/16x16/strokeOutside.svg</file>
     </qresource>
 </RCC>

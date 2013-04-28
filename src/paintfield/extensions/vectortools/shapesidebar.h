@@ -1,16 +1,17 @@
 #pragma once
 
-#include <QWidget>
+#include "paintfield/core/widgets/abstractlayerpropertyeditor.h"
 
 namespace PaintField {
 
 class LayerScene;
 class LayerRef;
 
-class ShapeSideBar : public QWidget
+class ShapeSideBar : public AbstractLayerPropertyEditor
 {
 	Q_OBJECT
 public:
+	
 	explicit ShapeSideBar(LayerScene *scene, QWidget *parent = 0);
 	
 signals:
@@ -26,9 +27,12 @@ signals:
 	
 public slots:
 	
-private slots:
+protected:
 	
-	void onCurrentChanged(const LayerRef &layer);
+	void updateForCurrentChange(const LayerRef &current) override;
+	void updateForCurrentPropertyChange() override;
+	
+private slots:
 	
 	void onXChanged(int x);
 	void onYChanged(int y);
@@ -40,7 +44,7 @@ private slots:
 	void onFontSelectRequested();
 	void onFontItalicChanged(bool italic);
 	
-	void updateEditors();
+	void onTextAlignmentChanged(int alignment);
 	
 private:
 	

@@ -1,4 +1,5 @@
 #include <QWidget>
+#include <QLayout>
 
 #include "widgetgroup.h"
 
@@ -26,6 +27,22 @@ void WidgetGroup::addWidget(QWidget *widget)
 	widget->setVisible(d->visible);
 	widget->setEnabled(d->enabled);
 	d->widgets << widget;
+}
+
+void WidgetGroup::addLayout(QLayout *layout)
+{
+	int count = layout->count();
+	
+	for (int i = 0; i < count; ++i)
+	{
+		auto item = layout->itemAt(i);
+		
+		if (item->layout())
+			addLayout(item->layout());
+		
+		if (item->widget())
+			addWidget(item->widget());
+	}
 }
 
 bool WidgetGroup::isVisible() const

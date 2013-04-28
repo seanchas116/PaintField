@@ -16,6 +16,9 @@ bool TextLayer::setProperty(const QVariant &data, int role)
 		case RoleFont:
 			setFont(data.value<QFont>());
 			return true;
+		case RoleTextAlignment:
+			setAlignment(Qt::Alignment(data.toInt()));
+			return true;
 		default:
 			return super::setProperty(data, role);
 	}
@@ -29,6 +32,8 @@ QVariant TextLayer::property(int role) const
 			return _text;
 		case RoleFont:
 			return _font;
+		case RoleTextAlignment:
+			return int(_alignment);
 		default:
 			return super::property(role);
 	}
@@ -37,7 +42,7 @@ QVariant TextLayer::property(int role) const
 void TextLayer::encode(QDataStream &stream) const
 {
 	super::encode(stream);
-	stream << _text << SerializationUtil::mapFromFont(_font);
+	stream << _text << SerializationUtil::mapFromFont(_font) << int(_alignment);
 }
 
 void TextLayer::decode(QDataStream &stream)
@@ -45,8 +50,10 @@ void TextLayer::decode(QDataStream &stream)
 	super::decode(stream);
 	
 	QVariantMap fontMap;
-	stream >> _text >> fontMap;
+	int alignmentInt;
+	stream >> _text >> fontMap >> alignmentInt;
 	_font = SerializationUtil::fontFromMap(fontMap);
+	_alignment = Qt::Alignment(alignmentInt);
 	
 	updateFillPath();
 }
@@ -87,6 +94,7 @@ void TextLayer::setFont(const QFont &font)
 
 void TextLayer::setAlignment(Qt::Alignment alignment)
 {
+	PAINTFIELD_DEBUG << alignment;
 	_alignment = alignment;
 	updateFillPath();
 }
