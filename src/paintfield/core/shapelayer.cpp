@@ -2,6 +2,7 @@
 #include <Malachite/Painter>
 #include <Malachite/SurfacePainter>
 #include "thumbnail.h"
+#include "serializationutil.h"
 
 #include "shapelayer.h"
 
@@ -108,52 +109,6 @@ void ShapeLayer::decode(QDataStream &stream)
 	updatePaths();
 }
 
-
-static QVariantMap mapFromColor(const Color &c)
-{
-	QVariantMap map;
-	map["a"] = c.alpha();
-	map["r"] = c.red();
-	map["g"] = c.green();
-	map["b"] = c.blue();
-	return map;
-}
-
-static Color colorFromMap(const QVariantMap &map)
-{
-	return Color::fromRgbValue(map["r"].toDouble(), map["g"].toDouble(), map["b"].toDouble(), map["a"].toDouble());
-}
-
-static QVariantMap mapFromBrush(const Brush &brush)
-{
-	QVariantMap map;
-	
-	switch (brush.type())
-	{
-		// TODO: other types
-		default:
-		case BrushTypeColor:
-		{
-			map["type"] = "color";
-			map["color"] = mapFromColor(brush.color());
-			break;
-		}
-	}
-	
-	return map;
-}
-
-static Brush brushFromMap(const QVariantMap &map)
-{
-	auto type = map["type"].toString();
-	
-	if (type == "color")
-		return colorFromMap(map["color"].toMap());
-	else
-		return Brush();
-}
-
-
 QVariantMap ShapeLayer::saveProperies() const
 {
 	QVariantMap map = super::saveProperies();
@@ -164,7 +119,7 @@ QVariantMap ShapeLayer::saveProperies() const
 		strokeMap["joinStyle"] = joinStyleString();
 		strokeMap["capStyle"] = capStyleString();
 		strokeMap["enabled"] = _strokeEnabled;
-		strokeMap["brush"] = mapFromBrush(_strokeBrush);
+		strokeMap["brush"] = SerializationUtil::mapFromBrush(_strokeBrush);
 		strokeMap["width"] = strokeWidth();
 		map["stroke"] = strokeMap;
 	}
@@ -172,7 +127,7 @@ QVariantMap ShapeLayer::saveProperies() const
 	{
 		QVariantMap fillMap;
 		fillMap["enabled"] = _fillEnabled;
-		fillMap["brush"] = mapFromBrush(_fillBrush);
+		fillMap["brush"] = SerializationUtil::mapFromBrush(_fillBrush);
 		map["fill"] = fillMap;
 	}
 	
@@ -189,14 +144,14 @@ void ShapeLayer::loadProperties(const QVariantMap &map)
 		setJoinStyleString(sm["joinStyle"].toString());
 		setCapStyleString(sm["capStyle"].toString());
 		setStrokeEnabled(sm["enabled"].toBool());
-		setStrokeBrush(brushFromMap(sm["brush"].toMap()));
+		setStrokeBrush(SerializationUtil::brushFromMap(sm["brush"].toMap()));
 		setStrokeWidth(sm["width"].toDouble());
 	}
 	
 	{
 		auto fm = map["fill"].toMap();
 		setFillEnabled(fm["enabled"].toBool());
-		setFillBrush(brushFromMap(fm["brush"].toMap()));
+		setFillBrush(SerializationUtil::brushFromMap(fm["brush"].toMap()));
 	}
 	
 	updatePaths();

@@ -7,7 +7,9 @@
 #include <QPushButton>
 #include <QFontDialog>
 #include <QToolButton>
+#include <QCheckBox>
 
+#include "paintfield/core/serializationutil.h"
 #include "paintfield/core/widgets/widgetgroup.h"
 #include "paintfield/core/layerscene.h"
 #include "paintfield/core/shapelayer.h"
@@ -26,6 +28,8 @@ struct ShapeSideBar::Data
 	QTextEdit *textEdit = 0;
 	QToolButton *fontButton = 0;
 	
+	WidgetGroup *rectGroup = 0, *textGroup = 0;
+	
 	template <typename T>
 	const T *currentLayerWithType()
 	{
@@ -37,18 +41,17 @@ struct ShapeSideBar::Data
 };
 
 ShapeSideBar::ShapeSideBar(LayerScene *scene, QWidget *parent) :
-	QStackedWidget(parent),
+	QWidget(parent),
 	d(new Data)
 {
 	d->scene = scene;
 	
-	addWidget(new QWidget());
+	d->rectGroup = new WidgetGroup(this);
+	d->textGroup = new WidgetGroup(this);
+	
+	auto layout = new QFormLayout();
 	
 	{
-		auto w = new QWidget();
-		
-		auto layout = new QFormLayout();
-		
 		auto createSpinBox = []()
 		{
 			auto s = new QSpinBox();
@@ -66,6 +69,7 @@ ShapeSideBar::ShapeSideBar(LayerScene *scene, QWidget *parent) :
 				connect(this, SIGNAL(xChanged(int)), s, SLOT(setValue(int)));
 				connect(s, SIGNAL(valueChanged(int)), this, SLOT(onXChanged(int)));
 				hl->addWidget(s);
+				d->rectGroup->addWidget(s);
 			}
 			
 			{
@@ -73,9 +77,13 @@ ShapeSideBar::ShapeSideBar(LayerScene *scene, QWidget *parent) :
 				connect(this, SIGNAL(yChanged(int)), s, SLOT(setValue(int)));
 				connect(s, SIGNAL(valueChanged(int)), this, SLOT(onYChanged(int)));
 				hl->addWidget(s);
+				d->rectGroup->addWidget(s);
 			}
 			
-			layout->addRow(tr("Position"), hl);
+			auto l = new QLabel(tr("Position"));
+			d->rectGroup->addWidget(l);
+			
+			layout->addRow(l, hl);
 		}
 		
 		{
@@ -86,6 +94,7 @@ ShapeSideBar::ShapeSideBar(LayerScene *scene, QWidget *parent) :
 				connect(this, SIGNAL(widthChanged(int)), s, SLOT(setValue(int)));
 				connect(s, SIGNAL(valueChanged(int)), this, SLOT(onWidthChanged(int)));
 				hl->addWidget(s);
+				d->rectGroup->addWidget(s);
 			}
 			
 			{
@@ -93,24 +102,27 @@ ShapeSideBar::ShapeSideBar(LayerScene *scene, QWidget *parent) :
 				connect(this, SIGNAL(heightChanged(int)), s, SLOT(setValue(int)));
 				connect(s, SIGNAL(valueChanged(int)), this, SLOT(onHeightChanged(int)));
 				hl->addWidget(s);
+				d->rectGroup->addWidget(s);
 			}
 			
-			layout->addRow(tr("Size"), hl);
+			auto l = new QLabel(tr("Size"));
+			d->rectGroup->addWidget(l);
+			
+			layout->addRow(l, hl);
 		}
-		
-		w->setLayout(layout);
-		addWidget(w);
 	}
 	
 	{
-		auto w = new QWidget();
-		auto layout = new QFormLayout();
-		
 		{
 			auto b = new QToolButton();
 			b->setText(tr("Change"));
-			connect(b, SIGNAL(pressed()), this, SLOT(onFontChangeRequested()));
-			layout->addRow(tr("Font"), b);
+			connect(b, SIGNAL(pressed()), this, SLOT(onFontSelectRequested()));
+			d->textGroup->addWidget(b);
+			
+			auto l = new QLabel(tr("Font"));
+			d->textGroup->addWidget(l);
+			
+			layout->addRow(l, b);
 			d->fontButton = b;
 		}
 		
@@ -118,12 +130,28 @@ ShapeSideBar::ShapeSideBar(LayerScene *scene, QWidget *parent) :
 			auto t = new QTextEdit();
 			connect(t, SIGNAL(textChanged()), this, SLOT(onTextChanged()));
 			d->textEdit = t;
-			layout->addRow(tr("Text"), t);
+			d->textGroup->addWidget(t);
+			
+			auto l = new QLabel(tr("Font"));
+			d->textGroup->addWidget(l);
+			
+			layout->addRow(l, t);
 		}
 		
-		w->setLayout(layout);
-		addWidget(w);
+		{
+			auto checkBox = new QCheckBox(tr("Italic"));
+			connect(checkBox, SIGNAL(toggled(bool)), this, SLOT(onFontItalicChanged(bool)));
+			connect(this, SIGNAL(fontItalicChanged(bool)), checkBox, SLOT(setChecked(bool)));
+			
+			auto l = new QLabel("");
+			d->textGroup->addWidget(checkBox);
+			d->textGroup->addWidget(l);
+			
+			layout->addRow(l, checkBox);
+		}
 	}
+	
+	setLayout(layout);
 	
 	connect(scene, SIGNAL(currentChanged(LayerRef,LayerRef)), this, SLOT(onCurrentChanged(LayerRef)));
 	connect(scene, SIGNAL(currentLayerPropertyChanged()), this, SLOT(updateEditors()));
@@ -180,11 +208,6 @@ void ShapeSideBar::onHeightChanged(int h)
 	}
 }
 
-void ShapeSideBar::onRectShapeTypeChanged(int type)
-{
-	
-}
-
 void ShapeSideBar::onTextChanged()
 {
 	auto layer = d->currentLayerWithType<TextLayer>();
@@ -195,32 +218,40 @@ void ShapeSideBar::onTextChanged()
 	}
 }
 
-void ShapeSideBar::onFontChangeRequested()
+void ShapeSideBar::onFontSelectRequested()
 {
 	auto layer = d->currentLayerWithType<TextLayer>();
 	if (layer)
 	{
 		bool ok;
+		
 		auto font = QFontDialog::getFont(&ok, layer->font(), 0, tr("Select Font"), QFontDialog::DontUseNativeDialog);
+		//auto font = QFontDialog::getFont(&ok, layer->font(), 0, tr("Select Font"));
 		if (ok)
 		{
-			PAINTFIELD_DEBUG << font.pointSize();
 			d->scene->setLayerProperty(d->current, font, RoleFont, tr("Change Font"));
 		}
 	}
 }
 
+void ShapeSideBar::onFontItalicChanged(bool italic)
+{
+	auto layer = d->currentLayerWithType<TextLayer>();
+	if (layer)
+	{
+		auto font = layer->font();
+		font.setItalic(italic);
+		d->scene->setLayerProperty(d->current, font, RoleFont, tr("Change Font"));
+	}
+}
+
 void ShapeSideBar::updateEditors()
 {
-	auto rectLayer = d->currentLayerWithType<RectLayer>();
+	auto rectLayer = d->currentLayerWithType<AbstractRectLayer>();
 	auto textLayer = d->currentLayerWithType<TextLayer>();
 	
-	if (rectLayer)
-		setCurrentIndex(StackIndexRect);
-	else if (textLayer)
-		setCurrentIndex(StackIndexText);
-	else
-		setCurrentIndex(StackIndexEmpty);
+	d->rectGroup->setVisible(rectLayer);
+	d->textGroup->setVisible(textLayer);
 	
 	if (rectLayer)
 	{
@@ -238,6 +269,8 @@ void ShapeSideBar::updateEditors()
 		QFont font = textLayer->font();
 		QString fontText = font.family() + " / " + font.styleName() + " / " + QString::number(font.pointSize()) + "pt";
 		d->fontButton->setText(fontText);
+		
+		emit fontItalicChanged(font.italic());
 	}
 }
 

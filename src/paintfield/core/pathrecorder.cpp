@@ -11,6 +11,7 @@ public:
 	bool begin(QPaintDevice *pdev) override;
 	void drawPath(const QPainterPath &path) override;
 	void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr) override;
+	void drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode) override;
 	bool end() override;
 	Type type() const override;
 	void updateState(const QPaintEngineState &state) override;
@@ -37,6 +38,23 @@ bool PathRecorderPaintEngine::begin(QPaintDevice *pdev)
 
 void PathRecorderPaintEngine::drawPath(const QPainterPath &path)
 {
+	_path |= (path * _transform);
+}
+
+void PathRecorderPaintEngine::drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode)
+{
+	QPolygonF polygon(pointCount);
+	std::copy(points, points + pointCount, polygon.begin());
+	
+	QPainterPath path;
+	path.addPolygon(polygon);
+	
+	if (mode == WindingMode)
+	{
+		path.setFillRule(Qt::WindingFill);
+		path = path.simplified();
+	}
+	
 	_path |= (path * _transform);
 }
 

@@ -29,6 +29,9 @@ public:
 	void setFont(const QFont &font);
 	QFont font() const { return _font; }
 	
+	void setAlignment(Qt::Alignment alignment);
+	Qt::Alignment alignment() const { return _alignment; }
+	
 	bool includes(const QPoint &pos, int margin) const override;
 	
 protected:
@@ -39,6 +42,7 @@ private:
 	
 	QString _text;
 	QFont _font;
+	Qt::Alignment _alignment = Qt::AlignLeft | Qt::AlignTop;
 };
 
 } // namespace PaintField

@@ -20,6 +20,7 @@ contains(DEFINES, PF_TEST) {
 }
 
 contains(QMAKE_CXX, clang++) {
+	QMAKE_CXXFLAGS_WARN_ON = -Wall -Wno-unused-private-field
 	QMAKE_CXXFLAGS += -stdlib=libc++
 	QMAKE_LFLAGS += -stdlib=libc++
 	DEFINES += Q_COMPILER_INITIALIZER_LISTS

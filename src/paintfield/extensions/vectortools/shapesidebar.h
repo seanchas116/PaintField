@@ -1,14 +1,13 @@
-#ifndef PAINTFIELD_SHAPESIDEBAR_H
-#define PAINTFIELD_SHAPESIDEBAR_H
+#pragma once
 
-#include <QStackedWidget>
+#include <QWidget>
 
 namespace PaintField {
 
 class LayerScene;
 class LayerRef;
 
-class ShapeSideBar : public QStackedWidget
+class ShapeSideBar : public QWidget
 {
 	Q_OBJECT
 public:
@@ -20,8 +19,10 @@ signals:
 	void yChanged(int y);
 	void widthChanged(int w);
 	void heightChanged(int h);
-	void rectShapeTypeChanged(int type);
+	
 	void textChanged(const QString &text);
+
+	void fontItalicChanged(bool italic);
 	
 public slots:
 	
@@ -34,9 +35,10 @@ private slots:
 	void onWidthChanged(int w);
 	void onHeightChanged(int h);
 	
-	void onRectShapeTypeChanged(int type);
 	void onTextChanged();
-	void onFontChangeRequested();
+	
+	void onFontSelectRequested();
+	void onFontItalicChanged(bool italic);
 	
 	void updateEditors();
 	
@@ -54,5 +56,3 @@ private:
 };
 
 } // namespace PaintField
-
-#endif // PAINTFIELD_SHAPESIDEBAR_H

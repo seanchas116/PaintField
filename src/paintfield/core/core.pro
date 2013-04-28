@@ -94,7 +94,8 @@ HEADERS += \
     canvastooleventsender.h \
     textlayer.h \
     pathrecorder.h \
-    abstractrectlayer.h
+    abstractrectlayer.h \
+    serializationutil.h
 FORMS += dialogs/exportdialog.ui dialogs/newdocumentdialog.ui
 SOURCES += \
            document.cpp \
@@ -172,7 +173,8 @@ SOURCES += \
     canvastooleventsender.cpp \
     textlayer.cpp \
     pathrecorder.cpp \
-    abstractrectlayer.cpp
+    abstractrectlayer.cpp \
+    serializationutil.cpp
 
 RESOURCES += \
     resources/resource-paintfield-core.qrc

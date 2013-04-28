@@ -1,5 +1,6 @@
 #include <QGraphicsSimpleTextItem>
 #include "pathrecorder.h"
+#include "serializationutil.h"
 
 #include "textlayer.h"
 
@@ -36,13 +37,17 @@ QVariant TextLayer::property(int role) const
 void TextLayer::encode(QDataStream &stream) const
 {
 	super::encode(stream);
-	stream << _text << _font;
+	stream << _text << SerializationUtil::mapFromFont(_font);
 }
 
 void TextLayer::decode(QDataStream &stream)
 {
 	super::decode(stream);
-	stream >> _text >> _font;
+	
+	QVariantMap fontMap;
+	stream >> _text >> fontMap;
+	_font = SerializationUtil::fontFromMap(fontMap);
+	
 	updateFillPath();
 }
 
@@ -50,7 +55,9 @@ QVariantMap TextLayer::saveProperies() const
 {
 	auto map = super::saveProperies();
 	
-	// TODO
+	map["text"] = _text;
+	map["font"] = SerializationUtil::mapFromFont(_font);
+	map["alignment"] = SerializationUtil::mapFromAlignment(_alignment);
 	
 	return map;
 }
@@ -59,7 +66,11 @@ void TextLayer::loadProperties(const QVariantMap &map)
 {
 	super::loadProperties(map);
 	
-	// TODO
+	_text = map["text"].toString();
+	_font = SerializationUtil::fontFromMap(map["font"].toMap());
+	_alignment = SerializationUtil::alignmentFronMap(map["alignment"].toMap());
+	
+	updateFillPath();
 }
 
 void TextLayer::setText(const QString &text)
@@ -71,6 +82,12 @@ void TextLayer::setText(const QString &text)
 void TextLayer::setFont(const QFont &font)
 {
 	_font = font;
+	updateFillPath();
+}
+
+void TextLayer::setAlignment(Qt::Alignment alignment)
+{
+	_alignment = alignment;
 	updateFillPath();
 }
 
@@ -89,6 +106,7 @@ void TextLayer::updateFillPath()
 	
 	QTextOption option;
 	option.setWrapMode(QTextOption::WrapAnywhere);
+	option.setAlignment(_alignment);
 	
 	painter.setFont(font);
 	painter.drawText(rect(), _text, option);
@@ -96,7 +114,7 @@ void TextLayer::updateFillPath()
 	QPainterPath rectPath;
 	rectPath.addRect(rect());
 	
-	setFillPath(recorder.path() & rectPath);
+	setFillPath((recorder.path() & rectPath).simplified());
 }
 
 } // namespace PaintField
