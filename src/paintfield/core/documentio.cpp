@@ -130,6 +130,7 @@ bool DocumentSaver::save(const QString &filePath)
 			
 			{
 				QJson::Serializer serializer;
+				serializer.setIndentMode(QJson::IndentFull);
 				QByteArray headerJson = serializer.serialize(headerMap);
 				saveIntoZip(d->zip, "header.json", headerJson, Z_DEFAULT_COMPRESSION);
 			}

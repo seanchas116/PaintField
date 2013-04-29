@@ -38,18 +38,11 @@ public:
 	CanvasView *view();
 	bool eventFilter(QObject *watched, QEvent *event) override;
 	
-	Malachite::Affine2D transformToScene() const;
-	Malachite::Affine2D transformFromScene() const;
-	
-	QPoint viewCenter() const;
-	
 	bool isUpdateTilesEnabled() const;
 	
 	Canvas *canvas();
 	
 signals:
-	
-	void transformUpdated();
 	
 public slots:
 	
@@ -59,12 +52,6 @@ public slots:
 	void updateViewportAccurately();
 	
 private slots:
-	
-	void setScale(double value);
-	void setRotation(double value);
-	void setTranslation(const QPoint &value);
-	void setMirrored(bool value);
-	void setRetinaMode(bool value);
 	
 	void updateTiles(const QPointSet &keys) { updateTiles(keys, QHash<QPoint, QRect>()); }
 	void updateTiles(const QHash<QPoint, QRect> &rects) { updateTiles(QPointSet(), rects); }
@@ -78,12 +65,11 @@ private slots:
 	
 	void onCanvasWillBeDeleted();
 	
+	void onTransformUpdated(const Malachite::Affine2D &transformToScene, const Malachite::Affine2D &transformToView);
+	
 private:
 	
-	void updateTransforms();
-	
 	void updateTiles(const QPointSet &keys, const QHash<QPoint, QRect> &rects);
-	
 	void moveWidgets();
 	
 	struct Data;

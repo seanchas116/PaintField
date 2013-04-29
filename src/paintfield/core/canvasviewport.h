@@ -32,7 +32,7 @@ public:
 	QAbstractSlider *scrollBar(Qt::Orientation orientation);
 	
 	void setDocumentSize(const QSize &size);
-	void setTransform(const Malachite::Affine2D &transform, const QPoint &translation, double scale, double rotation, bool retinaMode);
+	void setTransform(const Malachite::Affine2D &transformToView, const QPoint &translation, double scale, double rotation, bool retinaMode);
 	
 	void beforeUpdateTile(UpdateMode mode);
 	void updateTile(const QPoint &tileKey, const Malachite::Image &image, const QPoint &offset);
@@ -47,6 +47,7 @@ public slots:
 protected:
 	
 	void paintEvent(QPaintEvent *event);
+	void resizeEvent(QResizeEvent *);
 	
 private:
 	

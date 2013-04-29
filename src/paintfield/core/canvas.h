@@ -2,6 +2,7 @@
 
 #include <QObject>
 #include <QPointer>
+#include <Malachite/Affine2D>
 
 #include "document.h"
 #include "extension.h"
@@ -50,6 +51,8 @@ public:
 	 */
 	Document *document();
 	
+	// actions and extensions
+	
 	/**
 	 * Adds actions that will belong to the canvas.
 	 * The actions will be shown in the menubar.
@@ -65,6 +68,8 @@ public:
 	void addExtensions(const CanvasExtensionList &extensions);
 	CanvasExtensionList extensions();
 	
+	// view & controller
+	
 	/**
 	 * This function must be used only by CanvasView.
 	 * @param controller
@@ -76,6 +81,8 @@ public:
 	CanvasView *view();
 	
 	virtual void onSetCurrent();
+	
+	// transform
 	
 	/**
 	 * @return The viewport scale (1 = actual)
@@ -92,11 +99,34 @@ public:
 	 */
 	QPoint translation() const;
 	
+	/**
+	 * @return Whether the viewport is mirrored
+	 */
 	bool isMirrored() const;
+	
+	/**
+	 * @return Whether the viewport is Retina mode
+	 */
 	bool isRetinaMode() const;
 	
+	Malachite::Affine2D transformToScene() const;
+	Malachite::Affine2D transformToView() const;
+	
+	QPoint maxAbsoluteTranslation() const;
+	
+	/**
+	 * Memorizes the current transform.
+	 * Memorization can be performed only once.
+	 * If you try to perform memorization more than once, the memorization will be overwritten.
+	 */
 	void memorizeNavigation();
+	
+	/**
+	 * Restores the transform from the memorization.
+	 */
 	void restoreNavigation();
+	
+	QSize viewSize() const;
 	
 	/**
 	 * @return The current tool
@@ -107,6 +137,11 @@ signals:
 	
 	void documentPropertyChanged();
 	
+	/**
+	 * Emitted when close of the canvas is accepted.
+	 * Usually, when this signal is emitted, the workspace will delete the canvas.
+	 * @param canvas
+	 */
 	void shouldBeDeleted(Canvas *canvas);
 	
 	void scaleChanged(double scale);
@@ -114,6 +149,13 @@ signals:
 	void translationChanged(const QPoint &translation);
 	void mirroredChanged(bool mirrored);
 	void retinaModeChanged(bool mode);
+	
+	/**
+	 * Emitted when the transform is changed, before scale, rotation ... changed signals are emitted.
+	 * @param transformToScene
+	 * @param transformToView
+	 */
+	void transformChanged(const Malachite::Affine2D &transformToScene, const Malachite::Affine2D &transformToView);
 	
 	void toolChanged(Tool *tool);
 	
@@ -140,12 +182,15 @@ public slots:
 	void setMirrored(bool mirrored);
 	void setRetinaMode(bool mode);
 	
+	void setViewSize(const QSize &size);
+	
 private slots:
 	
 	void onToolChanged(const QString &name);
 	
 private:
 	
+	void updateTransform();
 	void commonInit();
 	
 	struct Data;

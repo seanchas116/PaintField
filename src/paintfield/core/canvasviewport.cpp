@@ -133,16 +133,12 @@ void CanvasViewport::setTransform(const Affine2D &transform, const QPoint &trans
 {
 	Q_UNUSED(translation)
 	
-	QRect widgetRect(QPoint(), size());
-	
 	d->retinaMode = retinaMode;
 	
 	if (retinaMode)
 		d->transformOutputFromScene = (Affine2D::fromScale(2) * transform).toQTransform();
 	else
 		d->transformOutputFromScene = transform.toQTransform();
-	
-	d->outputRect = d->outputRectFromWidgetRect(widgetRect);
 	
 	d->transformSceneFromOutput = d->transformOutputFromScene.inverted();
 	
@@ -161,13 +157,10 @@ void CanvasViewport::updateTile(const QPoint &tileKey, const Malachite::Image &i
 {
 	d->fastUpdatePixelUnpaintedTiles << tileKey;
 	
+	d->surface.tileRef(tileKey).paste(image.toImageU8(), offset);
+	
 	QPoint pos = tileKey * Surface::tileWidth() + offset;
-	
-	ImageU8 imageU8 = image.toImageU8();
-	
-	d->surface.tileRef(tileKey).paste(imageU8, offset);
-	
-	auto outputRect = d->outputRectFromSceneRect(QRect(pos, imageU8.size())) & d->outputRect;
+	auto outputRect = d->outputRectFromSceneRect(QRect(pos, image.size())) & d->outputRect;
 	
 	if (outputRect.isEmpty())
 		return;
@@ -175,7 +168,6 @@ void CanvasViewport::updateTile(const QPoint &tileKey, const Malachite::Image &i
 	outputRect = d->outputRectAlignedForWidget(outputRect);
 	
 	d->accurateUpdateOutputRects << outputRect;
-	
 	d->accurateUpdateConsiderBorder |= (tileKey.x() <= 0 || tileKey.x() >= d->tileRight || tileKey.y() <= 0 || tileKey.y() >= d->tileBottom);
 }
 
@@ -357,6 +349,12 @@ void CanvasViewport::paintRects(const QVector<QRect> &outputRects, bool consider
 			painter.drawImage( viewImageOffset, viewImage );
 		}
 	}
+}
+
+void CanvasViewport::resizeEvent(QResizeEvent *)
+{
+	QRect widgetRect(QPoint(), size());
+	d->outputRect = d->outputRectFromWidgetRect(widgetRect);
 }
 
 } // namespace PaintField

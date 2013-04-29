@@ -82,20 +82,9 @@ struct CanvasViewController::Data
 {
 	Canvas *canvas = 0;
 	
-	// metrics
-	QSize sceneSize;
-	QPoint viewCenter;
-	
 	// tool
 	QPointer<Tool> tool;
 	QCursor toolCursor;
-	
-	// transform
-	double scale = 1, rotation = 0;
-	QPoint translation;
-	Affine2D transformToScene, transformFromScene;
-	bool mirrored = false, retinaMode = false;
-	QPoint maxAbsTranslation;
 	
 	// widgets
 	CanvasViewport *viewport = 0;
@@ -120,10 +109,6 @@ CanvasViewController::CanvasViewController(Canvas *canvas) :
 	d(new Data)
 {
 	d->canvas = canvas;
-	d->sceneSize = canvas->document()->size();
-	d->translation = canvas->translation();
-	d->scale = canvas->scale();
-	d->rotation = canvas->rotation();
 	
 	// setup objects
 	{
@@ -135,7 +120,7 @@ CanvasViewController::CanvasViewController(Canvas *canvas) :
 		{
 			auto timer = new QTimer(this);
 			timer->setSingleShot(true);
-			timer->setInterval(100);
+			timer->setInterval(500);
 			connect(timer, SIGNAL(timeout()), this, SLOT(updateViewportAccurately()));
 			d->accurateUpdateTimer = timer;
 		}
@@ -173,35 +158,27 @@ CanvasViewController::CanvasViewController(Canvas *canvas) :
 		auto vp = new CanvasViewport();
 		d->viewport = vp;
 		connect(canvas, SIGNAL(shouldBeDeleted(Canvas*)), vp, SLOT(deleteLater()));
-		
-		vp->setDocumentSize(d->sceneSize);
-		updateTransforms();
-		updateTiles(canvas->document()->tileKeys());
+		vp->setDocumentSize(canvas->document()->size());
 	}
 	
 	moveWidgets();
 	
 	// connect to canvas
 	{
-		connect(canvas, SIGNAL(scaleChanged(double)), this, SLOT(setScale(double)));
-		connect(canvas, SIGNAL(rotationChanged(double)), this, SLOT(setRotation(double)));
-		connect(canvas, SIGNAL(translationChanged(QPoint)), this, SLOT(setTranslation(QPoint)));
-		connect(canvas, SIGNAL(mirroredChanged(bool)), this, SLOT(setMirrored(bool)));
-		connect(canvas, SIGNAL(retinaModeChanged(bool)), this, SLOT(setRetinaMode(bool)));
-		
-		setScale(canvas->scale());
-		setRotation(canvas->rotation());
-		setTranslation(canvas->translation());
+		connect(canvas, SIGNAL(transformChanged(Malachite::Affine2D,Malachite::Affine2D)), this, SLOT(onTransformUpdated(Malachite::Affine2D,Malachite::Affine2D)));
+		onTransformUpdated(canvas->transformToScene(), canvas->transformToView());
 		
 		connect(canvas, SIGNAL(toolChanged(Tool*)), this, SLOT(setTool(Tool*)));
 		setTool(canvas->tool());
 		
 		canvas->setViewController(this);
+		canvas->setViewSize(d->view->size());
 		
 		connect(canvas, SIGNAL(shouldBeDeleted(Canvas*)), this, SLOT(onCanvasWillBeDeleted()));
 	}
 	
 	connect(canvas->document()->layerScene(), SIGNAL(tilesUpdated(QPointSet)), this, SLOT(updateTiles(QPointSet)));
+	updateTiles(canvas->document()->tileKeys());
 }
 
 CanvasViewController::~CanvasViewController()
@@ -212,21 +189,6 @@ CanvasViewController::~CanvasViewController()
 CanvasView *CanvasViewController::view()
 {
 	return d->view;
-}
-
-Malachite::Affine2D CanvasViewController::transformToScene() const
-{
-	return d->transformToScene;
-}
-
-Malachite::Affine2D CanvasViewController::transformFromScene() const
-{
-	return d->transformFromScene;
-}
-
-QPoint CanvasViewController::viewCenter() const
-{
-	return d->viewCenter;
 }
 
 bool CanvasViewController::isUpdateTilesEnabled() const
@@ -281,36 +243,6 @@ void CanvasViewController::updateViewportAccurately()
 	d->viewport->updateWholeAccurately();
 }
 
-void CanvasViewController::setScale(double value)
-{
-	d->scale = value;
-	updateTransforms();
-}
-
-void CanvasViewController::setRotation(double value)
-{
-	d->rotation = value;
-	updateTransforms();
-}
-
-void CanvasViewController::setTranslation(const QPoint &value)
-{
-	d->translation = value;
-	updateTransforms();
-}
-
-void CanvasViewController::setMirrored(bool value)
-{
-	d->mirrored = value;
-	updateTransforms();
-}
-
-void CanvasViewController::setRetinaMode(bool value)
-{
-	d->retinaMode = value;
-	updateTransforms();
-}
-
 void CanvasViewController::onClicked()
 {
 	d->view->setFocus();
@@ -319,31 +251,30 @@ void CanvasViewController::onClicked()
 
 void CanvasViewController::onScrollBarXChanged(int x)
 {
-	d->canvas->setTranslationX(d->maxAbsTranslation.x() - x);
+	d->canvas->setTranslationX(d->canvas->maxAbsoluteTranslation().x() - x);
 }
 
 void CanvasViewController::onScrollBarYChanged(int y)
 {
-	d->canvas->setTranslationY(d->maxAbsTranslation.y() - y);
+	d->canvas->setTranslationY(d->canvas->maxAbsoluteTranslation().y() - y);
 }
 
 void CanvasViewController::updateScrollBarRange()
 {
-	int radius = ceil(hypot(d->sceneSize.width(), d->sceneSize.height()) * d->scale * 0.5);
+	auto maxAbsTranslation = d->canvas->maxAbsoluteTranslation();
+	auto viewSize = d->view->size();
 	
-	d->maxAbsTranslation = QPoint(radius + d->view->width(), radius + d->view->height());
+	d->scrollBarX->setRange(0, 2 * maxAbsTranslation.x());
+	d->scrollBarY->setRange(0, 2 * maxAbsTranslation.y());
 	
-	d->scrollBarX->setRange(0, 2 * d->maxAbsTranslation.x());
-	d->scrollBarY->setRange(0, 2 * d->maxAbsTranslation.y());
-	
-	d->scrollBarX->setPageStep(d->view->width());
-	d->scrollBarY->setPageStep(d->view->height());
+	d->scrollBarX->setPageStep(viewSize.width());
+	d->scrollBarY->setPageStep(viewSize.height());
 }
 
 void CanvasViewController::updateScrollBarValue()
 {
-	d->scrollBarX->setValue(d->maxAbsTranslation.x() - d->translation.x());
-	d->scrollBarY->setValue(d->maxAbsTranslation.y() - d->translation.y());
+	d->scrollBarX->setValue(d->canvas->maxAbsoluteTranslation().x() - d->canvas->translation().x());
+	d->scrollBarY->setValue(d->canvas->maxAbsoluteTranslation().y() - d->canvas->translation().y());
 }
 
 void CanvasViewController::onCanvasWillBeDeleted()
@@ -351,32 +282,20 @@ void CanvasViewController::onCanvasWillBeDeleted()
 	setTool(0);
 }
 
-void CanvasViewController::updateTransforms()
+void CanvasViewController::onTransformUpdated(const Affine2D &transformToScene, const Affine2D &transformToView)
 {
-	QPoint sceneOffset = QPoint(d->sceneSize.width(), d->sceneSize.height()) / 2;
-	QPoint viewOffset = viewCenter() + d->translation;
+	Q_UNUSED(transformToScene)
 	
-	double scale = d->retinaMode ? d->scale * 0.5 : d->scale;
+	double scale = d->canvas->scale();
+	if (d->canvas->isRetinaMode())
+		scale *= 0.5;
 	
-	auto transform = Affine2D::fromTranslation(Vec2D(viewOffset)) *
-	                 Affine2D::fromRotationDegrees(d->rotation) *
-	                 Affine2D::fromScale(scale) *
-	                 Affine2D::fromTranslation(Vec2D(-sceneOffset));
-	
-	if (d->mirrored)
-		transform = transform * Affine2D(-1, 0, 0, 1, d->sceneSize.width(), 0);
-	
-	d->transformFromScene = transform;
-	d->transformToScene = transform.inverted();
-	d->viewport->setTransform(transform, d->translation, scale, d->rotation, d->retinaMode);
+	d->viewport->setTransform(transformToView, d->canvas->translation(), scale, d->canvas->rotation(), d->canvas->isRetinaMode());
 	
 	updateScrollBarRange();
 	updateScrollBarValue();
 	
-	emit transformUpdated();
-	
 	d->accurateUpdateTimer->start();
-	
 	d->viewport->update();
 }
 
@@ -458,8 +377,6 @@ void CanvasViewController::moveWidgets()
 		d->graphicsView->setGeometry(widgetRect);
 		d->graphicsView->setSceneRect(widgetRect);
 	}
-	
-	updateTransforms();
 }
 
 static const QString toolCursorId = "paintfield.canvas.tool";
@@ -528,7 +445,7 @@ bool CanvasViewController::eventFilter(QObject *watched, QEvent *event)
 		{
 			case QEvent::Resize:
 				
-				d->viewCenter = QPoint(d->view->width() / 2, d->view->height() / 2);
+				d->canvas->setViewSize(d->view->size());
 				
 			case QEvent::ParentChange:
 			case QEvent::EnabledChange:

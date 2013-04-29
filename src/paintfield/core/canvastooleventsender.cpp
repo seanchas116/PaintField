@@ -4,6 +4,7 @@
 #include <Malachite/Vec2D>
 #include "tabletevent.h"
 #include "tool.h"
+#include "canvas.h"
 
 #include "canvastooleventsender.h"
 
@@ -14,6 +15,7 @@ namespace PaintField {
 struct CanvasToolEventSender::Data
 {
 	QPointer<Tool> tool;
+	Canvas *canvas;
 	CanvasViewController *controller;
 	
 	double mousePressure = 0;
@@ -23,6 +25,7 @@ CanvasToolEventSender::CanvasToolEventSender(CanvasViewController *controller) :
 	QObject(controller),
 	d(new Data)
 {
+	d->canvas = controller->canvas();
 	d->controller = controller;
 }
 
@@ -109,7 +112,7 @@ bool CanvasToolEventSender::sendCanvasMouseEvent(QMouseEvent *event)
 		}
 	};
 	
-	CanvasMouseEvent canvasEvent(toCanvasEventType(event->type()), event->globalPos(), event->pos(), d->controller->transformToScene() * event->posF(), event->modifiers());
+	CanvasMouseEvent canvasEvent(toCanvasEventType(event->type()), event->globalPos(), event->pos(), d->canvas->transformToScene() * event->posF(), event->modifiers());
 	d->tool->toolEvent(&canvasEvent);
 	
 	return canvasEvent.isAccepted();
@@ -123,7 +126,7 @@ bool CanvasToolEventSender::sendCanvasTabletEvent(WidgetTabletEvent *event)
 	TabletInputData data = event->globalData;
 	Vec2D globalPos = data.pos;
 	Vec2D viewPos = globalPos + Vec2D(event->posInt - event->globalPosInt);
-	data.pos = d->controller->transformToScene() * viewPos;
+	data.pos = d->canvas->transformToScene() * viewPos;
 	
 	auto toCanvasEventType = [](int type)
 	{
@@ -171,7 +174,7 @@ bool CanvasToolEventSender::sendCanvasTabletEvent(QMouseEvent *mouseEvent)
 	if (type == EventCanvasTabletRelease)
 		d->mousePressure = 0.0;
 	
-	TabletInputData data(d->controller->transformToScene() * mouseEvent->posF(), d->mousePressure, 0, 0, Vec2D(0));
+	TabletInputData data(d->canvas->transformToScene() * mouseEvent->posF(), d->mousePressure, 0, 0, Vec2D(0));
 	CanvasTabletEvent tabletEvent(type, mouseEvent->globalPos(), mouseEvent->globalPos(), mouseEvent->pos(), mouseEvent->pos(), data, mouseEvent->modifiers());
 	d->tool->toolEvent(&tabletEvent);
 	return tabletEvent.isAccepted();

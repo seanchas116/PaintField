@@ -33,6 +33,12 @@ struct CanvasNavigator::Data
 		backupRotation = canvas->rotation();
 		backupTranslation = canvas->translation();
 	}
+	
+	QPoint viewCenter() const
+	{
+		auto size = canvas->viewSize();
+		return QPoint(size.width(), size.height()) / 2;
+	}
 };
 
 CanvasNavigator::CanvasNavigator(KeyTracker *keyTracker, CanvasViewController *controller) :
@@ -295,7 +301,7 @@ void CanvasNavigator::continueDragScaling(const QPoint &pos)
 	double scaleRatio = exp2(-delta.y() / divisor);
 	double scale = d->backupScale * scaleRatio;
 	
-	auto navigationOffset = d->navigationOrigin - d->controller->viewCenter();
+	auto navigationOffset = d->navigationOrigin - d->viewCenter();
 	
 	auto translation = (d->backupTranslation - navigationOffset) * scaleRatio + navigationOffset;
 	
@@ -320,8 +326,8 @@ void CanvasNavigator::beginDragRotation(const QPoint &pos)
 
 void CanvasNavigator::continueDragRotation(const QPoint &pos)
 {
-	auto originalDelta = d->navigationOrigin - d->controller->viewCenter();
-	auto delta = pos - d->controller->viewCenter();
+	auto originalDelta = d->navigationOrigin - d->viewCenter();
+	auto delta = pos - d->viewCenter();
 	if (originalDelta != QPoint() && delta != QPoint())
 	{
 		auto originalRotation = atan2(originalDelta.y(), originalDelta.x()) / M_PI * 180.0;

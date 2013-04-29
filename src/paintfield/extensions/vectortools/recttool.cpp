@@ -10,7 +10,7 @@
 #include <boost/signals2.hpp>
 
 #include "paintfield/extensions/layerui/layeruicontroller.h"
-
+#include "paintfield/core/canvas.h"
 #include "paintfield/core/textlayer.h"
 #include "paintfield/core/layerscene.h"
 #include "paintfield/core/rectlayer.h"
@@ -251,7 +251,7 @@ RectTool::RectTool(AddingType type, Canvas *canvas) :
 	
 	connect(layerScene(), SIGNAL(currentChanged(LayerRef,LayerRef)), this, SLOT(updateCurrent(LayerRef)));
 	connect(layerScene(), SIGNAL(layerPropertyChanged(LayerRef)), this, SLOT(updateCurrent(LayerRef)));
-	connect(canvas->viewController(), SIGNAL(transformUpdated()), this, SLOT(updateHandles()));
+	connect(canvas, SIGNAL(transformChanged(Malachite::Affine2D,Malachite::Affine2D)), this, SLOT(updateHandles()));
 	
 	updateCurrent(layerScene()->current());
 }
@@ -449,7 +449,7 @@ void RectTool::updateHandles()
 	auto rect = d->rectLayer->rect();
 	
 	// get vertices in scene coordinates
-	auto transformToView = canvas()->viewController()->transformFromScene().toQTransform();
+	auto transformToView = canvas()->transformToView().toQTransform();
 	auto topLeft = rect.topLeft() * transformToView;
 	auto topRight = rect.topRight() * transformToView;
 	auto bottomLeft = rect.bottomLeft() * transformToView;
@@ -495,7 +495,7 @@ void RectTool::onHandleMoved(const QPointF &pos, int handleTypes)
 	QPointSet oldKeys = d->rectKeys();
 	
 	auto rect = d->rectLayer->rect();
-	auto scenePos = pos * canvas()->viewController()->transformToScene().toQTransform();
+	auto scenePos = pos * canvas()->transformToScene().toQTransform();
 	
 	double left = rect.left();
 	double right = rect.right();

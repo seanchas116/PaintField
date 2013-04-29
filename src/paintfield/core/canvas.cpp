@@ -45,6 +45,10 @@ struct Canvas::Data
 	QPoint translation;
 	bool mirrored = false, retinaMode = false;
 	
+	Affine2D transformToScene, transformToView;
+	QSize viewSize;
+	QPoint maxAbsTranslation;
+	
 	double memorizedScale = 1, memorizedRotation = 0;
 	QPoint memorizedTranslation;
 	
@@ -113,6 +117,8 @@ void Canvas::commonInit()
 	// connect to workspace
 	connect(d->workspace->toolManager(), SIGNAL(currentToolChanged(QString)), this, SLOT(onToolChanged(QString)));
 	onToolChanged(d->workspace->toolManager()->currentTool());
+	
+	updateTransform();
 }
 
 Canvas::~Canvas()
@@ -160,11 +166,32 @@ bool Canvas::isRetinaMode() const
 	return d->retinaMode;
 }
 
+Affine2D Canvas::transformToScene() const
+{
+	return d->transformToScene;
+}
+
+Affine2D Canvas::transformToView() const
+{
+	return d->transformToView;
+}
+
+QSize Canvas::viewSize() const
+{
+	return d->viewSize;
+}
+
+QPoint Canvas::maxAbsoluteTranslation() const
+{
+	return d->maxAbsTranslation;
+}
+
 void Canvas::setScale(double scale)
 {
 	if (d->scale != scale)
 	{
 		d->scale = scale;
+		updateTransform();
 		emit scaleChanged(scale);
 	}
 }
@@ -174,6 +201,7 @@ void Canvas::setRotation(double rotation)
 	if (d->rotation != rotation)
 	{
 		d->rotation = rotation;
+		updateTransform();
 		emit rotationChanged(rotation);
 	}
 }
@@ -183,6 +211,7 @@ void Canvas::setTranslation(const QPoint &translation)
 	if (d->translation != translation)
 	{
 		d->translation = translation;
+		updateTransform();
 		emit translationChanged(translation);
 	}
 }
@@ -192,6 +221,7 @@ void Canvas::setMirrored(bool mirrored)
 	if (d->mirrored != mirrored)
 	{
 		d->mirrored = mirrored;
+		updateTransform();
 		emit mirroredChanged(mirrored);
 	}
 }
@@ -201,24 +231,59 @@ void Canvas::setRetinaMode(bool mode)
 	if (d->retinaMode != mode)
 	{
 		d->retinaMode = mode;
+		updateTransform();
 		emit retinaModeChanged(mode);
 	}
 }
 
-Workspace *Canvas::workspace() { return d->workspace; }
-Document *Canvas::document() { return d->document; }
+void Canvas::setViewSize(const QSize &size)
+{
+	if (d->viewSize != size)
+	{
+		d->viewSize = size;
+		updateTransform();
+	}
+}
+
+Workspace *Canvas::workspace()
+{
+	return d->workspace;
+}
+
+Document *Canvas::document()
+{
+	return d->document;
+}
 
 void Canvas::addActions(const QActionList &actions)
 {
 	d->actions += actions;
 }
 
-QActionList Canvas::actions() { return d->actions; }
-CanvasExtensionList Canvas::extensions() { return d->extensions; }
+QActionList Canvas::actions()
+{
+	return d->actions;
+}
 
-void Canvas::setViewController(CanvasViewController *controller) { d->viewController = controller; }
-CanvasViewController *Canvas::viewController() { return d->viewController; }
-CanvasView *Canvas::view() { return d->viewController->view(); }
+CanvasExtensionList Canvas::extensions()
+{
+	return d->extensions;
+}
+
+void Canvas::setViewController(CanvasViewController *controller)
+{
+	d->viewController = controller;
+}
+
+CanvasViewController *Canvas::viewController()
+{
+	return d->viewController;
+}
+
+CanvasView *Canvas::view()
+{
+	return d->viewController->view();
+}
 
 void Canvas::addExtensions(const CanvasExtensionList &extensions)
 {
@@ -232,7 +297,10 @@ void Canvas::onSetCurrent()
 	view()->setFocus();
 }
 
-Tool *Canvas::tool() { return d->tool.data(); }
+Tool *Canvas::tool()
+{
+	return d->tool.data();
+}
 
 void Canvas::onToolChanged(const QString &name)
 {
@@ -254,6 +322,40 @@ bool Canvas::closeCanvas()
 void Canvas::newCanvasIntoDocument()
 {
 	workspace()->addAndShowCanvas(new Canvas(this, d->workspace));
+}
+
+void Canvas::updateTransform()
+{
+	auto sceneSize = d->document->size();
+	auto viewSize = d->viewSize;
+	
+	// set max absolute translation
+	{
+		int radius = ceil(hypot(sceneSize.width(), sceneSize.height()) * d->scale * 0.5);
+		d->maxAbsTranslation = QPoint(radius + viewSize.width(), radius + viewSize.height());
+	}
+	
+	// set transforms
+	{
+		QPoint sceneOffset = QPoint(sceneSize.width(), sceneSize.height()) / 2;
+		QPoint viewOffset = QPoint(viewSize.width(), viewSize.height()) / 2 + d->translation;
+		
+		double scale = d->retinaMode ? d->scale * 0.5 : d->scale;
+		
+		auto transformToView = Affine2D::fromTranslation(Vec2D(viewOffset)) *
+		                       Affine2D::fromRotationDegrees(d->rotation) *
+		                       Affine2D::fromScale(scale) *
+		                       Affine2D::fromTranslation(Vec2D(-sceneOffset));
+		
+		if (d->mirrored)
+			transformToView = transformToView * Affine2D(-1, 0, 0, 1, sceneSize.width(), 0);
+		
+		auto transformToScene = transformToView.inverted();
+		
+		d->transformToView = transformToView;
+		d->transformToScene = transformToScene;
+		transformChanged(transformToScene, transformToView);
+	}
 }
 
 }
