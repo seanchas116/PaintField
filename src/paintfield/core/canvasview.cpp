@@ -304,7 +304,10 @@ void CanvasViewController::updateTiles(const QPointSet &keys, const QHash<QPoint
 	if (!d->updateEnabled)
 		return;
 	
-	d->viewport->beforeUpdateTile(CanvasViewport::PartialAccurateUpdate);
+	int keyCount = keys.size();
+	int rectCount = rects.size();
+	
+	d->viewport->beforeUpdateTile(CanvasViewport::PartialAccurateUpdate, rectCount ? rectCount : keyCount);
 	
 	CanvasRenderer renderer;
 	renderer.setTool(d->tool);
@@ -327,19 +330,17 @@ void CanvasViewController::updateTiles(const QPointSet &keys, const QHash<QPoint
 		d->viewport->updateTile(key, image, rect.topLeft());
 	};
 	
-	if (rects.isEmpty())
+	if (rectCount)
+	{
+		for (auto iter = rects.begin(); iter != rects.end(); ++iter)
+			updateTile(iter.key(), iter.value());
+	}
+	else
 	{
 		for (const QPoint &key : keys)
 		{
 			auto rect = QRect(0, 0, Surface::tileWidth(), Surface::tileWidth());
 			updateTile(key, rect);
-		}
-	}
-	else
-	{
-		for (auto iter = rects.begin(); iter != rects.end(); ++iter)
-		{
-			updateTile(iter.key(), iter.value());
 		}
 	}
 	

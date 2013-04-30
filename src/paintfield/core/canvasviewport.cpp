@@ -17,6 +17,7 @@ struct CanvasViewport::Data
 {
 	QTransform transformOutputFromScene, transformSceneFromOutput;
 	bool transformTranslatingOnly = true, retinaMode = false;
+	QPoint translation;
 	
 	QRect outputRectAlignedForWidget(const QRect &rect) const
 	{
@@ -146,11 +147,14 @@ void CanvasViewport::setTransform(const Affine2D &transform, const QPoint &trans
 		d->transformTranslatingOnly = (scale == 0.5 && rotation == 0);
 	else
 		d->transformTranslatingOnly = (scale == 1.0 && rotation == 0);
+	
+	d->translation = translation;
 }
 
-void CanvasViewport::beforeUpdateTile(UpdateMode mode)
+void CanvasViewport::beforeUpdateTile(UpdateMode mode, int updateTileCount)
 {
 	d->updateMode = mode;
+	d->accurateUpdateOutputRects.reserve(updateTileCount);
 }
 
 void CanvasViewport::updateTile(const QPoint &tileKey, const Malachite::Image &image, const QPoint &offset)

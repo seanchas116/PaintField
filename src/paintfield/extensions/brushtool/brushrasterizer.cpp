@@ -77,35 +77,39 @@ BrushRasterizerFast::BrushRasterizerFast(const Vec2D &center, float radius, floa
 	_rect = QRectF(center.x() - radius, center.y() - radius, radius * 2.f, radius * 2.f).toAlignedRect();
 	_y = _rect.top();
 	
+	float max, cutoffSlope;
+	
 	if (radius <= 1.f)
 	{
-		_max = radius;
-		_cutoff = 0.f;
-		_radius = 1.f;
+		max = radius;
+		//cutoff = 0.f;
+		radius = 1.f;
+		cutoffSlope = -max;
 	}
 	else if (radius <= 1.f + aaWidth)
 	{
-		_max = 1.f;
-		_cutoff = 0.f;
-		_radius = radius;
+		max = 1.f;
+		//cutoff = 0.f;
+		cutoffSlope = -max / radius;
 	}
 	else
 	{
-		_max = 1.f;
-		_cutoff = radius - aaWidth;
-		_radius = radius;
+		max = 1.f;
+		//cutoff = radius - aaWidth;
+		cutoffSlope = -max / aaWidth;
 	}
 	
-	_cutoffSlope = _max / (_cutoff - _radius);
+	_max = max;
+	_maxs = PixelVec(max);
+	_radiuses = PixelVec(radius);
+	_cutoffSlopes = PixelVec(cutoffSlope);
+	_offsetCenterXs = PixelVec(center.x() - 0.5f);
+	_offsetCenterYs = PixelVec(center.y() - 0.5f);
 	
-	int coverCount = (_rect.width() / 4 + 1) * 4;
-	_covers.reset(new float[coverCount]);
-	
-	_offsetCenterXs = Vector<float, 4>(center.x() - 0.5f);
-	_offsetCenterYs = Vector<float, 4>(center.y() - 0.5f);
+	_covers.reset(new PixelVec[_rect.width() / 4 + 1]);
 }
 
-inline static Vector<float, 4> sseVec4FromInt(int x1, int x2, int x3, int x4)
+inline static PixelVec sseVec4FromInt(int x1, int x2, int x3, int x4)
 {
 	union
 	{
@@ -120,7 +124,7 @@ inline static Vector<float, 4> sseVec4FromInt(int x1, int x2, int x3, int x4)
 	return _mm_cvtepi32_ps(u.m);
 }
 
-inline static Vector<float, 4> sseVec4FromInt(int32_t i)
+inline static PixelVec sseVec4FromInt(int32_t i)
 {
 	union
 	{
@@ -138,50 +142,41 @@ BrushScanline BrushRasterizerFast::nextScanline()
 {
 	int x = _rect.left();
 	
+	PixelVec *vp = _covers.data();
+	
 	BrushScanline scanline;
 	scanline.pos = QPoint(x, _y);
 	scanline.count = _rect.width();
-	scanline.covers = _covers.data();
-	
-	float *p = _covers.data();
+	scanline.covers = reinterpret_cast<float *>(vp);
 	
 	PixelVec xs, ys;
-	xs = sseVec4FromInt(x, x+1, x+2, x+3);
-	ys = sseVec4FromInt(_y);
-	
-	xs -= _offsetCenterXs;
-	ys -= _offsetCenterYs;
+	xs = sseVec4FromInt(x, x+1, x+2, x+3) - _offsetCenterXs;
+	ys = sseVec4FromInt(_y) - _offsetCenterYs;
 	
 	PixelVec yys = ys * ys;
+	PixelVec zeros(0.f);
+	PixelVec fours(4.f);
 	
-	for (int i = 0; i < scanline.count; i += 4, xs += PixelVec(4.f))
+	for (int i = 0; i < scanline.count; i += 4)
 	{
 		PixelVec rrs = xs * xs + yys;
 		PixelVec rs = sseRsqrt(rrs) * rrs;
 		
+		PixelVec covers = ((rs - _radiuses) * _cutoffSlopes).bound(zeros, _maxs);
+		
 		for (int iv = 0; iv < 4; ++iv)
-		{
-			float r = rs[iv];
-			float cover;
-			
-			if (r <= _cutoff)
-				cover = _max;
-			else if (r < _radius)
-				cover = (r - _radius) * _cutoffSlope;
-			else if (isnan(r))
-				cover = _max;
-			else
-				cover = 0;
-			
-			*p = cover;
-			++p;
-		}
+			if (isnan(covers[iv]))
+				covers[iv] = _max;
+		
+		*vp = covers;
+		vp++;
+		
+		xs += fours;
 	}
 	
 	++_y;
 	return scanline;
 }
-
 
 
 } // namespace PaintField

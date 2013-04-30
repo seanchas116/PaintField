@@ -50,10 +50,11 @@ private:
 	
 	QRect _rect;
 	int _y;
-	Malachite::PixelVec _offsetCenterXs, _offsetCenterYs;
-	float _radius, _cutoff, _max, _cutoffSlope;
-	QScopedArrayPointer<float> _covers;
+	Malachite::PixelVec _offsetCenterXs, _offsetCenterYs, _cutoffSlopes, _radiuses, _maxs;
+	float _max;
+	QScopedArrayPointer<Malachite::PixelVec> _covers;
 };
+
 
 } // namespace PaintField
 

@@ -34,7 +34,7 @@ public:
 	void setDocumentSize(const QSize &size);
 	void setTransform(const Malachite::Affine2D &transformToView, const QPoint &translation, double scale, double rotation, bool retinaMode);
 	
-	void beforeUpdateTile(UpdateMode mode);
+	void beforeUpdateTile(UpdateMode mode, int updateTileCount);
 	void updateTile(const QPoint &tileKey, const Malachite::Image &image, const QPoint &offset);
 	void afterUpdateTile();
 	

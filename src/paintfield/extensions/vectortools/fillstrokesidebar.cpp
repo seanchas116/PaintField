@@ -91,7 +91,7 @@ FillStrokeSideBar::FillStrokeSideBar(Workspace *workspace, LayerScene *scene, QW
 	{
 		auto group = new QButtonGroup(this);
 		
-		return [layout, mapper, group, buttonHash](const QString &iconPath, int id)
+		return [=](const QString &iconPath, int id)
 		{
 			auto b = new SimpleButton(iconPath, QSize(16, 16));
 			b->setCheckable(true);

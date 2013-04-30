@@ -98,8 +98,6 @@ void BrushTool::beginStroke(const TabletInputData &data)
 	
 	canvas()->document()->layerScene()->abortThumbnailUpdate();
 	
-	//PAINTFIELD_CALC_SCOPE_ELAPSED_TIME;
-	
 	_surface = _layer->surface();
 	
 	_stroker.reset(_strokerFactory->createStroker(&_surface));
@@ -129,14 +127,14 @@ void BrushTool::drawStroke(const TabletInputData &data)
 	if (!isStroking())
 		return;
 	
-	//PAINTFIELD_CALC_SCOPE_ELAPSED_TIME;
-	
 	_stroker->lineTo(data);
 	
-	//_count++;
+	/*
+	_count++;
 	
-	//if (_count % 3)
-	//	return;
+	if (_count % 3)
+		return;
+	*/
 	
 	updateTiles();
 }
@@ -145,8 +143,6 @@ void BrushTool::endStroke(const TabletInputData &data)
 {
 	if (!isStroking())
 		return;
-	
-	//PAINTFIELD_CALC_SCOPE_ELAPSED_TIME;
 	
 	_stroker->lineTo(data);
 	_stroker->end();

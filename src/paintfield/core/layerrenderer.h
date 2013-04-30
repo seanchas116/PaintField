@@ -9,6 +9,38 @@ namespace PaintField {
 class RasterLayer;
 class GroupLayer;
 
+struct SurfaceFragment
+{
+	QPoint tileKey;
+	QRect rect;
+};
+
+struct SurfaceFragmentImage
+{
+	QPoint tileKey;
+	QPoint pos;
+	Malachite::Image image;
+};
+
+/*
+class LayerFragmentLayer
+{
+public:
+	
+	LayerFragmentLayer() {}
+	virtual ~LayerFragmentLayer() {}
+	
+	SurfaceFragmentImage render(const Layer *root, const SurfaceFragment &fragment);
+	
+protected:
+	
+	void renderLayer(Malachite::Painter *painter, const QPoint &tileKey, const Layer *layer);
+	virtual void drawLayer(Malachite::Painter *painter, const QPoint &tileKey, const Layer *layer);
+	virtual void renderChildren(Malachite::Painter *painter, const QPoint &tileKey, const Layer *layer);
+	void renderLayers(Malachite::Painter *painter, const QPoint &tileKey, const LayerConstList &layer);
+};
+*/
+
 class LayerRenderer
 {
 public:
