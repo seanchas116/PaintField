@@ -19,11 +19,11 @@ LayerItemModel::LayerItemModel(LayerScene *scene, QObject *parent) :
 	d(new Data)
 {
 	d->scene = scene;
-	connect(scene, SIGNAL(layerAboutToBeInserted(LayerRef,int)), this, SLOT(onLayerAboutToBeInserted(LayerRef,int)));
-	connect(scene, SIGNAL(layerInserted(LayerRef,int)), this, SLOT(onLayerInserted(LayerRef,int)));
-	connect(scene, SIGNAL(layerAboutToBeRemoved(LayerRef,int)), this, SLOT(onLayerAboutToBeRemoved(LayerRef,int)));
-	connect(scene, SIGNAL(layerRemoved(LayerRef,int)), this, SLOT(onLayerRemoved(LayerRef,int)));
-	connect(scene, SIGNAL(layerPropertyChanged(LayerRef)), this, SLOT(onLayerPropertyChanged(LayerRef)));
+	connect(scene, SIGNAL(layerAboutToBeInserted(LayerConstPtr,int)), this, SLOT(onLayerAboutToBeInserted(LayerConstPtr,int)));
+	connect(scene, SIGNAL(layerInserted(LayerConstPtr,int)), this, SLOT(onLayerInserted(LayerConstPtr,int)));
+	connect(scene, SIGNAL(layerAboutToBeRemoved(LayerConstPtr,int)), this, SLOT(onLayerAboutToBeRemoved(LayerConstPtr,int)));
+	connect(scene, SIGNAL(layerRemoved(LayerConstPtr,int)), this, SLOT(onLayerRemoved(LayerConstPtr,int)));
+	connect(scene, SIGNAL(layerPropertyChanged(LayerConstPtr)), this, SLOT(onLayerPropertyChanged(LayerConstPtr)));
 }
 
 LayerItemModel::~LayerItemModel()
@@ -36,7 +36,7 @@ QVariant LayerItemModel::data(const QModelIndex &index, int role) const
 	if (!index.isValid())
 		return QVariant();
 	
-	auto value = layerForIndex(index).pointer()->property(normalizeRole(role));
+	auto value = layerForIndex(index)->property(normalizeRole(role));
 	
 	if (role == Qt::CheckStateRole)
 		return value.toBool() ? Qt::Checked : Qt::Unchecked;
@@ -58,7 +58,7 @@ Qt::ItemFlags LayerItemModel::flags(const QModelIndex &index) const
 	const Qt::ItemFlags layerFlags = Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsDragEnabled | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
 	const Qt::ItemFlags groupFlags = layerFlags | Qt::ItemIsDropEnabled;
 	
-	if (layerForIndex(index).pointer()->isType<GroupLayer>())
+	if (layerForIndex(index)->isType<GroupLayer>())
 		return groupFlags;
 	else
 		return layerFlags;
@@ -69,7 +69,7 @@ QModelIndex LayerItemModel::index(int row, int column, const QModelIndex &parent
 	if (!hasIndex(row, column, parent) )
 		return QModelIndex();	// root
 	
-	return indexForLayer(layerForIndex(parent).child(row));
+	return indexForLayer(layerForIndex(parent)->child(row));
 }
 
 QModelIndex LayerItemModel::parent(const QModelIndex &child) const
@@ -77,12 +77,12 @@ QModelIndex LayerItemModel::parent(const QModelIndex &child) const
 	if (!child.isValid())
 		return QModelIndex();
 	
-	return indexForLayer(layerForIndex(child).parent());
+	return indexForLayer(layerForIndex(child)->parent());
 }
 
 int LayerItemModel::rowCount(const QModelIndex &parent) const
 {
-	return layerForIndex(parent).count();
+	return layerForIndex(parent)->count();
 }
 
 int LayerItemModel::columnCount(const QModelIndex &parent) const
@@ -112,7 +112,7 @@ QMimeData *LayerItemModel::mimeData(const QModelIndexList &indexes) const
 		QDataStream stream(&data, QIODevice::WriteOnly);
 		
 		for (auto index : indexes)
-			stream << reinterpret_cast<uint64_t>(layerForIndex(index).pointer());
+			stream << d->scene->pathForLayer(layerForIndex(index));
 		
 		mimeData->setData(_layerRefMimeType, data);
 	}
@@ -137,22 +137,23 @@ bool LayerItemModel::dropMimeData(const QMimeData *data, Qt::DropAction action, 
 		QByteArray encodedData = data->data(_layerRefMimeType);
 		QDataStream stream(&encodedData, QIODevice::ReadOnly);
 		
-		LayerRefList layers;
+		QList<LayerConstPtr> layers;
 		
 		while (!stream.atEnd())
 		{
-			uint64_t value;
-			stream >> value;
+			QList<int> path;
+			stream >> path;
 			
-			auto layer = reinterpret_cast<const Layer *>(value);
+			auto layer = d->scene->layerForPath(path);
 			if (!layer)
 			{
 				PAINTFIELD_WARNING << "failed to decode";
 				return false;
 			}
-			layers << LayerRef(layer);
 			
-			if (action == Qt::MoveAction && layer->root() != d->scene->rootLayer().pointer())
+			layers << layer;
+			
+			if (action == Qt::MoveAction && layer->root() != d->scene->rootLayer())
 				action = Qt::CopyAction;
 		}
 		
@@ -172,50 +173,50 @@ bool LayerItemModel::dropMimeData(const QMimeData *data, Qt::DropAction action, 
 	return false;
 }
 
-LayerRef LayerItemModel::layerForIndex(const QModelIndex &index) const
+LayerConstPtr LayerItemModel::layerForIndex(const QModelIndex &index) const
 {
 	if (index.isValid())
-		return static_cast<const Layer *>(index.internalPointer());
+		return static_cast<const Layer *>(index.internalPointer())->shared_from_this();
 	else
 		return d->scene->rootLayer();
 }
 
-LayerRef LayerItemModel::layerExceptRootForIndex(const QModelIndex &index) const
+LayerConstPtr LayerItemModel::layerExceptRootForIndex(const QModelIndex &index) const
 {
 	if (index.isValid())
-		return static_cast<const Layer *>(index.internalPointer());
+		return static_cast<const Layer *>(index.internalPointer())->shared_from_this();
 	else
-		return LayerRef();
+		return nullptr;
 }
 
-QModelIndex LayerItemModel::indexForLayer(const LayerRef &ref) const
+QModelIndex LayerItemModel::indexForLayer(const LayerConstPtr &layer) const
 {
-	if (!ref.isValid())
+	if (!layer)
 		return QModelIndex();
 	
-	if (ref == d->scene->rootLayer())
+	if (layer == d->scene->rootLayer())
 		return QModelIndex();
 	else
-		return createIndex(ref.index(), 0, const_cast<Layer *>(ref.pointer()));
+		return createIndex(layer->index(), 0, const_cast<Layer *>(layer.get()));
 }
 
-LayerRefList LayerItemModel::layersForIndexes(const QModelIndexList &indexes) const
+QList<LayerConstPtr> LayerItemModel::layersForIndexes(const QModelIndexList &indexes) const
 {
-	LayerRefList layers;
+	QList<LayerConstPtr> layers;
 	layers.reserve(indexes.size());
 	
-	for (auto index : indexes)
+	for (const auto &index : indexes)
 		layers << layerForIndex(index);
 	
 	return layers;
 }
 
-QModelIndexList LayerItemModel::indexesFromLayers(const LayerRefList &layers) const
+QModelIndexList LayerItemModel::indexesFromLayers(const QList<LayerConstPtr> &layers) const
 {
 	QModelIndexList indexes;
 	indexes.reserve(layers.size());
 	
-	for (auto layer : layers)
+	for (const auto &layer : layers)
 		indexes << indexForLayer(layer);
 	
 	return indexes;
@@ -237,31 +238,31 @@ int LayerItemModel::normalizeRole(int role) const
 	}
 }
 
-void LayerItemModel::onLayerAboutToBeInserted(const LayerRef &parent, int index)
+void LayerItemModel::onLayerAboutToBeInserted(const LayerConstPtr &parent, int index)
 {
 	beginInsertRows(indexForLayer(parent), index, index);
 }
 
-void LayerItemModel::onLayerInserted(const LayerRef &parent, int index)
+void LayerItemModel::onLayerInserted(const LayerConstPtr &parent, int index)
 {
 	Q_UNUSED(parent)
 	Q_UNUSED(index)
 	endInsertRows();
 }
 
-void LayerItemModel::onLayerAboutToBeRemoved(const LayerRef &parent, int index)
+void LayerItemModel::onLayerAboutToBeRemoved(const LayerConstPtr &parent, int index)
 {
 	beginRemoveRows(indexForLayer(parent), index, index);
 }
 
-void LayerItemModel::onLayerRemoved(const LayerRef &parent, int index)
+void LayerItemModel::onLayerRemoved(const LayerConstPtr &parent, int index)
 {
 	Q_UNUSED(parent)
 	Q_UNUSED(index)
 	endRemoveRows();
 }
 
-void LayerItemModel::onLayerPropertyChanged(const LayerRef &layer)
+void LayerItemModel::onLayerPropertyChanged(const LayerConstPtr &layer)
 {
 	auto idx = indexForLayer(layer);
 	emit dataChanged(idx, idx);

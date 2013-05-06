@@ -12,7 +12,7 @@ public:
 	
 	TextLayer() : super() {}
 	
-	Layer *createAnother() const override { return new TextLayer(); }
+	LayerPtr createAnother() const override { return std::make_shared<TextLayer>(); }
 	
 	bool setProperty(const QVariant &data, int role) override;
 	QVariant property(int role) const override;

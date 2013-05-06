@@ -12,8 +12,8 @@ public:
 	LayerEdit() {}
 	virtual ~LayerEdit() {}
 	
-	virtual void redo(Layer *layer);
-	virtual void undo(Layer *layer);
+	virtual void redo(const LayerPtr &layer);
+	virtual void undo(const LayerPtr &layer);
 	
 	void setName(const QString &name) { _name = name; }
 	QString name() const { return _name; }
@@ -36,12 +36,12 @@ class LayerPropertyEdit : public LayerEdit
 {
 public:
 	
-	LayerPropertyEdit(const Layer *layer, const QVariant &property, int role);
-	void redo(Layer *layer);
-	void undo(Layer *layer);
+	LayerPropertyEdit(const LayerPtr &layer, const QVariant &property, int role);
+	void redo(const LayerPtr &layer);
+	void undo(const LayerPtr &layer);
 	
 private:
-	void change(Layer *layer);
+	void change(const LayerPtr &layer);
 	
 	QVariant _newProperty;
 	int _role;
@@ -51,8 +51,8 @@ class LayerSurfaceEdit : public LayerEdit
 {
 public:
 	LayerSurfaceEdit(const Malachite::Surface &surface, const QPointSet &tileKeys);
-	void redo(Layer *layer);
-	void undo(Layer *layer);
+	void redo(const LayerPtr &layer);
+	void undo(const LayerPtr &layer);
 	
 private:
 	Malachite::Surface _surface;

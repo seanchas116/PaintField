@@ -26,8 +26,8 @@ namespace PaintField {
 
 struct ShapeSideBar::Data
 {
-	const AbstractRectLayer *rectLayer = 0;
-	const TextLayer *textLayer = 0;
+	std::shared_ptr<const AbstractRectLayer> rectLayer;
+	std::shared_ptr<const TextLayer> textLayer;
 	
 	QTextEdit *textEdit = 0;
 	QToolButton *fontButton = 0;
@@ -189,18 +189,18 @@ ShapeSideBar::ShapeSideBar(LayerScene *scene, QWidget *parent) :
 	setLayout(layout);
 }
 
-void ShapeSideBar::updateForCurrentChange(const LayerRef &current)
+void ShapeSideBar::updateForCurrentChange(const LayerConstPtr &current)
 {
-	d->rectLayer = dynamic_cast<const AbstractRectLayer *>(current.pointer());
-	d->textLayer = dynamic_cast<const TextLayer *>(current.pointer());
+	d->rectLayer = std::dynamic_pointer_cast<const AbstractRectLayer>(current);
+	d->textLayer = std::dynamic_pointer_cast<const TextLayer>(current);
 	
 	updateForCurrentPropertyChange();
 }
 
 void ShapeSideBar::updateForCurrentPropertyChange()
 {
-	d->rectGroup->setVisible(d->rectLayer);
-	d->textGroup->setVisible(d->textLayer);
+	d->rectGroup->setVisible((bool)d->rectLayer);
+	d->textGroup->setVisible((bool)d->textLayer);
 	
 	if (d->rectLayer)
 	{

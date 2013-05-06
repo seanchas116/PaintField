@@ -23,7 +23,7 @@ public:
 	 * @param layers The layers first added to the document
 	 * @param parent The QObject parent
 	 */
-	Document(const QString &tempName, const QSize &size, const LayerList &layers, QObject *parent = 0);
+	Document(const QString &tempName, const QSize &size, const QList<LayerPtr> &layers, QObject *parent = 0);
 	~Document();
 	
 	QSize size() const;

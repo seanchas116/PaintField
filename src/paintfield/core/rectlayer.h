@@ -18,7 +18,7 @@ public:
 	
 	RectLayer() : super() {}
 	
-	Layer *createAnother() const override { return new RectLayer(); }
+	LayerPtr createAnother() const override { return std::make_shared<RectLayer>(); }
 	
 protected:
 	
@@ -32,7 +32,7 @@ public:
 	RectLayerFactory() : LayerFactory() {}
 	
 	QString name() const override;
-	Layer *create() const override { return new RectLayer(); }
+	LayerPtr create() const override { return std::make_shared<RectLayer>(); }
 	const ::std::type_info &typeInfo() const override { return typeid(RectLayer); }
 	
 };

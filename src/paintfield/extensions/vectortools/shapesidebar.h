@@ -5,7 +5,6 @@
 namespace PaintField {
 
 class LayerScene;
-class LayerRef;
 
 class ShapeSideBar : public AbstractLayerPropertyEditor
 {
@@ -29,7 +28,7 @@ public slots:
 	
 protected:
 	
-	void updateForCurrentChange(const LayerRef &current) override;
+	void updateForCurrentChange(const LayerConstPtr &current) override;
 	void updateForCurrentPropertyChange() override;
 	
 private slots:

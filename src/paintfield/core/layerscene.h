@@ -18,57 +18,61 @@ class LayerScene : public QObject
 {
 	Q_OBJECT
 public:
-	LayerScene(const LayerList &layers, Document *document);
+	LayerScene(const QList<LayerPtr> &layers, Document *document);
 	~LayerScene();
 	
-	void addLayers(const LayerList &layers, const LayerRef &parent, int index, const QString &description);
-	void removeLayers(const LayerRefList &refs, const QString &description = QString());
-	void moveLayers(const LayerRefList &refs, const LayerRef &parent, int index);
-	void copyLayers(const LayerRefList &refs, const LayerRef &parent, int index);
-	void mergeLayers(const LayerRef &parent, int index, int count);
+	void addLayers(const QList<LayerPtr> &layers, const LayerConstPtr &parent, int index, const QString &description);
+	void removeLayers(const QList<LayerConstPtr> &layers, const QString &description = QString());
+	void moveLayers(const QList<LayerConstPtr> &layers, const LayerConstPtr &parent, int index);
+	void copyLayers(const QList<LayerConstPtr> &layers, const LayerConstPtr &parent, int index);
+	void mergeLayers(const LayerConstPtr &parent, int index, int count);
 	
-	void editLayer(const LayerRef &ref, LayerEdit *edit, const QString &description);
-	void setLayerProperty(const LayerRef &ref, const QVariant &data, int role, const QString &description = QString());
+	void editLayer(const LayerConstPtr &layer, LayerEdit *edit, const QString &description);
+	void setLayerProperty(const LayerConstPtr &layer, const QVariant &data, int role, const QString &description = QString());
 	
-	LayerRef rootLayer() const;
+	LayerConstPtr rootLayer() const;
 	Document *document();
 	
 	LayerItemModel *itemModel();
 	QItemSelectionModel *itemSelectionModel();
 	
-	LayerRef current() const;
-	LayerRefList selection() const;
+	LayerConstPtr current() const;
+	QList<LayerConstPtr> selection() const;
+	
+	LayerConstPtr layerForPath(const QList<int> &path);
+	
+	static QList<int> pathForLayer(const LayerConstPtr &layer);
 	
 public slots:
 	
 	void abortThumbnailUpdate();
 	void update();
 	
-	void setCurrent(const LayerRef &layer);
-	void setSelection(const LayerRefList &layers);
+	void setCurrent(const LayerConstPtr &layer);
+	void setSelection(const QList<LayerConstPtr> &layers);
 	
 signals:
 	
-	void layerAboutToBeInserted(const LayerRef &parent, int index);
-	void layerInserted(const LayerRef &parent, int index);
+	void layerAboutToBeInserted(const LayerConstPtr &parent, int index);
+	void layerInserted(const LayerConstPtr &parent, int index);
 	
-	void layerAboutToBeRemoved(const LayerRef &parent, int index);
-	void layerRemoved(const LayerRef &parent, int index);
+	void layerAboutToBeRemoved(const LayerConstPtr &parent, int index);
+	void layerRemoved(const LayerConstPtr &parent, int index);
 	
-	void layerPropertyChanged(const LayerRef &layer);
+	void layerPropertyChanged(const LayerConstPtr &layer);
 	
 	void tilesUpdated(const QPointSet &tileKeys);
 	void thumbnailsUpdated();
 	
-	void currentChanged(const LayerRef &now, const LayerRef &old);
-	void selectionChanged(const LayerRefList &selected, const LayerRefList &deselected);
+	void currentChanged(const LayerConstPtr &now, const LayerConstPtr &old);
+	void selectionChanged(const QList<LayerConstPtr> &selected, const QList<LayerConstPtr> &deselected);
 	
 	void currentLayerPropertyChanged();
 	
 protected:
 	
 	void enqueueTileUpdate(const QPointSet &keys);
-	Layer *mutableRootLayer();
+	LayerPtr mutableRootLayer();
 	
 	void pushCommand(QUndoCommand *command);
 	
@@ -78,7 +82,7 @@ private slots:
 	
 	void onCurrentIndexChanged(const QModelIndex &now, const QModelIndex &old);
 	void onItemSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
-	void onLayerPropertyChanged(const LayerRef &layer);
+	void onLayerPropertyChanged(const LayerConstPtr &layer);
 	
 private:
 	

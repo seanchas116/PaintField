@@ -12,7 +12,7 @@ LayerFactoryManager::LayerFactoryManager(QObject *parent) :
 	_factories << new RasterLayerFactory() << new GroupLayerFactory() << new RectLayerFactory();
 }
 
-Layer *LayerFactoryManager::createLayer(const QString &name) const
+LayerPtr LayerFactoryManager::createLayer(const QString &name) const
 {
 	for (auto factory : _factories)
 	{

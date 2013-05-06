@@ -1,12 +1,10 @@
 #pragma once
 
 #include <QObject>
+#include "layer.h"
 #include <typeinfo>
 
 namespace PaintField {
-
-class LayerFactory;
-class Layer;
 
 class LayerFactoryManager : public QObject
 {
@@ -14,7 +12,7 @@ class LayerFactoryManager : public QObject
 public:
 	explicit LayerFactoryManager(QObject *parent = 0);
 	
-	Layer *createLayer(const QString &name) const;
+	LayerPtr createLayer(const QString &name) const;
 	
 	template <class T> QString nameForType() const { return nameForTypeInfo(typeid(T)); }
 	QString nameForTypeInfo(const ::std::type_info &info) const;

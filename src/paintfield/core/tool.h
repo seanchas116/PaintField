@@ -31,9 +31,9 @@ public:
 	
 	struct LayerInsertion
 	{
-		LayerRef parent;
+		LayerConstPtr parent;
 		int index;
-		LayerRef layer;
+		LayerPtr layer;
 	};
 	
 	explicit Tool(Canvas *parent = 0);
@@ -42,7 +42,7 @@ public:
 	/**
 	 * @return The document's current layer
 	 */
-	LayerRef currentLayer();
+	LayerConstPtr currentLayer();
 	
 	/**
 	 * @return A graphics item which is displayed on top of the canvas
@@ -55,7 +55,7 @@ public:
 	 * @param painter
 	 * @param layer
 	 */
-	virtual void drawLayer(Malachite::SurfacePainter *painter, const Layer *layer) { Q_UNUSED(painter) Q_UNUSED(layer) }
+	virtual void drawLayer(Malachite::SurfacePainter *painter, const LayerConstPtr &layer) { Q_UNUSED(painter) Q_UNUSED(layer) }
 	
 	/**
 	 * Adds a new layer insertion which is performed on rendering.
@@ -64,7 +64,7 @@ public:
 	 * @param index The index
 	 * @param layer The inserted layer
 	 */
-	void addLayerInsertion(LayerRef parent, int index, LayerRef layer);
+	void addLayerInsertion(const LayerConstPtr &parent, int index, const LayerPtr &layer);
 	
 	void clearLayerInsertions();
 	
@@ -75,11 +75,11 @@ public:
 	 * Tool::drawLayer is called instead of the default layer drawing function of canvas, when the layer is going to be rendered.
 	 * @param layer
 	 */
-	void addLayerDelegation(LayerRef layer);
+	void addLayerDelegation(const LayerConstPtr &layer);
 	
 	void clearLayerDelegation();
 	
-	LayerRefList layerDelegations() const;
+	QList<LayerConstPtr> layerDelegations() const;
 	
 	QCursor cursor() const;
 	

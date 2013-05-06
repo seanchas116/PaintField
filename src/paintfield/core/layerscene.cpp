@@ -30,7 +30,7 @@ public:
 		_scene(scene)
 	{}
 	
-	void insertLayer(Layer *parent, int index, Layer *layer)
+	void insertLayer(const LayerPtr &parent, int index, const LayerPtr &layer)
 	{
 		PAINTFIELD_DEBUG << parent << index << layer;
 		
@@ -41,7 +41,7 @@ public:
 		enqueueTileUpdate(layer->tileKeysRecursive());
 	}
 	
-	Layer *takeLayer(Layer *parent, int index)
+	LayerPtr takeLayer(const LayerPtr &parent, int index)
 	{
 		emit _scene->layerAboutToBeRemoved(parent, index);
 		auto layer = parent->take(index);
@@ -52,7 +52,7 @@ public:
 		return layer;
 	}
 	
-	void emitLayerPropertyChanged(Layer *layer)
+	void emitLayerPropertyChanged(const LayerConstPtr &layer)
 	{
 		emit _scene->layerPropertyChanged(layer);
 	}
@@ -64,38 +64,27 @@ public:
 		_scene->enqueueTileUpdate(keys);
 	}
 	
-	Layer *layerForPath(const Path &path)
+	LayerPtr layerForPath(const Path &path)
 	{
-		auto layer = _scene->mutableRootLayer();
-		
-		for (int index : path)
-			layer = layer->child(index);
-		
-		return layer;
+		return std::const_pointer_cast<Layer>(_scene->layerForPath(path));
 	}
 	
-	static Path pathForLayer(LayerRef layer)
+	static Path pathForLayer(const LayerConstPtr &layer)
 	{
-		Path path;
-		while (layer.parent().isValid())
-		{
-			path.prepend(layer.index());
-			layer = layer.parent();
-		}
-		return path;
+		return LayerScene::pathForLayer(layer);
 	}
 	
 private:
 	
 	LayerScene *_scene = 0;
-	LayerRef _insertParent, _removeParent;
+	LayerPtr _insertParent, _removeParent;
 };
 
 class LayerSceneEditCommand : public LayerSceneCommand
 {
 public:
 	
-	LayerSceneEditCommand(const LayerRef &layer, LayerEdit *edit, LayerScene *scene, QUndoCommand *parent = 0) :
+	LayerSceneEditCommand(const LayerConstPtr &layer, LayerEdit *edit, LayerScene *scene, QUndoCommand *parent = 0) :
 		LayerSceneCommand(scene, parent),
 		_path(pathForLayer(layer)),
 		_edit(edit)
@@ -134,7 +123,7 @@ class LayerScenePropertyChangeCommand : public LayerSceneCommand
 {
 public:
 	
-	LayerScenePropertyChangeCommand(const LayerRef &layer, const QVariant &data, int role, LayerScene *scene, QUndoCommand *parent = 0) :
+	LayerScenePropertyChangeCommand(const LayerConstPtr &layer, const QVariant &data, int role, LayerScene *scene, QUndoCommand *parent = 0) :
 		LayerSceneCommand(scene, parent),
 		_path(pathForLayer(layer)),
 		_data(data),
@@ -168,7 +157,7 @@ private:
 		emitLayerPropertyChanged(layer);
 	}
 	
-	void enqueueLayerTileUpdate(const Layer *layer)
+	void enqueueLayerTileUpdate(const LayerConstPtr &layer)
 	{
 		switch (_role)
 		{
@@ -190,7 +179,7 @@ class LayerSceneAddCommand : public LayerSceneCommand
 {
 public:
 	
-	LayerSceneAddCommand(Layer *layer, const LayerRef &parentRef, int index, LayerScene *scene, QUndoCommand *parent) :
+	LayerSceneAddCommand(const LayerPtr &layer, const LayerConstPtr &parentRef, int index, LayerScene *scene, QUndoCommand *parent) :
 		LayerSceneCommand(scene, parent),
 		_layer(layer),
 		_parentPath(pathForLayer(parentRef)),
@@ -200,18 +189,18 @@ public:
 	void redo()
 	{
 		auto parent = layerForPath(_parentPath);
-		insertLayer(parent, _index, _layer.take());
+		insertLayer(parent, _index, _layer);
 	}
 	
 	void undo()
 	{
 		auto parent = layerForPath(_parentPath);
-		_layer.reset(takeLayer(parent, _index));
+		_layer = takeLayer(parent, _index);
 	}
 	
 private:
 	
-	QScopedPointer<Layer> _layer;
+	LayerPtr _layer;
 	Path _parentPath;
 	int _index;
 };
@@ -220,7 +209,7 @@ class LayerSceneRemoveCommand : public LayerSceneCommand
 {
 public:
 	
-	LayerSceneRemoveCommand(const LayerRef &layer, LayerScene *scene, QUndoCommand *parent) :
+	LayerSceneRemoveCommand(const LayerConstPtr &layer, LayerScene *scene, QUndoCommand *parent) :
 		LayerSceneCommand(scene, parent),
 		_ref(layer)
 	{
@@ -236,21 +225,21 @@ public:
 			_index = path.last();
 		}
 		
-		_layer.reset(takeLayer(layerForPath(_parentPath), _index));
+		_layer = takeLayer(layerForPath(_parentPath), _index);
 	}
 	
 	void undo()
 	{
-		insertLayer(layerForPath(_parentPath), _index, _layer.take());
+		insertLayer(layerForPath(_parentPath), _index, _layer);
 	}
 	
 private:
 	
-	LayerRef _ref;
+	LayerConstPtr _ref;
 	
 	bool _pathsSet = false;
 	Path _parentPath;
-	QScopedPointer<Layer> _layer;
+	LayerPtr _layer;
 	int _index;
 };
 
@@ -264,7 +253,7 @@ class LayerSceneCopyCommand : public LayerSceneCommand
 {
 public:
 	
-	LayerSceneCopyCommand(const LayerRef &layer, const LayerRef &parentLayer, int index, const QString &newName, LayerScene *scene, QUndoCommand *parent) :
+	LayerSceneCopyCommand(const LayerConstPtr &layer, const LayerConstPtr &parentLayer, int index, const QString &newName, LayerScene *scene, QUndoCommand *parent) :
 		LayerSceneCommand(scene, parent),
 		_layer(layer),
 		_parent(parentLayer),
@@ -294,12 +283,12 @@ public:
 	void undo()
 	{
 		auto parent = layerForPath(_parentPath);
-		delete takeLayer(parent, _index);
+		takeLayer(parent, _index);
 	}
 	
 private:
 	
-	LayerRef _layer, _parent;
+	LayerConstPtr _layer, _parent;
 	
 	bool _pathsSet = false;
 	Path _layerPath, _parentPath;
@@ -311,7 +300,7 @@ class LayerSceneMoveCommand : public LayerSceneCommand
 {
 public:
 	
-	LayerSceneMoveCommand(const LayerRef &layer, const LayerRef &parentLayer, int index, const QString &newName, LayerScene *scene, QUndoCommand *parent) :
+	LayerSceneMoveCommand(const LayerConstPtr &layer, const LayerConstPtr &parentLayer, int index, const QString &newName, LayerScene *scene, QUndoCommand *parent) :
 		LayerSceneCommand(scene, parent),
 		_layer(layer),
 		_parent(parentLayer),
@@ -373,7 +362,7 @@ private:
 		PAINTFIELD_DEBUG << _layerPath << _parentPath << _index;
 	}
 	
-	LayerRef _layer, _parent;
+	LayerConstPtr _layer, _parent;
 	
 	bool _pathsSet = false;
 	Path _layerPath, _parentPath;
@@ -385,12 +374,12 @@ class LayerSceneMergeCommand : public LayerSceneCommand
 {
 public:
 	
-	LayerSceneMergeCommand(const LayerRef &parentRef, int index, int count, const QString &newName, LayerScene *scene, QUndoCommand *parent) :
+	LayerSceneMergeCommand(const LayerConstPtr &parentRef, int index, int count, const QString &newName, LayerScene *scene, QUndoCommand *parent) :
 		LayerSceneCommand(scene, parent),
 		_index(index),
 		_count(count),
 		_newName(newName),
-		_group(new GroupLayer())
+		_group(std::make_shared<GroupLayer>())
 	{
 		_parentPath = pathForLayer(parentRef);
 	}
@@ -404,8 +393,8 @@ public:
 		
 		LayerRenderer renderer;
 		
-		auto newLayer = new RasterLayer(_newName);
-		newLayer->setSurface(renderer.renderToSurface(_group.data()));
+		auto newLayer = std::make_shared<RasterLayer>(_newName);
+		newLayer->setSurface(renderer.renderToSurface(_group));
 		newLayer->updateThumbnail(scene()->document()->size());
 		
 		insertLayer(parent, _index, newLayer);
@@ -415,7 +404,7 @@ public:
 	{
 		auto parent = layerForPath(_parentPath);
 		
-		delete takeLayer(parent, _index);
+		takeLayer(parent, _index);
 		
 		for (int i = 0; i < _count; ++i)
 			insertLayer(parent, _index + i, _group->take(0));
@@ -427,12 +416,12 @@ private:
 	int _index, _count;
 	QString _newName;
 	
-	QScopedPointer<GroupLayer> _group;
+	std::shared_ptr<GroupLayer> _group;
 };
 
 struct LayerScene::Data
 {
-	QScopedPointer<GroupLayer> rootLayer;
+	std::shared_ptr<GroupLayer> rootLayer;
 	Document *document = 0;
 	QPointSet updatedKeys;
 	
@@ -441,23 +430,28 @@ struct LayerScene::Data
 	LayerItemModel *itemModel = 0;
 	QItemSelectionModel *selectionModel = 0;
 	
-	LayerRef current;
+	LayerConstPtr current;
+	
+	bool checkLayer(const LayerConstPtr &layer)
+	{
+		return layer && layer->root() == rootLayer;
+	}
 };
 
-LayerScene::LayerScene(const LayerList &layers, Document *document) :
+LayerScene::LayerScene(const QList<LayerPtr> &layers, Document *document) :
 	QObject(document),
 	d(new Data)
 {
-	connect(this, SIGNAL(layerPropertyChanged(LayerRef)), this, SLOT(onLayerPropertyChanged(LayerRef)));
+	connect(this, SIGNAL(layerPropertyChanged(LayerConstPtr)), this, SLOT(onLayerPropertyChanged(LayerConstPtr)));
 	
 	d->document = document;
 	connect(d->document, SIGNAL(modified()), this, SLOT(update()));
 	
 	{
-		auto root = new GroupLayer();
+		auto root = std::make_shared<GroupLayer>();
 		root->insert(0, layers);
 		root->updateThumbnailRecursive(document->size());
-		d->rootLayer.reset(root);
+		d->rootLayer = root;
 	}
 	
 	{
@@ -497,18 +491,18 @@ public:
 		TypeMove
 	};
 	
-	DuplicatedNameResolver(const LayerRef &parent, Type type) :
+	DuplicatedNameResolver(const LayerConstPtr &parent, Type type) :
 		_type(type),
 		_parent(parent),
-		_names(parent.pointer()->childNames())
+		_names(parent->childNames())
 	{
 	}
 	
-	QString resolve(const Layer *layer)
+	QString resolve(const LayerConstPtr &layer)
 	{
 		QString original = layer->name();
 		
-		if (_type == TypeMove && layer->parent() == _parent.pointer())
+		if (_type == TypeMove && layer->parent() == _parent)
 			return original;
 		
 		QString name = Util::unduplicatedName(_names, original);
@@ -519,19 +513,22 @@ public:
 private:
 	
 	Type _type;
-	LayerRef _parent;
+	LayerConstPtr _parent;
 	QStringList _names;
 };
 
-void LayerScene::addLayers(const LayerList &layers, const LayerRef &parent, int index, const QString &description)
+void LayerScene::addLayers(const QList<LayerPtr> &layers, const LayerConstPtr &parent, int index, const QString &description)
 {
-	if (!parent.isValid())
+	if (!d->checkLayer(parent))
+	{
+		PAINTFIELD_WARNING << "invalid parent";
 		return;
+	}
 	
 	DuplicatedNameResolver resolver(parent, DuplicatedNameResolver::TypeAdd);
 	auto command = new QUndoCommand(description);
 	
-	for (auto layer : layers)
+	for (const auto &layer : layers)
 	{
 		layer->updateThumbnailRecursive(d->document->size());
 		layer->setName(resolver.resolve(layer));
@@ -541,27 +538,40 @@ void LayerScene::addLayers(const LayerList &layers, const LayerRef &parent, int 
 	pushCommand(command);
 }
 
-void LayerScene::removeLayers(const LayerRefList &refs, const QString &description)
+void LayerScene::removeLayers(const QList<LayerConstPtr> &layers, const QString &description)
 {
 	auto command = new QUndoCommand(description.isEmpty() ? tr("Remove Layers") : description);
-	for (auto ref : refs)
-		new LayerSceneRemoveCommand(ref, this, command);
+	for (const auto &layer : layers)
+		new LayerSceneRemoveCommand(layer, this, command);
 	pushCommand(command);
 }
 
-void LayerScene::moveLayers(const LayerRefList &refs, const LayerRef &parent, int index)
+void LayerScene::moveLayers(const QList<LayerConstPtr> &layers, const LayerConstPtr &parent, int index)
 {
+	for (const auto &layer : layers)
+		if (!d->checkLayer(layer))
+		{
+			PAINTFIELD_WARNING << "invalid layers";
+			return;
+		}
+	
+	if (!d->checkLayer(parent))
+	{
+		PAINTFIELD_WARNING << "invalid parent";
+		return;
+	}
+	
 	int newIndex = index;
 	
 	DuplicatedNameResolver resolver(parent, DuplicatedNameResolver::TypeMove);
 	
 	auto command = new QUndoCommand(tr("Move Layers"));
 	
-	for (auto ref : refs)
+	for (const auto &layer : layers)
 	{
-		new LayerSceneMoveCommand(ref, parent, newIndex, resolver.resolve(ref.pointer()), this, command);
+		new LayerSceneMoveCommand(layer, parent, newIndex, resolver.resolve(layer), this, command);
 		
-		if (ref.parent() == parent && ref.index() < index)
+		if (layer->parent() == parent && layer->index() < index)
 			--newIndex;
 		++newIndex;
 	}
@@ -569,32 +579,49 @@ void LayerScene::moveLayers(const LayerRefList &refs, const LayerRef &parent, in
 	pushCommand(command);
 }
 
-void LayerScene::copyLayers(const LayerRefList &refs, const LayerRef &parent, int index)
+void LayerScene::copyLayers(const QList<LayerConstPtr> &layers, const LayerConstPtr &parent, int index)
 {
+	for (const auto &layer : layers)
+		if (!d->checkLayer(layer))
+		{
+			PAINTFIELD_WARNING << "invalid layers";
+			return;
+		}
+	
+	if (!d->checkLayer(parent))
+	{
+		PAINTFIELD_WARNING << "invalid parent";
+		return;
+	}
+	
 	int newIndex = index;
 	
 	DuplicatedNameResolver resolver(parent, DuplicatedNameResolver::TypeAdd);
 	
 	auto command = new QUndoCommand(tr("Move Layers"));
 	
-	for (auto ref : refs)
+	for (const auto &layer : layers)
 	{
-		new LayerSceneCopyCommand(ref, parent, newIndex, resolver.resolve(ref.pointer()), this, command);
+		new LayerSceneCopyCommand(layer, parent, newIndex, resolver.resolve(layer), this, command);
 		++newIndex;
 	}
 	
 	pushCommand(command);
 }
 
-void LayerScene::mergeLayers(const LayerRef &parent, int index, int count)
+void LayerScene::mergeLayers(const LayerConstPtr &parent, int index, int count)
 {
-	PAINTFIELD_DEBUG << index << count;
+	if (!d->checkLayer(parent))
+	{
+		PAINTFIELD_WARNING << "invalid parent";
+		return;
+	}
 	
 	QString mergedName;
 	
 	for (int i = index; i < index + count; ++i)
 	{
-		mergedName += parent.child(i).pointer()->name();
+		mergedName += parent->child(i)->name();
 		if (i != index + count - 1)
 			mergedName += " + ";
 	}
@@ -604,22 +631,39 @@ void LayerScene::mergeLayers(const LayerRef &parent, int index, int count)
 	pushCommand(command);
 }
 
-void LayerScene::editLayer(const LayerRef &ref, LayerEdit *edit, const QString &description)
+void LayerScene::editLayer(const LayerConstPtr &layer, LayerEdit *edit, const QString &description)
 {
-	if (ref->isLocked())
+	PAINTFIELD_DEBUG << d->rootLayer->children();
+	PAINTFIELD_DEBUG << layer;
+	PAINTFIELD_DEBUG << layer->parent();
+	
+	if (!d->checkLayer(layer))
+	{
+		PAINTFIELD_WARNING << "invalid layer";
+		return;
+	}
+	
+	if (layer->isLocked())
 		return;
 	
-	auto command = new LayerSceneEditCommand(ref, edit, this, 0);
+	auto command = new LayerSceneEditCommand(layer, edit, this, 0);
 	command->setText(description);
 	pushCommand(command);
 }
 
-void LayerScene::setLayerProperty(const LayerRef &ref, const QVariant &data, int role, const QString &description)
+void LayerScene::setLayerProperty(const LayerConstPtr &layer, const QVariant &data, int role, const QString &description)
 {
-	if (ref->isLocked() && role != RoleLocked)
+	if (!d->checkLayer(layer))
+	{
+		PAINTFIELD_WARNING << "invalid layer";
 		return;
-	
-	if (ref->property(role) == data)
+	}
+	if (layer->isLocked() && role != RoleLocked)
+	{
+		PAINTFIELD_WARNING << "layer locked";
+		return;
+	}
+	if (layer->property(role) == data)
 		return;
 	
 	QString text = description;
@@ -646,14 +690,14 @@ void LayerScene::setLayerProperty(const LayerRef &ref, const QVariant &data, int
 		}
 	}
 	
-	auto command = new LayerScenePropertyChangeCommand(ref, data, role, this, 0);
+	auto command = new LayerScenePropertyChangeCommand(layer, data, role, this, 0);
 	command->setText(text);
 	pushCommand(command);
 }
 
-LayerRef LayerScene::rootLayer() const
+LayerConstPtr LayerScene::rootLayer() const
 {
-	return d->rootLayer.data();
+	return d->rootLayer;
 }
 
 Document *LayerScene::document()
@@ -671,14 +715,36 @@ QItemSelectionModel *LayerScene::itemSelectionModel()
 	return d->selectionModel;
 }
 
-LayerRef LayerScene::current() const
+LayerConstPtr LayerScene::current() const
 {
 	return d->current;
 }
 
-LayerRefList LayerScene::selection() const
+QList<LayerConstPtr> LayerScene::selection() const
 {
 	return d->itemModel->layersForIndexes(d->selectionModel->selection().indexes());
+}
+
+LayerConstPtr LayerScene::layerForPath(const QList<int> &path)
+{
+	auto layer = rootLayer();
+	
+	for (int index : path)
+		layer = layer->child(index);
+	
+	return layer;
+}
+
+QList<int> LayerScene::pathForLayer(const LayerConstPtr &layer)
+{
+	QList<int> path;
+	auto l = layer;
+	while (l->parent())
+	{
+		path.prepend(l->index());
+		l = l->parent();
+	}
+	return path;
 }
 
 void LayerScene::abortThumbnailUpdate()
@@ -693,12 +759,12 @@ void LayerScene::update()
 	d->updatedKeys.clear();
 }
 
-void LayerScene::setCurrent(const LayerRef &layer)
+void LayerScene::setCurrent(const LayerConstPtr &layer)
 {
 	d->selectionModel->setCurrentIndex(d->itemModel->indexForLayer(layer), QItemSelectionModel::Current);
 }
 
-void LayerScene::setSelection(const LayerRefList &layers)
+void LayerScene::setSelection(const QList<LayerConstPtr> &layers)
 {
 	d->selectionModel->clearSelection();
 	
@@ -717,9 +783,9 @@ void LayerScene::updateDirtyThumbnails()
 	emit thumbnailsUpdated();
 }
 
-Layer *LayerScene::mutableRootLayer()
+LayerPtr LayerScene::mutableRootLayer()
 {
-	return d->rootLayer.data();
+	return d->rootLayer;
 }
 
 void LayerScene::pushCommand(QUndoCommand *command)
@@ -739,7 +805,7 @@ void LayerScene::onItemSelectionChanged(const QItemSelection &selected, const QI
 	emit selectionChanged(d->itemModel->layersForIndexes(selected.indexes()), d->itemModel->layersForIndexes(deselected.indexes()));
 }
 
-void LayerScene::onLayerPropertyChanged(const LayerRef &layer)
+void LayerScene::onLayerPropertyChanged(const LayerConstPtr &layer)
 {
 	if (layer == d->current)
 		emit currentLayerPropertyChanged();

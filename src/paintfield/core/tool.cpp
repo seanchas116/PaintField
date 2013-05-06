@@ -10,7 +10,7 @@ namespace PaintField
 
 struct Tool::Data
 {
-	LayerRefList layerDelegations;
+	QList<LayerConstPtr> layerDelegations;
 	
 	QList<LayerInsertion> layerInsertions;
 	
@@ -29,12 +29,12 @@ Tool::~Tool()
 	delete d;
 }
 
-LayerRef Tool::currentLayer()
+LayerConstPtr Tool::currentLayer()
 {
 	return canvas()->document()->layerScene()->current();
 }
 
-void Tool::addLayerInsertion(LayerRef parent, int index, LayerRef layer)
+void Tool::addLayerInsertion(const LayerConstPtr &parent, int index, const LayerPtr &layer)
 {
 	LayerInsertion insertion = { .parent = parent, .index = index, .layer = layer };
 	d->layerInsertions << insertion;
@@ -50,7 +50,7 @@ QList<Tool::LayerInsertion> Tool::layerInsertions() const
 	return d->layerInsertions;
 }
 
-void Tool::addLayerDelegation(LayerRef layer)
+void Tool::addLayerDelegation(const LayerConstPtr &layer)
 {
 	d->layerDelegations << layer;
 }
@@ -60,7 +60,7 @@ void Tool::clearLayerDelegation()
 	d->layerDelegations.clear();
 }
 
-LayerRefList Tool::layerDelegations() const
+QList<LayerConstPtr> Tool::layerDelegations() const
 {
 	return d->layerDelegations;
 }

@@ -96,7 +96,7 @@ LayerUIController::LayerUIController(Document *document, QObject *parent) :
 		d->actions[ActionPaste] = a;
 	}
 	
-	connect(document->layerScene(), SIGNAL(selectionChanged(LayerRefList,LayerRefList)), this, SLOT(onSelectionChanged()));
+	connect(document->layerScene(), SIGNAL(selectionChanged(QList<LayerConstPtr>,QList<LayerConstPtr>)), this, SLOT(onSelectionChanged()));
 	onSelectionChanged();
 }
 
@@ -137,12 +137,12 @@ void LayerUIController::importLayer()
 
 void LayerUIController::newRasterLayer()
 {
-	addLayers( { new RasterLayer(tr("New Layer") ) }, tr("Add Layer") );
+	addLayers( { std::make_shared<RasterLayer>(tr("New Layer") ) }, tr("Add Layer") );
 }
 
 void LayerUIController::newGroupLayer()
 {
-	addLayers( { new GroupLayer(tr("New Group") ) }, tr("Add Group") );
+	addLayers( { std::make_shared<GroupLayer>(tr("New Group") ) }, tr("Add Group") );
 }
 
 void LayerUIController::removeLayers()
@@ -150,22 +150,22 @@ void LayerUIController::removeLayers()
 	d->document->layerScene()->removeLayers(d->document->layerScene()->selection());
 }
 
-static tuple<LayerRef, int , int> layerRangeFromLayers(const LayerRefList &layers)
+static tuple<LayerConstPtr, int , int> layerRangeFromLayers(const QList<LayerConstPtr> &layers)
 {
-	auto defaultValue = make_tuple(LayerRef(), 0, 0);
+	auto defaultValue = make_tuple(nullptr, 0, 0);
 	
 	if (layers.size() == 0)
 		return defaultValue;
 	
-	LayerRef parent = layers[0].parent();
+	LayerConstPtr parent = layers[0]->parent();
 	QList<int> indexes;
 	
-	for (auto layer : layers)
+	for (const auto &layer : layers)
 	{
-		if (layer.parent() != parent)
+		if (layer->parent() != parent)
 			return defaultValue;
 		
-		indexes << layer.index();
+		indexes << layer->index();
 	}
 	
 	qSort(indexes);
@@ -182,14 +182,14 @@ static tuple<LayerRef, int , int> layerRangeFromLayers(const LayerRefList &layer
 
 void LayerUIController::mergeLayers()
 {
-	LayerRef parent;
+	LayerConstPtr parent;
 	int start, count;
 	tie(parent, start, count) = layerRangeFromLayers(d->document->layerScene()->selection());
 	
 	if (count >= 2)
 	{
 		d->document->layerScene()->mergeLayers(parent, start, count);
-		d->document->layerScene()->setCurrent(parent.child(start));
+		d->document->layerScene()->setCurrent(parent->child(start));
 	}
 }
 
@@ -245,7 +245,7 @@ void LayerUIController::pasteLayers()
 		if (count == 0)
 			return;
 		
-		LayerList layers;
+		QList<LayerPtr> layers;
 		layers.reserve(count);
 		
 		for (int i = 0; i < count; ++i)
@@ -260,15 +260,15 @@ void LayerUIController::pasteLayers()
 	}
 }
 
-void LayerUIController::addLayers(const LayerList &layers, const QString &description)
+void LayerUIController::addLayers(const QList<LayerPtr> &layers, const QString &description)
 {
 	auto scene = d->document->layerScene();
 	
 	auto current = scene->current();
-	int row = current ? current.index() : scene->rootLayer().count();
-	auto parent = current ? current.parent() : scene->rootLayer();
+	int row = current ? current->index() : scene->rootLayer()->count();
+	auto parent = current ? current->parent() : scene->rootLayer();
 	scene->addLayers(layers, parent, row, description);
-	scene->setCurrent(parent.child(row));
+	scene->setCurrent(parent->child(row));
 }
 
 void LayerUIController::onSelectionChanged()
@@ -276,7 +276,7 @@ void LayerUIController::onSelectionChanged()
 	auto selection = d->document->layerScene()->selection();
 	
 	{
-		LayerRef parent;
+		LayerConstPtr parent;
 		int start, count;
 		tie(parent, start, count) = layerRangeFromLayers(selection);
 		d->actions[ActionMerge]->setEnabled(count >= 2);

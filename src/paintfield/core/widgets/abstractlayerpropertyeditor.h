@@ -18,15 +18,15 @@ public:
 	~AbstractLayerPropertyEditor();
 	
 	LayerScene *layerScene();
-	LayerRef current();
+	LayerConstPtr current();
 	
 	QVariant currentProperty(int role) const;
 	void setCurrentProperty(const QVariant &data, int role, const QString &description);
 	
 	template <class T>
-	const T *currentWithType()
+	std::shared_ptr<const T> currentWithType()
 	{
-		return dynamic_cast<const T *>(current().pointer());
+		return std::dynamic_pointer_cast<const T>(current());
 	}
 	
 signals:
@@ -40,7 +40,7 @@ protected:
 	 * The default implementation just calls updateForCurrentPropertyChange.
 	 * @param current
 	 */
-	virtual void updateForCurrentChange(const LayerRef &current);
+	virtual void updateForCurrentChange(const LayerConstPtr &current);
 	
 	/**
 	 * This function is called when a property of the current layer is changed.
@@ -50,7 +50,7 @@ protected:
 	
 private slots:
 	
-	void onCurrentChanged(const LayerRef &current);
+	void onCurrentChanged(const LayerConstPtr &current);
 	void onCurrentPropertyChanged();
 	
 private:

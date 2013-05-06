@@ -54,13 +54,13 @@ struct DocumentSaver::Data
 	zipFile zip = 0;
 	Document *document;
 	
-	QVariantList saveLayerChildrenRecursive(const Layer *parent, int &sourceFileCount)
+	QVariantList saveLayerChildrenRecursive(const LayerConstPtr &parent, int &sourceFileCount)
 	{
 		Q_ASSERT(parent);
 		
 		QVariantList maps;
 		
-		for (const Layer *layer : parent->children())
+		for (const auto &layer : parent->children())
 		{
 			auto map = layer->saveProperies();
 			
@@ -125,7 +125,7 @@ bool DocumentSaver::save(const QString &filePath)
 			
 			{
 				int count = 0;
-				headerMap["stack"] = d->saveLayerChildrenRecursive(d->document->layerScene()->rootLayer().pointer(), count);
+				headerMap["stack"] = d->saveLayerChildrenRecursive(d->document->layerScene()->rootLayer(), count);
 			}
 			
 			{
@@ -167,14 +167,14 @@ struct DocumentLoader::Data
 {
 	unzFile unzip = 0;
 	
-	void loadLayerChildrenRecursive(Layer *parent, const QVariantList &propertyMaps)
+	void loadLayerChildrenRecursive(const LayerPtr &parent, const QVariantList &propertyMaps)
 	{
 		for (const QVariant &item : propertyMaps)
 		{
 			QVariantMap map = item.toMap();
 			PAINTFIELD_DEBUG << map;
 			
-			Layer *layer = layerFactoryManager()->createLayer(map["type"].toString());
+			auto layer = layerFactoryManager()->createLayer(map["type"].toString());
 			if (!layer)
 				continue;
 			
@@ -232,13 +232,13 @@ Document *DocumentLoader::load(const QString &filePath, QObject *parent)
 		
 		QVariantList stack = headerMap["stack"].toList();
 		
-		GroupLayer group;
-		d->loadLayerChildrenRecursive(&group, stack);
+		auto group = std::make_shared<GroupLayer>();
+		d->loadLayerChildrenRecursive(group, stack);
 		
 		unzClose(d->unzip);
 		d->unzip = 0;
 		
-		auto document = new Document(QString(), size, group.takeAll(), parent);
+		auto document = new Document(QString(), size, group->takeAll(), parent);
 		document->setFilePath(filePath);
 		return document;
 	}

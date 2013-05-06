@@ -26,7 +26,7 @@ namespace PaintField {
 
 struct FillStrokeSideBar::Data
 {
-	const ShapeLayer *current = 0;
+	std::shared_ptr<const ShapeLayer> current;
 	
 	QHash<int, QAbstractButton *> strokePosButtons, joinStyleButtons, capStyleButtons;
 };
@@ -152,19 +152,19 @@ FillStrokeSideBar::~FillStrokeSideBar()
 	delete d;
 }
 
-void FillStrokeSideBar::updateForCurrentChange(const LayerRef &current)
+void FillStrokeSideBar::updateForCurrentChange(const LayerConstPtr &current)
 {
 	if (current)
-		d->current = dynamic_cast<const ShapeLayer *>(current.pointer());
+		d->current = std::dynamic_pointer_cast<const ShapeLayer>(current);
 	else
-		d->current = 0;
+		d->current = nullptr;
 	
 	updateForCurrentPropertyChange();
 }
 
 void FillStrokeSideBar::updateForCurrentPropertyChange()
 {
-	setEnabled(d->current);
+	setEnabled((bool)d->current);
 	
 	if (d->current)
 	{

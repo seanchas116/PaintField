@@ -22,7 +22,7 @@ public:
 	explicit RectTool(AddingType type, Canvas *canvas);
 	~RectTool();
 	
-	void drawLayer(Malachite::SurfacePainter *painter, const Layer *layer) override;
+	void drawLayer(Malachite::SurfacePainter *painter, const LayerConstPtr &layer) override;
 	
 protected:
 	
@@ -33,7 +33,7 @@ protected:
 	
 private slots:
 	
-	void updateCurrent(const LayerRef &layer);
+	void updateCurrent(const LayerConstPtr &layer);
 	void updateHandles();
 	
 private:

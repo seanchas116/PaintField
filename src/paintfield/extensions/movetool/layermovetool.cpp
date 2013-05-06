@@ -21,16 +21,16 @@ public:
 		  _offset(offset)
 	{}
 	
-	void redo(Layer *layer);
-	void undo(Layer *layer);
+	void redo(const LayerPtr &layer);
+	void undo(const LayerPtr &layer);
 	
 private:
 	QPoint _offset;
 };
 
-void LayerMoveEdit::redo(Layer *layer)
+void LayerMoveEdit::redo(const LayerPtr &layer)
 {
-	RasterLayer *rasterLayer = dynamic_cast<RasterLayer *>(layer);
+	auto rasterLayer = std::dynamic_pointer_cast<RasterLayer>(layer);
 	Q_ASSERT(rasterLayer);
 	Surface surface;
 	
@@ -44,9 +44,9 @@ void LayerMoveEdit::redo(Layer *layer)
 	rasterLayer->setSurface(surface);
 }
 
-void LayerMoveEdit::undo(Layer *layer)
+void LayerMoveEdit::undo(const LayerPtr &layer)
 {
-	RasterLayer *rasterLayer = dynamic_cast<RasterLayer *>(layer);
+	auto rasterLayer = std::dynamic_pointer_cast<RasterLayer>(layer);
 	Q_ASSERT(rasterLayer);
 	Surface surface;
 	
@@ -64,10 +64,10 @@ LayerMoveTool::LayerMoveTool(Canvas *parent) :
 	Tool(parent)
 {}
 
-void LayerMoveTool::drawLayer(SurfacePainter *painter, const Layer *layer)
+void LayerMoveTool::drawLayer(SurfacePainter *painter, const LayerConstPtr &layer)
 {
 	PAINTFIELD_DEBUG << "offset:" << _offset;
-	auto rasterLayer = dynamic_cast<const RasterLayer *>(layer);
+	auto rasterLayer = std::dynamic_pointer_cast<const RasterLayer>(layer);
 	painter->drawSurface(_offset, rasterLayer->surface());
 }
 
@@ -94,7 +94,7 @@ void LayerMoveTool::tabletPressEvent(CanvasTabletEvent *event)
 	{
 		canvas()->document()->layerScene()->abortThumbnailUpdate();
 		_layerIsDragged = true;
-		addLayerDelegation(_layer.pointer());
+		addLayerDelegation(_layer);
 		_dragStartPoint = event->data.pos.toQPoint();
 		_lastKeys = _layer->tileKeys();
 	}

@@ -25,7 +25,7 @@ Document *DocumentController::createFromNewDialog()
 	if (dialog.exec() != QDialog::Accepted)
 		return 0;
 	
-	auto layer = new RasterLayer(tr("Untitled Layer"));
+	auto layer = std::make_shared<RasterLayer>(tr("Untitled Layer"));
 	return new Document(appController()->unduplicatedFileTempName(tr("Untitled")), dialog.documentSize(), {layer});
 }
 
@@ -180,7 +180,7 @@ bool DocumentController::exportToImage(Document *document)
 	
 	{
 		LayerRenderer renderer;
-		surface = renderer.renderToSurface(document->layerScene()->rootLayer().pointer(), document->tileKeys());
+		surface = renderer.renderToSurface(document->layerScene()->rootLayer(), document->tileKeys());
 	}
 	
 	QString path = FileDialog::getSaveFilePath(0, tr("Export"), dialog.currentText(), dialog.currentFormat());

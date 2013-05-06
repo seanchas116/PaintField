@@ -33,7 +33,7 @@ public:
 	 * @param index
 	 * @return 
 	 */
-	LayerRef layerForIndex(const QModelIndex &index) const;
+	LayerConstPtr layerForIndex(const QModelIndex &index) const;
 	
 	/**
 	 * Returns the layer that is associated with the given index.
@@ -41,12 +41,12 @@ public:
 	 * @param index
 	 * @return 
 	 */
-	LayerRef layerExceptRootForIndex(const QModelIndex &index) const;
+	LayerConstPtr layerExceptRootForIndex(const QModelIndex &index) const;
 	
-	QModelIndex indexForLayer(const LayerRef &ref) const;
+	QModelIndex indexForLayer(const LayerConstPtr &layer) const;
 	
-	LayerRefList layersForIndexes(const QModelIndexList &indexes) const;
-	QModelIndexList indexesFromLayers(const LayerRefList &layers) const;
+	QList<LayerConstPtr> layersForIndexes(const QModelIndexList &indexes) const;
+	QModelIndexList indexesFromLayers(const QList<LayerConstPtr> &layers) const;
 	
 	int normalizeRole(int role) const;
 	
@@ -56,12 +56,12 @@ public slots:
 	
 private slots:
 	
-	void onLayerAboutToBeInserted(const LayerRef &parent, int index);
-	void onLayerInserted(const LayerRef &parent, int index);
-	void onLayerAboutToBeRemoved(const LayerRef &parent, int index);
-	void onLayerRemoved(const LayerRef &parent, int index);
+	void onLayerAboutToBeInserted(const LayerConstPtr &parent, int index);
+	void onLayerInserted(const LayerConstPtr &parent, int index);
+	void onLayerAboutToBeRemoved(const LayerConstPtr &parent, int index);
+	void onLayerRemoved(const LayerConstPtr &parent, int index);
 	
-	void onLayerPropertyChanged(const LayerRef &layer);
+	void onLayerPropertyChanged(const LayerConstPtr &layer);
 	
 private:
 	

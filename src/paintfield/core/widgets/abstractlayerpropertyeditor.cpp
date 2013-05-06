@@ -7,7 +7,7 @@ namespace PaintField {
 struct AbstractLayerPropertyEditor::Data
 {
 	LayerScene *scene = 0;
-	LayerRef current;
+	LayerConstPtr current;
 };
 
 AbstractLayerPropertyEditor::AbstractLayerPropertyEditor(LayerScene *layerScene, QWidget *parent) :
@@ -18,7 +18,7 @@ AbstractLayerPropertyEditor::AbstractLayerPropertyEditor(LayerScene *layerScene,
 	
 	if (layerScene)
 	{
-		connect(layerScene, SIGNAL(currentChanged(LayerRef,LayerRef)), this, SLOT(onCurrentChanged(LayerRef)));
+		connect(layerScene, SIGNAL(currentChanged(LayerConstPtr,LayerConstPtr)), this, SLOT(onCurrentChanged(LayerConstPtr)));
 		connect(layerScene, SIGNAL(currentLayerPropertyChanged()), this, SLOT(onCurrentPropertyChanged()));
 		d->current = layerScene->current();
 	}
@@ -34,7 +34,7 @@ LayerScene *AbstractLayerPropertyEditor::layerScene()
 	return d->scene;
 }
 
-LayerRef AbstractLayerPropertyEditor::current()
+LayerConstPtr AbstractLayerPropertyEditor::current()
 {
 	return d->current;
 }
@@ -53,7 +53,7 @@ void AbstractLayerPropertyEditor::setCurrentProperty(const QVariant &data, int r
 		d->scene->setLayerProperty(d->current, data, role, description);
 }
 
-void AbstractLayerPropertyEditor::onCurrentChanged(const LayerRef &current)
+void AbstractLayerPropertyEditor::onCurrentChanged(const LayerConstPtr &current)
 {
 	d->current = current;
 	updateForCurrentChange(current);
@@ -64,7 +64,7 @@ void AbstractLayerPropertyEditor::onCurrentPropertyChanged()
 	updateForCurrentPropertyChange();
 }
 
-void AbstractLayerPropertyEditor::updateForCurrentChange(const LayerRef &current)
+void AbstractLayerPropertyEditor::updateForCurrentChange(const LayerConstPtr &current)
 {
 	Q_UNUSED(current)
 	updateForCurrentPropertyChange();

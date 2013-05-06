@@ -30,7 +30,7 @@ public slots:
 	
 protected:
 	
-	void updateForCurrentChange(const LayerRef &current);
+	void updateForCurrentChange(const LayerConstPtr &current);
 	void updateForCurrentPropertyChange() override;
 	
 private slots:

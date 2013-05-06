@@ -31,7 +31,7 @@ public:
 	
 protected:
 	
-	void drawLayer(SurfacePainter *painter, const Layer *layer) override
+	void drawLayer(SurfacePainter *painter, const LayerConstPtr &layer) override
 	{
 		if (_tool && _tool->layerDelegations().contains(layer))
 			_tool->drawLayer(painter, layer);
@@ -39,7 +39,7 @@ protected:
 			LayerRenderer::drawLayer(painter, layer);
 	}
 	
-	void renderChildren(SurfacePainter *painter, const Layer *parent) override
+	void renderChildren(SurfacePainter *painter, const LayerConstPtr &parent) override
 	{
 		if (!_tool || _tool->layerInsertions().isEmpty())
 		{
@@ -58,13 +58,13 @@ protected:
 					auto layer = insertion.layer;
 					if (index == originalLayers.size())
 					{
-						layers << layer.pointer();
+						layers << layer;
 					}
 					else
 					{
 						auto layerAt = originalLayers.at(index);
 						int trueIndex = layers.indexOf(layerAt);
-						layers.insert(trueIndex, layer.pointer());
+						layers.insert(trueIndex, layer);
 					}
 				}
 			}
@@ -312,7 +312,7 @@ void CanvasViewController::updateTiles(const QPointSet &keys, const QHash<QPoint
 	CanvasRenderer renderer;
 	renderer.setTool(d->tool);
 	
-	Surface surface = renderer.renderToSurface(canvas()->document()->layerScene()->rootLayer().pointer(), keys, rects);
+	Surface surface = renderer.renderToSurface(canvas()->document()->layerScene()->rootLayer(), keys, rects);
 	
 	static const Pixel whitePixel = Color::fromRgbValue(1,1,1).toPixel();
 	

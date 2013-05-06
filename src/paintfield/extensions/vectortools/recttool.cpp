@@ -188,8 +188,8 @@ struct RectTool::Data
 	
 	AddingType addingType = NoAdding;
 	
-	QScopedPointer<AbstractRectLayer> rectLayer;
-	LayerRef current;
+	std::shared_ptr<AbstractRectLayer> rectLayer;
+	LayerConstPtr current;
 	QList<RectHandleItem *> handles;
 	
 	RectHandleItem *findHandle(int types)
@@ -215,7 +215,7 @@ struct RectTool::Data
 		return Surface::rectToKeys(rect.toAlignedRect());
 	}
 	
-	LayerRef addingParent;
+	LayerConstPtr addingParent;
 	int addingIndex;
 };
 
@@ -249,8 +249,8 @@ RectTool::RectTool(AddingType type, Canvas *canvas) :
 	
 	graphicsItem()->setVisible(false);
 	
-	connect(layerScene(), SIGNAL(currentChanged(LayerRef,LayerRef)), this, SLOT(updateCurrent(LayerRef)));
-	connect(layerScene(), SIGNAL(layerPropertyChanged(LayerRef)), this, SLOT(updateCurrent(LayerRef)));
+	connect(layerScene(), SIGNAL(currentChanged(LayerConstPtr,LayerConstPtr)), this, SLOT(updateCurrent(LayerConstPtr)));
+	connect(layerScene(), SIGNAL(layerPropertyChanged(LayerConstPtr)), this, SLOT(updateCurrent(LayerConstPtr)));
 	connect(canvas, SIGNAL(transformChanged(Malachite::Affine2D,Malachite::Affine2D)), this, SLOT(updateHandles()));
 	
 	updateCurrent(layerScene()->current());
@@ -261,9 +261,9 @@ RectTool::~RectTool()
 	delete d;
 }
 
-void RectTool::drawLayer(SurfacePainter *painter, const Layer *layer)
+void RectTool::drawLayer(SurfacePainter *painter, const LayerConstPtr &layer)
 {
-	if (layer == d->current.pointer())
+	if (layer == d->current)
 	{
 		d->rectLayer->render(painter);
 	}
@@ -399,7 +399,7 @@ void RectTool::tabletReleaseEvent(CanvasTabletEvent *event)
 	updateHandles();
 }
 
-void RectTool::updateCurrent(const LayerRef &layer)
+void RectTool::updateCurrent(const LayerConstPtr &layer)
 {
 	clearLayerDelegation();
 	
@@ -412,10 +412,10 @@ void RectTool::updateCurrent(const LayerRef &layer)
 	
 	if (layer)
 	{
-		auto rectLayer = dynamic_cast<const AbstractRectLayer *>(layer.pointer());
+		auto rectLayer = std::dynamic_pointer_cast<const AbstractRectLayer>(layer);
 		if (rectLayer)
 		{
-			d->rectLayer.reset(static_cast<AbstractRectLayer *>(rectLayer->clone()));
+			d->rectLayer = std::static_pointer_cast<AbstractRectLayer>(rectLayer->clone());
 			addLayerDelegation(layer);
 			
 			updateHandles();
@@ -441,7 +441,7 @@ void RectTool::addHandle(int handleTypes, qreal zValue)
 
 void RectTool::updateHandles()
 {
-	graphicsItem()->setVisible(d->rectLayer);
+	graphicsItem()->setVisible(d->rectLayer != nullptr);
 	
 	if (!d->rectLayer)
 		return;
@@ -555,11 +555,11 @@ void RectTool::startAdding()
 {
 	auto createNew = [this]()
 	{
-		AbstractRectLayer *layer;
+		std::shared_ptr<AbstractRectLayer> layer;
 		
 		if (d->addingType == RectTool::AddText)
 		{
-			auto textLayer = new TextLayer();
+			auto textLayer = std::make_shared<TextLayer>();
 			textLayer->setText(tr("Text"));
 			textLayer->setName(tr("Text"));
 			
@@ -575,7 +575,7 @@ void RectTool::startAdding()
 		}
 		else
 		{
-			layer = new RectLayer();
+			layer = std::make_shared<RectLayer>();
 			
 			if (d->addingType == RectTool::AddEllipse)
 			{
@@ -595,12 +595,12 @@ void RectTool::startAdding()
 		return layer;
 	};
 	
-	d->rectLayer.reset(createNew());
+	d->rectLayer = createNew();
 	
 	if (d->current)
 	{
-		d->addingParent = d->current.parent();
-		d->addingIndex = d->current.index();
+		d->addingParent = d->current->parent();
+		d->addingIndex = d->current->index();
 	}
 	else
 	{
@@ -608,7 +608,7 @@ void RectTool::startAdding()
 		d->addingIndex = 0;
 	}
 	
-	addLayerInsertion(d->addingParent, d->addingIndex, d->rectLayer.data());
+	addLayerInsertion(d->addingParent, d->addingIndex, d->rectLayer);
 }
 
 void RectTool::finishAdding()
@@ -617,7 +617,7 @@ void RectTool::finishAdding()
 	
 	clearLayerInsertions();
 	layerScene()->addLayers({d->rectLayer->clone()}, d->addingParent, d->addingIndex, tr("Add Rectangle"));
-	layerScene()->setCurrent(d->addingParent.child(d->addingIndex));
+	layerScene()->setCurrent(d->addingParent->child(d->addingIndex));
 }
 
 } // namespace PaintField

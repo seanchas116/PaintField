@@ -27,7 +27,7 @@ BrushTool::BrushTool(Canvas *parent) :
 
 BrushTool::~BrushTool() {}
 
-void BrushTool::drawLayer(SurfacePainter *painter, const Layer *layer)
+void BrushTool::drawLayer(SurfacePainter *painter, const LayerConstPtr &layer)
 {
 	Q_UNUSED(layer)
 	painter->drawPreTransformedSurface(QPoint(), _surface);
@@ -61,8 +61,6 @@ void BrushTool::tabletPressEvent(CanvasTabletEvent *event)
 
 void BrushTool::tabletMoveEvent(CanvasTabletEvent *event)
 {
-	PAINTFIELD_DEBUG << QPointF(event->data.pos);
-	
 	if (event->data.pressure)
 	{
 		if (isStroking())
@@ -91,7 +89,7 @@ void BrushTool::beginStroke(const TabletInputData &data)
 	if (!_strokerFactory)
 		return;
 	
-	_layer = dynamic_cast<const RasterLayer *>(currentLayer().pointer());
+	_layer = std::dynamic_pointer_cast<const RasterLayer>(currentLayer());
 	
 	if (!_layer || _layer->isLocked())
 		return;
@@ -148,7 +146,7 @@ void BrushTool::endStroke(const TabletInputData &data)
 	_stroker->end();
 	updateTiles();
 	
-	if (_layer && _layer == currentLayer().pointer())
+	if (_layer && _layer == currentLayer())
 	{
 		_surface.squeeze(_stroker->totalEditedKeys());
 		canvas()->viewController()->setUpdateTilesEnabled(false);

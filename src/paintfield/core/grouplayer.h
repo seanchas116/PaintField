@@ -9,7 +9,7 @@ public:
 	
 	GroupLayer(const QString &name = QString()) : Layer(name) { setBlendMode(Malachite::BlendMode::PassThrough); }
 	
-	Layer *createAnother() const override { return new GroupLayer(); }
+	LayerPtr createAnother() const override { return std::make_shared<GroupLayer>(); }
 	bool canHaveChildren() const override { return true; }
 	
 	void updateThumbnail(const QSize &size) override;
@@ -22,7 +22,7 @@ public:
 	GroupLayerFactory() : LayerFactory() {}
 	
 	QString name() const override;
-	Layer *create() const override { return new GroupLayer(); }
+	LayerPtr create() const override { return std::make_shared<GroupLayer>(); }
 	const ::std::type_info &typeInfo() const override { return typeid(GroupLayer); }
 };
 

@@ -2,11 +2,11 @@
 #define LAYERPROPERTYEDITOR_H
 
 #include <QWidget>
+#include "paintfield/core/layer.h"
 
 namespace PaintField
 {
 
-class LayerRef;
 class LayerScene;
 
 class LayerPropertyEditor : public QWidget
@@ -20,7 +20,7 @@ signals:
 	
 public slots:
 	
-	void setCurrentLayer(const LayerRef &current);
+	void setCurrentLayer(const LayerConstPtr &current);
 	void updateEditor();
 	
 private slots:

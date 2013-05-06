@@ -22,46 +22,47 @@ Layer::Layer(const QString &name)
 
 Layer::~Layer()
 {
-	for (auto i : _indexes)
-		i->_layer = 0;
-	
-	qDeleteAll(_children);
 }
 
-const Layer *Layer::child(int row) const
+LayerConstPtr Layer::constChild(int index) const
 {
-	if (!contains(row))
-		return 0;
-	return _children[row];
+	if (!contains(index))
+		return nullptr;
+	return _children[index];
 }
 
-const Layer *Layer::root() const
+LayerConstPtr Layer::constRoot() const
 {
-	const Layer *layer = this;
+	auto layer = shared_from_this();
 	
 	forever
 	{
-		if (layer->parent() == 0) return layer;
+		if (layer->parent() == nullptr)
+			return layer;
 		layer = layer->parent();
 	}
 }
 
-bool Layer::isAncestorOf(const Layer *layer) const
+bool Layer::isAncestorOf(const LayerConstPtr &layer) const
 {
+	auto l = layer;
+	
 	forever
 	{
-		if (layer == this) return true;
-		if (layer == 0) return false;
-		layer = layer->parent();
+		if (l.get() == this)
+			return true;
+		if (l == nullptr)
+			return false;
+		l = l->parent();
 	}
 }
 
-bool Layer::isAncestorOfSafe(const Layer *layer) const
+bool Layer::isAncestorOfSafe(const LayerConstPtr &layer) const
 {
-	if (this == layer)
+	if (this == layer.get())
 		return true;
 	
-	for (const Layer *child : _children)
+	for (const auto &child : _children)
 	{
 		if (child->isAncestorOfSafe(layer))
 			return true;
@@ -70,104 +71,61 @@ bool Layer::isAncestorOfSafe(const Layer *layer) const
 	return false;
 }
 
-bool Layer::insert(int row, Layer *child)
+bool Layer::insert(int index, const LayerPtr &child)
 {
-	if (!insertable(row))
+	if (!insertable(index))
 	{
-		qWarning() << Q_FUNC_INFO << ": invaild row";
+		PAINTFIELD_WARNING << "invalid row";
 		return false;
 	}
 	
-	_children.insert(row, child);
-	child->_parent = this;
+	_children.insert(index, child);
+	child->_parent = shared_from_this();
 	
 	return true;
 }
 
-bool Layer::insert(int row, const LayerList &children)
+bool Layer::insert(int index, const QList<LayerPtr> &children)
 {
-	if (!insertable(row))
+	if (!insertable(index))
 	{
-		qWarning() << Q_FUNC_INFO << ": invaild row";
+		PAINTFIELD_WARNING << "invalid row";
 		return false;
 	}
 	
 	int count = children.size();
 	
 	for (int i = 0; i < count; ++i)
-		insert(row + i, children.at(i));
+		insert(index + i, children.at(i));
 	
 	return true;
 }
 
-Layer *Layer::take(int row)
+LayerPtr Layer::take(int row)
 {
 	if (!contains(row))
 	{
-		qWarning() << Q_FUNC_INFO << ": invaild row";
-		return 0;
+		PAINTFIELD_WARNING << "invalid row";
+		return nullptr;
 	}
 	
-	Layer *child = _children.takeAt(row);
-	child->_parent = 0;
-	
+	auto child = _children.takeAt(row);
+	child->_parent = std::weak_ptr<Layer>();
 	return child;
 }
 
-LayerList Layer::takeAll()
+QList<LayerPtr> Layer::takeAll()
 {
-	LayerList children = _children;
+	auto children = _children;
 	_children.clear();
 	
-	for (Layer *child : children)
-		child->_parent = 0;
+	for (const auto &child : children)
+		child->_parent = std::weak_ptr<Layer>();
 	
 	return children;
 }
 
-Layer *Layer::replace(int row, Layer *child)
-{
-	if (!contains(row))
-	{
-		qWarning() << Q_FUNC_INFO << ": invaild row";
-		return 0;
-	}
-	
-	Layer *oldChild = take(row);
-	insert(row, child);
-	
-	return oldChild;
-}
-
-bool Layer::remove(int row)
-{
-	if (!contains(row))
-	{
-		qWarning() << Q_FUNC_INFO << ": invaild row";
-		return false;
-	}
-	
-	delete _children.takeAt(row);
-	
-	return true;
-}
-
-bool Layer::shift(int start, int end, int shiftCount)
-{
-	if (start == end)
-		return true;
-	
-	if (contains(start) && contains(end))
-	{
-		shiftContainer(_children, start, end, shiftCount);
-		return true;
-	}
-	
-	qWarning() << Q_FUNC_INFO << ": invaild row";
-	return false;
-}
-
-Layer *Layer::clone() const
+LayerPtr Layer::clone() const
 {
 	auto layer = this->createAnother();
 	QByteArray array;
@@ -185,11 +143,11 @@ Layer *Layer::clone() const
 	return layer;
 }
 
-Layer *Layer::cloneRecursive() const
+LayerPtr Layer::cloneRecursive() const
 {
-	Layer *dest = clone();
+	auto dest = clone();
 	
-	for (Layer *child : _children)
+	for (const auto &child : _children)
 		dest->append(child->cloneRecursive());
 	
 	return dest;
@@ -199,7 +157,7 @@ QStringList Layer::childNames() const
 {
 	QStringList list;
 	
-	for (Layer *child : _children)
+	for (const auto &child : _children)
 		list << child->name();
 	
 	return list;
@@ -256,7 +214,7 @@ QVariant Layer::property(int role) const
 void Layer::updateThumbnailRecursive(const QSize &size)
 {
 	updateThumbnail(size);
-	for (Layer *child : _children)
+	for (const auto &child : _children)
 		child->updateThumbnailRecursive(size);
 }
 
@@ -268,13 +226,13 @@ void Layer::updateDirtyThumbnailRecursive(const QSize &size)
 		_isThumbnailDirty = false;
 	}
 	
-	for (Layer *child : _children)
+	for (const auto &child : _children)
 		child->updateDirtyThumbnailRecursive(size);
 }
 
-const Layer *Layer::descendantAt(const QPoint &pos, int margin) const
+LayerConstPtr Layer::descendantAt(const QPoint &pos, int margin) const
 {
-	for (const Layer *child : _children)
+	for (const auto &child : _children)
 	{
 		if (child->includes(pos, margin))
 			return child;
@@ -291,7 +249,7 @@ QPointSet Layer::tileKeysRecursive() const
 	QPointSet keys;
 	keys |= tileKeys();
 	
-	for (const Layer *child : _children)
+	for (const auto &child : _children)
 		keys |= child->tileKeysRecursive();
 	
 	return keys;
@@ -308,7 +266,7 @@ void Layer::encodeRecursive(QDataStream &stream) const
 		child->encodeRecursive(stream);
 }
 
-Layer *Layer::decodeRecursive(QDataStream &stream)
+LayerPtr Layer::decodeRecursive(QDataStream &stream)
 {
 	QString typeName;
 	stream >> typeName;
@@ -367,26 +325,11 @@ void Layer::decode(QDataStream &stream)
 	_blendMode = blend;
 }
 
-QList<LayerRef> LayerRef::children() const
-{
-	Q_ASSERT(_layer);
-	
-	QList<LayerRef> result;
-	
-	auto list = _layer->children();
-	result.reserve(list.size());
-	
-	for (auto layer : list)
-		result << LayerRef(layer);
-	
-	return result;
 }
 
-}
-
-QDebug operator<<(QDebug debug, const PaintField::LayerRef &layer)
+QDebug operator<<(QDebug debug, const PaintField::LayerConstPtr &layer)
 {
-	debug.nospace() << "(" << layer.pointer() << ", " << (layer ? layer->name() : QString()) << ")";
+	debug.nospace() << "(" << layer.get() << ", " << (layer ? layer->name() : QString()) << ")";
 	return debug.space();
 }
 
