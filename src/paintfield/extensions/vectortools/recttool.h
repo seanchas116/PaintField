@@ -33,8 +33,9 @@ protected:
 	
 private slots:
 	
-	void updateCurrent(const LayerConstPtr &layer);
-	void updateHandles();
+	void updateSelected();
+	void updateLayer(const LayerConstPtr &layer);
+	void updateGraphicsItems();
 	
 private:
 	

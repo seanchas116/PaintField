@@ -188,9 +188,25 @@ struct RectTool::Data
 	
 	AddingType addingType = NoAdding;
 	
-	std::shared_ptr<AbstractRectLayer> rectLayer;
-	LayerConstPtr current;
+	struct LayerInfo
+	{
+		LayerConstPtr original; // original layer
+		std::shared_ptr<AbstractRectLayer> rectLayer; // editable rect layer (only if original layer is rect)
+		QRectF boundingRect; // bounding rect
+		Vec2D originalRectPos;
+		
+		void setRectLayer(const std::shared_ptr<const AbstractRectLayer> &rectLayer)
+		{
+			this->rectLayer = std::dynamic_pointer_cast<AbstractRectLayer>(rectLayer->clone());
+			this->originalRectPos = rectLayer->rect().topLeft();
+		}
+	};
+	
+	QList<LayerInfo> selectedLayerInfos;
+	
+	// graphics items
 	QList<RectHandleItem *> handles;
+	FrameGraphicsItem *frameItem = 0;
 	
 	RectHandleItem *findHandle(int types)
 	{
@@ -202,21 +218,20 @@ struct RectTool::Data
 		return 0;
 	}
 	
-	FrameGraphicsItem *frameItem = 0;
-	
 	Mode mode = NoOperation;
 	bool dragDistanceEnough = false;
 	Vec2D dragStartPos;
 	Vec2D originalRectPos;
 	
-	QPointSet rectKeys() const
+	QPointSet rectKeysWithHandleMargin(const QRectF &rect) const
 	{
-		auto rect = rectLayer->rect().adjusted(-handleRadius, -handleRadius, handleRadius, handleRadius);
-		return Surface::rectToKeys(rect.toAlignedRect());
+		auto newRect = rect.adjusted(-handleRadius, -handleRadius, handleRadius, handleRadius);
+		return Surface::rectToKeys(newRect.toAlignedRect());
 	}
 	
-	LayerConstPtr addingParent;
-	int addingIndex;
+	std::shared_ptr<AbstractRectLayer> layerToAdd;
+	LayerConstPtr layerToAddParent;
+	int layerToAddIndex;
 };
 
 RectTool::RectTool(AddingType type, Canvas *canvas) :
@@ -247,13 +262,10 @@ RectTool::RectTool(AddingType type, Canvas *canvas) :
 	addHandle(Left, 0);
 	addHandle(Right, 0);
 	
-	graphicsItem()->setVisible(false);
-	
-	connect(layerScene(), SIGNAL(currentChanged(LayerConstPtr,LayerConstPtr)), this, SLOT(updateCurrent(LayerConstPtr)));
-	connect(layerScene(), SIGNAL(layerPropertyChanged(LayerConstPtr)), this, SLOT(updateCurrent(LayerConstPtr)));
-	connect(canvas, SIGNAL(transformChanged(Malachite::Affine2D,Malachite::Affine2D)), this, SLOT(updateHandles()));
-	
-	updateCurrent(layerScene()->current());
+	connect(layerScene(), SIGNAL(selectionChanged(QList<LayerConstPtr>,QList<LayerConstPtr>)), this, SLOT(updateSelected()));
+	connect(layerScene(), SIGNAL(layerPropertyChanged(LayerConstPtr)), this, SLOT(updateLayer(LayerConstPtr)));
+	connect(canvas, SIGNAL(transformChanged(Malachite::Affine2D,Malachite::Affine2D)), this, SLOT(updateGraphicsItems()));
+	updateSelected();
 }
 
 RectTool::~RectTool()
@@ -263,9 +275,10 @@ RectTool::~RectTool()
 
 void RectTool::drawLayer(SurfacePainter *painter, const LayerConstPtr &layer)
 {
-	if (layer == d->current)
+	for (const auto &info : d->selectedLayerInfos)
 	{
-		d->rectLayer->render(painter);
+		if (info.original == layer && info.rectLayer)
+			info.rectLayer->render(painter);
 	}
 }
 
@@ -294,13 +307,26 @@ void RectTool::tabletPressEvent(CanvasTabletEvent *event)
 	
 	auto layer = layerScene()->rootLayer()->descendantAt(event->data.pos.toQPoint(), handleRadius);
 	
-	// set clicked layer to current
+	auto selection = layerScene()->selection();
+	
+	if (!selection.contains(layer))
+	{
+		if (event->modifiers() & Qt::ShiftModifier)
+		{
+			selection << layer;
+			layerScene()->setSelection(selection);
+		}
+		else
+		{
+			layerScene()->setSelection({layer});
+		}
+	}
 	
 	layerScene()->setCurrent(layer);
 	
 	// decide mode
 	
-	if (d->rectLayer && layer)
+	if (d->selectedLayerInfos.size() && layer)
 		d->mode = Dragging;
 	else if (d->addingType != NoAdding) // other than rect layer or no layer selected
 		d->mode = Inserting;
@@ -310,9 +336,6 @@ void RectTool::tabletPressEvent(CanvasTabletEvent *event)
 	
 	d->dragDistanceEnough = false;
 	d->dragStartPos = event->data.pos;
-	
-	if (d->mode == Dragging)
-		d->originalRectPos = d->rectLayer->rect().topLeft();
 }
 
 void RectTool::tabletMoveEvent(CanvasTabletEvent *event)
@@ -327,33 +350,49 @@ void RectTool::tabletMoveEvent(CanvasTabletEvent *event)
 			{
 				break;
 			}
+				
 			case Dragging:
 			case Inserting:
 			{
-				auto originalKeys = d->rectKeys();
-				
-				QRectF rect;
+				QPointSet keys;
 				
 				if (d->mode == Dragging)
 				{
-					// move rect
-					rect = QRectF(delta + d->originalRectPos, d->rectLayer->rect().size());
+					QRectF wholeRect;
+					
+					for (const auto &info : d->selectedLayerInfos)
+					{
+						if (info.rectLayer)
+						{
+							auto rect = info.rectLayer->rect();
+							wholeRect |= rect;
+							rect.moveTopLeft(delta + info.originalRectPos);
+							wholeRect |= rect;
+							info.rectLayer->setRect(rect);
+						}
+					}
+					
+					keys = d->rectKeysWithHandleMargin(wholeRect);
 				}
 				else
 				{
-					// set a rect which is spreaded by dragStartPos and event pos
+					QRectF rect = d->layerToAdd->rect();
+					
+					keys |= d->rectKeysWithHandleMargin(rect);
 					
 					auto p1 = d->dragStartPos, p2 = event->data.pos;
 					rect.setLeft(std::min(p1.x(), p2.x()));
 					rect.setRight(std::max(p1.x(), p2.x()));
 					rect.setTop(std::min(p1.y(), p2.y()));
 					rect.setBottom(std::max(p1.y(), p2.y()));
+					
+					keys |= d->rectKeysWithHandleMargin(rect);
+					
+					d->layerToAdd->setRect(rect);
 				}
 				
-				d->rectLayer->setRect(rect);
-				
-				emit requestUpdate(originalKeys | d->rectKeys());
-				updateHandles();
+				emit requestUpdate(keys);
+				updateGraphicsItems();
 				break;
 			}
 		}
@@ -396,35 +435,45 @@ void RectTool::tabletReleaseEvent(CanvasTabletEvent *event)
 	}
 	
 	d->mode = NoOperation;
-	updateHandles();
+	updateGraphicsItems();
 }
 
-void RectTool::updateCurrent(const LayerConstPtr &layer)
+void RectTool::updateSelected()
 {
+	auto layers = layerScene()->selection();
+	
 	clearLayerDelegation();
 	
-	d->current = layer;
+	d->selectedLayerInfos.clear();
 	
-	if (layer && layer->isGraphicallySelectable())
-		layerScene()->setSelection({layer});
-	else
-		layerScene()->setSelection({});
-	
-	if (layer)
+	for (const auto &layer : layers)
 	{
+		Data::LayerInfo info;
+		info.original = layer;
+		
 		auto rectLayer = std::dynamic_pointer_cast<const AbstractRectLayer>(layer);
 		if (rectLayer)
 		{
-			d->rectLayer = std::static_pointer_cast<AbstractRectLayer>(rectLayer->clone());
+			info.setRectLayer(rectLayer);
 			addLayerDelegation(layer);
-			
-			updateHandles();
-			return;
 		}
+		d->selectedLayerInfos << info;
 	}
 	
-	d->rectLayer.reset();
-	updateHandles();
+	updateGraphicsItems();
+}
+
+void RectTool::updateLayer(const LayerConstPtr &layer)
+{
+	for (auto &info : d->selectedLayerInfos)
+	{
+		if (info.original == layer)
+		{
+			auto rectLayer = std::dynamic_pointer_cast<const AbstractRectLayer>(layer);
+			if (rectLayer)
+				info.setRectLayer(rectLayer);
+		}
+	}
 }
 
 void RectTool::addHandle(int handleTypes, qreal zValue)
@@ -439,62 +488,96 @@ void RectTool::addHandle(int handleTypes, qreal zValue)
 	handle->signalOnHandleMoveFinished().connect(std::bind(&RectTool::onHandleMoveFinished, this));
 }
 
-void RectTool::updateHandles()
+void RectTool::updateGraphicsItems()
 {
-	graphicsItem()->setVisible(d->rectLayer != nullptr);
-	
-	if (!d->rectLayer)
-		return;
-	
-	auto rect = d->rectLayer->rect();
-	
-	// get vertices in scene coordinates
-	auto transformToView = canvas()->transformToView().toQTransform();
-	auto topLeft = rect.topLeft() * transformToView;
-	auto topRight = rect.topRight() * transformToView;
-	auto bottomLeft = rect.bottomLeft() * transformToView;
-	auto bottomRight = rect.bottomRight() * transformToView;
-	
-	PAINTFIELD_DEBUG << topLeft;
-	
-	d->findHandle(Left)->setPos( (topLeft + bottomLeft) * 0.5 );
-	d->findHandle(Right)->setPos( (topRight + bottomRight) * 0.5 );
-	d->findHandle(Top)->setPos( (topLeft + topRight) * 0.5 );
-	d->findHandle(Bottom)->setPos( (bottomLeft + bottomRight) * 0.5 );
-	
-	d->findHandle(Left | Top)->setPos(topLeft);
-	d->findHandle(Left | Bottom)->setPos(bottomLeft);
-	d->findHandle(Right | Top)->setPos(topRight);
-	d->findHandle(Right | Bottom)->setPos(bottomRight);
-	
-	for (auto handle : d->handles)
-		handle->setTransparent(d->mode != NoOperation);
-	
-	if (d->rectLayer->isType<TextLayer>())
+	// update handles
+	if (d->selectedLayerInfos.size() == 1)
 	{
-		d->frameItem->setVisible(true);
+		for (auto handle : d->handles)
+			handle->setVisible(true);
 		
-		QPainterPath path;
-		path.addRect(rect);
-		
-		d->frameItem->setPath(path * transformToView);
+		auto rectLayer = d->selectedLayerInfos.at(0).rectLayer;
+		if (rectLayer)
+		{
+			auto rect = rectLayer->rect();
+			
+			// get vertices in scene coordinates
+			auto transformToView = canvas()->transformToView().toQTransform();
+			auto topLeft = rect.topLeft() * transformToView;
+			auto topRight = rect.topRight() * transformToView;
+			auto bottomLeft = rect.bottomLeft() * transformToView;
+			auto bottomRight = rect.bottomRight() * transformToView;
+			
+			PAINTFIELD_DEBUG << topLeft;
+			
+			d->findHandle(Left)->setPos( (topLeft + bottomLeft) * 0.5 );
+			d->findHandle(Right)->setPos( (topRight + bottomRight) * 0.5 );
+			d->findHandle(Top)->setPos( (topLeft + topRight) * 0.5 );
+			d->findHandle(Bottom)->setPos( (bottomLeft + bottomRight) * 0.5 );
+			
+			d->findHandle(Left | Top)->setPos(topLeft);
+			d->findHandle(Left | Bottom)->setPos(bottomLeft);
+			d->findHandle(Right | Top)->setPos(topRight);
+			d->findHandle(Right | Bottom)->setPos(bottomRight);
+			
+			for (auto handle : d->handles)
+				handle->setTransparent(d->mode != NoOperation);
+		}
 	}
 	else
 	{
-		d->frameItem->setVisible(false);
+		for (auto handle : d->handles)
+			handle->setVisible(false);
+	}
+	
+	// update rect
+	{
+		QRectF rect;
+		
+		if (d->mode == Inserting)
+		{
+			d->frameItem->setVisible(true);
+			rect = d->layerToAdd->rect();
+		}
+		else
+		{
+			d->frameItem->setVisible(d->selectedLayerInfos.size());
+			
+			for (const auto &info : d->selectedLayerInfos)
+			{
+				if (info.rectLayer)
+					rect |= info.rectLayer->rect();
+			}
+		}
+		
+		// set path
+		if (rect.isValid())
+		{
+			QPainterPath path;
+			path.addRect(rect);
+			
+			d->frameItem->setPath(path * canvas()->transformToView().toQTransform());
+		}
 	}
 }
 
 void RectTool::onHandleMoved(const QPointF &pos, int handleTypes)
 {
-	if (!d->rectLayer)
+	if (d->selectedLayerInfos.size() != 1)
+		return;
+	
+	auto rectLayer = d->selectedLayerInfos.at(0).rectLayer;
+	
+	if (!rectLayer)
 		return;
 	
 	d->mode = MovingHandle;
 	
-	QPointSet oldKeys = d->rectKeys();
+	QPointSet keys;
 	
-	auto rect = d->rectLayer->rect();
+	auto rect = rectLayer->rect();
+	keys |= d->rectKeysWithHandleMargin(rect);
+	
 	auto scenePos = pos * canvas()->transformToScene().toQTransform();
 	
 	double left = rect.left();
@@ -531,24 +614,29 @@ void RectTool::onHandleMoved(const QPointF &pos, int handleTypes)
 	}
 	
 	rect.setCoords(left, top, right, bottom);
+	keys |= d->rectKeysWithHandleMargin(rect);
 	
-	d->rectLayer->setRect(rect);
+	rectLayer->setRect(rect);
 	
-	emit requestUpdate(d->rectKeys() | oldKeys);
-	updateHandles();
+	emit requestUpdate(keys);
+	updateGraphicsItems();
 }
 
 void RectTool::onHandleMoveFinished()
 {
 	d->mode = NoOperation;
-	updateHandles();
+	updateGraphicsItems();
 	commit();
 }
 
 void RectTool::commit()
 {
-	if (d->rectLayer && d->current)
-		layerScene()->setLayerProperty(d->current, d->rectLayer->rect(), RoleRect, tr("Change Rect"));
+	// setting property 
+	for (const auto &info : d->selectedLayerInfos)
+	{
+		if (info.rectLayer)
+			layerScene()->setLayerProperty(info.original, info.rectLayer->rect(), RoleRect, tr("Change Rect"));
+	}
 }
 
 void RectTool::startAdding()
@@ -595,20 +683,21 @@ void RectTool::startAdding()
 		return layer;
 	};
 	
-	d->rectLayer = createNew();
+	d->layerToAdd = createNew();
 	
-	if (d->current)
+	auto current = layerScene()->current();
+	if (current)
 	{
-		d->addingParent = d->current->parent();
-		d->addingIndex = d->current->index();
+		d->layerToAddParent = current->parent();
+		d->layerToAddIndex = current->index();
 	}
 	else
 	{
-		d->addingParent = layerScene()->rootLayer();
-		d->addingIndex = 0;
+		d->layerToAddParent = layerScene()->rootLayer();
+		d->layerToAddIndex = 0;
 	}
 	
-	addLayerInsertion(d->addingParent, d->addingIndex, d->rectLayer);
+	addLayerInsertion(d->layerToAddParent, d->layerToAddIndex, d->layerToAdd);
 }
 
 void RectTool::finishAdding()
@@ -616,8 +705,10 @@ void RectTool::finishAdding()
 	PAINTFIELD_DEBUG;
 	
 	clearLayerInsertions();
-	layerScene()->addLayers({d->rectLayer->clone()}, d->addingParent, d->addingIndex, tr("Add Rectangle"));
-	layerScene()->setCurrent(d->addingParent->child(d->addingIndex));
+	layerScene()->addLayers({d->layerToAdd}, d->layerToAddParent, d->layerToAddIndex, tr("Add Rectangle"));
+	layerScene()->setCurrent(d->layerToAdd);
+	layerScene()->setSelection({d->layerToAdd});
+	d->layerToAdd = nullptr;
 }
 
 } // namespace PaintField
