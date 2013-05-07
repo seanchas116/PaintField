@@ -34,17 +34,10 @@ public:
 		QGraphicsItem(parent)
 	{}
 	
-	void setPath(const QPainterPath &path)
-	{
-		m_path = path;
-	}
-	
+	void setPath(const QPainterPath &path) { m_path = path; }
 	QPainterPath path() const { return m_path; }
 	
-	QRectF boundingRect() const override
-	{
-		return m_path.boundingRect();
-	}
+	QRectF boundingRect() const override { return m_path.boundingRect(); }
 	
 	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override
 	{
@@ -80,11 +73,10 @@ class RectHandleItem : public QGraphicsItem
 {
 public:
 	
-	RectHandleItem(int handleTypes, QGraphicsItem *parent = 0) :
+	RectHandleItem(int handleFlags, QGraphicsItem *parent = 0) :
 		QGraphicsItem(parent),
-		m_handleTypes(handleTypes)
-	{
-	}
+		m_handleFlags(handleFlags)
+	{}
 	
 	QRectF boundingRect() const override
 	{
@@ -96,9 +88,6 @@ public:
 		Q_UNUSED(option)
 		Q_UNUSED(widget)
 		
-		if (m_transparent)
-			return;
-		
 		QRect rect(-m_radius, -m_radius, 2 * m_radius, 2 * m_radius);
 		QRect innerRect = rect.adjusted(1,1,-1,-1);
 		
@@ -109,48 +98,37 @@ public:
 		painter->drawRect(innerRect);
 	}
 	
-	/**
-	 * @return A signal which emits the new position and the handle type when the item is moved
-	 */
-	boost::signals2::signal<void (const QPointF &, int)> &signalOnHandleMoved() { return m_signalOnHandleMoved; }
+	void setOnHandleMoved(const std::function<void (const QPointF &, int)> &f) { m_onHandleMoved = f; }
+	void setOnHandleMoveFinished(const std::function<void ()> &f) { m_onHandleMoveFinished = f; }
 	
-	boost::signals2::signal<void ()> &signalOnHandleMoveFinished() { return m_signalOnHandleMoveFinished; }
+	int handleFlags() const { return m_handleFlags; }
 	
-	int handleTypes() const { return m_handleTypes; }
-	
-	void invertHandleTypeLeftRight()
+	void invertHandleFlagsLeftRight()
 	{
-		if (m_handleTypes & Left)
+		if (m_handleFlags & Left)
 		{
-			m_handleTypes &= ~Left;
-			m_handleTypes |= Right;
+			m_handleFlags &= ~Left;
+			m_handleFlags |= Right;
 		}
-		else if (m_handleTypes & Right)
+		else if (m_handleFlags & Right)
 		{
-			m_handleTypes &= ~Right;
-			m_handleTypes |= Left;
+			m_handleFlags &= ~Right;
+			m_handleFlags |= Left;
 		}
 	}
 	
-	void invertHandleTypeTopBottom()
+	void invertHandleFlagsTopBottom()
 	{
-		if (m_handleTypes & Top)
+		if (m_handleFlags & Top)
 		{
-			m_handleTypes &= ~Top;
-			m_handleTypes |= Bottom;
+			m_handleFlags &= ~Top;
+			m_handleFlags |= Bottom;
 		}
-		else if (m_handleTypes & Bottom)
+		else if (m_handleFlags & Bottom)
 		{
-			m_handleTypes &= ~Bottom;
-			m_handleTypes |= Top;
+			m_handleFlags &= ~Bottom;
+			m_handleFlags |= Top;
 		}
-	}
-	
-	bool isTransparent() const { return m_transparent; }
-	void setTransparent(bool x)
-	{
-		m_transparent = x;
-		update();
 	}
 	
 protected:
@@ -164,31 +142,42 @@ protected:
 	void mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 	{
 		auto newPos = m_originalPos + (event->scenePos() - m_dragStartPos);
-		m_signalOnHandleMoved(newPos, m_handleTypes);
+		m_onHandleMoved(newPos, m_handleFlags);
 	}
 	
 	void mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 	{
 		Q_UNUSED(event)
-		m_signalOnHandleMoveFinished();
+		m_onHandleMoveFinished();
 	}
 	
 private:
 	
 	QPointF m_dragStartPos;
 	QPointF m_originalPos;
-	int m_handleTypes;
+	int m_handleFlags;
 	int m_radius = handleRadius;
-	boost::signals2::signal<void (const QPointF &, int)> m_signalOnHandleMoved;
-	boost::signals2::signal<void ()> m_signalOnHandleMoveFinished;
-	bool m_transparent = false;
+	std::function<void (const QPointF &, int)> m_onHandleMoved;
+	std::function<void ()> m_onHandleMoveFinished;
 };
 
 struct RectTool::Data
 {
 	LayerUIController *layerController = 0;
 	
-	AddingType addingType = NoAdding;
+	// graphics items
+	QList<RectHandleItem *> handles;
+	FrameGraphicsItem *frameItem = 0;
+	
+	RectHandleItem *findHandle(int types)
+	{
+		for (auto handle : handles)
+		{
+			if (handle->handleFlags() == types)
+				return handle;
+		}
+		return 0;
+	}
 	
 	struct LayerInfo
 	{
@@ -215,27 +204,12 @@ struct RectTool::Data
 			if (rasterLayer)
 			{
 				rasterBoundingRect = rasterLayer->surface().boundingRect();
-				PAINTFIELD_DEBUG << "bounding rect" << rasterBoundingRect;
 				rasterOffset = QPoint();
 			}
 		}
 	};
 	
 	QList<LayerInfo> selectedLayerInfos;
-	
-	// graphics items
-	QList<RectHandleItem *> handles;
-	FrameGraphicsItem *frameItem = 0;
-	
-	RectHandleItem *findHandle(int types)
-	{
-		for (auto handle : handles)
-		{
-			if (handle->handleTypes() == types)
-				return handle;
-		}
-		return 0;
-	}
 	
 	Mode mode = NoOperation;
 	bool dragDistanceEnough = false;
@@ -248,6 +222,7 @@ struct RectTool::Data
 		return Surface::rectToKeys(newRect.toAlignedRect());
 	}
 	
+	AddingType addingType = NoAdding;
 	std::shared_ptr<AbstractRectLayer> layerToAdd;
 	LayerConstPtr layerToAddParent;
 	int layerToAddIndex;
@@ -379,9 +354,7 @@ void RectTool::tabletMoveEvent(CanvasTabletEvent *event)
 		switch (d->mode)
 		{
 			default:
-			{
 				break;
-			}
 				
 			case Dragging:
 			case Inserting:
@@ -414,7 +387,7 @@ void RectTool::tabletMoveEvent(CanvasTabletEvent *event)
 					
 					keys = d->rectKeysWithHandleMargin(wholeRect);
 				}
-				else
+				else // inserting
 				{
 					QRectF rect = d->layerToAdd->rect();
 					
@@ -507,6 +480,7 @@ void RectTool::updateLayer(const LayerConstPtr &layer)
 		if (info.original == layer)
 			info.setOriginalLayer(layer);
 	}
+	updateGraphicsItems();
 }
 
 void RectTool::addHandle(int handleTypes, qreal zValue)
@@ -517,14 +491,14 @@ void RectTool::addHandle(int handleTypes, qreal zValue)
 	handle->setZValue(zValue);
 	d->handles << handle;
 	
-	handle->signalOnHandleMoved().connect(std::bind(&RectTool::onHandleMoved, this, std::placeholders::_1, std::placeholders::_2));
-	handle->signalOnHandleMoveFinished().connect(std::bind(&RectTool::onHandleMoveFinished, this));
+	handle->setOnHandleMoved(std::bind(&RectTool::onHandleMoved, this, std::placeholders::_1, std::placeholders::_2));
+	handle->setOnHandleMoveFinished(std::bind(&RectTool::onHandleMoveFinished, this));
 }
 
 void RectTool::updateGraphicsItems()
 {
 	// update handles
-	if (d->selectedLayerInfos.size() == 1)
+	if (d->selectedLayerInfos.size() == 1 && d->mode == NoOperation)
 	{
 		for (auto handle : d->handles)
 			handle->setVisible(true);
@@ -541,8 +515,6 @@ void RectTool::updateGraphicsItems()
 			auto bottomLeft = rect.bottomLeft() * transformToView;
 			auto bottomRight = rect.bottomRight() * transformToView;
 			
-			PAINTFIELD_DEBUG << topLeft;
-			
 			d->findHandle(Left)->setPos( (topLeft + bottomLeft) * 0.5 );
 			d->findHandle(Right)->setPos( (topRight + bottomRight) * 0.5 );
 			d->findHandle(Top)->setPos( (topLeft + topRight) * 0.5 );
@@ -552,9 +524,6 @@ void RectTool::updateGraphicsItems()
 			d->findHandle(Left | Bottom)->setPos(bottomLeft);
 			d->findHandle(Right | Top)->setPos(topRight);
 			d->findHandle(Right | Bottom)->setPos(bottomRight);
-			
-			for (auto handle : d->handles)
-				handle->setTransparent(d->mode != NoOperation);
 		}
 	}
 	else
@@ -596,7 +565,7 @@ void RectTool::updateGraphicsItems()
 	}
 }
 
-void RectTool::onHandleMoved(const QPointF &pos, int handleTypes)
+void RectTool::onHandleMoved(const QPointF &pos, int handleFlags)
 {
 	if (d->selectedLayerInfos.size() != 1)
 		return;
@@ -605,8 +574,6 @@ void RectTool::onHandleMoved(const QPointF &pos, int handleTypes)
 	
 	if (!rectLayer)
 		return;
-	
-	d->mode = MovingHandle;
 	
 	QPointSet keys;
 	
@@ -620,16 +587,16 @@ void RectTool::onHandleMoved(const QPointF &pos, int handleTypes)
 	double top = rect.top();
 	double bottom = rect.bottom();
 	
-	if (handleTypes & Left)
+	if (handleFlags & Left)
 		left = scenePos.x();
 	
-	if (handleTypes & Right)
+	if (handleFlags & Right)
 		right = scenePos.x();
 	
-	if (handleTypes & Top)
+	if (handleFlags & Top)
 		top = scenePos.y();
 	
-	if (handleTypes & Bottom)
+	if (handleFlags & Bottom)
 		bottom = scenePos.y();
 	
 	if (right < left)
@@ -637,7 +604,7 @@ void RectTool::onHandleMoved(const QPointF &pos, int handleTypes)
 		std::swap(left, right);
 		
 		for (RectHandleItem *handle : d->handles)
-			handle->invertHandleTypeLeftRight();
+			handle->invertHandleFlagsLeftRight();
 	}
 	
 	if (bottom < top)
@@ -645,7 +612,7 @@ void RectTool::onHandleMoved(const QPointF &pos, int handleTypes)
 		std::swap(top, bottom);
 		
 		for (RectHandleItem *handle : d->handles)
-			handle->invertHandleTypeTopBottom();
+			handle->invertHandleFlagsTopBottom();
 	}
 	
 	rect.setCoords(left, top, right, bottom);
@@ -654,12 +621,12 @@ void RectTool::onHandleMoved(const QPointF &pos, int handleTypes)
 	rectLayer->setRect(rect);
 	
 	emit requestUpdate(keys);
+	
 	updateGraphicsItems();
 }
 
 void RectTool::onHandleMoveFinished()
 {
-	d->mode = NoOperation;
 	updateGraphicsItems();
 	commit();
 }

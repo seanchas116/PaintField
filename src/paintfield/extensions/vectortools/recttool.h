@@ -47,7 +47,7 @@ private:
 		MovingHandle
 	};
 	
-	void onHandleMoved(const QPointF &pos, int handleTypes);
+	void onHandleMoved(const QPointF &pos, int handleFlags);
 	void onHandleMoveFinished();
 	void commit();
 	
