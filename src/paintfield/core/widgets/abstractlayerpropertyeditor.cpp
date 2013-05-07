@@ -19,7 +19,7 @@ AbstractLayerPropertyEditor::AbstractLayerPropertyEditor(LayerScene *layerScene,
 	if (layerScene)
 	{
 		connect(layerScene, SIGNAL(currentChanged(LayerConstPtr,LayerConstPtr)), this, SLOT(onCurrentChanged(LayerConstPtr)));
-		connect(layerScene, SIGNAL(currentLayerPropertyChanged()), this, SLOT(onCurrentPropertyChanged()));
+		connect(layerScene, SIGNAL(currentLayerChanged()), this, SLOT(onCurrentPropertyChanged()));
 		d->current = layerScene->current();
 	}
 }

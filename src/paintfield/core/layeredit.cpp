@@ -81,4 +81,36 @@ void LayerSurfaceEdit::undo(const LayerPtr &layer)
 	_surface = surface;
 }
 
+void LayerMoveEdit::redo(const LayerPtr &layer)
+{
+	auto rasterLayer = std::dynamic_pointer_cast<RasterLayer>(layer);
+	Q_ASSERT(rasterLayer);
+	Surface surface;
+	
+	{
+		Painter painter(&surface);
+		painter.drawPreTransformedSurface(_offset, rasterLayer->surface());
+	}
+	
+	surface.squeeze();
+	
+	rasterLayer->setSurface(surface);
+}
+
+void LayerMoveEdit::undo(const LayerPtr &layer)
+{
+	auto rasterLayer = std::dynamic_pointer_cast<RasterLayer>(layer);
+	Q_ASSERT(rasterLayer);
+	Surface surface;
+	
+	{
+		Painter painter(&surface);
+		painter.drawPreTransformedSurface(-_offset, rasterLayer->surface());
+	}
+	
+	surface.squeeze();
+	
+	rasterLayer->setSurface(surface);
+}
+
 }

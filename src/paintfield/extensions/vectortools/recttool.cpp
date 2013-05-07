@@ -9,12 +9,14 @@
 #include <functional>
 #include <boost/signals2.hpp>
 
+#include "paintfield/core/rasterlayer.h"
 #include "paintfield/extensions/layerui/layeruicontroller.h"
 #include "paintfield/core/canvas.h"
 #include "paintfield/core/textlayer.h"
 #include "paintfield/core/layerscene.h"
 #include "paintfield/core/rectlayer.h"
 #include "paintfield/core/layeritemmodel.h"
+#include "paintfield/core/layeredit.h"
 
 #include "recttool.h"
 
@@ -191,14 +193,31 @@ struct RectTool::Data
 	struct LayerInfo
 	{
 		LayerConstPtr original; // original layer
+		
 		std::shared_ptr<AbstractRectLayer> rectLayer; // editable rect layer (only if original layer is rect)
-		QRectF boundingRect; // bounding rect
 		Vec2D originalRectPos;
 		
-		void setRectLayer(const std::shared_ptr<const AbstractRectLayer> &rectLayer)
+		QRect rasterBoundingRect;
+		QPoint rasterOffset;
+		
+		void setOriginalLayer(const LayerConstPtr &layer)
 		{
-			this->rectLayer = std::dynamic_pointer_cast<AbstractRectLayer>(rectLayer->clone());
-			this->originalRectPos = rectLayer->rect().topLeft();
+			original = layer;
+			
+			auto originalRectLayer = std::dynamic_pointer_cast<const AbstractRectLayer>(layer);
+			if (originalRectLayer)
+			{
+				rectLayer = std::static_pointer_cast<AbstractRectLayer>(layer->clone());
+				originalRectPos = rectLayer->rect().topLeft();
+			}
+			
+			auto rasterLayer = std::dynamic_pointer_cast<const RasterLayer>(layer);
+			if (rasterLayer)
+			{
+				rasterBoundingRect = rasterLayer->surface().boundingRect();
+				PAINTFIELD_DEBUG << "bounding rect" << rasterBoundingRect;
+				rasterOffset = QPoint();
+			}
 		}
 	};
 	
@@ -263,7 +282,7 @@ RectTool::RectTool(AddingType type, Canvas *canvas) :
 	addHandle(Right, 0);
 	
 	connect(layerScene(), SIGNAL(selectionChanged(QList<LayerConstPtr>,QList<LayerConstPtr>)), this, SLOT(updateSelected()));
-	connect(layerScene(), SIGNAL(layerPropertyChanged(LayerConstPtr)), this, SLOT(updateLayer(LayerConstPtr)));
+	connect(layerScene(), SIGNAL(layerChanged(LayerConstPtr)), this, SLOT(updateLayer(LayerConstPtr)));
 	connect(canvas, SIGNAL(transformChanged(Malachite::Affine2D,Malachite::Affine2D)), this, SLOT(updateGraphicsItems()));
 	updateSelected();
 }
@@ -277,8 +296,21 @@ void RectTool::drawLayer(SurfacePainter *painter, const LayerConstPtr &layer)
 {
 	for (const auto &info : d->selectedLayerInfos)
 	{
-		if (info.original == layer && info.rectLayer)
-			info.rectLayer->render(painter);
+		if (info.original == layer)
+		{
+			if (info.rectLayer)
+			{
+				info.rectLayer->render(painter);
+			}
+			else
+			{
+				auto rasterLayer = std::dynamic_pointer_cast<const RasterLayer>(layer);
+				if (rasterLayer)
+				{
+					painter->drawSurface(info.rasterOffset, rasterLayer->surface());
+				}
+			}
+		}
 	}
 }
 
@@ -360,8 +392,9 @@ void RectTool::tabletMoveEvent(CanvasTabletEvent *event)
 				{
 					QRectF wholeRect;
 					
-					for (const auto &info : d->selectedLayerInfos)
+					for (auto &info : d->selectedLayerInfos)
 					{
+						// rect layer
 						if (info.rectLayer)
 						{
 							auto rect = info.rectLayer->rect();
@@ -369,6 +402,13 @@ void RectTool::tabletMoveEvent(CanvasTabletEvent *event)
 							rect.moveTopLeft(delta + info.originalRectPos);
 							wholeRect |= rect;
 							info.rectLayer->setRect(rect);
+						}
+						// raster layer
+						else if (info.original->isType<RasterLayer>())
+						{
+							wholeRect |= info.rasterBoundingRect.translated(info.rasterOffset);
+							info.rasterOffset = delta.toQPoint();
+							wholeRect |= info.rasterBoundingRect.translated(info.rasterOffset);
 						}
 					}
 					
@@ -449,14 +489,11 @@ void RectTool::updateSelected()
 	for (const auto &layer : layers)
 	{
 		Data::LayerInfo info;
-		info.original = layer;
+		info.setOriginalLayer(layer);
 		
-		auto rectLayer = std::dynamic_pointer_cast<const AbstractRectLayer>(layer);
-		if (rectLayer)
-		{
-			info.setRectLayer(rectLayer);
+		if (layer->isType<AbstractRectLayer>() || layer->isType<RasterLayer>())
 			addLayerDelegation(layer);
-		}
+		
 		d->selectedLayerInfos << info;
 	}
 	
@@ -468,11 +505,7 @@ void RectTool::updateLayer(const LayerConstPtr &layer)
 	for (auto &info : d->selectedLayerInfos)
 	{
 		if (info.original == layer)
-		{
-			auto rectLayer = std::dynamic_pointer_cast<const AbstractRectLayer>(layer);
-			if (rectLayer)
-				info.setRectLayer(rectLayer);
-		}
+			info.setOriginalLayer(layer);
 	}
 }
 
@@ -547,6 +580,8 @@ void RectTool::updateGraphicsItems()
 			{
 				if (info.rectLayer)
 					rect |= info.rectLayer->rect();
+				else if (info.original->isType<RasterLayer>())
+					rect |= info.rasterBoundingRect.translated(info.rasterOffset);
 			}
 		}
 		
@@ -636,6 +671,8 @@ void RectTool::commit()
 	{
 		if (info.rectLayer)
 			layerScene()->setLayerProperty(info.original, info.rectLayer->rect(), RoleRect, tr("Change Rect"));
+		else if (info.original->isType<RasterLayer>())
+			layerScene()->editLayer(info.original, new LayerMoveEdit(info.rasterOffset), tr("Move Layer"));
 	}
 }
 

@@ -13,53 +13,6 @@ using namespace Malachite;
 namespace PaintField
 {
 
-class LayerMoveEdit : public LayerEdit
-{
-public:
-	explicit LayerMoveEdit(const QPoint &offset)
-	    : LayerEdit(),
-		  _offset(offset)
-	{}
-	
-	void redo(const LayerPtr &layer);
-	void undo(const LayerPtr &layer);
-	
-private:
-	QPoint _offset;
-};
-
-void LayerMoveEdit::redo(const LayerPtr &layer)
-{
-	auto rasterLayer = std::dynamic_pointer_cast<RasterLayer>(layer);
-	Q_ASSERT(rasterLayer);
-	Surface surface;
-	
-	{
-		Painter painter(&surface);
-		painter.drawPreTransformedSurface(_offset, rasterLayer->surface());
-	}
-	
-	surface.squeeze();
-	
-	rasterLayer->setSurface(surface);
-}
-
-void LayerMoveEdit::undo(const LayerPtr &layer)
-{
-	auto rasterLayer = std::dynamic_pointer_cast<RasterLayer>(layer);
-	Q_ASSERT(rasterLayer);
-	Surface surface;
-	
-	{
-		Painter painter(&surface);
-		painter.drawPreTransformedSurface(-_offset, rasterLayer->surface());
-	}
-	
-	surface.squeeze();
-	
-	rasterLayer->setSurface(surface);
-}
-
 LayerMoveTool::LayerMoveTool(Canvas *parent) :
 	Tool(parent)
 {}
@@ -77,11 +30,7 @@ void LayerMoveTool::tabletMoveEvent(CanvasTabletEvent *event)
 	
 	_offset = event->data.pos.toQPoint() - _dragStartPoint;
 	
-	QPointSet keys;
-	
-	for (const QPoint &key : _layer->tileKeys())
-		keys |= Surface::rectToKeys(Surface::keyToRect(key).translated(_offset));
-	
+	auto keys = Surface::offsetKeys(_layer->tileKeys(), _offset);
 	requestUpdate(keys | _lastKeys);
 	_lastKeys = keys;
 }

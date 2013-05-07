@@ -59,7 +59,7 @@ signals:
 	void layerAboutToBeRemoved(const LayerConstPtr &parent, int index);
 	void layerRemoved(const LayerConstPtr &parent, int index);
 	
-	void layerPropertyChanged(const LayerConstPtr &layer);
+	void layerChanged(const LayerConstPtr &layer);
 	
 	void tilesUpdated(const QPointSet &tileKeys);
 	void thumbnailsUpdated();
@@ -67,7 +67,7 @@ signals:
 	void currentChanged(const LayerConstPtr &now, const LayerConstPtr &old);
 	void selectionChanged(const QList<LayerConstPtr> &selected, const QList<LayerConstPtr> &deselected);
 	
-	void currentLayerPropertyChanged();
+	void currentLayerChanged();
 	
 protected:
 	

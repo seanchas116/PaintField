@@ -52,9 +52,9 @@ public:
 		return layer;
 	}
 	
-	void emitLayerPropertyChanged(const LayerConstPtr &layer)
+	void emitLayerChanged(const LayerConstPtr &layer)
 	{
-		emit _scene->layerPropertyChanged(layer);
+		emit _scene->layerChanged(layer);
 	}
 	
 	LayerScene *scene() { return _scene; }
@@ -113,6 +113,8 @@ private:
 		
 		layer->setThumbnailDirty(true);
 		enqueueTileUpdate(_edit->modifiedKeys());
+		
+		emitLayerChanged(layer);
 	}
 	
 	Path _path;
@@ -154,7 +156,7 @@ private:
 		
 		enqueueLayerTileUpdate(layer);
 		
-		emitLayerPropertyChanged(layer);
+		emitLayerChanged(layer);
 	}
 	
 	void enqueueLayerTileUpdate(const LayerConstPtr &layer)
@@ -442,7 +444,7 @@ LayerScene::LayerScene(const QList<LayerPtr> &layers, Document *document) :
 	QObject(document),
 	d(new Data)
 {
-	connect(this, SIGNAL(layerPropertyChanged(LayerConstPtr)), this, SLOT(onLayerPropertyChanged(LayerConstPtr)));
+	connect(this, SIGNAL(layerChanged(LayerConstPtr)), this, SLOT(onLayerPropertyChanged(LayerConstPtr)));
 	
 	d->document = document;
 	connect(d->document, SIGNAL(modified()), this, SLOT(update()));
@@ -808,7 +810,7 @@ void LayerScene::onItemSelectionChanged(const QItemSelection &selected, const QI
 void LayerScene::onLayerPropertyChanged(const LayerConstPtr &layer)
 {
 	if (layer == d->current)
-		emit currentLayerPropertyChanged();
+		emit currentLayerChanged();
 }
 
 } // namespace PaintField

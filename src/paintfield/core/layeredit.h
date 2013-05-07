@@ -58,6 +58,21 @@ private:
 	Malachite::Surface _surface;
 };
 
+class LayerMoveEdit : public LayerEdit
+{
+public:
+	explicit LayerMoveEdit(const QPoint &offset)
+	    : LayerEdit(),
+		  _offset(offset)
+	{}
+	
+	void redo(const LayerPtr &layer);
+	void undo(const LayerPtr &layer);
+	
+private:
+	QPoint _offset;
+};
+
 }
 
 #endif // FSLAYEREDIT_H

@@ -23,7 +23,7 @@ LayerItemModel::LayerItemModel(LayerScene *scene, QObject *parent) :
 	connect(scene, SIGNAL(layerInserted(LayerConstPtr,int)), this, SLOT(onLayerInserted(LayerConstPtr,int)));
 	connect(scene, SIGNAL(layerAboutToBeRemoved(LayerConstPtr,int)), this, SLOT(onLayerAboutToBeRemoved(LayerConstPtr,int)));
 	connect(scene, SIGNAL(layerRemoved(LayerConstPtr,int)), this, SLOT(onLayerRemoved(LayerConstPtr,int)));
-	connect(scene, SIGNAL(layerPropertyChanged(LayerConstPtr)), this, SLOT(onLayerPropertyChanged(LayerConstPtr)));
+	connect(scene, SIGNAL(layerChanged(LayerConstPtr)), this, SLOT(onLayerPropertyChanged(LayerConstPtr)));
 }
 
 LayerItemModel::~LayerItemModel()
