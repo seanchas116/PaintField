@@ -543,14 +543,15 @@ void RectTool::updateGraphicsItems()
 		}
 		else
 		{
-			d->frameItem->setVisible(d->selectedLayerInfos.size());
-			
-			for (const auto &info : d->selectedLayerInfos)
+			if (!(d->selectedLayerInfos.size() == 1 && d->selectedLayerInfos.at(0).rectLayer->isType<RectLayer>()))
 			{
-				if (info.rectLayer)
-					rect |= info.rectLayer->rect();
-				else if (info.original->isType<RasterLayer>())
-					rect |= info.rasterBoundingRect.translated(info.rasterOffset);
+				for (const auto &info : d->selectedLayerInfos)
+				{
+					if (info.rectLayer)
+						rect |= info.rectLayer->rect();
+					else if (info.original->isType<RasterLayer>())
+						rect |= info.rasterBoundingRect.translated(info.rasterOffset);
+				}
 			}
 		}
 		
@@ -560,8 +561,11 @@ void RectTool::updateGraphicsItems()
 			QPainterPath path;
 			path.addRect(rect);
 			
+			d->frameItem->setVisible(true);
 			d->frameItem->setPath(path * canvas()->transformToView().toQTransform());
 		}
+		else
+			d->frameItem->setVisible(false);
 	}
 }
 
