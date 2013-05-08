@@ -26,12 +26,18 @@ public:
 	
 signals:
 	
+	void queueUpdateTiles();
+	
 public slots:
 	
 	void setColor(const Malachite::Color &color) { _pixel = color.toPixel(); }
 	void setStrokerFactory(BrushStrokerFactory *factory) { _strokerFactory = factory; }
 	void setBrushSettings(const QVariantMap &settings);
 	void setBrushSize(int size);
+	
+protected slots:
+	
+	void updateTiles();
 	
 protected:
 	
@@ -44,8 +50,6 @@ protected:
 	void beginStroke(const TabletInputData &data);
 	void drawStroke(const TabletInputData &data);
 	void endStroke(const TabletInputData &data);
-	
-	void updateTiles();
 	
 private:
 	

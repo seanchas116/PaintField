@@ -23,6 +23,7 @@ BrushTool::BrushTool(Canvas *parent) :
 	Tool(parent)
 {
 	setCursor(QCursor(QPixmap(":/icons/32x32/tinycursor.png")));
+	connect(this, SIGNAL(queueUpdateTiles()), this, SLOT(updateTiles()), Qt::QueuedConnection);
 }
 
 BrushTool::~BrushTool() {}
@@ -125,6 +126,8 @@ void BrushTool::drawStroke(const TabletInputData &data)
 	if (!isStroking())
 		return;
 	
+	PAINTFIELD_DEBUG << "stroking";
+	
 	_stroker->lineTo(data);
 	
 	/*
@@ -134,7 +137,8 @@ void BrushTool::drawStroke(const TabletInputData &data)
 		return;
 	*/
 	
-	updateTiles();
+	emit queueUpdateTiles();
+	//updateTiles();
 }
 
 void BrushTool::endStroke(const TabletInputData &data)
@@ -144,6 +148,7 @@ void BrushTool::endStroke(const TabletInputData &data)
 	
 	_stroker->lineTo(data);
 	_stroker->end();
+	
 	updateTiles();
 	
 	if (_layer && _layer == currentLayer())
@@ -160,6 +165,9 @@ void BrushTool::endStroke(const TabletInputData &data)
 
 void BrushTool::updateTiles()
 {
+	if (!_stroker || _stroker->lastEditedKeysWithRects().isEmpty())
+		return;
+	
 	emit requestUpdate(_stroker->lastEditedKeysWithRects());
 	_stroker->clearLastEditedKeys();
 }
