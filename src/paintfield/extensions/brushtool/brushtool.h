@@ -2,7 +2,10 @@
 #define FSBRUSHTOOL_H
 
 #include <QObject>
+#include <QElapsedTimer>
 #include "paintfield/core/tool.h"
+
+class QTimer;
 
 namespace PaintField {
 
@@ -25,8 +28,6 @@ public:
 	QRect customCursorRect(const Malachite::Vec2D &pos);
 	
 signals:
-	
-	void queueUpdateTiles();
 	
 public slots:
 	
@@ -65,7 +66,8 @@ private:
 	bool _dataPrevSet = false;
 	std::shared_ptr<const RasterLayer> _layer = 0;
 	Malachite::Surface _surface;
-	int _count = 0;
+	
+	QTimer *_timer;
 };
 
 }
