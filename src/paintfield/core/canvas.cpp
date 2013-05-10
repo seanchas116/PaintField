@@ -52,7 +52,7 @@ struct Canvas::Data
 	double memorizedScale = 1, memorizedRotation = 0;
 	QPoint memorizedTranslation;
 	
-	ScopedQObjectPointer<Tool> tool;
+	Tool *tool = 0;
 };
 
 Canvas::Canvas(Document *document, Workspace *parent) :
@@ -299,13 +299,17 @@ void Canvas::onSetCurrent()
 
 Tool *Canvas::tool()
 {
-	return d->tool.data();
+	return d->tool;
 }
 
 void Canvas::onToolChanged(const QString &name)
 {
 	auto tool = ExtensionUtil::createTool(appController()->extensions(), workspace()->extensions(), extensions(), name, this);
-	d->tool.reset(tool);
+	
+	if (d->tool)
+		d->tool->deleteLater();
+	
+	d->tool = tool;
 	emit toolChanged(tool);
 }
 
