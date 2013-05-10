@@ -17,7 +17,7 @@ void Test_RectLayer::test_encodeDecode()
 {
 	RectLayer l1, l2;
 	l1.setRect(QRectF(10,20,30,40));
-	l1.setShapeType(RectLayer::ShapeTypeEllipse);
+	l1.setShapeType(AbstractRectLayer::ShapeTypeEllipse);
 	
 	QByteArray bytes;
 	{
@@ -37,7 +37,7 @@ void Test_RectLayer::test_saveProperties()
 {
 	RectLayer l1;
 	l1.setRect(QRectF(10,20,30,40));
-	l1.setShapeType(RectLayer::ShapeTypeEllipse);
+	l1.setShapeType(AbstractRectLayer::ShapeTypeEllipse);
 	
 	auto map = l1.saveProperies();
 	
@@ -68,7 +68,7 @@ void Test_RectLayer::test_loadProperties()
 	l1.loadProperties(map);
 	
 	QCOMPARE(l1.rect(), QRectF(10, 20, 30, 40));
-	QCOMPARE(l1.shapeType(), RectLayer::ShapeTypeEllipse);
+	QCOMPARE(l1.shapeType(), AbstractRectLayer::ShapeTypeEllipse);
 }
 
 void Test_RectLayer::test_setRect()

@@ -86,7 +86,6 @@ HEADERS += \
     unittest/autotest.h \
     unittest/testutil.h \
     layerscene.h \
-    unittest/test_layerindex.h \
     unittest/test_layerscene.h \
     layeritemmodel.h \
     colorbuttongroup.h \
@@ -166,7 +165,6 @@ SOURCES += \
     unittest/autotest.cpp \
     unittest/testutil.cpp \
     layerscene.cpp \
-    unittest/test_layerindex.cpp \
     unittest/test_layerscene.cpp \
     layeritemmodel.cpp \
     colorbuttongroup.cpp \

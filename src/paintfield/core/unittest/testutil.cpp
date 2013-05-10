@@ -37,19 +37,20 @@ void createTestFile(const QString &path)
 
 Document *createTestDocument(QObject *parent)
 {
-	RasterLayer *layer[3];
+	LayerPtr layer[3];
 	
 	for (int i = 0; i < 3; ++i)
 	{
-		layer[i] = new RasterLayer("layer" + QString::number(i));
-		layer[i]->setSurface(createTestSurface(i));
+		auto l = std::make_shared<RasterLayer>("layer" + QString::number(i));
+		l->setSurface(createTestSurface(i));
+		layer[i] = l;
 	}
 	
-	GroupLayer *group = new GroupLayer("group");
+	auto group = std::make_shared<GroupLayer>("group");
 	group->append(layer[1]);
 	group->append(layer[2]);
 	
-	LayerList layers = { layer[0], group };
+	QList<LayerPtr> layers = { layer[0], group };
 	
 	return new Document("document", QSize(400, 300), layers, parent);
 }

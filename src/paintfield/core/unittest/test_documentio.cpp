@@ -33,7 +33,7 @@ void Test_DocumentIO::saveLoad()
 		openedDoc = loader.load(path, 0);
 	}
 	
-	QCOMPARE(doc->layerScene()->rootLayer().count(), openedDoc->layerScene()->rootLayer().count());
+	QCOMPARE(doc->layerScene()->rootLayer()->count(), openedDoc->layerScene()->rootLayer()->count());
 }
 
 PF_ADD_TESTCLASS(Test_DocumentIO)
