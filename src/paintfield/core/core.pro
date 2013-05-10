@@ -42,7 +42,6 @@ HEADERS += \
     dialogs/messagebox.h \
     widgets/docktabwidget.h \
     canvasview.h \
-    smartpointer.h \
     interface.h \
     appcontroller.h \
     application.h \
@@ -95,7 +94,8 @@ HEADERS += \
     pathrecorder.h \
     abstractrectlayer.h \
     serializationutil.h \
-    widgets/abstractlayerpropertyeditor.h
+    widgets/abstractlayerpropertyeditor.h \
+    scopedqobjectpointer.h
 FORMS += dialogs/exportdialog.ui dialogs/newdocumentdialog.ui
 SOURCES += \
            document.cpp \

@@ -3,8 +3,8 @@
 
 #include <QObject>
 #include <QModelIndex>
+#include "paintfield/core/scopedqobjectpointer.h"
 #include "paintfield/core/tabletpointerinfo.h"
-#include "paintfield/core/smartpointer.h"
 
 #include "brushlibraryview.h"
 

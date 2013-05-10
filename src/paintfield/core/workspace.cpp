@@ -1,7 +1,6 @@
 #include <QApplication>
 #include <QClipboard>
 
-#include "smartpointer.h"
 #include "util.h"
 #include "appcontroller.h"
 #include "toolmanager.h"

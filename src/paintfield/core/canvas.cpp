@@ -6,7 +6,6 @@
 #include <Malachite/ImageIO>
 
 #include "documentcontroller.h"
-#include "smartpointer.h"
 #include "appcontroller.h"
 #include "toolmanager.h"
 #include "documentio.h"
@@ -19,6 +18,7 @@
 #include "appcontroller.h"
 #include "documentreferencemanager.h"
 #include "layeritemmodel.h"
+#include "scopedqobjectpointer.h"
 
 #include "dialogs/messagebox.h"
 
@@ -52,7 +52,7 @@ struct Canvas::Data
 	double memorizedScale = 1, memorizedRotation = 0;
 	QPoint memorizedTranslation;
 	
-	Tool *tool = 0;
+	ScopedQObjectPointer<Tool> tool;
 };
 
 Canvas::Canvas(Document *document, Workspace *parent) :
@@ -299,17 +299,13 @@ void Canvas::onSetCurrent()
 
 Tool *Canvas::tool()
 {
-	return d->tool;
+	return d->tool.data();
 }
 
 void Canvas::onToolChanged(const QString &name)
 {
 	auto tool = ExtensionUtil::createTool(appController()->extensions(), workspace()->extensions(), extensions(), name, this);
-	
-	if (d->tool)
-		d->tool->deleteLater();
-	
-	d->tool = tool;
+	d->tool.reset(tool);
 	emit toolChanged(tool);
 }
 

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "paintfield/core/smartpointer.h"
 #include "paintfield/core/extension.h"
 
 namespace PaintField

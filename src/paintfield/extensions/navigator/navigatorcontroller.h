@@ -2,7 +2,7 @@
 #define PAINTFIELD_NAVIGATORCONTROLLER_H
 
 #include <QObject>
-#include "paintfield/core/smartpointer.h"
+#include "paintfield/core/scopedqobjectpointer.h"
 #include "navigatorview.h"
 
 namespace PaintField {
