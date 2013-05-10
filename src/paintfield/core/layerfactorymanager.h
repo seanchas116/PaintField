@@ -15,7 +15,7 @@ public:
 	LayerPtr createLayer(const QString &name) const;
 	
 	template <class T> QString nameForType() const { return nameForTypeInfo(typeid(T)); }
-	QString nameForTypeInfo(const ::std::type_info &info) const;
+	QString nameForTypeInfo(const std::type_info &info) const;
 	
 	static LayerFactoryManager *instance() { return &_instance; }
 	

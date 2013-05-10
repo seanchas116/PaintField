@@ -54,7 +54,7 @@ public:
 	
 	QString name() const override;
 	LayerPtr create() const override { return std::make_shared<RasterLayer>(); }
-	const ::std::type_info &typeInfo() const override { return typeid(RasterLayer); }
+	const std::type_info &typeInfo() const override { return typeid(RasterLayer); }
 };
 
 } // namespace PaintField

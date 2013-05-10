@@ -125,4 +125,20 @@ void TextLayer::updateFillPath()
 	setFillPath((recorder.path() & rectPath).simplified());
 }
 
+QString TextLayerFactory::name() const
+{
+	return "text";
+}
+
+LayerPtr TextLayerFactory::create() const
+{
+	return std::make_shared<TextLayer>();
+}
+
+const std::type_info &TextLayerFactory::typeInfo() const
+{
+	return typeid(TextLayer);
+}
+
+
 } // namespace PaintField

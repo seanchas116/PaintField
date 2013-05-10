@@ -311,7 +311,7 @@ public:
 	
 	virtual QString name() const = 0;
 	virtual LayerPtr create() const = 0;
-	virtual const ::std::type_info &typeInfo() const = 0;
+	virtual const std::type_info &typeInfo() const = 0;
 };
 
 }

@@ -23,7 +23,7 @@ public:
 	
 	QString name() const override;
 	LayerPtr create() const override { return std::make_shared<GroupLayer>(); }
-	const ::std::type_info &typeInfo() const override { return typeid(GroupLayer); }
+	const std::type_info &typeInfo() const override { return typeid(GroupLayer); }
 };
 
 } // namespace PaintField

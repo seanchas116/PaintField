@@ -45,5 +45,16 @@ private:
 	Qt::Alignment _alignment = Qt::AlignLeft | Qt::AlignTop;
 };
 
+class TextLayerFactory : public LayerFactory
+{
+public:
+	
+	TextLayerFactory() : LayerFactory() {}
+	
+	QString name() const override;
+	LayerPtr create() const override;
+	const std::type_info &typeInfo() const override;
+};
+
 } // namespace PaintField
 

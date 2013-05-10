@@ -33,7 +33,7 @@ public:
 	
 	QString name() const override;
 	LayerPtr create() const override { return std::make_shared<RectLayer>(); }
-	const ::std::type_info &typeInfo() const override { return typeid(RectLayer); }
+	const std::type_info &typeInfo() const override { return typeid(RectLayer); }
 	
 };
 
