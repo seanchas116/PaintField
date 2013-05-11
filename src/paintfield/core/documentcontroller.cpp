@@ -180,7 +180,7 @@ bool DocumentController::exportToImage(Document *document)
 	
 	{
 		LayerRenderer renderer;
-		surface = renderer.renderToSurface(document->layerScene()->rootLayer(), document->tileKeys());
+		surface = renderer.renderToSurface({document->layerScene()->rootLayer()}, document->tileKeys());
 	}
 	
 	QString path = FileDialog::getSaveFilePath(0, tr("Export"), dialog.currentText(), dialog.currentFormat());

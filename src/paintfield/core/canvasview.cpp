@@ -312,7 +312,7 @@ void CanvasViewController::updateTiles(const QPointSet &keys, const QHash<QPoint
 	CanvasRenderer renderer;
 	renderer.setTool(d->tool);
 	
-	Surface surface = renderer.renderToSurface(canvas()->document()->layerScene()->rootLayer(), keys, rects);
+	Surface surface = renderer.renderToSurface({canvas()->document()->layerScene()->rootLayer()}, keys, rects);
 	
 	static const Pixel whitePixel = Color::fromRgbValue(1,1,1).toPixel();
 	

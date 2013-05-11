@@ -9,7 +9,7 @@ using namespace boost;
 namespace PaintField
 {
 
-Surface LayerRenderer::renderToSurface(const LayerConstPtr &rootLayer, const QPointSet &keyClip, const QHash<QPoint, QRect> &keyRectClip)
+Surface LayerRenderer::renderToSurface(const QList<LayerConstPtr> &layers, const QPointSet &keyClip, const QHash<QPoint, QRect> &keyRectClip)
 {
 	Surface surface;
 	SurfacePainter painter(&surface);
@@ -19,7 +19,7 @@ Surface LayerRenderer::renderToSurface(const LayerConstPtr &rootLayer, const QPo
 	else
 		painter.setKeyClip(keyClip);
 	
-	renderChildren(&painter, rootLayer);
+	renderLayers(&painter, layers);
 	
 	painter.flush();
 	
@@ -50,7 +50,7 @@ void LayerRenderer::renderLayer(SurfacePainter *painter, const LayerConstPtr &la
 void LayerRenderer::drawLayer(SurfacePainter *painter, const LayerConstPtr &layer)
 {
 	if (layer->count())
-		painter->drawPreTransformedSurface(QPoint(), renderToSurface(layer, painter->keyClip()));
+		painter->drawPreTransformedSurface(QPoint(), renderToSurface({layer}, painter->keyClip()));
 	
 	layer->render(painter);
 }

@@ -55,11 +55,11 @@ public:
 	 * @param keyRectClip Tiles and their regions to render (Priority 1)
 	 * @return
 	 */
-	Malachite::Surface renderToSurface(const LayerConstPtr &rootLayer, const QPointSet &keyClip, const QHash<QPoint, QRect> &keyRectClip);
+	Malachite::Surface renderToSurface(const QList<LayerConstPtr> &layers, const QPointSet &keyClip, const QHash<QPoint, QRect> &keyRectClip);
 	
-	Malachite::Surface renderToSurface(const LayerConstPtr &rootLayer, const QPointSet &keyClip = QPointSet())
+	Malachite::Surface renderToSurface(const QList<LayerConstPtr> &layers, const QPointSet &keyClip = QPointSet())
 	{
-		return renderToSurface(rootLayer, keyClip, QHash<QPoint, QRect>());
+		return renderToSurface(layers, keyClip, QHash<QPoint, QRect>());
 	}
 	
 protected:

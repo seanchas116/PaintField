@@ -4,6 +4,7 @@
 #include <QTimer>
 #include <QItemSelectionModel>
 #include <boost/range/adaptors.hpp>
+#include <boost/range/algorithm.hpp>
 
 #include "document.h"
 #include "rasterlayer.h"
@@ -24,6 +25,11 @@ class LayerSceneCommand : public QUndoCommand
 public:
 	
 	typedef QList<int> Path;
+	
+	static void sortPathList(QList<Path> &pathList)
+	{
+		boost::sort(pathList, boost::lexicographical_compare<Path, Path>);
+	}
 	
 	LayerSceneCommand(LayerScene *scene, QUndoCommand *parent) :
 		QUndoCommand(parent),
@@ -72,6 +78,24 @@ public:
 	static Path pathForLayer(const LayerConstPtr &layer)
 	{
 		return LayerScene::pathForLayer(layer);
+	}
+	
+	QList<LayerPtr> layersForPaths(const QList<Path> &paths)
+	{
+		QList<LayerPtr> layers;
+		layers.reserve(paths.size());
+		for (auto &path : paths)
+			layers << layerForPath(path);
+		return layers;
+	}
+	
+	QList<Path> pathsForLayers(const QList<LayerConstPtr> &layers)
+	{
+		QList<Path> paths;
+		paths.reserve(layers.size());
+		for (auto &layer : layers)
+			paths << pathForLayer(layer);
+		return paths;
 	}
 	
 private:
@@ -372,6 +396,76 @@ private:
 	QString _newName;
 };
 
+/*
+class LayerSceneMergeCommand : public LayerSceneCommand
+{
+public:
+	
+	LayerSceneMergeCommand(const QList<LayerConstPtr> &layers, const QString &newName, LayerScene *scene, QUndoCommand *parent) :
+		LayerSceneCommand(scene, parent),
+		_pathList(pathsForLayers(layers)),
+		_newName(newName)
+	{
+		sortPathList(_pathList);
+		
+		auto lowest = layerForPath(_pathList.first());
+		_parentPath = pathForLayer(lowest->parent());
+		_index = lowest->index();
+	}
+	
+	void redo()
+	{
+		auto layers = layersForPaths(_pathList);
+		
+		// make result layer
+		auto merged = std::make_shared<RasterLayer>(_newName);
+		{
+			LayerRenderer renderer;
+			merged->setSurface(renderer.renderToSurface(Malachite::constList(layers)));
+		}
+		
+		// insert result layer
+		auto parent = layerForPath(_parentPath);
+		insertLayer(parent, _index, merged);
+		_insertedPath = pathForLayer(merged);
+		
+		// remove original layers
+		for (auto &layer : layers)
+			takeLayer(layer->parent(), layer->index());
+		
+		_layers = layers;
+	}
+	
+	void undo()
+	{
+		// remove merged layer
+		auto merged = layerForPath(_insertedPath);
+		takeLayer(merged->parent(), merged->index());
+		
+		// insert original layers
+		// _pathList is already sorted lexicographically
+		for (auto &path : _pathList)
+		{
+			Path layerParentPath = path;
+			layerParentPath.removeLast();
+			int layerIndex = path.last();
+			
+			auto layerParent = layerForPath(layerParentPath);
+			insertLayer(layerParent, layerIndex, _layers.takeFirst());
+		}
+	}
+	
+private:
+	
+	QList<Path> _pathList;
+	int _index;
+	Path _parentPath;
+	QString _newName;
+	Path _insertedPath;
+	
+	QList<LayerPtr> _layers;
+};*/
+
 class LayerSceneMergeCommand : public LayerSceneCommand
 {
 public:
@@ -380,8 +474,7 @@ public:
 		LayerSceneCommand(scene, parent),
 		_index(index),
 		_count(count),
-		_newName(newName),
-		_group(std::make_shared<GroupLayer>())
+		_newName(newName)
 	{
 		_parentPath = pathForLayer(parentRef);
 	}
@@ -391,12 +484,12 @@ public:
 		auto parent = layerForPath(_parentPath);
 		
 		for (int i = 0; i < _count; ++i)
-			_group->append(takeLayer(parent, _index));
+			_layers << takeLayer(parent, _index);
 		
 		LayerRenderer renderer;
 		
 		auto newLayer = std::make_shared<RasterLayer>(_newName);
-		newLayer->setSurface(renderer.renderToSurface(_group));
+		newLayer->setSurface(renderer.renderToSurface(Malachite::constList(_layers)));
 		newLayer->updateThumbnail(scene()->document()->size());
 		
 		insertLayer(parent, _index, newLayer);
@@ -409,7 +502,7 @@ public:
 		takeLayer(parent, _index);
 		
 		for (int i = 0; i < _count; ++i)
-			insertLayer(parent, _index + i, _group->take(0));
+			insertLayer(parent, _index + i, _layers.takeFirst());
 	}
 	
 private:
@@ -418,7 +511,7 @@ private:
 	int _index, _count;
 	QString _newName;
 	
-	std::shared_ptr<GroupLayer> _group;
+	QList<LayerPtr> _layers;
 };
 
 struct LayerScene::Data
@@ -434,7 +527,31 @@ struct LayerScene::Data
 	
 	LayerConstPtr current;
 	
+	/**
+	 * Checks if this scene contains the layer.
+	 * @param layer
+	 * @return 
+	 */
 	bool checkLayer(const LayerConstPtr &layer)
+	{
+		return layer && layer->root() == rootLayer && layer != rootLayer;
+	}
+	
+	bool checkLayers(const QList<LayerConstPtr> &layers)
+	{
+		for (auto &layer : layers)
+			if (!checkLayer(layer))
+				return false;
+		return true;
+	}
+	
+	/**
+	 * Checks if this scene contains the layer.
+	 * This version returns true if the layer is the root.
+	 * @param layer
+	 * @return 
+	 */
+	bool checkParentLayer(const LayerConstPtr &layer)
 	{
 		return layer && layer->root() == rootLayer;
 	}
@@ -521,7 +638,7 @@ private:
 
 void LayerScene::addLayers(const QList<LayerPtr> &layers, const LayerConstPtr &parent, int index, const QString &description)
 {
-	if (!d->checkLayer(parent))
+	if (!d->checkParentLayer(parent))
 	{
 		PAINTFIELD_WARNING << "invalid parent";
 		return;
@@ -550,14 +667,7 @@ void LayerScene::removeLayers(const QList<LayerConstPtr> &layers, const QString 
 
 void LayerScene::moveLayers(const QList<LayerConstPtr> &layers, const LayerConstPtr &parent, int index)
 {
-	for (const auto &layer : layers)
-		if (!d->checkLayer(layer))
-		{
-			PAINTFIELD_WARNING << "invalid layers";
-			return;
-		}
-	
-	if (!d->checkLayer(parent))
+	if (!d->checkLayers(layers) || !d->checkParentLayer(parent))
 	{
 		PAINTFIELD_WARNING << "invalid parent";
 		return;
@@ -583,14 +693,7 @@ void LayerScene::moveLayers(const QList<LayerConstPtr> &layers, const LayerConst
 
 void LayerScene::copyLayers(const QList<LayerConstPtr> &layers, const LayerConstPtr &parent, int index)
 {
-	for (const auto &layer : layers)
-		if (!d->checkLayer(layer))
-		{
-			PAINTFIELD_WARNING << "invalid layers";
-			return;
-		}
-	
-	if (!d->checkLayer(parent))
+	if (!d->checkLayers(layers) || !d->checkParentLayer(parent))
 	{
 		PAINTFIELD_WARNING << "invalid parent";
 		return;
@@ -613,7 +716,7 @@ void LayerScene::copyLayers(const QList<LayerConstPtr> &layers, const LayerConst
 
 void LayerScene::mergeLayers(const LayerConstPtr &parent, int index, int count)
 {
-	if (!d->checkLayer(parent))
+	if (!d->checkParentLayer(parent))
 	{
 		PAINTFIELD_WARNING << "invalid parent";
 		return;

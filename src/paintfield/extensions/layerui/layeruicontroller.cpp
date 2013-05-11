@@ -7,6 +7,10 @@
 #include <QApplication>
 #include <QClipboard>
 #include <tuple>
+#include <boost/range/algorithm.hpp>
+#include <boost/range/adaptors.hpp>
+
+#include "paintfield/core/cpplinq.hpp"
 
 #include "paintfield/core/layeritemmodel.h"
 #include "paintfield/core/layerscene.h"
@@ -17,8 +21,6 @@
 #include "paintfield/core/settingsmanager.h"
 
 #include "layeruicontroller.h"
-
-using namespace std;
 
 namespace PaintField
 {
@@ -150,32 +152,33 @@ void LayerUIController::removeLayers()
 	d->document->layerScene()->removeLayers(d->document->layerScene()->selection());
 }
 
-static tuple<LayerConstPtr, int , int> layerRangeFromLayers(const QList<LayerConstPtr> &layers)
+static std::tuple<LayerConstPtr, int , int> layerRangeFromLayers(const QList<LayerConstPtr> &layers)
 {
-	auto defaultValue = make_tuple(nullptr, 0, 0);
+	// this value is returned if failed
+	auto defaultValue = std::make_tuple(nullptr, 0, 0);
 	
 	if (layers.size() == 0)
 		return defaultValue;
 	
-	LayerConstPtr parent = layers[0]->parent();
+	LayerConstPtr parent = layers.at(0)->parent();
 	QList<int> indexes;
 	
-	for (const auto &layer : layers)
+	for (auto &layer : layers)
 	{
+		// have different parents
 		if (layer->parent() != parent)
 			return defaultValue;
 		
 		indexes << layer->index();
 	}
 	
-	qSort(indexes);
+	int min = cpplinq::from(indexes) >> cpplinq::min();
+	int max = cpplinq::from(indexes) >> cpplinq::max();
+	int count = max - min + 1;
 	
-	QList<int> uniqueIndexes;
-	for (int i = 0; i < indexes.size(); ++i)
-		uniqueIndexes << i;
-	
-	if (uniqueIndexes == indexes)
-		return make_tuple(parent, indexes.first(), indexes.size());
+	// success if indexes are continuous
+	if (cpplinq::from(indexes) >> cpplinq::distinct() >> cpplinq::count() == count)
+		return std::make_tuple(parent, min, count);
 	else
 		return defaultValue;
 }
@@ -184,7 +187,7 @@ void LayerUIController::mergeLayers()
 {
 	LayerConstPtr parent;
 	int start, count;
-	tie(parent, start, count) = layerRangeFromLayers(d->document->layerScene()->selection());
+	std::tie(parent, start, count) = layerRangeFromLayers(d->document->layerScene()->selection());
 	
 	if (count >= 2)
 	{
@@ -278,7 +281,7 @@ void LayerUIController::onSelectionChanged()
 	{
 		LayerConstPtr parent;
 		int start, count;
-		tie(parent, start, count) = layerRangeFromLayers(selection);
+		std::tie(parent, start, count) = layerRangeFromLayers(selection);
 		d->actions[ActionMerge]->setEnabled(count >= 2);
 	}
 	
