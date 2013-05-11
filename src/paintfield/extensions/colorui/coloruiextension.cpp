@@ -25,6 +25,7 @@ ColorUIExtension::ColorUIExtension(Workspace *workspace, QObject *parent) :
 	auto paletteM = workspace->paletteManager();
 	connect(paletteM, SIGNAL(colorChanged(int,Malachite::Color)), sidebar, SLOT(setColorButtonColor(int,Malachite::Color)));
 	connect(sidebar, SIGNAL(colorButtonColorChanged(int,Malachite::Color)), paletteM, SLOT(setColor(int,Malachite::Color)));
+	connect(sidebar, SIGNAL(colorButtonClicked(int)), paletteM, SLOT(setCurrentIndex(int)));
 	
 	for (int i = 0; i < paletteM->colorCount(); ++i)
 		sidebar->setColorButtonColor(i, paletteM->color(i));

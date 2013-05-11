@@ -85,6 +85,7 @@ signals:
 	
 	void currentColorChanged(const Malachite::Color &color);
 	void colorButtonColorChanged(int index, const Malachite::Color &color);
+	void colorButtonClicked(int index);
 	void currentOpacityChanged(double opacity);
 	
 public slots:
@@ -94,6 +95,7 @@ public slots:
 	
 private slots:
 	
+	void onColorButtonToggled(bool on);
 	void onColorButtonChanged(const Malachite::Color &color);
 	void setCurrentOpacity(double opacity);
 	

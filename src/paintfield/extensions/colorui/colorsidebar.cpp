@@ -48,8 +48,6 @@ ColorSliderPanel::ColorSliderPanel(QWidget *parent) :
 			b->setCheckable(true);
 			connect(b, SIGNAL(toggled(bool)), wgroupRgb, SLOT(setVisible(bool)));
 			buttonLayout->addWidget(b);
-			
-			b->setChecked(true);
 		}
 		
 		{
@@ -282,6 +280,7 @@ ColorSideBar::ColorSideBar(QWidget *parent) :
 			_colorButtons << button;
 			layout->addWidget(button);
 			connect(button, SIGNAL(colorChanged(Malachite::Color)), this, SLOT(onColorButtonChanged(Malachite::Color)));
+			connect(button, SIGNAL(toggled(bool)), this, SLOT(onColorButtonToggled(bool)));
 		}
 		
 		layout->addStretch(1);
@@ -383,13 +382,21 @@ void ColorSideBar::setCurrentOpacity(double opacity)
 	setCurrentColor(color);
 }
 
+void ColorSideBar::onColorButtonToggled(bool on)
+{
+	if (!on)
+		return;
+	
+	auto button = qobject_cast<ColorButton *>(sender());
+	if (button && _colorButtons.contains(button))
+		emit colorButtonClicked(_colorButtons.indexOf(button));
+}
+
 void ColorSideBar::onColorButtonChanged(const Color &color)
 {
 	auto button = qobject_cast<ColorButton *>(sender());
 	if (button && _colorButtons.contains(button))
-	{
 		emit colorButtonColorChanged(_colorButtons.indexOf(button), color);
-	}
 }
 
 }
