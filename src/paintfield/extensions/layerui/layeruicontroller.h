@@ -27,7 +27,8 @@ public:
 		ActionCopy,
 		ActionCut,
 		ActionPaste,
-		ActionMerge
+		ActionMerge,
+		ActionRasterize
 	};
 	
 	QAction *action(ActionType type);
@@ -44,6 +45,7 @@ public slots:
 	void newGroupLayer();
 	void removeLayers();
 	void mergeLayers();
+	void rasterizeLayers();
 	
 	void copyLayers();
 	void cutLayers();

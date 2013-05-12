@@ -1,10 +1,10 @@
 #include <QtCore>
-#include <qjson/parser.h>
-#include <qjson/serializer.h>
+#include <supportlib/qjson/parser.h>
+#include <supportlib/qjson/serializer.h>
 #include <Malachite/Painter>
 #include <stdexcept>
-#include <Minizip/unzip.h>
-#include <Minizip/zip.h>
+#include <supportlib/minizip/unzip.h>
+#include <supportlib/minizip/zip.h>
 
 #include "layerscene.h"
 #include "grouplayer.h"

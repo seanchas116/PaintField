@@ -12,6 +12,7 @@
 
 #include "paintfield/core/cpplinq.hpp"
 
+#include "paintfield/core/shapelayer.h"
 #include "paintfield/core/layeritemmodel.h"
 #include "paintfield/core/layerscene.h"
 #include "paintfield/core/rasterlayer.h"
@@ -96,6 +97,14 @@ LayerUIController::LayerUIController(Document *document, QObject *parent) :
 		a->setText(tr("Paste"));
 		a->setShortcut(settingsManager->value({".key-bindings", "paintfield.edit.paste"}).toString());
 		d->actions[ActionPaste] = a;
+	}
+	
+	{
+		auto a = Util::createAction("paintfield.layer.rasterize", this, SLOT(rasterizeLayers()));
+		a->setText(tr("Rasterize"));
+		a->setShortcut(settingsManager->value({".key-bindings", "paintfield.layer.rasterize"}).toString());
+		d->actions[ActionRasterize] = a;
+		d->actionsForLayers << a;
 	}
 	
 	connect(document->layerScene(), SIGNAL(selectionChanged(QList<LayerConstPtr>,QList<LayerConstPtr>)), this, SLOT(onSelectionChanged()));
@@ -193,6 +202,18 @@ void LayerUIController::mergeLayers()
 	{
 		d->document->layerScene()->mergeLayers(parent, start, count);
 		d->document->layerScene()->setCurrent(parent->child(start));
+	}
+}
+
+void LayerUIController::rasterizeLayers()
+{
+	auto scene = d->document->layerScene();
+	auto layers = scene->selection();
+	auto filtered = cpplinq::from(layers) >> cpplinq::where( []( const LayerConstPtr &layer ){ return layer->isType<ShapeLayer>(); }) >> cpplinq::to_vector();
+	
+	for (auto &layer : filtered)
+	{
+		scene->mergeLayers(layer->parent(), layer->index(), 1);
 	}
 }
 

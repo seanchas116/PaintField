@@ -44,7 +44,8 @@
 				"paintfield.layer.newGroup",
 				"paintfield.layer.import",
 				"",
-				"paintfield.layer.merge"
+				"paintfield.layer.merge",
+				"paintfield.layer.rasterize"
 			]
 		},
 		{

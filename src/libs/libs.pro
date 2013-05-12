@@ -1,3 +1,3 @@
 TEMPLATE = subdirs
 
-SUBDIRS = Minizip Malachite/src QtSingleApplication
+SUBDIRS = Malachite/src supportlib
