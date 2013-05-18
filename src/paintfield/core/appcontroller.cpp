@@ -57,13 +57,12 @@ AppController::~AppController()
 
 void AppController::begin()
 {
-	d->settingsManager->loadBuiltinSettings();
-	d->settingsManager->loadUserSettings();
+	d->settingsManager->loadSettings();
 	
 	extensionManager()->initialize(this);
 	addExtensions(extensionManager()->createAppExtensions(this, this));
 	
-	workspaceManager()->newWorkspace();
+	workspaceManager()->loadLastWorkspaces();
 }
 
 WorkspaceManager *AppController::workspaceManager() { return d->workspaceManager; }
@@ -142,6 +141,12 @@ void AppController::openFile(const QString &path)
 		workspace->openCanvasFromFilepath(path);
 }
 
+void AppController::quit()
+{
+	d->settingsManager->saveUserSettings();
+	d->app->quit();
+}
+
 void AppController::declareMenus()
 {
 	settingsManager()->declareMenu("paintfield.file",
@@ -217,7 +222,7 @@ void AppController::declareMenus()
 
 void AppController::createActions()
 {
-	d->actions << Util::createAction("paintfield.file.quit", d->workspaceManager, SLOT(tryCloseAll()));
+	d->actions << Util::createAction("paintfield.file.quit", d->workspaceManager, SLOT(closeAllAndQuit()));
 	d->actions << Util::createAction("paintfield.window.minimize", this, SLOT(minimizeCurrentWindow()));
 	d->actions << Util::createAction("paintfield.window.zoom", this, SLOT(zoomCurrentWindow()));
 	d->actions << Util::createAction("paintfield.window.newWorkspace", d->workspaceManager, SLOT(newWorkspace()));

@@ -9,6 +9,7 @@ namespace PaintField {
 struct SettingsManager::Data
 {
 	QVariantMap settings;
+	QVariantMap userSettings;
 	
 	QVariant menuBarOrder, workspaceItemOrder;
 	
@@ -45,8 +46,11 @@ SettingsManager::SettingsManager(QObject *parent) :
 {
 	// prepare directiries
 	
-	//QDir documentDir(QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation));
-	//documentDir.mkpath("PaintField/Contents/Brush Presets");
+	QDir dir(QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation));
+	
+	dir.mkdir("PaintField");
+	dir.cd("PaintField");
+	dir.mkdir("Settings");
 }
 
 SettingsManager::~SettingsManager()
@@ -58,76 +62,7 @@ static const QString menuBarOrderFileName("menubar.json");
 static const QString WorkspaceItemOrderFileName("workspace-items.json");
 static const QString keyBindingFileName("key-bindings.json");
 
-void SettingsManager::loadBuiltinSettings()
-{
-	QDir dir(builtinDataDir());
-	
-	if (!dir.exists())
-		return;
-	
-	if (!dir.cd("Settings"))
-		return;
-	
-	loadSettingsFromDir(dir.path());
-}
-
-void SettingsManager::loadUserSettings()
-{
-	QDir dir(userDataDir());
-	
-	if (!dir.exists())
-		return;
-	
-	if (!dir.cd("Settings"))
-		return;
-	
-	loadSettingsFromDir(dir.path());
-}
-
-void SettingsManager::loadSettingsFromDir(const QString &dirPath)
-{
-	QDir dir(dirPath);
-	
-	if (!dir.exists())
-		return;
-	
-	for (const QFileInfo &fileInfo : dir.entryInfoList(QDir::NoFilter, QDir::Name))
-	{
-		if (fileInfo.suffix() == "json")
-			loadSettingsFromJsonFile(fileInfo.absoluteFilePath());
-	}
-	
-	d->applyKeyBindingsToActionDeclarations();
-}
-
-void SettingsManager::loadSettingsFromJsonFile(const QString &path)
-{
-	addSettings(Util::loadJsonFromFile(path).toMap());
-}
-
-QVariantMap &SettingsManager::settings()
-{
-	return d->settings;
-}
-
-QVariant SettingsManager::value(const QStringList &path, const QVariant &defaultValue)
-{
-	auto map = d->settings;
-	QVariant data;
-	
-	for (auto key : path)
-	{
-		if (!map.contains(key))
-			return defaultValue;
-		
-		data = map[key];
-		map = data.toMap();
-	}
-	
-	return data;
-}
-
-QVariantMap joinSettings(const QVariantMap &dst, const QVariantMap &src)
+static QVariantMap joinSettings(const QVariantMap &dst, const QVariantMap &src)
 {
 	QVariantMap result = dst;
 	
@@ -145,9 +80,96 @@ QVariantMap joinSettings(const QVariantMap &dst, const QVariantMap &src)
 	return result;
 }
 
-void SettingsManager::addSettings(const QVariantMap &settings)
+void SettingsManager::loadSettings()
 {
-	d->settings = joinSettings(d->settings, settings);
+	auto loadSettingsFromDataDir = [](const QString &dirPath)->QVariantMap
+	{
+		QDir dir(dirPath);
+		
+		if (!dir.exists())
+			return QVariantMap();
+		
+		if (!dir.cd("Settings"))
+			return QVariantMap();
+		
+		const auto settings =  Util::loadJsonFromFile(dir.filePath("settings.json")).toMap();
+		const auto platformSpecificSettings = settings.value("platform-specific").toMap()[Util::platformName()].toMap();
+		
+		if (platformSpecificSettings.size())
+			return joinSettings(settings, platformSpecificSettings);
+		else
+			return settings;
+	};
+	
+	auto builtinSettings = loadSettingsFromDataDir(builtinDataDir());
+	auto userSettings = loadSettingsFromDataDir(userDataDir());
+	d->settings = joinSettings(builtinSettings, userSettings);
+	d->userSettings = userSettings;
+	
+	PAINTFIELD_DEBUG << "loaded settings:" << d->settings;
+	PAINTFIELD_DEBUG << "loaded user settings:" << d->userSettings;
+	
+	d->applyKeyBindingsToActionDeclarations();
+}
+
+void SettingsManager::saveUserSettings()
+{
+	QDir dir(userDataDir());
+	
+	if (!dir.exists())
+		return;
+	
+	if (!dir.cd("Settings"))
+		return;
+	
+	Util::saveJsonToFile(dir.filePath("settings.json"), d->userSettings);
+}
+
+static QVariant valueFromMapTree(const QVariantMap &original, const QStringList &path, const QVariant &defaultValue = QVariant())
+{
+	auto map = original;
+	QVariant data;
+	
+	for (auto key : path)
+	{
+		if (!map.contains(key))
+			return defaultValue;
+		
+		data = map[key];
+		map = data.toMap();
+	}
+	
+	return data;
+}
+
+static void setValueToMapTree(QVariantMap &original, const QStringList &path, const QVariant &value)
+{
+	auto last = path.last();
+	auto init = path;
+	init.removeLast();
+	
+	if (init.size() == 0)
+	{
+		original[last] = value;
+	}
+	else
+	{
+		auto map = valueFromMapTree(original, init).toMap();
+		map[last] = value;
+		setValueToMapTree(original, init, map);
+	}
+}
+
+void SettingsManager::setValue(const QStringList &path, const QVariant &value)
+{
+	PAINTFIELD_DEBUG << "setting value" << value << "at" << path;
+	setValueToMapTree(d->settings, path, value);
+	setValueToMapTree(d->userSettings, path, value);
+}
+
+QVariant SettingsManager::value(const QStringList &path, const QVariant &defaultValue)
+{
+	return valueFromMapTree(d->settings, path, defaultValue);
 }
 
 void SettingsManager::declareTool(const QString &name, const ToolInfo &info)

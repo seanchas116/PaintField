@@ -1,30 +1,33 @@
 {
-	"workspace-item-order":
+	"workspace-state-default":
 	{
-		"sidebars":
+		"item-order":
 		{
-			"left":
-			[
+			"sidebars":
+			{
+				"left":
 				[
-					["paintfield.sidebar.navigator"],
-					["paintfield.sidebar.layerTree"]
-				]
-			],
-			"right":
-			[
+					[
+						["paintfield.sidebar.navigator"],
+						["paintfield.sidebar.layerTree"]
+					]
+				],
+				"right":
 				[
-					
-					["paintfield.sidebar.color"],
-					["paintfield.sidebar.fillStroke", "paintfield.sidebar.shape"],
-					["paintfield.sidebar.brush"],
-					["paintfield.sidebar.brushLibrary"]
+					[
+						
+						["paintfield.sidebar.color"],
+						["paintfield.sidebar.fillStroke", "paintfield.sidebar.shape"],
+						["paintfield.sidebar.brush"],
+						["paintfield.sidebar.brushLibrary"]
+					]
 				]
-			]
-		},
-		
-		"toolbars":
-		{
-			"top": ["paintfield.toolbar.tool"]
+			},
+			
+			"toolbars":
+			{
+				"top": ["paintfield.toolbar.tool"]
+			}
 		}
 	}
 }

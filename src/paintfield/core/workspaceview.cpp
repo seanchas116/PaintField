@@ -184,7 +184,7 @@ struct WorkspaceView::Data
 	Canvas *currentCanvas = 0;
 };
 
-WorkspaceView::WorkspaceView(Workspace *workspace, QWidget *parent) :
+WorkspaceView::WorkspaceView(Workspace *workspace, const QVariantMap &state, QWidget *parent) :
     QMainWindow(parent),
     d(new Data)
 {
@@ -214,16 +214,24 @@ WorkspaceView::WorkspaceView(Workspace *workspace, QWidget *parent) :
 	connect(this, SIGNAL(closeRequested()), workspace, SLOT(tryClose()));
 	connect(workspace, SIGNAL(currentCanvasDocumentPropertyChanged()), this, SLOT(onCurrentCanvasDocumentPropertyChanged()));
 	
+	// load state settings
 	{
-		QVariantMap workspaceItemOrderMap = appController()->settingsManager()->settings()["workspace-item-order"].toMap();
+		auto settingsManager = appController()->settingsManager();
 		
-		createSideBarFrames(appController()->settingsManager()->sideBarInfoHash(),
-		                    workspaceItemOrderMap["sidebars"]);
-		createToolBars(appController()->settingsManager()->toolBarInfoHash(),
-		               workspaceItemOrderMap["toolbars"]);
-		createMenuBar(appController()->settingsManager()->actionInfoHash(),
-		              appController()->settingsManager()->menuInfoHash(),
-		              appController()->settingsManager()->settings()["menubar-order"]);
+		{
+			auto workspaceItemOrderMap = state["item-order"].toMap();
+			
+			createSideBarFrames(settingsManager->sideBarInfoHash(),
+			                    workspaceItemOrderMap["sidebars"]);
+			createToolBars(settingsManager->toolBarInfoHash(),
+			               workspaceItemOrderMap["toolbars"]);
+			createMenuBar(settingsManager->actionInfoHash(),
+			              settingsManager->menuInfoHash(),
+			              settingsManager->value({"menubar-order"}));
+		}
+		
+		d->motherWidget->setSizesState(state["sidebar-sizes"].toMap());
+		d->motherWidget->setTabIndexState(state["sidebar-tab-indexes"].toMap());
 	}
 	
 	connect(workspace, SIGNAL(shouldBeDeleted(Workspace*)), this, SLOT(deleteLater()));
@@ -373,6 +381,52 @@ void WorkspaceView::associateMenuBarWithActions(const QActionList &actions)
 Workspace *WorkspaceView::workspace()
 {
 	return d->workspace;
+}
+
+QVariantMap WorkspaceView::saveState() const
+{
+	QVariantMap map;
+	map["sidebar-sizes"] = d->motherWidget->sizesState();
+	map["sidebar-tab-indexes"] = d->motherWidget->tabIndexState();
+	
+	{
+		QVariantMap itemOrder;
+		
+		{
+			QVariantMap toolBarOrder;
+			QHash<Qt::ToolBarArea, QVariantList> toolBarHash;
+			
+			for (auto toolBar : d->toolBars)
+				toolBarHash[toolBarArea(toolBar)] << toolBar->objectName();
+			
+			auto areaName = [](Qt::ToolBarArea area)
+			{
+				switch (area)
+				{
+					default:
+					case Qt::TopToolBarArea:
+						return "top";
+					case Qt::BottomToolBarArea:
+						return "bottom";
+					case Qt::LeftToolBarArea:
+						return "left";
+					case Qt::RightToolBarArea:
+						return "right";
+				};
+			};
+			
+			for (auto it = toolBarHash.begin(); it != toolBarHash.end(); ++it)
+				toolBarOrder[areaName(it.key())] = it.value();
+			
+			itemOrder["toolbars"] = toolBarOrder;
+		}
+		
+		itemOrder["sidebars"] = d->motherWidget->tabObjectNameState();
+		
+		map["item-order"] = itemOrder;
+	}
+	
+	return map;
 }
 
 void WorkspaceView::setCurrentCanvas(Canvas *canvas)

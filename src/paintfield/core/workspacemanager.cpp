@@ -2,8 +2,10 @@
 #include "application.h"
 #include "appcontroller.h"
 #include "extensionmanager.h"
+#include "settingsmanager.h"
 #include "util.h"
 #include "workspaceview.h"
+#include "cpplinq-paintfield.h"
 
 #include "workspacemanager.h"
 
@@ -16,14 +18,36 @@ WorkspaceManager::WorkspaceManager(QObject *parent) :
 	connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)), this, SLOT(onFocusWidgetChanged(QWidget*,QWidget*)));
 }
 
-bool WorkspaceManager::tryCloseAll()
+void WorkspaceManager::closeAllAndQuit()
 {
+	using namespace cpplinq;
+	QVariantList states = from(_workspaces) >> select([](Workspace *w)->QVariant{return w->view()->saveState();}) >> to_any_container<QVariantList>();
+	
 	for (Workspace *controller : _workspaces)
 	{
 		if (!controller->tryClose())
-			return false;
+			return;	// failed to close
 	}
-	return true;
+	
+	// saves workspace states and quit
+	
+	appController()->settingsManager()->setValue({"last-workspace-states"}, states);
+	appController()->quit();
+}
+
+void WorkspaceManager::loadLastWorkspaces()
+{
+	auto lastWorkspaceStates = appController()->settingsManager()->value({"last-workspace-states"}).toList();
+	
+	if (lastWorkspaceStates.isEmpty())
+	{
+		addWorkspace(new Workspace(this));
+	}
+	else
+	{
+		for (auto &state : lastWorkspaceStates)
+			addWorkspace(new Workspace(this), state.toMap());
+	}
 }
 
 void WorkspaceManager::newWorkspace()
@@ -48,9 +72,6 @@ void WorkspaceManager::removeWorkspace(Workspace *workspace)
 {
 	if (_workspaces.contains(workspace))
 	{
-		if (_workspaces.size() == 1)
-			qApp->quit();
-		
 		if (_currentWorkspace == workspace)
 			_currentWorkspace = 0;
 		
@@ -60,16 +81,39 @@ void WorkspaceManager::removeWorkspace(Workspace *workspace)
 	}
 }
 
-void WorkspaceManager::addWorkspace(Workspace *workspace)
+void WorkspaceManager::closeWorkspace(Workspace *workspace)
 {
+	if (_workspaces.contains(workspace))
+	{
+		bool willQuit = (_workspaces.size() == 1);
+		
+		if (willQuit)
+		{
+			QVariantList states = {workspace->view()->saveState()};
+			appController()->settingsManager()->setValue({"last-workspace-states"}, states);
+		}
+		
+		removeWorkspace(workspace);
+		
+		if (willQuit)
+			appController()->quit();
+	}
+}
+
+void WorkspaceManager::addWorkspace(Workspace *workspace, const QVariantMap &state)
+{
+	auto stateToSet = state;
+	if (stateToSet.isEmpty())
+		stateToSet = appController()->settingsManager()->value({"workspace-state-default"}).toMap();
+	
 	_workspaces << workspace;
 	
 	connect(workspace, SIGNAL(focused()), this, SLOT(onWorkspaceFocusIn()));
-	connect(workspace, SIGNAL(shouldBeDeleted(Workspace*)), this, SLOT(removeWorkspace(Workspace*)));
+	connect(workspace, SIGNAL(shouldBeDeleted(Workspace*)), this, SLOT(closeWorkspace(Workspace*)));
 	
 	emit workspaceAdded(workspace);
 	
-	auto view = new WorkspaceView(workspace);
+	auto view = new WorkspaceView(workspace, stateToSet);
 	
 	Util::maximizeWindowSize(view);
 	

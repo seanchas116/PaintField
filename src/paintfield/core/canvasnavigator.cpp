@@ -53,7 +53,7 @@ CanvasNavigator::CanvasNavigator(KeyTracker *keyTracker, CanvasViewController *c
 	
 	// setup key bindings
 	{
-		auto keyBindingHash = appController()->settingsManager()->settings()[".key-bindings"].toMap();
+		auto keyBindingHash = appController()->settingsManager()->value({".key-bindings"}).toMap();
 		
 		d->translationKeys = keyBindingHash["paintfield.canvas.dragTranslation"].toString();
 		d->scaleKeys = keyBindingHash["paintfield.canvas.dragScale"].toString();

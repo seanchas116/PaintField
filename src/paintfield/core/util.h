@@ -17,6 +17,8 @@ namespace PaintField
 namespace Util
 {
 
+QString platformName();
+
 /**
  * Creates an action.
  * @param id The object name

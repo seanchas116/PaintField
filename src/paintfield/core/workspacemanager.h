@@ -24,26 +24,28 @@ signals:
 	
 public slots:
 	
+	void newWorkspace();
+	void setCurrentWorkspace(Workspace *workspace);
+	
 	/**
 	 * Tries to close all workspaces.
 	 * The app will quit if it is succeeded.
 	 * @return 
 	 */
-	bool tryCloseAll();
-	
-	void newWorkspace();
-	void setCurrentWorkspace(Workspace *workspace);
+	void closeAllAndQuit();
 	
 	/**
-	 * Removes a workspace.
+	 * Closes a workspace.
 	 * The app will quit if there is no workspace after it.
 	 * @param workspace
 	 */
-	void removeWorkspace(Workspace *workspace);
+	void closeWorkspace(Workspace *workspace);
+	
+	void loadLastWorkspaces();
 	
 protected:
 	
-	void addWorkspace(Workspace *workspace);
+	void addWorkspace(Workspace *workspace, const QVariantMap &state = QVariantMap());
 	
 private slots:
 	
@@ -52,6 +54,9 @@ private slots:
 	void onFocusWidgetChanged(QWidget *old, QWidget *now);
 	
 private:
+	
+	
+	void removeWorkspace(Workspace *workspace);
 	
 	QList<Workspace *> _workspaces;
 	Workspace *_currentWorkspace = 0;

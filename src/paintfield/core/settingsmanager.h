@@ -56,15 +56,10 @@ public:
 	explicit SettingsManager(QObject *parent = 0);
 	~SettingsManager();
 	
-	void loadBuiltinSettings();
-	void loadUserSettings();
+	void loadSettings();
+	void saveUserSettings();
 	
-	void loadSettingsFromDir(const QString &dirPath);
-	void loadSettingsFromJsonFile(const QString &path);
-	
-	QVariantMap &settings();
-	void addSettings(const QVariantMap &settings);
-	
+	void setValue(const QStringList &path, const QVariant &value);
 	QVariant value(const QStringList &path, const QVariant &defaultValue = QVariant());
 	
 	void declareTool(const QString &name, const ToolInfo &info);

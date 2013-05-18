@@ -57,6 +57,8 @@ public slots:
 	
 	void openFile(const QString &path);
 	
+	void quit();
+	
 signals:
 	
 private:

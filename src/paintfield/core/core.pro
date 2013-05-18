@@ -96,7 +96,8 @@ HEADERS += \
     serializationutil.h \
     widgets/abstractlayerpropertyeditor.h \
     scopedqobjectpointer.h \
-    cpplinq.hpp
+    cpplinq.hpp \
+    cpplinq-paintfield.h
 FORMS += dialogs/exportdialog.ui dialogs/newdocumentdialog.ui
 SOURCES += \
            document.cpp \

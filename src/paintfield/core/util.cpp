@@ -17,6 +17,21 @@ namespace PaintField
 namespace Util
 {
 
+QString platformName()
+{
+#if defined(Q_OS_WIN32)
+	return "windows";
+#elif defined(Q_OS_MAC)
+	return "mac";
+#elif defined(Q_OS_LINUX)
+	return "linux";
+#elif defined(Q_OS_FREEBSD)
+	return "freebsd";
+#else
+	return "other";
+#endif
+}
+
 QAction *createAction(const QString &id, QObject *parent)
 {
 	auto action = new QAction(parent);
@@ -47,6 +62,7 @@ QVariant loadJsonFromFile(const QString &path)
 bool saveJsonToFile(const QString &path, const QVariant &data)
 {
 	QJson::Serializer serializer;
+	serializer.setIndentMode(QJson::IndentFull);
 	bool ok;
 	
 	QFile file(path);
