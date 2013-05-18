@@ -101,10 +101,8 @@ void CanvasTabWidget::insertCanvas(int index, Canvas *canvas)
 		originalCanvas->closeCanvas();
 	}
 	
-	if (!canvas->view())
-	{
-		new CanvasView(canvas);
-	}
+	if (!canvas->viewController())
+		new CanvasViewController(canvas);
 	
 	workspace()->addCanvas(canvas);
 	DockTabWidget::insertTab(index, canvas->view(), canvasTabText(canvas));
