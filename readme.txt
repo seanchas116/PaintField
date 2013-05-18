@@ -1,7 +1,7 @@
 PaintField - A Cross-platform Digital Painting Tool
 ========
 
-This app is currently under development. The source files are licensed under the BSD license (see copying file).
+This app is currently under development. The source files are licensed under the MIT license (see copying file).
 The project name and the license might be changed in the future.
 
 ## - To Build -
@@ -9,7 +9,7 @@ The project name and the license might be changed in the future.
 PaintField depends on the following libraries: Qt, libfreeimage, libqjson.
 Before building, make sure that these libraries are installed.
 
-To built PaintField, follow these steps:
+To build PaintField, follow these steps:
 
 	1. Copy or link Malachite[github.com/iofg2100/Malachite] source directory as src/libs/Malachite. Malachite readme file will be placed in src/libs/Malachite.
 	2. Build PaintField.
@@ -22,10 +22,12 @@ Now you can start using PaintField!!
 ### System:
 v	Multi-window editing
 v	Hierarchical layer structure
-v	Cusomizable key config
+v	Customizable key config
 v	Plugin system
 v	Infinite undo/redo
 v	Movable tabs
+v	Multiple views for one document
+v	Multiple workspaces
 
 ### GUI:
 v	Tool selection panel
@@ -47,7 +49,7 @@ v	Layer move
 v	Simple brush
 	Customizable brush
 	Gradient
-	Shapes
+v	Shapes
 
 ### General Features:
 	Filters
