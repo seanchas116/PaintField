@@ -106,9 +106,6 @@ void SettingsManager::loadSettings()
 	d->settings = joinSettings(builtinSettings, userSettings);
 	d->userSettings = userSettings;
 	
-	PAINTFIELD_DEBUG << "loaded settings:" << d->settings;
-	PAINTFIELD_DEBUG << "loaded user settings:" << d->userSettings;
-	
 	d->applyKeyBindingsToActionDeclarations();
 }
 
@@ -162,7 +159,6 @@ static void setValueToMapTree(QVariantMap &original, const QStringList &path, co
 
 void SettingsManager::setValue(const QStringList &path, const QVariant &value)
 {
-	PAINTFIELD_DEBUG << "setting value" << value << "at" << path;
 	setValueToMapTree(d->settings, path, value);
 	setValueToMapTree(d->userSettings, path, value);
 }

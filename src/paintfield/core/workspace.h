@@ -22,7 +22,7 @@ class Workspace : public QObject
 {
 	Q_OBJECT
 public:
-	explicit Workspace(QObject *parent = 0);
+	explicit Workspace(const QVariantMap &state, QObject *parent = 0);
 	~Workspace();
 	
 	ToolManager *toolManager();
@@ -59,6 +59,9 @@ public:
 	
 	QActionList currentCanvasActions();
 	CanvasExtensionList currentCanvasModules();
+	
+	QVariantMap state() const;
+	QVariantMap saveState();
 	
 signals:
 	

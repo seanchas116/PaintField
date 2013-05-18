@@ -7,7 +7,7 @@ using namespace Malachite;
 
 PaletteManager::PaletteManager(QObject *parent) :
 	QObject(parent),
-	_colors(ColorCount, Color::fromRgbValue(0, 0, 0))
+	_colors(ColorCount, Color::fromRgbValue(0, 0, 0, 1))
 {}
 
 void PaletteManager::setColor(int index, const Color &color)

@@ -18,10 +18,15 @@ WorkspaceManager::WorkspaceManager(QObject *parent) :
 	connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)), this, SLOT(onFocusWidgetChanged(QWidget*,QWidget*)));
 }
 
+static QVariantMap defaultWorkspaceState()
+{
+	return appController()->settingsManager()->value({"workspace-state-default"}).toMap();
+}
+
 void WorkspaceManager::closeAllAndQuit()
 {
 	using namespace cpplinq;
-	QVariantList states = from(_workspaces) >> select([](Workspace *w)->QVariant{return w->view()->saveState();}) >> to_any_container<QVariantList>();
+	QVariantList states = from(_workspaces) >> select([](Workspace *w)->QVariant{return w->saveState();}) >> to_any_container<QVariantList>();
 	
 	for (Workspace *controller : _workspaces)
 	{
@@ -41,18 +46,18 @@ void WorkspaceManager::loadLastWorkspaces()
 	
 	if (lastWorkspaceStates.isEmpty())
 	{
-		addWorkspace(new Workspace(this));
+		addWorkspace(new Workspace(defaultWorkspaceState(), this));
 	}
 	else
 	{
 		for (auto &state : lastWorkspaceStates)
-			addWorkspace(new Workspace(this), state.toMap());
+			addWorkspace(new Workspace(state.toMap(), this));
 	}
 }
 
 void WorkspaceManager::newWorkspace()
 {
-	addWorkspace(new Workspace(this));
+	addWorkspace(new Workspace(defaultWorkspaceState(), this));
 }
 
 void WorkspaceManager::setCurrentWorkspace(Workspace *workspace)
@@ -89,7 +94,7 @@ void WorkspaceManager::closeWorkspace(Workspace *workspace)
 		
 		if (willQuit)
 		{
-			QVariantList states = {workspace->view()->saveState()};
+			QVariantList states = {workspace->saveState()};
 			appController()->settingsManager()->setValue({"last-workspace-states"}, states);
 		}
 		
@@ -100,12 +105,8 @@ void WorkspaceManager::closeWorkspace(Workspace *workspace)
 	}
 }
 
-void WorkspaceManager::addWorkspace(Workspace *workspace, const QVariantMap &state)
+void WorkspaceManager::addWorkspace(Workspace *workspace)
 {
-	auto stateToSet = state;
-	if (stateToSet.isEmpty())
-		stateToSet = appController()->settingsManager()->value({"workspace-state-default"}).toMap();
-	
 	_workspaces << workspace;
 	
 	connect(workspace, SIGNAL(focused()), this, SLOT(onWorkspaceFocusIn()));
@@ -113,7 +114,7 @@ void WorkspaceManager::addWorkspace(Workspace *workspace, const QVariantMap &sta
 	
 	emit workspaceAdded(workspace);
 	
-	auto view = new WorkspaceView(workspace, stateToSet);
+	auto view = new WorkspaceView(workspace);
 	
 	Util::maximizeWindowSize(view);
 	

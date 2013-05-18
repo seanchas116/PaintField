@@ -11,6 +11,8 @@
 #include "rasterlayer.h"
 #include "documentcontroller.h"
 #include "colorbuttongroup.h"
+#include "workspaceview.h"
+#include "serializationutil.h"
 
 #include "workspace.h"
 
@@ -19,6 +21,8 @@ namespace PaintField
 
 struct Workspace::Data
 {
+	QVariantMap state;
+	
 	QList<Canvas *> canvases;
 	QPointer<Canvas> currentCanvas;
 	
@@ -35,10 +39,12 @@ struct Workspace::Data
 	WorkspaceView *view = 0;
 };
 
-Workspace::Workspace(QObject *parent) :
+Workspace::Workspace(const QVariantMap &state, QObject *parent) :
     QObject(parent),
     d(new Data)
 {
+	d->state = state;
+	
 	d->toolManager = new ToolManager(this);
 	d->paletteManager = new PaletteManager(this);
 	d->colorButtonGroup = new ColorButtonGroup(this);
@@ -56,6 +62,16 @@ Workspace::Workspace(QObject *parent) :
 	
 	addExtensions(appController()->extensionManager()->createWorkspaceExtensions(this, this));
 	addNullCanvasExtensions(appController()->extensionManager()->createCanvasExtensions(0, this));
+	
+	{
+		auto paletteColorMaps = state["palette"].toList();
+		PAINTFIELD_DEBUG << paletteColorMaps;
+		
+		int count = std::min(paletteColorMaps.size(), d->paletteManager->colorCount());
+		
+		for (int i = 0; i < count; ++i)
+			d->paletteManager->setColor(i, SerializationUtil::brushFromMap(paletteColorMaps.at(i).toMap()).color());
+	}
 }
 
 Workspace::~Workspace()
@@ -247,6 +263,30 @@ QActionList Workspace::currentCanvasActions()
 CanvasExtensionList Workspace::currentCanvasModules()
 {
 	return d->currentCanvas ? d->currentCanvas->extensions() : d->nullCanvasModules;
+}
+
+QVariantMap Workspace::state() const
+{
+	return d->state;
+}
+
+QVariantMap Workspace::saveState()
+{
+	QVariantMap state;
+	
+	if (d->view)
+		state = d->view->saveState();
+	
+	QVariantList paletteColors;
+	
+	for (auto &color : d->paletteManager->colors())
+	{
+		paletteColors << SerializationUtil::mapFromBrush(color);
+	}
+	
+	state["palette"] = paletteColors;
+	
+	return state;
 }
 
 void Workspace::onCanvasDocumentPropertyChanged()

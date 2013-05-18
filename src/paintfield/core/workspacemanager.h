@@ -45,7 +45,7 @@ public slots:
 	
 protected:
 	
-	void addWorkspace(Workspace *workspace, const QVariantMap &state = QVariantMap());
+	void addWorkspace(Workspace *workspace);
 	
 private slots:
 	

@@ -77,7 +77,7 @@ class WorkspaceView : public QMainWindow
 {
 	Q_OBJECT
 public:
-	explicit WorkspaceView(Workspace *workspace, const QVariantMap &state, QWidget *parent = 0);
+	explicit WorkspaceView(Workspace *workspace, QWidget *parent = 0);
 	
 	void createSideBarFrames(const QHash<QString, SideBarInfo> &sideBarInfos, const QVariant &order);
 	void createToolBars(const QHash<QString, ToolBarInfo> &toolBarInfos, const QVariant &order);

@@ -184,7 +184,7 @@ struct WorkspaceView::Data
 	Canvas *currentCanvas = 0;
 };
 
-WorkspaceView::WorkspaceView(Workspace *workspace, const QVariantMap &state, QWidget *parent) :
+WorkspaceView::WorkspaceView(Workspace *workspace, QWidget *parent) :
     QMainWindow(parent),
     d(new Data)
 {
@@ -216,6 +216,7 @@ WorkspaceView::WorkspaceView(Workspace *workspace, const QVariantMap &state, QWi
 	
 	// load state settings
 	{
+		auto state = workspace->state();
 		auto settingsManager = appController()->settingsManager();
 		
 		{
