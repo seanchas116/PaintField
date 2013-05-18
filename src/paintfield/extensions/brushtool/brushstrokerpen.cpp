@@ -116,8 +116,8 @@ void BrushStrokerPen::drawShape(const FixedMultiPolygon &shape)
 			auto tile = originalSurface().tile(key);
 			
 			Painter painter(&tile);
-			painter.setPixel(pixel());
-			painter.setBlendMode(_settings.blendMode);
+			painter.setPixel(_settings.eraser ? Pixel(1) : pixel());
+			painter.setBlendMode(_settings.eraser ? BlendMode::DestinationOut : BlendMode::SourceOver);
 			painter.drawPreTransformedPolygons(drawShape);
 			
 			keysWithRects.insert(key, dividedBoundingRect);
@@ -131,13 +131,13 @@ void BrushStrokerPen::drawShape(const FixedMultiPolygon &shape)
 
 void BrushStrokerPen::loadSettings(const QVariantMap &settings)
 {
-	_settings.blendMode.setString(settings["blendMode"].toString());
+	_settings.eraser = settings["eraser"].toBool();
 }
 
 QVariantMap BrushStrokerPenFactory::defaultSettings() const
 {
 	QVariantMap settings;
-	settings["blendMode"] = BlendMode(BlendMode::SourceOver).toString();
+	settings["eraser"] = false;
 	return settings;
 }
 

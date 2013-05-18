@@ -8,6 +8,6 @@
 	"stroker": "paintfield.brush.pen",
 	"settings":
 	{
-		"blendMode": "source-over"
+		"eraser": false
 	}
 }

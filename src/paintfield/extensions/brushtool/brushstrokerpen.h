@@ -12,7 +12,7 @@ public:
 	
 	struct Settings
 	{
-		Malachite::BlendMode blendMode;
+		bool eraser = false;
 	};
 	
 	BrushStrokerPen(Malachite::Surface *surface);
