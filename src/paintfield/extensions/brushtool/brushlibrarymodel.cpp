@@ -1,4 +1,4 @@
-#include "paintfield/core/util.h"
+#include "paintfield/core/json.h"
 
 #include "brushlibrarymodel.h"
 
@@ -32,7 +32,7 @@ QVariant  BrushLibraryModel::data(const QModelIndex &index, int role) const
 
 QVariantMap BrushLibraryModel::loadPreset(const QModelIndex &index)
 {
-	return Util::loadJsonFromFile(pathFromIndex(index)).toMap();
+	return Json::readFromFile(pathFromIndex(index)).toMap();
 }
 
 bool BrushLibraryModel::savePreset(const QModelIndex &parent, const QString &name, const QVariantMap &data)
@@ -41,7 +41,7 @@ bool BrushLibraryModel::savePreset(const QModelIndex &parent, const QString &nam
 	if (parentItem->type() != LibraryItemType::Dir)
 		return false;
 	
-	return Util::saveJsonToFile(QDir(pathFromItem(parentItem)).filePath(name), data);
+	return Json::writeIntoFile(QDir(pathFromItem(parentItem)).filePath(name), data);
 }
 
 }

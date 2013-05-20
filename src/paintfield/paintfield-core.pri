@@ -51,5 +51,5 @@ defineReplace(relativePathFrom) {
 
 PF_OUT_PWD = $$OUT_PWD$$relativePathFrom($$PWD, $$_PRO_FILE_PWD_)
 
-LIBS += -L$$PF_OUT_PWD/../libs/Malachite/src -L$$PF_OUT_PWD/../libs/supportlib
-LIBS += -lfreeimage -lmalachite -lpaintfield-supportlib
+LIBS += -L$$PF_OUT_PWD/../libs/Malachite/src -L$$PF_OUT_PWD/../libs/minizip -L$$PF_OUT_PWD/../libs/qtsingleapplication
+LIBS += -lfreeimage -lmalachite -lpaintfield-minizip -lpaintfield-qtsingleapplication

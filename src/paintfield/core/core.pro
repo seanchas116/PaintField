@@ -97,7 +97,9 @@ HEADERS += \
     widgets/abstractlayerpropertyeditor.h \
     scopedqobjectpointer.h \
     cpplinq.hpp \
-    cpplinq-paintfield.h
+    cpplinq-paintfield.h \
+    json.h \
+    unittest/test_json.h
 FORMS += dialogs/exportdialog.ui dialogs/newdocumentdialog.ui
 SOURCES += \
            document.cpp \
@@ -176,7 +178,9 @@ SOURCES += \
     pathrecorder.cpp \
     abstractrectlayer.cpp \
     serializationutil.cpp \
-    widgets/abstractlayerpropertyeditor.cpp
+    widgets/abstractlayerpropertyeditor.cpp \
+    json.cpp \
+    unittest/test_json.cpp
 
 RESOURCES += \
     resources/resource-paintfield-core.qrc

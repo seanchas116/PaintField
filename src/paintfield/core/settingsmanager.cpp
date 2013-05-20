@@ -1,6 +1,7 @@
 #include <QtCore>
 #include <QDesktopServices>
 #include "util.h"
+#include "json.h"
 
 #include "settingsmanager.h"
 
@@ -92,7 +93,7 @@ void SettingsManager::loadSettings()
 		if (!dir.cd("Settings"))
 			return QVariantMap();
 		
-		const auto settings =  Util::loadJsonFromFile(dir.filePath("settings.json")).toMap();
+		const auto settings = Json::readFromFile(dir.filePath("settings.json")).toMap();
 		const auto platformSpecificSettings = settings.value("platform-specific").toMap()[Util::platformName()].toMap();
 		
 		if (platformSpecificSettings.size())
@@ -119,7 +120,7 @@ void SettingsManager::saveUserSettings()
 	if (!dir.cd("Settings"))
 		return;
 	
-	Util::saveJsonToFile(dir.filePath("settings.json"), d->userSettings);
+	Json::writeIntoFile(dir.filePath("settings.json"), d->userSettings);
 }
 
 static QVariant valueFromMapTree(const QVariantMap &original, const QStringList &path, const QVariant &defaultValue = QVariant())

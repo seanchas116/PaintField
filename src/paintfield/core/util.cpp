@@ -6,8 +6,8 @@
 #include <QDesktopWidget>
 #include <QMenu>
 
-#include <supportlib/qjson/parser.h>
-#include <supportlib/qjson/serializer.h>
+#include <qjson/parser.h>
+#include <qjson/serializer.h>
 
 #include "util.h"
 
@@ -44,37 +44,6 @@ QAction *createAction(const QString &id, QObject *receiver, const char *onTrigge
 	auto action = createAction(id, parent);
 	QObject::connect(action, SIGNAL(triggered()), receiver, onTriggeredSlot);
 	return action;
-}
-
-QVariant loadJsonFromFile(const QString &path)
-{
-	QFile file(path);
-	if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-	{
-		PAINTFIELD_DEBUG << "failed to open file";
-		return QVariant();
-	}
-	
-	QJson::Parser parser;
-	return parser.parse(&file);
-}
-
-bool saveJsonToFile(const QString &path, const QVariant &data)
-{
-	QJson::Serializer serializer;
-	serializer.setIndentMode(QJson::IndentFull);
-	bool ok;
-	
-	QFile file(path);
-	
-	if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
-	{
-		PAINTFIELD_DEBUG << "failed to save file";
-		return false;
-	}
-	serializer.serialize(data, &file, &ok);
-	
-	return ok;
 }
 
 void applyMacSmallSize(QWidget *widget)

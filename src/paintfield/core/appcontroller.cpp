@@ -47,7 +47,7 @@ AppController::AppController(Application *app, QObject *parent) :
 	declareMenus();
 	createActions();
 	
-	connect(app, SIGNAL(fileOpenRequested(QString)), this, SLOT(openFile(QString)));
+	connect(app, SIGNAL(fileOpenRequested(QString)), this, SLOT(openFile(QString)), Qt::QueuedConnection);
 }
 
 AppController::~AppController()

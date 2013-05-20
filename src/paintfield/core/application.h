@@ -1,7 +1,7 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
-#include <supportlib/qtsingleapplication/qtsingleapplication.h>
+#include <qtsingleapplication/qtsingleapplication.h>
 #include <QTabletEvent>
 #include "tabletpointerinfo.h"
 

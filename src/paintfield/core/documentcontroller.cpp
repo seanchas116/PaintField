@@ -72,6 +72,8 @@ Document *DocumentController::createFromFile(const QString &path)
 
 Document *DocumentController::createFromSavedFile(const QString &path)
 {
+	PAINTFIELD_DEBUG << path;
+	
 	DocumentLoader loader;
 	auto document = loader.load(path, 0);
 	

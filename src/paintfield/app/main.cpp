@@ -19,6 +19,10 @@ int main(int argc, char *argv[])
 	Application a(argc, argv);
 	a.setApplicationVersion(DEFINE_STR(PF_VERSION));
 	
+	// Default codec of PaintField source is UTF-8
+	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
+	QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
+	
 #ifdef PF_TEST
 	autoTest()->run();
 	return 0;
@@ -33,8 +37,6 @@ int main(int argc, char *argv[])
 		a.sendMessage(message);
 		return 0;
 	}
-	
-	QTextCodec::setCodecForCStrings(QTextCodec::codecForLocale());
 	
 	AppController appCon(&a);
 	appCon.extensionManager()->addExtensionFactory(new RootExtensionFactory);

@@ -1,11 +1,10 @@
 #include <QtCore>
-#include <supportlib/qjson/parser.h>
-#include <supportlib/qjson/serializer.h>
 #include <Malachite/Painter>
 #include <stdexcept>
-#include <supportlib/minizip/unzip.h>
-#include <supportlib/minizip/zip.h>
+#include <minizip/unzip.h>
+#include <minizip/zip.h>
 
+#include "json.h"
 #include "layerscene.h"
 #include "grouplayer.h"
 #include "layerfactorymanager.h"
@@ -91,7 +90,7 @@ static long seekFile(voidpf opaque, voidpf stream, ZPOS64_T offset, int origin)
 	if (file->seek(pos))
 		return 0;
 	else
-		return 1;
+		return -1;
 }
 
 static int closeFile(voidpf opaque, voidpf stream)
@@ -100,7 +99,7 @@ static int closeFile(voidpf opaque, voidpf stream)
 	auto file = reinterpret_cast<QFile *>(stream);
 	Q_ASSERT(file);
 	file->close();
-	file->deleteLater();
+	delete file;
 	return 0;
 }
 
@@ -147,7 +146,7 @@ static QByteArray loadFromUnzip(unzFile unzip, const QString &path)
 	data.resize(dataSize);
 	
 	if (unzOpenCurrentFile(unzip) != UNZ_OK)
-		return QByteArray();
+		throw runtime_error("cannot open current file");
 	
 	unzReadCurrentFile(unzip, data.data(), dataSize);
 	unzCloseCurrentFile(unzip);
@@ -235,9 +234,7 @@ bool DocumentSaver::save(const QString &filePath)
 			}
 			
 			{
-				QJson::Serializer serializer;
-				serializer.setIndentMode(QJson::IndentFull);
-				QByteArray headerJson = serializer.serialize(headerMap);
+				QByteArray headerJson = Json::write(headerMap);
 				saveIntoZip(d->zip, "header.json", headerJson, Z_DEFAULT_COMPRESSION);
 			}
 		}
@@ -322,8 +319,8 @@ Document *DocumentLoader::load(const QString &filePath, QObject *parent)
 		QVariantMap headerMap;
 		
 		{
-			QJson::Parser parser;
-			headerMap = parser.parse(loadFromUnzip(d->unzip, "header.json")).toMap();
+			auto data = loadFromUnzip(d->unzip, "header.json");
+			headerMap = Json::read(data).toMap();
 		}
 		
 		if (headerMap["version"].toString() != "1.0")

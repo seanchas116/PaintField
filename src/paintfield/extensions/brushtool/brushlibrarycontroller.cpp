@@ -1,6 +1,7 @@
 #include <QItemSelectionModel>
 #include <QFileDialog>
 
+#include "paintfield/core/json.h"
 #include "paintfield/core/util.h"
 #include "paintfield/core/appcontroller.h"
 #include "paintfield/core/application.h"
@@ -93,7 +94,8 @@ void BrushLibraryController::onSaveRequested()
 	                                             tr("Save Preset"),
 	                                             dir.filePath(_presetManager->metadata().title()),
 	                                             tr("Preset File (*.json)"));
-	Util::saveJsonToFile(filePath, _presetManager->preset());
+	
+	Json::writeIntoFile(filePath, _presetManager->preset());
 }
 
 void BrushLibraryController::onReloadRequested()

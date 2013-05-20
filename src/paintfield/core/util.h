@@ -84,15 +84,6 @@ T *findQObjectReverse(const QList<T *> &list, const QString &id)
 	return 0;
 }
 
-/**
- * Load a JSON from a file.
- * @param path
- * @return Parsed data (tree of QVariantList and QVariantMap)
- */
-QVariant loadJsonFromFile(const QString &path);
-
-bool saveJsonToFile(const QString &path, const QVariant &data);
-
 void applyMacSmallSize(QWidget *widget);
 
 QString unduplicatedName(const QStringList &existingNames, const QString &newName);
