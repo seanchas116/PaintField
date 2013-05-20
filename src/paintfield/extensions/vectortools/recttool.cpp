@@ -497,15 +497,20 @@ void RectTool::addHandle(int handleTypes, qreal zValue)
 
 void RectTool::updateGraphicsItems()
 {
-	// update handles
+	updateHandles();
+	updateFrameRect();
+}
+
+void RectTool::updateHandles()
+{
 	if (d->selectedLayerInfos.size() == 1 && d->mode == NoOperation)
 	{
-		for (auto handle : d->handles)
-			handle->setVisible(true);
-		
 		auto rectLayer = d->selectedLayerInfos.at(0).rectLayer;
 		if (rectLayer)
 		{
+			for (auto handle : d->handles)
+				handle->setVisible(true);
+			
 			auto rect = rectLayer->rect();
 			
 			// get vertices in scene coordinates
@@ -524,49 +529,49 @@ void RectTool::updateGraphicsItems()
 			d->findHandle(Left | Bottom)->setPos(bottomLeft);
 			d->findHandle(Right | Top)->setPos(topRight);
 			d->findHandle(Right | Bottom)->setPos(bottomRight);
+			
+			return;
 		}
+	}
+	
+	for (auto handle : d->handles)
+		handle->setVisible(false);
+}
+
+void RectTool::updateFrameRect()
+{
+	QRectF rect;
+	
+	if (d->mode == Inserting)
+	{
+		d->frameItem->setVisible(true);
+		rect = d->layerToAdd->rect();
 	}
 	else
 	{
-		for (auto handle : d->handles)
-			handle->setVisible(false);
-	}
-	
-	// update rect
-	{
-		QRectF rect;
-		
-		if (d->mode == Inserting)
+		if (!(d->selectedLayerInfos.size() == 1 && d->selectedLayerInfos.at(0).rectLayer->isType<RectLayer>()))
 		{
-			d->frameItem->setVisible(true);
-			rect = d->layerToAdd->rect();
-		}
-		else
-		{
-			if (!(d->selectedLayerInfos.size() == 1 && d->selectedLayerInfos.at(0).rectLayer->isType<RectLayer>()))
+			for (const auto &info : d->selectedLayerInfos)
 			{
-				for (const auto &info : d->selectedLayerInfos)
-				{
-					if (info.rectLayer)
-						rect |= info.rectLayer->rect();
-					else if (info.original->isType<RasterLayer>())
-						rect |= info.rasterBoundingRect.translated(info.rasterOffset);
-				}
+				if (info.rectLayer)
+					rect |= info.rectLayer->rect();
+				else if (info.original->isType<RasterLayer>())
+					rect |= info.rasterBoundingRect.translated(info.rasterOffset);
 			}
 		}
-		
-		// set path
-		if (rect.isValid())
-		{
-			QPainterPath path;
-			path.addRect(rect);
-			
-			d->frameItem->setVisible(true);
-			d->frameItem->setPath(path * canvas()->transformToView().toQTransform());
-		}
-		else
-			d->frameItem->setVisible(false);
 	}
+	
+	// set path
+	if (rect.isValid())
+	{
+		QPainterPath path;
+		path.addRect(rect);
+		
+		d->frameItem->setVisible(true);
+		d->frameItem->setPath(path * canvas()->transformToView().toQTransform());
+	}
+	else
+		d->frameItem->setVisible(false);
 }
 
 void RectTool::onHandleMoved(const QPointF &pos, int handleFlags)
