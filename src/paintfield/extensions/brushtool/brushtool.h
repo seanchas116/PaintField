@@ -66,8 +66,6 @@ private:
 	bool _dataPrevSet = false;
 	std::shared_ptr<const RasterLayer> _layer = 0;
 	Malachite::Surface _surface;
-	
-	QTimer *_timer;
 };
 
 }

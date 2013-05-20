@@ -24,10 +24,6 @@ BrushTool::BrushTool(Canvas *parent) :
 	Tool(parent)
 {
 	setCursor(QCursor(QPixmap(":/icons/32x32/tinycursor.png")));
-	
-	_timer = new QTimer(this);
-	_timer->setInterval(16);
-	connect(_timer, SIGNAL(timeout()), this, SLOT(updateTiles()), Qt::QueuedConnection);
 }
 
 BrushTool::~BrushTool() {}
@@ -123,8 +119,6 @@ void BrushTool::beginStroke(const TabletInputData &data)
 	{
 		_stroker->moveTo(newData);
 	}
-	
-	_timer->start();
 }
 
 void BrushTool::drawStroke(const TabletInputData &data)
@@ -133,14 +127,14 @@ void BrushTool::drawStroke(const TabletInputData &data)
 		return;
 	
 	_stroker->lineTo(data);
+	
+	updateTiles();
 }
 
 void BrushTool::endStroke(const TabletInputData &data)
 {
 	if (!isStroking())
 		return;
-	
-	_timer->stop();
 	
 	_stroker->lineTo(data);
 	_stroker->end();
