@@ -38,7 +38,7 @@ BrushLibraryController::BrushLibraryController(BrushPresetManager *presetManager
 	_view.reset(view);
 	
 	{
-		_defaultPenItem = _model->itemFromIndex(_model->findIndex({"Built-in", "Pen", "Pen"}));
+		_defaultPenItem = _model->itemFromIndex(_model->findIndex({"Built-in", "Simple Brush", "Simple Brush"}));
 		_defaultEraserItem = _model->itemFromIndex(_model->findIndex({"Built-in", "Pen", "Eraser"}));
 		setCurrentItem(_defaultPenItem);
 	}

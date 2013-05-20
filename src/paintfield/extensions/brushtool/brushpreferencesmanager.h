@@ -28,7 +28,7 @@ signals:
 	
 private:
 	
-	int _brushSize = 10;
+	int _brushSize = 5;
 	QHash<QStandardItem *, int> _brushSizeHash;
 };
 
