@@ -130,7 +130,7 @@ QVariant readFromFile(const QString &filepath)
 	
 	if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
 	{
-		PAINTFIELD_WARNING << "cannot open file";
+		PAINTFIELD_WARNING << "cannot open file" << filepath;
 		return QVariant();
 	}
 	
@@ -150,7 +150,7 @@ bool writeIntoFile(const QString &filepath, const QVariant &variant)
 	
 	if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
 	{
-		PAINTFIELD_WARNING << "cannot open file";
+		PAINTFIELD_WARNING << "cannot open file" << filepath;
 		return false;
 	}
 	

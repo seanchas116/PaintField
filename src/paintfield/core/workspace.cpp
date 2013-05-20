@@ -65,7 +65,6 @@ Workspace::Workspace(const QVariantMap &state, QObject *parent) :
 	
 	{
 		auto paletteColorMaps = state["palette"].toList();
-		PAINTFIELD_DEBUG << paletteColorMaps;
 		
 		int count = std::min(paletteColorMaps.size(), d->paletteManager->colorCount());
 		

@@ -63,9 +63,12 @@ void BrushLibraryController::onCurrentTabletPointerChanged(const TabletPointerIn
 
 void BrushLibraryController::onCurrentChanged(const QModelIndex &index, const QModelIndex &prev)
 {
-	auto data = _model->loadPreset(index);
-	if (!data.isEmpty())
-		_presetManager->setPreset(data);
+	if (index.isValid())
+	{
+		auto data = _model->loadPreset(index);
+		if (!data.isEmpty())
+			_presetManager->setPreset(data);
+	}
 	
 	emit currentItemChanged(_model->itemFromIndex(index), _model->itemFromIndex(prev));
 }
