@@ -95,7 +95,6 @@ HEADERS += \
     abstractrectlayer.h \
     serializationutil.h \
     widgets/abstractlayerpropertyeditor.h \
-    scopedqobjectpointer.h \
     cpplinq.hpp \
     cpplinq-paintfield.h \
     json.h \

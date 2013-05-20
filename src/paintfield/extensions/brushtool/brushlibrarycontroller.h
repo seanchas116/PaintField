@@ -3,7 +3,6 @@
 
 #include <QObject>
 #include <QModelIndex>
-#include "paintfield/core/scopedqobjectpointer.h"
 #include "paintfield/core/tabletpointerinfo.h"
 
 #include "brushlibraryview.h"
@@ -47,7 +46,7 @@ private:
 	BrushLibraryModel *_model = 0;
 	QItemSelectionModel *_selectionModel = 0;
 	
-	ScopedQObjectPointer<BrushLibraryView> _view;
+	QScopedPointer<BrushLibraryView> _view;
 	
 	QHash<TabletPointerInfo, QStandardItem *> _itemHash;
 	QStandardItem *_defaultPenItem = 0, *_defaultEraserItem = 0;

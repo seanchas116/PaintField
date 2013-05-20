@@ -18,7 +18,6 @@
 #include "appcontroller.h"
 #include "documentreferencemanager.h"
 #include "layeritemmodel.h"
-#include "scopedqobjectpointer.h"
 
 #include "dialogs/messagebox.h"
 
@@ -52,7 +51,7 @@ struct Canvas::Data
 	double memorizedScale = 1, memorizedRotation = 0;
 	QPoint memorizedTranslation;
 	
-	ScopedQObjectPointer<Tool> tool;
+	QScopedPointer<Tool> tool;
 };
 
 Canvas::Canvas(Document *document, Workspace *parent) :

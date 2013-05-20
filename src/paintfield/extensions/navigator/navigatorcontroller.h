@@ -2,7 +2,6 @@
 #define PAINTFIELD_NAVIGATORCONTROLLER_H
 
 #include <QObject>
-#include "paintfield/core/scopedqobjectpointer.h"
 #include "navigatorview.h"
 
 namespace PaintField {
@@ -23,7 +22,7 @@ public slots:
 	
 private:
 	
-	ScopedQObjectPointer<NavigatorView> _view;
+	QScopedPointer<NavigatorView> _view;
 };
 
 } // namespace PaintField
