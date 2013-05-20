@@ -37,6 +37,7 @@ void LayerUIExtensionFactory::initialize(AppController *app)
 	app->settingsManager()->declareAction("paintfield.layer.newGroup", tr("New Group"));
 	app->settingsManager()->declareAction("paintfield.layer.import", tr("Import..."));
 	app->settingsManager()->declareAction("paintfield.layer.merge", tr("Merge"));
+	app->settingsManager()->declareAction("paintfield.layer.rasterize", tr("Rasterize"));
 	
 	app->settingsManager()->declareSideBar(_layerTreeSidebarName, SideBarInfo(tr("Layers")));
 }

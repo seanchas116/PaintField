@@ -212,9 +212,7 @@ void LayerUIController::rasterizeLayers()
 	auto filtered = cpplinq::from(layers) >> cpplinq::where( []( const LayerConstPtr &layer ){ return layer->isType<ShapeLayer>(); }) >> cpplinq::to_vector();
 	
 	for (auto &layer : filtered)
-	{
 		scene->mergeLayers(layer->parent(), layer->index(), 1);
-	}
 }
 
 static const QString layersMimeType = "application/x-paintfield-layers";

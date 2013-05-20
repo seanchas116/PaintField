@@ -77,6 +77,7 @@ void LayerTreeSidebar::showViewContextMenu(const QPoint &pos)
 	menu.addAction(d->uiController->action(LayerUIController::ActionImport));
 	menu.addSeparator();
 	menu.addAction(d->uiController->action(LayerUIController::ActionMerge));
+	menu.addAction(d->uiController->action(LayerUIController::ActionRasterize));
 	
 	menu.exec(d->view->mapToGlobal(pos));
 }
