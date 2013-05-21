@@ -218,6 +218,8 @@ WorkspaceView::WorkspaceView(Workspace *workspace, QWidget *parent) :
 	{
 		auto state = workspace->state();
 		auto settingsManager = appController()->settingsManager();
+
+		PAINTFIELD_DEBUG << state;
 		
 		{
 			auto workspaceItemOrderMap = state["item-order"].toMap();

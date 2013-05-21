@@ -55,5 +55,17 @@ defineReplace(relativePathFrom) {
 
 PF_OUT_PWD = $$OUT_PWD$$relativePathFrom($$PWD, $$_PRO_FILE_PWD_)
 
-LIBS += -L$$PF_OUT_PWD/../libs/Malachite/src -L$$PF_OUT_PWD/../libs/minizip -L$$PF_OUT_PWD/../libs/qtsingleapplication
+win32 {
+	CONFIG(debug, debug|release) {
+		PF_OUT_SUBDIR = debug
+	} else {
+		PF_OUT_SUBDIR = release
+	}
+} else {
+	PF_OUT_SUBDIR =
+}
+
+LIBS += -L$$PF_OUT_PWD/../libs/Malachite/src/$$PF_OUT_SUBDIR
+LIBS += -L$$PF_OUT_PWD/../libs/minizip/$$PF_OUT_SUBDIR
+LIBS += -L$$PF_OUT_PWD/../libs/qtsingleapplication/$$PF_OUT_SUBDIR
 LIBS += -lfreeimage -lmalachite -lpaintfield-minizip -lpaintfield-qtsingleapplication

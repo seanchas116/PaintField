@@ -4,7 +4,7 @@ TARGET = PaintField
 include(../paintfield.pri)
 include(../postlink.pri)
 
-LIBS += -L$$PF_OUT_PWD/extensions
+LIBS += -L$$PF_OUT_PWD/extensions/$$PF_OUT_SUBDIR
 LIBS += -lpaintfield-extensions
 
 VERSION = $$PF_VERSION

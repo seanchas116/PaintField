@@ -1,5 +1,6 @@
 #include <QDebug>
 #include <QDir>
+#include <ctime>
 
 #include "randomstring.h"
 
