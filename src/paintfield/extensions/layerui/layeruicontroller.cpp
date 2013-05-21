@@ -104,7 +104,6 @@ LayerUIController::LayerUIController(Document *document, QObject *parent) :
 		a->setText(tr("Rasterize"));
 		a->setShortcut(settingsManager->value({".key-bindings", "paintfield.layer.rasterize"}).toString());
 		d->actions[ActionRasterize] = a;
-		d->actionsForLayers << a;
 	}
 	
 	connect(document->layerScene(), SIGNAL(selectionChanged(QList<LayerConstPtr>,QList<LayerConstPtr>)), this, SLOT(onSelectionChanged()));
@@ -216,10 +215,12 @@ void LayerUIController::rasterizeLayers()
 	auto current = scene->current();
 	auto filtered = cpplinq::from(layers) >> cpplinq::where( []( const LayerConstPtr &layer ){ return layer->isType<ShapeLayer>(); }) >> cpplinq::to_vector();
 	
-	QList<LayerConstPtr> newLayers;
+	QList<LayerConstPtr> newLayers = layers;
 	
 	for (auto &layer : filtered)
 	{
+		newLayers.removeAll(layer);
+		
 		auto parent = layer->parent();
 		int index = layer->index();
 		bool rasterizingCurrent = (layer == current);
@@ -322,11 +323,22 @@ static bool isSelectionMergeable(const QList<LayerConstPtr> &selection)
 	return count >= 2;
 }
 
+static bool isSelectionRasterizable(const QList<LayerConstPtr> &selection)
+{
+	for (auto &layer : selection)
+	{
+		if (layer->isType<ShapeLayer>())
+			return true;
+	}
+	return false;
+}
+
 void LayerUIController::onSelectionChanged()
 {
 	auto selection = d->document->layerScene()->selection();
 	
 	d->actions[ActionMerge]->setEnabled(isSelectionMergeable(selection));
+	d->actions[ActionRasterize]->setEnabled(isSelectionRasterizable(selection));
 	
 	for (auto action : d->actionsForLayers)
 		action->setEnabled(selection.size());
