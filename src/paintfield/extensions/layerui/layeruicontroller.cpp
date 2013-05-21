@@ -198,10 +198,14 @@ void LayerUIController::mergeLayers()
 	int start, count;
 	std::tie(parent, start, count) = layerRangeFromLayers(d->document->layerScene()->selection());
 	
+	auto scene = d->document->layerScene();
+	
 	if (count >= 2)
 	{
-		d->document->layerScene()->mergeLayers(parent, start, count);
-		d->document->layerScene()->setCurrent(parent->child(start));
+		scene->mergeLayers(parent, start, count);
+		auto newLayer = parent->child(start);
+		scene->setCurrent(newLayer);
+		scene->setSelection({newLayer});
 	}
 }
 
@@ -209,10 +213,27 @@ void LayerUIController::rasterizeLayers()
 {
 	auto scene = d->document->layerScene();
 	auto layers = scene->selection();
+	auto current = scene->current();
 	auto filtered = cpplinq::from(layers) >> cpplinq::where( []( const LayerConstPtr &layer ){ return layer->isType<ShapeLayer>(); }) >> cpplinq::to_vector();
 	
+	QList<LayerConstPtr> newLayers;
+	
 	for (auto &layer : filtered)
-		scene->mergeLayers(layer->parent(), layer->index(), 1);
+	{
+		auto parent = layer->parent();
+		int index = layer->index();
+		bool rasterizingCurrent = (layer == current);
+		
+		scene->mergeLayers(parent, index, 1);
+		
+		auto newLayer =  parent->child(index);
+		newLayers << newLayer;
+		if (rasterizingCurrent)
+			current = newLayer;
+	}
+	
+	scene->setCurrent(current);
+	scene->setSelection(newLayers);
 }
 
 static const QString layersMimeType = "application/x-paintfield-layers";
@@ -293,16 +314,19 @@ void LayerUIController::addLayers(const QList<LayerPtr> &layers, const QString &
 	scene->setCurrent(parent->child(row));
 }
 
+static bool isSelectionMergeable(const QList<LayerConstPtr> &selection)
+{
+	LayerConstPtr parent;
+	int start, count;
+	std::tie(parent, start, count) = layerRangeFromLayers(selection);
+	return count >= 2;
+}
+
 void LayerUIController::onSelectionChanged()
 {
 	auto selection = d->document->layerScene()->selection();
 	
-	{
-		LayerConstPtr parent;
-		int start, count;
-		std::tie(parent, start, count) = layerRangeFromLayers(selection);
-		d->actions[ActionMerge]->setEnabled(count >= 2);
-	}
+	d->actions[ActionMerge]->setEnabled(isSelectionMergeable(selection));
 	
 	for (auto action : d->actionsForLayers)
 		action->setEnabled(selection.size());

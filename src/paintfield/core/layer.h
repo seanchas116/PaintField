@@ -37,6 +37,11 @@ public:
 	QList<LayerPtr> children() { return _children; }
 	QList<LayerConstPtr> children() const { return Malachite::blindCast<QList<LayerConstPtr> >(_children); }
 	
+	/**
+	 * Same as QList::mid
+	 */
+	QList<LayerPtr> children(int start, int length = -1) { return _children.mid(start, length); }
+	
 	LayerConstPtr constChild(int index) const;
 	LayerConstPtr child(int index) const { return constChild(index); }
 	LayerPtr child(int index) { return std::const_pointer_cast<Layer>(constChild(index)); }
