@@ -27,6 +27,8 @@ platform_str = ARGV[3]
 
 if platform_str == "mac"
   platform = :mac
+elsif platform_str == "windows"
+  platform = :windows
 else
   platform = :unix
 end
@@ -77,8 +79,5 @@ FileUtils.rm_rf("#{destination}/Settings")
 FileUtils.cp_r("#{in_pwd_app}/Contents", destination)
 FileUtils.cp_r("#{in_pwd_app}/Settings", destination)
 
-if platform != :mac
-  FileUtils.rm("#{destination}/Settings/override-key-bindings-mac.json")
-end
 
 
