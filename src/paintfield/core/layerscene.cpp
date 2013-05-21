@@ -28,7 +28,15 @@ public:
 	
 	static void sortPathList(QList<Path> &pathList)
 	{
-		boost::sort(pathList, boost::lexicographical_compare<Path, Path>);
+		auto compare = [](const Path &p1, const Path &p2)
+		{
+			return std::lexicographical_compare(p1.begin(), p1.end(), p2.begin(), p2.end());
+		};
+		
+		std::sort(pathList.begin(), pathList.end(), compare);
+		
+		// this does't work in gcc 4.8
+		//boost::sort(pathList, boost::lexicographical_compare<Path, Path>);
 	}
 	
 	LayerSceneCommand(LayerScene *scene, QUndoCommand *parent) :
