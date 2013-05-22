@@ -41,6 +41,9 @@ public:
 	
 	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override
 	{
+		Q_UNUSED(option);
+		Q_UNUSED(widget);
+		
 		QPen pen;
 		pen.setWidth(1);
 		pen.setColor(QColor(128,128,128,128));
@@ -85,8 +88,8 @@ public:
 	
 	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override
 	{
-		Q_UNUSED(option)
-		Q_UNUSED(widget)
+		Q_UNUSED(option);
+		Q_UNUSED(widget);
 		
 		QRect rect(-m_radius, -m_radius, 2 * m_radius, 2 * m_radius);
 		QRect innerRect = rect.adjusted(1,1,-1,-1);
@@ -147,7 +150,7 @@ protected:
 	
 	void mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 	{
-		Q_UNUSED(event)
+		Q_UNUSED(event);
 		m_onHandleMoveFinished();
 	}
 	
@@ -226,6 +229,11 @@ struct RectTool::Data
 	std::shared_ptr<AbstractRectLayer> layerToAdd;
 	LayerConstPtr layerToAddParent;
 	int layerToAddIndex;
+	
+	LayerConstPtr clickedLayer;
+	bool clickedWithShift = false;
+	
+	SelectingMode selectingMode = SelectImmediately;
 };
 
 RectTool::RectTool(AddingType type, Canvas *canvas) :
@@ -234,8 +242,16 @@ RectTool::RectTool(AddingType type, Canvas *canvas) :
 {
 	d->layerController = canvas->findChild<LayerUIController *>();
 	
+	// set modes
+	
 	d->addingType = type;
 	
+	if (d->addingType == NoAdding)
+		d->selectingMode = SelectImmediately;
+	else
+		d->selectingMode = SelectLater;
+	
+	// create graphics items
 	{
 		auto group = new QGraphicsItemGroup();
 		group->setHandlesChildEvents(false);
@@ -289,6 +305,21 @@ void RectTool::drawLayer(SurfacePainter *painter, const LayerConstPtr &layer)
 	}
 }
 
+void RectTool::setSelectingMode(SelectingMode mode)
+{
+	d->selectingMode = mode;
+}
+
+RectTool::SelectingMode RectTool::selectingMode() const
+{
+	return d->selectingMode;
+}
+
+RectTool::AddingType RectTool::addingType() const
+{
+	return d->addingType;
+}
+
 void RectTool::keyPressEvent(QKeyEvent *event)
 {
 	if (event->key() == Qt::Key_Backspace)
@@ -305,42 +336,48 @@ void RectTool::tabletPressEvent(CanvasTabletEvent *event)
 	// pass event to the graphics item
 	
 	auto item = graphicsItem()->scene()->itemAt(event->viewPos);
-	
 	if (item && item != d->frameItem)
 	{
 		event->ignore();
 		return;
 	}
 	
-	auto layer = layerScene()->rootLayer()->descendantAt(event->data.pos.toQPoint(), handleRadius);
+	d->clickedLayer = layerScene()->rootLayer()->descendantAt(event->data.pos.toQPoint(), handleRadius);
+	d->clickedWithShift = event->modifiers() & Qt::ShiftModifier;
 	
-	auto selection = layerScene()->selection();
-	
-	if (!selection.contains(layer))
+	if (d->selectingMode == SelectImmediately)
 	{
-		if (event->modifiers() & Qt::ShiftModifier)
+		// select immediately the clicked layer
+		selectLayer(d->clickedLayer, d->clickedWithShift);
+	}
+	else
+	{
+		// the clicked layer is already selected, selection is unchanged and current is set to the clicked layer
+		if (layerScene()->selection().contains(d->clickedLayer))
 		{
-			selection << layer;
-			layerScene()->setSelection(selection);
+			layerScene()->setCurrent(d->clickedLayer);
 		}
+		// clear selection to insert a new layer
 		else
 		{
-			layerScene()->setSelection({layer});
+			layerScene()->setSelection({});
 		}
 	}
 	
-	layerScene()->setCurrent(layer);
-	
 	// decide mode
 	
-	if (d->selectedLayerInfos.size() && layer)
+	// if already layers are selected and a layer is clicked, mode will be Dragging
+	if (d->selectedLayerInfos.size() && d->clickedLayer)
 		d->mode = Dragging;
-	else if (d->addingType != NoAdding) // other than rect layer or no layer selected
+	// if no layer is selected or no layer is clicked, go to Inserting mode if addingType is not NoAdding
+	else if (d->addingType != NoAdding)
 		d->mode = Inserting;
 	
+	// there is nothing to do
 	if (d->mode == NoOperation)
 		return;
 	
+	// save drag origin
 	d->dragDistanceEnough = false;
 	d->dragStartPos = event->data.pos;
 }
@@ -428,6 +465,8 @@ void RectTool::tabletReleaseEvent(CanvasTabletEvent *event)
 {
 	Q_UNUSED(event)
 	
+	bool selectLater = false;
+	
 	if (d->dragDistanceEnough)
 	{
 		switch (d->mode)
@@ -446,9 +485,18 @@ void RectTool::tabletReleaseEvent(CanvasTabletEvent *event)
 				break;
 		}
 	}
+	else if (d->mode == Inserting && d->selectingMode == SelectLater)
+	{
+		selectLater = true;
+	}
 	
 	d->mode = NoOperation;
 	updateGraphicsItems();
+	
+	if (selectLater)
+	{
+		selectLayer(d->clickedLayer, d->clickedWithShift);
+	}
 }
 
 void RectTool::updateSelected()
@@ -722,6 +770,26 @@ void RectTool::finishAdding()
 	layerScene()->setCurrent(d->layerToAdd);
 	layerScene()->setSelection({d->layerToAdd});
 	d->layerToAdd = nullptr;
+}
+
+void RectTool::selectLayer(const LayerConstPtr &layer, bool isShiftPressed)
+{
+	auto selection = layerScene()->selection();
+	
+	if (!selection.contains(layer))
+	{
+		if (isShiftPressed)
+		{
+			selection << layer;
+			layerScene()->setSelection(selection);
+		}
+		else
+		{
+			layerScene()->setSelection({layer});
+		}
+	}
+	
+	layerScene()->setCurrent(layer);
 }
 
 } // namespace PaintField

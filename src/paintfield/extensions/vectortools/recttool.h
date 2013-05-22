@@ -13,16 +13,40 @@ public:
 	
 	enum AddingType
 	{
+		/**
+		 * Adding no layer.
+		 */
 		NoAdding,
 		AddRect,
 		AddEllipse,
 		AddText
 	};
 	
+	enum SelectingMode
+	{
+		/**
+		 * Layer is selected immediately when clicked.
+		 * Default if the adding type is NoAdding.
+		 */
+		SelectImmediately,
+		
+		/**
+		 * Layer is selected later if drag distance is not enough.
+		 * Otherwise layer is not selected and new layer is inserted.
+		 * Default if the adding type is not NoAdding.
+		 */
+		SelectLater
+	};
+	
 	explicit RectTool(AddingType type, Canvas *canvas);
 	~RectTool();
 	
 	void drawLayer(Malachite::SurfacePainter *painter, const LayerConstPtr &layer) override;
+	
+	void setSelectingMode(SelectingMode mode);
+	SelectingMode selectingMode() const;
+	
+	AddingType addingType() const;
 	
 protected:
 	
@@ -58,6 +82,8 @@ private:
 	
 	void startAdding();
 	void finishAdding();
+	
+	void selectLayer(const LayerConstPtr &layer, bool isShiftPressed);
 	
 	friend class RectInserter;
 	friend class RectHandleItem;
