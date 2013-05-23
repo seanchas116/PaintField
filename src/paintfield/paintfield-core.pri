@@ -55,12 +55,14 @@ defineReplace(relativePathFrom) {
 
 PF_OUT_PWD = $$OUT_PWD$$relativePathFrom($$PWD, $$_PRO_FILE_PWD_)
 
+CONFIG(debug, debug|release) {
+	PF_DEBUG_OR_RELEASE = debug
+} else {
+	PF_DEBUG_OR_RELEASE = release
+}
+
 win32 {
-	CONFIG(debug, debug|release) {
-		PF_OUT_SUBDIR = debug
-	} else {
-		PF_OUT_SUBDIR = release
-	}
+	PF_OUT_SUBDIR = $$PF_DEBUG_OR_RELEASE
 } else {
 	PF_OUT_SUBDIR =
 }

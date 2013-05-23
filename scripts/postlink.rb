@@ -24,6 +24,7 @@ in_pwd_root = ARGV[0]
 out_pwd_root = ARGV[1]
 version_str = ARGV[2]
 platform_str = ARGV[3]
+debug_or_release = ARGV[4]
 
 if platform_str == "mac"
   platform = :mac
@@ -38,6 +39,8 @@ out_pwd_app = "#{out_pwd_root}/src/paintfield/app"
 
 if platform == :mac
   destination = "#{out_pwd_app}/PaintField.app/Contents/MacOS"
+elsif platform == :windows
+  destination = "#{out_pwd_app}/#{debug_or_release}"
 else
   destination = out_pwd_app
 end
