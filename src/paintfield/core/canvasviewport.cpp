@@ -102,7 +102,7 @@ struct CanvasViewport::Data
 		QPainter painter(&fastUpdatePixmap);
 		painter.setCompositionMode(QPainter::CompositionMode_Source);
 		
-		for (auto key : fastUpdatePixelUnpaintedTiles)
+		for (const auto &key : fastUpdatePixelUnpaintedTiles)
 			painter.drawImage( key * Surface::tileWidth(), surface.tileRef(key).wrapInQImage() );
 		
 		fastUpdatePixelUnpaintedTiles.clear();
@@ -182,7 +182,7 @@ void CanvasViewport::afterUpdateTile()
 	
 	QRect unionRect;
 	
-	for (auto rect : d->accurateUpdateOutputRects)
+	for (const auto &rect : d->accurateUpdateOutputRects)
 		unionRect |= rect;
 	
 	d->unionAccurateUpdateOutputRect = unionRect;
@@ -195,7 +195,7 @@ void CanvasViewport::afterUpdateTile()
 	}
 	else
 	{
-		for (auto rect : d->accurateUpdateOutputRects)
+		for (const auto &rect : d->accurateUpdateOutputRects)
 			repaintOutputRect(rect);
 	}
 #else
@@ -209,7 +209,7 @@ void CanvasViewport::afterUpdateTile()
 	{
 		auto rects = d->accurateUpdateOutputRects;
 		
-		for (auto rect : rects)
+		for (const auto &rect : rects)
 		{
 			d->accurateUpdateOutputRects = { rect };
 			repaintOutputRect(rect);
