@@ -25,9 +25,13 @@ VectorToolsExtension::VectorToolsExtension(Canvas *canvas, QObject *parent) :
 static const QString rectToolId = "paintfield.tool.rectangle";
 static const QString ellipseToolId = "paintfield.tool.ellipse";
 static const QString textToolId = "paintfield.tool.text";
+static const QString selectAndMoveToolId = "paintfield.tool.selectAndMove";
 
 Tool *VectorToolsExtension::createTool(const QString &name, Canvas *canvas)
 {
+	if (name == selectAndMoveToolId)
+		return new RectTool(RectTool::NoAdding, canvas);
+	
 	if (name == rectToolId)
 		return new RectTool(RectTool::AddRect, canvas);
 	
@@ -42,27 +46,35 @@ Tool *VectorToolsExtension::createTool(const QString &name, Canvas *canvas)
 
 void VectorToolsExtensionFactory::initialize(AppController *app)
 {
+	auto settingsManager = app->settingsManager();
+	
+	{
+		auto text = tr("Select and Move");
+		auto icon = SimpleButton::createIcon(":/icons/24x24/select.svg");
+		settingsManager->declareTool(selectAndMoveToolId, ToolInfo(text, icon, QStringList()));
+	}
+	
 	{
 		auto text = tr("Rectangle");
 		auto icon = SimpleButton::createIcon(":/icons/24x24/rect.svg");
-		app->settingsManager()->declareTool(rectToolId, ToolInfo(text, icon, QStringList()));
+		settingsManager->declareTool(rectToolId, ToolInfo(text, icon, QStringList()));
 	}
 	
 	{
 		auto text = tr("Ellipse");
 		auto icon = SimpleButton::createIcon(":/icons/24x24/ellipse.svg");
-		app->settingsManager()->declareTool(ellipseToolId, ToolInfo(text, icon, QStringList()));
+		settingsManager->declareTool(ellipseToolId, ToolInfo(text, icon, QStringList()));
 	}
 	
 	{
 		auto text = tr("Text");
 		auto icon = SimpleButton::createIcon(":/icons/24x24/text.svg");
-		app->settingsManager()->declareTool(textToolId, ToolInfo(text, icon, QStringList()));
+		settingsManager->declareTool(textToolId, ToolInfo(text, icon, QStringList()));
 	}
 	
 	{
-		app->settingsManager()->declareSideBar(fillStrokeSideBarId, SideBarInfo(tr("Fill and Stroke")));
-		app->settingsManager()->declareSideBar(shapeSideBarId, SideBarInfo(tr("Shape")));
+		settingsManager->declareSideBar(fillStrokeSideBarId, SideBarInfo(tr("Fill and Stroke")));
+		settingsManager->declareSideBar(shapeSideBarId, SideBarInfo(tr("Shape")));
 	}
 }
 

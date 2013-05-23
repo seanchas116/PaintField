@@ -108,6 +108,7 @@
     "paintfield.tool.brush",
     "paintfield.tool.move",
     "",
+    "paintfield.tool.selectAndMove",
     "paintfield.tool.rectangle",
     "paintfield.tool.ellipse",
     "paintfield.tool.text"
