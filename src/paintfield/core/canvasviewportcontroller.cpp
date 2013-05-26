@@ -5,10 +5,6 @@
 #include <QPainter>
 #include <QResizeEvent>
 
-#if defined(Q_OS_MAC) && !defined(PF_FORCE_RASTER_ENGINE)
-#define PF_CANVAS_VIEWPORT_COCOA
-#endif
-
 #ifdef PF_CANVAS_VIEWPORT_COCOA
 #else
 #include "canvasviewportnormal.h"
@@ -104,30 +100,6 @@ static QRect flippedRect(const QRect &rect, int height)
 			
 			drawDivided(viewRect, drawInViewRect);
 		}
-		
-		/*
-		PAINTFIELD_DEBUG << "dirty rect" << qRectFromCGRect(dirtyRect);
-		
-		auto height = [self frame].size.height;
-		
-		auto cocoaViewRect = qRectFromCGRect(dirtyRect);
-		auto viewRect = flippedRect(cocoaViewRect, height);
-		
-		auto context = static_cast<CGContextRef>([[NSGraphicsContext currentContext] graphicsPort]);
-		CGContextSetBlendMode(context, kCGBlendModeCopy);
-		
-		auto drawInViewRect = [&](const QRect &viewRect)
-		{
-			PAINTFIELD_DEBUG << "draw in" << viewRect;
-			auto sceneRect = transformToScene.mapRect(viewRect);
-			auto image = surface->crop<ImageU8>(sceneRect);
-			auto pixmap = QPixmap::fromImage(image.wrapInQImage());
-			auto cgImage = pixmap.toMacCGImageRef();
-			CGContextDrawImage(context, cgRectFromQRect(flippedRect(viewRect, height)), cgImage);
-		};
-		
-		drawDivided(viewRect, drawInViewRect);
-		*/
 	}
 	
 	- (void)setSurface:(SurfaceU8 *)s
@@ -219,7 +191,6 @@ void CanvasViewportController::updateTile(const QPoint &tileKey, const Malachite
 	*/
 }
 
-
 void CanvasViewportController::endUpdateTile()
 {
 	auto vp = d->viewport;
@@ -239,7 +210,7 @@ void CanvasViewportController::placeViewport(QWidget *window)
 #ifdef PF_CANVAS_VIEWPORT_COCOA
 	
 	auto view = reinterpret_cast<NSView *>(window->winId());
-	[view addSubview:vp];
+	[view addSubview:vp positioned:NSWindowBelow relativeTo:nil];
 	
 #else
 	

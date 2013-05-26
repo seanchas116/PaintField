@@ -143,6 +143,10 @@ CanvasViewController::CanvasViewController(Canvas *canvas) :
 		d->graphicsView->setScene(d->graphicsScene);
 		d->graphicsView->setInteractive(true);
 		
+#ifdef PF_CANVAS_VIEWPORT_COCOA
+		d->graphicsView->setAttribute(Qt::WA_NativeWindow);
+#endif
+		
 		// setup scrollbars
 		{
 			d->scrollBarX = new VanishingScrollBar(Qt::Horizontal, d->view);
