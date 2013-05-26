@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QObject>
+#include <QRect>
 #include "global.h"
 
 class QPoint;
@@ -44,5 +45,35 @@ private:
 	struct Data;
 	Data *d;
 };
+
+template <typename TFunction>
+void drawDivided(const QRect &viewRect, const TFunction &drawFunc)
+{
+	constexpr auto unit = 128;
+	
+	if (viewRect.width() * viewRect.height() <= unit * unit)
+	{
+		drawFunc(viewRect);
+	}
+	else
+	{
+		int xCount = viewRect.width() / unit;
+		if (viewRect.width() % unit)
+			xCount++;
+		
+		int yCount = viewRect.height() / unit;
+		if (viewRect.height() % unit)
+			yCount++;
+		
+		for (int x = 0; x < xCount; ++x)
+		{
+			for (int y = 0; y < yCount; ++y)
+			{
+				auto viewRectDivided = viewRect & QRect(viewRect.topLeft() + QPoint(x, y) * unit, QSize(unit, unit));
+				drawFunc(viewRectDivided);
+			}
+		}
+	}
+}
 
 } // namespace PaintField

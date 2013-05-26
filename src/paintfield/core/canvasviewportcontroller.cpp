@@ -52,16 +52,21 @@ static QRect flippedRect(const QRect &rect, int height)
 		
 		auto cocoaViewRect = qRectFromCGRect(dirtyRect);
 		auto viewRect = flippedRect(cocoaViewRect, height);
-		auto sceneRect = transformToScene.mapRect(viewRect);
 		
-		auto image = surface->crop<ImageU8>(sceneRect);
+		auto context = static_cast<CGContextRef>([[NSGraphicsContext currentContext] graphicsPort]);
+		CGContextSetBlendMode(context, kCGBlendModeCopy);
 		
+		auto drawInViewRect = [&](const QRect &viewRect)
 		{
-			auto context = static_cast<CGContextRef>([[NSGraphicsContext currentContext] graphicsPort]);
+			PAINTFIELD_DEBUG << "draw in" << viewRect;
+			auto sceneRect = transformToScene.mapRect(viewRect);
+			auto image = surface->crop<ImageU8>(sceneRect);
 			auto pixmap = QPixmap::fromImage(image.wrapInQImage());
 			auto cgImage = pixmap.toMacCGImageRef();
-			CGContextDrawImage(context, dirtyRect, cgImage);
-		}
+			CGContextDrawImage(context, cgRectFromQRect(flippedRect(viewRect, height)), cgImage);
+		};
+		
+		drawDivided(viewRect, drawInViewRect);
 	}
 	
 	- (void)setSurface:(SurfaceU8 *)s
@@ -87,6 +92,7 @@ struct CanvasViewportController::Data
 	QTransform transformToScene, transformToView;
 	int viewScale = 1;
 	QRect rectToBeRepainted;
+	QVector<QRect> rects;
 	int tileCount = 0;
 	
 	SurfaceU8 surface;
@@ -123,6 +129,8 @@ CanvasViewportController::~CanvasViewportController()
 
 void CanvasViewportController::beginUpdateTile(int tileCount)
 {
+	d->rects.clear();
+	d->rects.reserve(tileCount);
 	d->tileCount = tileCount;
 	d->rectToBeRepainted = QRect();
 	PAINTFIELD_DEBUG << tileCount;
@@ -132,8 +140,9 @@ void CanvasViewportController::updateTile(const QPoint &tileKey, const Malachite
 {
 	auto imageU8 = image.toImageU8();
 	d->surface.tileRef(tileKey).paste(imageU8, offset);
-	d->rectToBeRepainted |= QRect(tileKey * Surface::tileWidth() + offset, image.size());
-	
+	auto rect = QRect(tileKey * Surface::tileWidth() + offset, image.size());
+	d->rectToBeRepainted |= rect;
+	d->rects << rect;
 	/*
 #ifndef PF_CANVAS_VIEWPORT_COCOA
 	if (d->tileCount == 1)
@@ -142,10 +151,6 @@ void CanvasViewportController::updateTile(const QPoint &tileKey, const Malachite
 	*/
 }
 
-static QRect flipQRectY(const QRect &rect, int height)
-{
-	return QRect(rect.left(), height - rect.top() - rect.height(), rect.width(), rect.height());
-}
 
 void CanvasViewportController::endUpdateTile()
 {
