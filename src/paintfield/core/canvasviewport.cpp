@@ -13,7 +13,7 @@ using namespace Malachite;
 
 namespace PaintField {
 
-struct CanvasViewport::Data
+struct CanvasViewportOld::Data
 {
 	QTransform transformOutputFromScene, transformSceneFromOutput;
 	bool transformTranslatingOnly = true, retinaMode = false;
@@ -109,18 +109,18 @@ struct CanvasViewport::Data
 	}
 };
 
-CanvasViewport::CanvasViewport(QWidget *parent) :
+CanvasViewportOld::CanvasViewportOld(QWidget *parent) :
 	QWidget(parent),
 	d(new Data)
 {
 }
 
-CanvasViewport::~CanvasViewport()
+CanvasViewportOld::~CanvasViewportOld()
 {
 	delete d;
 }
 
-void CanvasViewport::setDocumentSize(const QSize &size)
+void CanvasViewportOld::setDocumentSize(const QSize &size)
 {
 	d->sceneSize = size;
 	d->tileKeys = Surface::rectToKeys(QRect(QPoint(), size));
@@ -130,7 +130,7 @@ void CanvasViewport::setDocumentSize(const QSize &size)
 	d->tileBottom = (size.height() - 1) / Surface::tileWidth();
 }
 
-void CanvasViewport::setTransform(const Affine2D &transform, const QPoint &translation, double scale, double rotation, bool retinaMode)
+void CanvasViewportOld::setTransform(const Affine2D &transform, const QPoint &translation, double scale, double rotation, bool retinaMode)
 {
 	Q_UNUSED(translation)
 	
@@ -151,13 +151,13 @@ void CanvasViewport::setTransform(const Affine2D &transform, const QPoint &trans
 	d->translation = translation;
 }
 
-void CanvasViewport::beforeUpdateTile(UpdateMode mode, int updateTileCount)
+void CanvasViewportOld::beforeUpdateTile(UpdateMode mode, int updateTileCount)
 {
 	d->updateMode = mode;
 	d->accurateUpdateOutputRects.reserve(updateTileCount);
 }
 
-void CanvasViewport::updateTile(const QPoint &tileKey, const Malachite::Image &image, const QPoint &offset)
+void CanvasViewportOld::updateTile(const QPoint &tileKey, const Malachite::Image &image, const QPoint &offset)
 {
 	d->fastUpdatePixelUnpaintedTiles << tileKey;
 	
@@ -175,7 +175,7 @@ void CanvasViewport::updateTile(const QPoint &tileKey, const Malachite::Image &i
 	d->accurateUpdateConsiderBorder |= (tileKey.x() <= 0 || tileKey.x() >= d->tileRight || tileKey.y() <= 0 || tileKey.y() >= d->tileBottom);
 }
 
-void CanvasViewport::afterUpdateTile()
+void CanvasViewportOld::afterUpdateTile()
 {
 	if (d->updateMode != PartialAccurateUpdate)
 		return;
@@ -188,6 +188,9 @@ void CanvasViewport::afterUpdateTile()
 	d->unionAccurateUpdateOutputRect = unionRect;
 	
 #ifdef PAINTFIELD_COREGRAPHICS_REPAINT
+	
+	PAINTFIELD_DEBUG << unionRect;
+	
 	if (unionRect.width() <= Surface::tileWidth() && unionRect.height() <= Surface::tileWidth())
 	{
 		d->accurateUpdateOutputRects = { unionRect };
@@ -198,6 +201,7 @@ void CanvasViewport::afterUpdateTile()
 		for (const auto &rect : d->accurateUpdateOutputRects)
 			repaintOutputRect(rect);
 	}
+	
 #else
 	if (unionRect.width() <= Surface::tileWidth() && unionRect.height() <= Surface::tileWidth())
 	{
@@ -219,13 +223,13 @@ void CanvasViewport::afterUpdateTile()
 #endif
 }
 
-void CanvasViewport::updateWholeAccurately()
+void CanvasViewportOld::updateWholeAccurately()
 {
 	d->updateMode = WholeAccurateUpdate;
 	repaint();
 }
 
-void CanvasViewport::paintEvent(QPaintEvent *event)
+void CanvasViewportOld::paintEvent(QPaintEvent *event)
 {
 #ifdef PAINTFIELD_COREGRAPHICS_REPAINT
 	
@@ -284,12 +288,12 @@ void CanvasViewport::paintEvent(QPaintEvent *event)
 	}
 }
 
-void CanvasViewport::repaintOutputRect(const QRect &rect)
+void CanvasViewportOld::repaintOutputRect(const QRect &rect)
 {
 	repaint(d->widgetRectFromOutputRect(rect));
 }
 
-void CanvasViewport::paintRects(const QVector<QRect> &outputRects, bool considerBorder)
+void CanvasViewportOld::paintRects(const QVector<QRect> &outputRects, bool considerBorder)
 {
 	QPainter painter(this);
 	if (!considerBorder)
@@ -355,7 +359,7 @@ void CanvasViewport::paintRects(const QVector<QRect> &outputRects, bool consider
 	}
 }
 
-void CanvasViewport::resizeEvent(QResizeEvent *)
+void CanvasViewportOld::resizeEvent(QResizeEvent *)
 {
 	QRect widgetRect(QPoint(), size());
 	d->outputRect = d->outputRectFromWidgetRect(widgetRect);

@@ -98,7 +98,10 @@ HEADERS += \
     cpplinq.hpp \
     cpplinq-paintfield.h \
     json.h \
-    unittest/test_json.h
+    unittest/test_json.h \
+    canvasviewportcontroller.h \
+    canvasviewportnormal.h
+
 FORMS += dialogs/exportdialog.ui dialogs/newdocumentdialog.ui
 SOURCES += \
            document.cpp \
@@ -179,7 +182,14 @@ SOURCES += \
     serializationutil.cpp \
     widgets/abstractlayerpropertyeditor.cpp \
     json.cpp \
-    unittest/test_json.cpp
+    unittest/test_json.cpp \
+    canvasviewportnormal.cpp
 
 RESOURCES += \
     resources/resource-paintfield-core.qrc
+
+mac {
+	OBJECTIVE_SOURCES += canvasviewportcontroller.mm
+} else {
+	SOURCES += canvasviewportcontroller.cpp
+}

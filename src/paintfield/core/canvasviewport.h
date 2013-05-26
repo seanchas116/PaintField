@@ -14,12 +14,12 @@ class Image;
 
 namespace PaintField {
 
-class CanvasViewport : public QWidget
+class CanvasViewportOld : public QWidget
 {
 	Q_OBJECT
 public:
-	explicit CanvasViewport(QWidget *parent = 0);
-	~CanvasViewport();
+	explicit CanvasViewportOld(QWidget *parent = 0);
+	~CanvasViewportOld();
 	
 	enum UpdateMode
 	{

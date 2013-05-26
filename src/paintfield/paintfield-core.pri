@@ -19,6 +19,12 @@ QT += core gui network xml svg
 QMAKE_CXXFLAGS += -std=c++11
 QMAKE_LFLAGS += -std=c++11
 
+mac {
+	CONFIG += objective_c
+	QMAKE_OBJECTIVE_CFLAGS += -std=c++11
+	QMAKE_LFLAGS += -lobjc -framework Cocoa
+}
+
 contains(DEFINES, PF_TEST) {
 	QT += testlib
 }
@@ -28,6 +34,7 @@ contains(QMAKE_CXX, clang++) {
 	mac {
 		QMAKE_CXXFLAGS += -stdlib=libc++
 		QMAKE_LFLAGS += -stdlib=libc++
+		QMAKE_OBJECTIVE_CFLAGS += -stdlib=libc++
 	}
 	DEFINES += Q_COMPILER_INITIALIZER_LISTS
 }

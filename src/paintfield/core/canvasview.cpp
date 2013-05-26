@@ -6,7 +6,6 @@
 #include "widgets/vanishingscrollbar.h"
 #include "canvasnavigator.h"
 #include "canvastooleventsender.h"
-#include "canvasviewport.h"
 #include "canvas.h"
 #include "document.h"
 #include "layerscene.h"
@@ -15,6 +14,7 @@
 #include "tool.h"
 #include "workspace.h"
 #include "cursorstack.h"
+#include "canvasviewportcontroller.h"
 
 #include "canvasview.h"
 
@@ -87,12 +87,12 @@ struct CanvasViewController::Data
 	QCursor toolCursor;
 	
 	// widgets
-	CanvasViewport *viewport = 0;
 	CanvasView *view = 0;
 	QGraphicsView *graphicsView = 0;
 	VanishingScrollBar *scrollBarX = 0, *scrollBarY = 0;
 	
 	// other objects
+	CanvasViewportController *viewportContoller = 0;
 	KeyTracker *keyTracker = 0;
 	QGraphicsScene *graphicsScene = 0;
 	QTimer *accurateUpdateTimer = 0;
@@ -155,9 +155,11 @@ CanvasViewController::CanvasViewController(Canvas *canvas) :
 	
 	// setup viewport
 	{
-		auto vp = new CanvasViewport();
-		d->viewport = vp;
-		connect(canvas, SIGNAL(shouldBeDeleted(Canvas*)), vp, SLOT(deleteLater()));
+		auto vp = new CanvasViewportController(this);
+		d->viewportContoller = vp;
+		connect(vp, SIGNAL(viewSizeChanged(QSize)), canvas, SLOT(setViewSize(QSize)));
+		connect(canvas, SIGNAL(transformChanged(Malachite::Affine2D,Malachite::Affine2D)), vp, SLOT(setTransform(Malachite::Affine2D,Malachite::Affine2D)));
+		vp->setTransform(canvas->transformToScene(), canvas->transformToView());
 		vp->setDocumentSize(canvas->document()->size());
 	}
 	
@@ -240,7 +242,7 @@ void CanvasViewController::updateViewportAccurately()
 	if (d->navigator->dragMode() != CanvasNavigator::NoNavigation)
 		return;
 	
-	d->viewport->updateWholeAccurately();
+	d->viewportContoller->update();
 }
 
 void CanvasViewController::onClicked()
@@ -286,17 +288,11 @@ void CanvasViewController::onTransformUpdated(const Affine2D &transformToScene, 
 {
 	Q_UNUSED(transformToScene)
 	
-	double scale = d->canvas->scale();
-	if (d->canvas->isRetinaMode())
-		scale *= 0.5;
-	
-	d->viewport->setTransform(transformToView, d->canvas->translation(), scale, d->canvas->rotation(), d->canvas->isRetinaMode());
-	
 	updateScrollBarRange();
 	updateScrollBarValue();
 	
 	d->accurateUpdateTimer->start();
-	d->viewport->update();
+	d->viewportContoller->update();
 }
 
 void CanvasViewController::updateTiles(const QPointSet &keys, const QHash<QPoint, QRect> &rects)
@@ -307,7 +303,7 @@ void CanvasViewController::updateTiles(const QPointSet &keys, const QHash<QPoint
 	int keyCount = keys.size();
 	int rectCount = rects.size();
 	
-	d->viewport->beforeUpdateTile(CanvasViewport::PartialAccurateUpdate, rectCount ? rectCount : keyCount);
+	d->viewportContoller->beginUpdateTile(rectCount ? rectCount : keyCount);
 	
 	CanvasRenderer renderer;
 	renderer.setTool(d->tool);
@@ -327,7 +323,7 @@ void CanvasViewController::updateTiles(const QPointSet &keys, const QHash<QPoint
 			painter.drawPreTransformedImage(-rect.topLeft(), surface.tile(key));
 		}
 		
-		d->viewport->updateTile(key, image, rect.topLeft());
+		d->viewportContoller->updateTile(key, image, rect.topLeft());
 	};
 	
 	if (rectCount)
@@ -344,7 +340,7 @@ void CanvasViewController::updateTiles(const QPointSet &keys, const QHash<QPoint
 		}
 	}
 	
-	d->viewport->afterUpdateTile();
+	d->viewportContoller->endUpdateTile();
 }
 
 void CanvasViewController::moveWidgets()
@@ -353,12 +349,8 @@ void CanvasViewController::moveWidgets()
 	{
 		QRect geom(Util::mapToWindow(d->view, QPoint()), d->view->geometry().size());
 		
-		d->viewport->setParent(d->view->window());
-		d->viewport->setGeometry(geom);
-		d->viewport->show();
-		d->viewport->lower();
-		d->viewport->setEnabled(d->view->isEnabled());
-		d->viewport->setVisible(d->view->isVisible());
+		d->viewportContoller->placeViewport(d->view->window());
+		d->viewportContoller->moveViewport(geom, d->view->isVisible());
 	}
 	
 	// move graphics view & scroll bars
@@ -458,7 +450,6 @@ bool CanvasViewController::eventFilter(QObject *watched, QEvent *event)
 				
 			case QEvent::FocusIn:
 				
-				d->viewport->updateWholeAccurately();
 				return false;
 				
 			case QEvent::Enter:
