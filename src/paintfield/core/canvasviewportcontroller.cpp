@@ -2,6 +2,7 @@
 #include <Malachite/Affine2D>
 #include <Malachite/Surface>
 #include <QWidget>
+#include <QPainter>
 #include <QResizeEvent>
 
 #if defined(Q_OS_MAC) && !defined(PF_FORCE_RASTER_ENGINE)
@@ -39,6 +40,9 @@ static QRect flippedRect(const QRect &rect, int height)
 {
 	SurfaceU8 *surface;
 	QTransform transformToScene;
+	QTransform transformFromScene;
+	bool translatingOnly;
+	QPoint translationToScene;
 }
 @end
 
@@ -46,6 +50,62 @@ static QRect flippedRect(const QRect &rect, int height)
 	
 	- (void)drawRect:(NSRect)dirtyRect
 	{
+		auto height = [self frame].size.height;
+		auto flipRect = [height](const QRect &rect) { return flippedRect(rect, height); };
+		
+		auto cocoaViewRect = qRectFromCGRect(dirtyRect);
+		auto viewRect = flipRect(cocoaViewRect);
+		
+		auto context = static_cast<CGContextRef>([[NSGraphicsContext currentContext] graphicsPort]);
+		CGContextSetBlendMode(context, kCGBlendModeCopy);
+		
+		if (translatingOnly) // easy, view is only translated
+		{
+			auto drawInViewRect = [&](const QRect &viewRect)
+			{
+				// obtain image to draw
+				auto sceneRect = viewRect.translated(translationToScene);
+				
+				auto image = surface->crop<ImageU8>(sceneRect);
+				
+				// convert image into CGImageRef
+				auto pixmap = QPixmap::fromImage(image.wrapInQImage());
+				auto cgImage = pixmap.toMacCGImageRef();
+				
+				// draw
+				CGContextDrawImage(context, cgRectFromQRect(flipRect(viewRect)), cgImage);
+			};
+			
+			drawDivided(viewRect, drawInViewRect);
+		}
+		else
+		{
+			auto drawInViewRect = [&](const QRect &viewRect)
+			{
+				// obtain image to draw
+				auto sceneRect = transformToScene.mapRect(viewRect);
+				auto croppedImage = surface->crop<ImageU8>(sceneRect);
+				
+				QImage image(viewRect.size(), QImage::Format_ARGB32_Premultiplied);
+				{
+					QPainter imagePainter(&image);
+					imagePainter.setRenderHint(QPainter::SmoothPixmapTransform);
+					imagePainter.setTransform( transformFromScene * QTransform::fromTranslate(-viewRect.left(), -viewRect.top()) );
+					imagePainter.drawImage(sceneRect.topLeft(), croppedImage.wrapInQImage());
+				}
+				
+				// convert image into CGImageRef
+				auto pixmap = QPixmap::fromImage(image);
+				auto cgImage = pixmap.toMacCGImageRef();
+				
+				// draw
+				CGContextDrawImage(context, cgRectFromQRect(flipRect(viewRect)), cgImage);
+			};
+			
+			drawDivided(viewRect, drawInViewRect);
+		}
+		
+		/*
 		PAINTFIELD_DEBUG << "dirty rect" << qRectFromCGRect(dirtyRect);
 		
 		auto height = [self frame].size.height;
@@ -67,6 +127,7 @@ static QRect flippedRect(const QRect &rect, int height)
 		};
 		
 		drawDivided(viewRect, drawInViewRect);
+		*/
 	}
 	
 	- (void)setSurface:(SurfaceU8 *)s
@@ -79,6 +140,13 @@ static QRect flippedRect(const QRect &rect, int height)
 	{
 		Q_UNUSED(toView);
 		transformToScene = toScene;
+		transformFromScene = toView;
+	}
+	
+	- (void)setTranslationOnly:(bool)only translation:(const QPoint &)offsetToScene
+	{
+		translatingOnly = only;
+		translationToScene = offsetToScene;
 	}
 	
 @end
@@ -201,13 +269,18 @@ void CanvasViewportController::moveViewport(const QRect &rect, bool visible)
 
 void CanvasViewportController::setTransform(const Malachite::Affine2D &toScene, const Malachite::Affine2D &fromScene)
 {
+	auto vp = d->viewport;
 	d->transformToView = fromScene.toQTransform();
 	d->transformToScene = toScene.toQTransform();
 	
+	auto translationOnly = (d->transformToScene.type() <= QTransform::TxTranslate);
+	auto translationToScene = QPointF(toScene.dx(), toScene.dy()).toPoint();
+	
 #ifdef PF_CANVAS_VIEWPORT_COCOA
-	[d->viewport setTransformToScene:d->transformToScene toView:d->transformToView];
+	[vp setTransformToScene:d->transformToScene toView:d->transformToView];
+	[vp setTranslationOnly:translationOnly translation:translationToScene];
 #else
-	d->viewport->setTransform(d->transformToScene, d->transformToView);
+	vp->setTransform(d->transformToScene, d->transformToView);
 #endif
 }
 
