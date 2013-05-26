@@ -2,6 +2,7 @@
 #include <QResizeEvent>
 #include <QPainter>
 
+#include "canvasviewportcontroller.h"
 #include "canvasviewportnormal.h"
 
 using namespace Malachite;
@@ -17,17 +18,18 @@ CanvasViewportNormal::CanvasViewportNormal(Malachite::SurfaceU8 *surface, QWidge
 void CanvasViewportNormal::paintEvent(QPaintEvent *event)
 {
 	auto viewRect = event->rect();
-	auto sceneRect = _transformToScene.mapRect(viewRect);
-	
-	ImageU8 image = _repaintImage;
-	if (!image.isValid())
-		image = _surface->crop<ImageU8>(sceneRect);
-	
 	QPainter painter(this);
-	painter.setCompositionMode(QPainter::CompositionMode_Source);
-	painter.drawImage(viewRect.topLeft(), image.wrapInQImage());
 	
-	_repaintImage = ImageU8();
+	auto draw = [&](const QRect &view)
+	{
+		auto sceneRect = _transformToScene.mapRect(viewRect);
+		ImageU8 image = _surface->crop<ImageU8>(sceneRect);
+		
+		painter.setCompositionMode(QPainter::CompositionMode_Source);
+		painter.drawImage(viewRect.topLeft(), image.wrapInQImage());
+	};
+	
+	drawDivided(viewRect, draw);
 }
 
 } // namespace PaintField
