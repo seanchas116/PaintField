@@ -44,6 +44,16 @@ static QRect flippedRect(const QRect &rect, int height)
 
 @implementation PaintField_CanvasCocoaViewport
 	
+	-(BOOL)wantsDefaultClipping
+	{
+		return NO;
+	}
+	
+	-(BOOL)isOpaque
+	{
+		return YES;
+	}
+	
 	- (void)drawRect:(NSRect)dirtyRect
 	{
 		auto height = [self frame].size.height;
@@ -197,7 +207,7 @@ void CanvasViewportController::endUpdateTile()
 	auto viewRect = d->transformToView.mapRect(d->rectToBeRepainted);
 #ifdef PF_CANVAS_VIEWPORT_COCOA
 	int height = [vp frame].size.height;
-	[vp displayRectIgnoringOpacity:cgRectFromQRect(flippedRect(viewRect, height))];
+	[vp setNeedsDisplayInRect:cgRectFromQRect(flippedRect(viewRect, height))];
 #else
 	vp->repaint(viewRect);
 #endif
