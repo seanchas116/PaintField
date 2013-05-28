@@ -2,6 +2,7 @@
 
 #include <QWidget>
 #include <Malachite/Surface>
+#include "canvasviewportcontroller.h"
 
 namespace PaintField {
 
@@ -9,7 +10,7 @@ class CanvasViewportNormal : public QWidget
 {
 	Q_OBJECT
 public:
-	explicit CanvasViewportNormal(Malachite::SurfaceU8 *surface, QWidget *parent = 0);
+	explicit CanvasViewportNormal(CanvasViewportSurface *surface, QWidget *parent = 0);
 	
 	void setRepaintImage(const Malachite::ImageU8 &image) { _repaintImage = image; }
 	
@@ -23,7 +24,7 @@ protected:
 	
 private:
 	
-	Malachite::SurfaceU8 *_surface;
+	CanvasViewportSurface *_surface;
 	QTransform _transformToView, _transformToScene;
 	Malachite::ImageU8 _repaintImage;
 };

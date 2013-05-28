@@ -9,7 +9,7 @@ using namespace Malachite;
 
 namespace PaintField {
 
-CanvasViewportNormal::CanvasViewportNormal(Malachite::SurfaceU8 *surface, QWidget *parent) :
+CanvasViewportNormal::CanvasViewportNormal(CanvasViewportSurface *surface, QWidget *parent) :
     QWidget(parent),
     _surface(surface)
 {
