@@ -134,6 +134,7 @@ struct CanvasViewportController::Data
 	QRect rectToBeRepainted;
 	QVector<QRect> rects;
 	int tileCount = 0;
+	QSize documentSize;
 	
 	CanvasViewportState state;
 	
@@ -260,7 +261,7 @@ void CanvasViewportController::setRetinaMode(bool mode)
 
 void CanvasViewportController::setDocumentSize(const QSize &size)
 {
-	
+	d->documentSize = size;
 }
 
 void CanvasViewportController::update()
