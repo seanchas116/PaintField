@@ -68,7 +68,15 @@ static QRect flippedRect(const QRect &rect, int height)
 				// obtain image to draw
 				auto sceneRect = viewRect.translated(state->translationToScene);
 				
-				auto image = state->surface.crop<ImageU8>(sceneRect);
+				ImageU8 image;
+				
+				if (state->cacheAvailable && state->cacheRect == sceneRect)
+				{
+					PAINTFIELD_DEBUG << "caching";
+					image = state->cacheImage;
+				}
+				else
+					image = state->surface.crop<ImageU8>(sceneRect);
 				
 				// convert image into CGImageRef
 				auto pixmap = QPixmap::fromImage(image.wrapInQImage());
