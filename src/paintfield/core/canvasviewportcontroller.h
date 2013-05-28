@@ -2,6 +2,7 @@
 
 #include <QObject>
 #include <QRect>
+#include <Malachite/Surface>
 #include "global.h"
 
 #if defined(Q_OS_MAC) && !defined(PF_FORCE_RASTER_ENGINE)
@@ -48,6 +49,20 @@ private:
 	
 	struct Data;
 	Data *d;
+};
+
+struct CanvasViewportState
+{
+	Malachite::SurfaceU8 surface;
+	
+	QTransform transformToScene, transformToView;
+	
+	bool translationOnly = false;
+	QPoint translationToScene;
+	
+	bool cacheAvailable = false;
+	QRect cacheRect;
+	Malachite::ImageU8 cacheImage;
 };
 
 template <typename TFunction>

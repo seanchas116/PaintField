@@ -24,7 +24,7 @@ static inline CGRect cgRectFromQRect(const QRect &rect)
 
 static inline QRect qRectFromCGRect(const CGRect &rect)
 {
-	return QRect(rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
+	return QRectF(rect.origin.x, rect.origin.y, rect.size.width, rect.size.height).toRect();
 }
 
 static QRect flippedRect(const QRect &rect, int height)
@@ -34,11 +34,7 @@ static QRect flippedRect(const QRect &rect, int height)
 
 @interface PaintField_CanvasCocoaViewport : NSView
 {
-	SurfaceU8 *surface;
-	QTransform transformToScene;
-	QTransform transformFromScene;
-	bool translatingOnly;
-	QPoint translationToScene;
+	CanvasViewportState *state;
 }
 @end
 
@@ -65,14 +61,14 @@ static QRect flippedRect(const QRect &rect, int height)
 		auto context = static_cast<CGContextRef>([[NSGraphicsContext currentContext] graphicsPort]);
 		CGContextSetBlendMode(context, kCGBlendModeCopy);
 		
-		if (translatingOnly) // easy, view is only translated
+		if (state->translationOnly) // easy, view is only translated
 		{
 			auto drawInViewRect = [&](const QRect &viewRect)
 			{
 				// obtain image to draw
-				auto sceneRect = viewRect.translated(translationToScene);
+				auto sceneRect = viewRect.translated(state->translationToScene);
 				
-				auto image = surface->crop<ImageU8>(sceneRect);
+				auto image = state->surface.crop<ImageU8>(sceneRect);
 				
 				// convert image into CGImageRef
 				auto pixmap = QPixmap::fromImage(image.wrapInQImage());
@@ -89,14 +85,15 @@ static QRect flippedRect(const QRect &rect, int height)
 			auto drawInViewRect = [&](const QRect &viewRect)
 			{
 				// obtain image to draw
-				auto sceneRect = transformToScene.mapRect(viewRect);
-				auto croppedImage = surface->crop<ImageU8>(sceneRect);
+				auto sceneRect = state->transformToScene.mapRect(QRectF(viewRect)).toAlignedRect();
+				auto croppedImage = state->surface.crop<ImageU8>(sceneRect);
 				
 				QImage image(viewRect.size(), QImage::Format_ARGB32_Premultiplied);
 				{
 					QPainter imagePainter(&image);
+					imagePainter.setCompositionMode(QPainter::CompositionMode_Source);
 					imagePainter.setRenderHint(QPainter::SmoothPixmapTransform);
-					imagePainter.setTransform( transformFromScene * QTransform::fromTranslate(-viewRect.left(), -viewRect.top()) );
+					imagePainter.setTransform( state->transformToView * QTransform::fromTranslate(-viewRect.left(), -viewRect.top()) );
 					imagePainter.drawImage(sceneRect.topLeft(), croppedImage.wrapInQImage());
 				}
 				
@@ -112,23 +109,9 @@ static QRect flippedRect(const QRect &rect, int height)
 		}
 	}
 	
-	- (void)setSurface:(SurfaceU8 *)s
+	- (void)setState:(CanvasViewportState *)s
 	{
-		PAINTFIELD_DEBUG;
-		surface = s;
-	}
-	
-	- (void)setTransformToScene:(const QTransform &)toScene toView:(const QTransform &)toView
-	{
-		Q_UNUSED(toView);
-		transformToScene = toScene;
-		transformFromScene = toView;
-	}
-	
-	- (void)setTranslationOnly:(bool)only translation:(const QPoint &)offsetToScene
-	{
-		translatingOnly = only;
-		translationToScene = offsetToScene;
+		state = s;
 	}
 	
 @end
@@ -139,13 +122,12 @@ namespace PaintField {
 
 struct CanvasViewportController::Data
 {
-	QTransform transformToScene, transformToView;
 	int viewScale = 1;
 	QRect rectToBeRepainted;
 	QVector<QRect> rects;
 	int tileCount = 0;
 	
-	SurfaceU8 surface;
+	CanvasViewportState state;
 	
 #ifdef PF_CANVAS_VIEWPORT_COCOA
 	PaintField_CanvasCocoaViewport *viewport;
@@ -160,7 +142,7 @@ CanvasViewportController::CanvasViewportController(QObject *parent) :
 {
 #ifdef PF_CANVAS_VIEWPORT_COCOA
 	d->viewport = [[PaintField_CanvasCocoaViewport alloc] init];
-	[d->viewport setSurface:&d->surface];
+	[d->viewport setState: &d->state];
 #else
 	d->viewport = new CanvasViewportNormal(&d->surface);
 #endif
@@ -189,25 +171,30 @@ void CanvasViewportController::beginUpdateTile(int tileCount)
 void CanvasViewportController::updateTile(const QPoint &tileKey, const Malachite::Image &image, const QPoint &offset)
 {
 	auto imageU8 = image.toImageU8();
-	d->surface.tileRef(tileKey).paste(imageU8, offset);
+	d->state.surface.tileRef(tileKey).paste(imageU8, offset);
 	auto rect = QRect(tileKey * Surface::tileWidth() + offset, image.size());
 	d->rectToBeRepainted |= rect;
 	d->rects << rect;
-	/*
-#ifndef PF_CANVAS_VIEWPORT_COCOA
+	
 	if (d->tileCount == 1)
-		d->viewport->setRepaintImage(imageU8);
-#endif
-	*/
+	{
+		d->state.cacheAvailable = true;
+		d->state.cacheRect = rect;
+		d->state.cacheImage = imageU8;
+	}
+	else
+	{
+		d->state.cacheAvailable = false;
+	}
 }
 
 void CanvasViewportController::endUpdateTile()
 {
 	auto vp = d->viewport;
-	auto viewRect = d->transformToView.mapRect(d->rectToBeRepainted);
+	auto viewRect = d->state.transformToView.mapRect(d->rectToBeRepainted);
 #ifdef PF_CANVAS_VIEWPORT_COCOA
 	int height = [vp frame].size.height;
-	[vp setNeedsDisplayInRect:cgRectFromQRect(flippedRect(viewRect, height))];
+	[vp setNeedsDisplayInRect: cgRectFromQRect(flippedRect(viewRect, height))];
 #else
 	vp->repaint(viewRect);
 #endif
@@ -220,7 +207,7 @@ void CanvasViewportController::placeViewport(QWidget *window)
 #ifdef PF_CANVAS_VIEWPORT_COCOA
 	
 	auto view = reinterpret_cast<NSView *>(window->winId());
-	[view addSubview:vp positioned:NSWindowBelow relativeTo:nil];
+	[view addSubview: vp positioned: NSWindowBelow relativeTo: nil];
 	
 #else
 	
@@ -251,18 +238,11 @@ void CanvasViewportController::moveViewport(const QRect &rect, bool visible)
 void CanvasViewportController::setTransform(const Malachite::Affine2D &toScene, const Malachite::Affine2D &fromScene)
 {
 	auto vp = d->viewport;
-	d->transformToView = fromScene.toQTransform();
-	d->transformToScene = toScene.toQTransform();
+	d->state.transformToView = fromScene.toQTransform();
+	d->state.transformToScene = toScene.toQTransform();
 	
-	auto translationOnly = (d->transformToScene.type() <= QTransform::TxTranslate);
-	auto translationToScene = QPointF(toScene.dx(), toScene.dy()).toPoint();
-	
-#ifdef PF_CANVAS_VIEWPORT_COCOA
-	[vp setTransformToScene:d->transformToScene toView:d->transformToView];
-	[vp setTranslationOnly:translationOnly translation:translationToScene];
-#else
-	vp->setTransform(d->transformToScene, d->transformToView);
-#endif
+	d->state.translationOnly = (d->state.transformToScene.type() <= QTransform::TxTranslate);
+	d->state.translationToScene = QPointF(toScene.dx(), toScene.dy()).toPoint();
 }
 
 void CanvasViewportController::setRetinaMode(bool mode)
@@ -278,7 +258,7 @@ void CanvasViewportController::setDocumentSize(const QSize &size)
 void CanvasViewportController::update()
 {
 #ifdef PF_CANVAS_VIEWPORT_COCOA
-	[d->viewport display];
+	[d->viewport setNeedsDisplay: YES];
 #else
 	d->viewport->update();
 #endif
