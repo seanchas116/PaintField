@@ -108,24 +108,20 @@ void drawDivided(const QRect &viewRect, const TFunction &drawFunc)
 template <typename TDrawFunction>
 void drawViewport(const QRect &repaintRect, CanvasViewportState *state, const TDrawFunction &drawFunc)
 {
+	auto cropSurface = [&](const QRect &rect)
+	{
+		if (state->cacheAvailable && state->cacheRect == rect)
+			return state->cacheImage;
+		else
+			return state->surface.crop<Malachite::ImageU8>(rect);
+	};
+	
 	if (state->translationOnly) // easy, view is only translated
 	{
 		auto drawInViewRect = [&](const QRect &viewRect)
 		{
-			// obtain image to draw
 			auto sceneRect = viewRect.translated(state->translationToScene);
-			
-			Malachite::ImageU8 image;
-			
-			if (state->cacheAvailable && state->cacheRect == sceneRect)
-			{
-				PAINTFIELD_DEBUG << "caching";
-				image = state->cacheImage;
-			}
-			else
-				image = state->surface.crop<Malachite::ImageU8>(sceneRect);
-			
-			drawFunc(viewRect, image.wrapInQImage());
+			drawFunc(viewRect, cropSurface(sceneRect).wrapInQImage());
 		};
 		
 		drawDivided(repaintRect, drawInViewRect);
@@ -134,9 +130,8 @@ void drawViewport(const QRect &repaintRect, CanvasViewportState *state, const TD
 	{
 		auto drawInViewRect = [&](const QRect &viewRect)
 		{
-			// obtain image to draw
 			auto sceneRect = state->transformToScene.mapRect(QRectF(viewRect)).toAlignedRect();
-			auto croppedImage = state->surface.crop<Malachite::ImageU8>(sceneRect);
+			auto croppedImage = cropSurface(sceneRect);
 			
 			QImage image(viewRect.size(), QImage::Format_ARGB32_Premultiplied);
 			{
