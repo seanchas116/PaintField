@@ -3,6 +3,8 @@
 #include <QObject>
 #include <QRect>
 #include <Malachite/Surface>
+#include <QImage>
+#include <QPainter>
 #include "global.h"
 
 #if defined(Q_OS_MAC) && !defined(PF_FORCE_RASTER_ENGINE)
@@ -100,6 +102,55 @@ void drawDivided(const QRect &viewRect, const TFunction &drawFunc)
 				drawFunc(viewRectDivided);
 			}
 		}
+	}
+}
+
+template <typename TDrawFunction>
+void drawViewport(const QRect &repaintRect, CanvasViewportState *state, const TDrawFunction &drawFunc)
+{
+	if (state->translationOnly) // easy, view is only translated
+	{
+		auto drawInViewRect = [&](const QRect &viewRect)
+		{
+			// obtain image to draw
+			auto sceneRect = viewRect.translated(state->translationToScene);
+			
+			Malachite::ImageU8 image;
+			
+			if (state->cacheAvailable && state->cacheRect == sceneRect)
+			{
+				PAINTFIELD_DEBUG << "caching";
+				image = state->cacheImage;
+			}
+			else
+				image = state->surface.crop<Malachite::ImageU8>(sceneRect);
+			
+			drawFunc(viewRect, image.wrapInQImage());
+		};
+		
+		drawDivided(repaintRect, drawInViewRect);
+	}
+	else
+	{
+		auto drawInViewRect = [&](const QRect &viewRect)
+		{
+			// obtain image to draw
+			auto sceneRect = state->transformToScene.mapRect(QRectF(viewRect)).toAlignedRect();
+			auto croppedImage = state->surface.crop<Malachite::ImageU8>(sceneRect);
+			
+			QImage image(viewRect.size(), QImage::Format_ARGB32_Premultiplied);
+			{
+				QPainter imagePainter(&image);
+				imagePainter.setCompositionMode(QPainter::CompositionMode_Source);
+				imagePainter.setRenderHint(QPainter::SmoothPixmapTransform);
+				imagePainter.setTransform( state->transformToView * QTransform::fromTranslate(-viewRect.left(), -viewRect.top()) );
+				imagePainter.drawImage(sceneRect.topLeft(), croppedImage.wrapInQImage());
+			}
+			
+			drawFunc(viewRect, image);
+		};
+		
+		drawDivided(repaintRect, drawInViewRect);
 	}
 }
 

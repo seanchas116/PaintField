@@ -9,27 +9,22 @@ using namespace Malachite;
 
 namespace PaintField {
 
-CanvasViewportNormal::CanvasViewportNormal(CanvasViewportSurface *surface, QWidget *parent) :
-    QWidget(parent),
-    _surface(surface)
+CanvasViewportNormal::CanvasViewportNormal(QWidget *parent) :
+    QWidget(parent)
 {
 }
 
 void CanvasViewportNormal::paintEvent(QPaintEvent *event)
 {
-	auto viewRect = event->rect();
 	QPainter painter(this);
+	painter.setCompositionMode(QPainter::CompositionMode_Source);
 	
-	auto draw = [&](const QRect &view)
+	auto draw = [&](const QRect &rect, const QImage &image)
 	{
-		auto sceneRect = _transformToScene.mapRect(viewRect);
-		ImageU8 image = _surface->crop<ImageU8>(sceneRect);
-		
-		painter.setCompositionMode(QPainter::CompositionMode_Source);
-		painter.drawImage(viewRect.topLeft(), image.wrapInQImage());
+		painter.drawImage(rect.topLeft(), image);
 	};
 	
-	drawDivided(viewRect, draw);
+	drawViewport(event->rect(), _state, draw);
 }
 
 } // namespace PaintField

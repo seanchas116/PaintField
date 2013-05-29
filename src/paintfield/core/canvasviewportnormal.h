@@ -10,13 +10,9 @@ class CanvasViewportNormal : public QWidget
 {
 	Q_OBJECT
 public:
-	explicit CanvasViewportNormal(CanvasViewportSurface *surface, QWidget *parent = 0);
+	explicit CanvasViewportNormal(QWidget *parent = 0);
 	
-	void setRepaintImage(const Malachite::ImageU8 &image) { _repaintImage = image; }
-	
-public slots:
-	
-	void setTransform(const QTransform &transformToScene, const QTransform &transformToView) { _transformToScene = transformToScene; _transformToView = transformToView; }
+	void setState(CanvasViewportState *state) { _state = state; }
 	
 protected:
 	
@@ -24,9 +20,48 @@ protected:
 	
 private:
 	
-	CanvasViewportSurface *_surface;
-	QTransform _transformToView, _transformToScene;
-	Malachite::ImageU8 _repaintImage;
+	CanvasViewportState *_state = 0;
+};
+
+class CanvasViewportNormalWrapper
+{
+public:
+	CanvasViewportNormalWrapper() :
+	    _viewport(new CanvasViewportNormal())
+	{
+	}
+	
+	void setState(CanvasViewportState *state)
+	{
+		_viewport->setState(state);
+	}
+	
+	void repaint(const QRect &rect)
+	{
+		_viewport->repaint(rect);
+	}
+	
+	void update()
+	{
+		_viewport->update();
+	}
+	
+	void placeViewport(QWidget *window)
+	{
+		_viewport->setParent(window);
+	}
+
+	void moveViewport(const QRect &rect, bool visible)
+	{
+		_viewport->setGeometry(rect);
+		_viewport->show();
+		_viewport->lower();
+		_viewport->setVisible(visible);
+	}
+	
+private:
+	
+	QScopedPointer<CanvasViewportNormal> _viewport;
 };
 
 } // namespace PaintField

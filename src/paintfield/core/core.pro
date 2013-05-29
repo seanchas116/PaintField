@@ -181,13 +181,16 @@ SOURCES += \
     widgets/abstractlayerpropertyeditor.cpp \
     json.cpp \
     unittest/test_json.cpp \
-    canvasviewportnormal.cpp
+    canvasviewportnormal.cpp \
+	canvasviewportcontroller.cpp
 
 RESOURCES += \
     resources/resource-paintfield-core.qrc
 
 mac {
-	OBJECTIVE_SOURCES += canvasviewportcontroller.mm
-} else {
-	SOURCES += canvasviewportcontroller.cpp
+	HEADERS += \
+		canvasviewportcocoa.h
+	OBJECTIVE_SOURCES += \
+		canvasviewportcocoa.mm
 }
+
