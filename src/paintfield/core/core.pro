@@ -64,7 +64,6 @@ HEADERS += \
     workspace.h \
     extension.h \
     extensionmanager.h \
-    canvasviewport.h \
     selection.h \
     tabletpointerinfo.h \
     cursorstack.h \
@@ -151,7 +150,6 @@ SOURCES += \
     workspace.cpp \
     extension.cpp \
     extensionmanager.cpp \
-    canvasviewport.cpp \
     selection.cpp \
     cursorstack.cpp \
     generaleditaction.cpp \
