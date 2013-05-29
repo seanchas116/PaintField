@@ -5,6 +5,8 @@
 #include <QPainter>
 #include <QResizeEvent>
 
+#include "canvasviewportutil.h"
+
 #include "canvasviewportcontroller.h"
 
 #ifdef PF_CANVAS_VIEWPORT_COCOA
@@ -23,7 +25,6 @@ struct CanvasViewportController::Data
 	QRect rectToBeRepainted;
 	QVector<QRect> rects;
 	int tileCount = 0;
-	QSize documentSize;
 	
 	CanvasViewportState state;
 	
@@ -78,6 +79,10 @@ void CanvasViewportController::updateTile(const QPoint &tileKey, const Malachite
 void CanvasViewportController::endUpdateTile()
 {
 	auto viewRect = d->state.transformToView.mapRect(d->rectToBeRepainted);
+	
+	if (d->state.retinaMode)
+		viewRect = QRectF(viewRect.left() * 0.5, viewRect.top() * 0.5, viewRect.width() * 0.5, viewRect.height() * 0.5).toAlignedRect();
+	
 	d->viewportWrapper.repaint(viewRect);
 }
 
@@ -102,12 +107,12 @@ void CanvasViewportController::setTransform(const Malachite::Affine2D &toScene, 
 
 void CanvasViewportController::setRetinaMode(bool mode)
 {
-	d->viewScale = mode ? 2 : 1;
+	d->state.retinaMode = mode;
 }
 
 void CanvasViewportController::setDocumentSize(const QSize &size)
 {
-	d->documentSize = size;
+	d->state.documentSize = size;
 }
 
 void CanvasViewportController::update()

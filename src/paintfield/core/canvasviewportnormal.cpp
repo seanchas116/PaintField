@@ -2,7 +2,7 @@
 #include <QResizeEvent>
 #include <QPainter>
 
-#include "canvasviewportcontroller.h"
+#include "canvasviewportutil.h"
 #include "canvasviewportnormal.h"
 
 using namespace Malachite;
@@ -18,13 +18,20 @@ void CanvasViewportNormal::paintEvent(QPaintEvent *event)
 {
 	QPainter painter(this);
 	painter.setCompositionMode(QPainter::CompositionMode_Source);
+	painter.setPen(Qt::NoPen);
+	painter.setBrush(QColor(128, 128, 128));
 	
 	auto draw = [&](const QRect &rect, const QImage &image)
 	{
-		painter.drawImage(rect.topLeft(), image);
+		painter.drawImage(rect, image);
 	};
 	
-	drawViewport(event->rect(), _state, draw);
+	auto drawBackground = [&](const QRect &rect)
+	{
+		painter.drawRect(rect);
+	};
+	
+	drawViewport(event->rect(), _state, draw, drawBackground);
 }
 
 } // namespace PaintField

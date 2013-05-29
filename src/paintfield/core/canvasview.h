@@ -42,7 +42,11 @@ public:
 	
 	Canvas *canvas();
 	
+	QSize viewSize();
+	
 signals:
+	
+	void viewSizeChanged(const QSize &size);
 	
 public slots:
 	
@@ -66,6 +70,7 @@ private slots:
 	void onCanvasWillBeDeleted();
 	
 	void onTransformUpdated(const Malachite::Affine2D &transformToScene, const Malachite::Affine2D &transformToView);
+	void onRetinaModeChanged(bool retinaMode);
 	
 private:
 	

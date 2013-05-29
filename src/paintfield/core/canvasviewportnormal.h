@@ -2,9 +2,11 @@
 
 #include <QWidget>
 #include <Malachite/Surface>
-#include "canvasviewportcontroller.h"
+#include "global.h"
 
 namespace PaintField {
+
+struct CanvasViewportState;
 
 class CanvasViewportNormal : public QWidget
 {

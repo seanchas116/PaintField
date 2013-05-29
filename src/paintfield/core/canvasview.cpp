@@ -163,7 +163,9 @@ CanvasViewController::CanvasViewController(Canvas *canvas) :
 		d->viewportContoller = vp;
 		connect(vp, SIGNAL(viewSizeChanged(QSize)), canvas, SLOT(setViewSize(QSize)));
 		connect(canvas, SIGNAL(transformChanged(Malachite::Affine2D,Malachite::Affine2D)), vp, SLOT(setTransform(Malachite::Affine2D,Malachite::Affine2D)));
+		connect(canvas, SIGNAL(retinaModeChanged(bool)), vp, SLOT(setRetinaMode(bool)));
 		vp->setTransform(canvas->transformToScene(), canvas->transformToView());
+		vp->setRetinaMode(canvas->isRetinaMode());
 		vp->setDocumentSize(canvas->document()->size());
 	}
 	
@@ -178,7 +180,10 @@ CanvasViewController::CanvasViewController(Canvas *canvas) :
 		setTool(canvas->tool());
 		
 		canvas->setViewController(this);
-		canvas->setViewSize(d->view->size());
+		
+		connect(this, SIGNAL(viewSizeChanged(QSize)), canvas, SLOT(setViewSize(QSize)));
+		canvas->setViewSize(viewSize());
+		connect(canvas, SIGNAL(retinaModeChanged(bool)), this, SLOT(onRetinaModeChanged(bool)));
 		
 		connect(canvas, SIGNAL(shouldBeDeleted(Canvas*)), this, SLOT(onCanvasWillBeDeleted()));
 	}
@@ -205,6 +210,14 @@ bool CanvasViewController::isUpdateTilesEnabled() const
 Canvas *CanvasViewController::canvas()
 {
 	return d->canvas;
+}
+
+QSize CanvasViewController::viewSize()
+{
+	auto size = d->view->size();
+	if (d->canvas->isRetinaMode())
+		size = QSize(size.width() * 2, size.height() * 2);
+	return size;
 }
 
 void CanvasViewController::setUpdateTilesEnabled(bool enable)
@@ -296,6 +309,13 @@ void CanvasViewController::onTransformUpdated(const Affine2D &transformToScene, 
 	updateScrollBarValue();
 	
 	d->accurateUpdateTimer->start();
+	d->viewportContoller->update();
+}
+
+void CanvasViewController::onRetinaModeChanged(bool retinaMode)
+{
+	Q_UNUSED(retinaMode);
+	emit viewSizeChanged(viewSize());
 	d->viewportContoller->update();
 }
 
@@ -448,7 +468,7 @@ bool CanvasViewController::eventFilter(QObject *watched, QEvent *event)
 		{
 			case QEvent::Resize:
 				
-				d->canvas->setViewSize(d->view->size());
+				emit viewSizeChanged(viewSize());
 				
 			case QEvent::ParentChange:
 			case QEvent::EnabledChange:

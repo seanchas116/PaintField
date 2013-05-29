@@ -1,6 +1,6 @@
 #import <Cocoa/Cocoa.h>
 #include <QWidget>
-#include "canvasviewportcontroller.h"
+#include "canvasviewportutil.h"
 
 #include "canvasviewportcocoa.h"
 
@@ -25,10 +25,34 @@ static inline QRect flippedRect(const QRect &rect, int height)
 @interface PaintField_CanvasCocoaViewport : NSView
 {
 	CanvasViewportState *state;
+	CGColorSpaceRef colorSpace;
+	CGColorRef backgroundColor;
 }
 @end
 
 @implementation PaintField_CanvasCocoaViewport
+
+-(id)init
+{
+	self = [super init];
+	if (self)
+	{
+		QPixmap pixmap(1,1);
+		colorSpace = CGImageGetColorSpace(pixmap.toMacCGImageRef());
+		CFRetain(colorSpace);
+		
+		CGFloat components[] = { 0.5f, 0.5f, 0.5f, 1.f };
+		backgroundColor = CGColorCreate(colorSpace, components);
+	}
+	return self;
+}
+
+-(void)dealloc
+{
+	CFRelease(colorSpace);
+	CFRelease(backgroundColor);
+	[super dealloc];
+}
 
 -(BOOL)wantsDefaultClipping
 {
@@ -53,6 +77,7 @@ static inline QRect flippedRect(const QRect &rect, int height)
 	
 	auto context = static_cast<CGContextRef>([[NSGraphicsContext currentContext] graphicsPort]);
 	CGContextSetBlendMode(context, kCGBlendModeCopy);
+	CGContextSetFillColorWithColor(context, backgroundColor);
 	
 	auto draw = [&](const QRect &rect, const QImage &image)
 	{
@@ -61,7 +86,12 @@ static inline QRect flippedRect(const QRect &rect, int height)
 		CGContextDrawImage(context, cgRectFromQRect(flipRect(rect)), cgImage);
 	};
 	
-	drawViewport(viewRect, state, draw);
+	auto drawBackground = [&](const QRect &rect)
+	{
+		CGContextFillRect(context, cgRectFromQRect(flipRect(rect)));
+	};
+	
+	drawViewport(viewRect, state, draw, drawBackground);
 }
 
 - (void)setState:(CanvasViewportState *)s

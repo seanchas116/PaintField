@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QPixmap>
 #include "global.h"
 
 class QWidget;

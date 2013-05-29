@@ -230,13 +230,14 @@ void Canvas::setRetinaMode(bool mode)
 	if (d->retinaMode != mode)
 	{
 		d->retinaMode = mode;
-		updateTransform();
 		emit retinaModeChanged(mode);
 	}
 }
 
 void Canvas::setViewSize(const QSize &size)
 {
+	PAINTFIELD_DEBUG << size;
+	
 	if (d->viewSize != size)
 	{
 		d->viewSize = size;
@@ -339,11 +340,9 @@ void Canvas::updateTransform()
 		QPoint sceneOffset = QPoint(sceneSize.width(), sceneSize.height()) / 2;
 		QPoint viewOffset = QPoint(viewSize.width(), viewSize.height()) / 2 + d->translation;
 		
-		double scale = d->retinaMode ? d->scale * 0.5 : d->scale;
-		
 		auto transformToView = Affine2D::fromTranslation(Vec2D(viewOffset)) *
 		                       Affine2D::fromRotationDegrees(d->rotation) *
-		                       Affine2D::fromScale(scale) *
+		                       Affine2D::fromScale(d->scale) *
 		                       Affine2D::fromTranslation(Vec2D(-sceneOffset));
 		
 		if (d->mirrored)

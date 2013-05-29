@@ -99,7 +99,8 @@ HEADERS += \
     json.h \
     unittest/test_json.h \
     canvasviewportcontroller.h \
-    canvasviewportnormal.h
+    canvasviewportnormal.h \
+    canvasviewportutil.h
 
 FORMS += dialogs/exportdialog.ui dialogs/newdocumentdialog.ui
 SOURCES += \
