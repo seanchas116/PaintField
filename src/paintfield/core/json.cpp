@@ -54,7 +54,7 @@ static QVariant getVariant(const json_spirit::Value &value)
 		}
 		case json_spirit::int_type:
 		{
-			return value.get_int64();
+			return (qint64)value.get_int64();
 		}
 		case json_spirit::real_type:
 		{
@@ -103,10 +103,10 @@ static json_spirit::Value getValue(const QVariant &variant)
 		case QVariant::Char:
 		case QVariant::Int:
 		case QVariant::LongLong:
-			return variant.toLongLong();
+			return (int64_t)variant.toLongLong();
 		case QVariant::UInt:
 		case QVariant::ULongLong:
-			return variant.toULongLong();
+			return (uint64_t)variant.toULongLong();
 		default:
 			return json_spirit::Value();
 	}
