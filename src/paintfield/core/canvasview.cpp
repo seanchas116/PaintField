@@ -303,7 +303,8 @@ void CanvasViewController::onCanvasWillBeDeleted()
 
 void CanvasViewController::onTransformUpdated(const Affine2D &transformToScene, const Affine2D &transformToView)
 {
-	Q_UNUSED(transformToScene)
+	Q_UNUSED(transformToScene);
+	Q_UNUSED(transformToView);
 	
 	updateScrollBarRange();
 	updateScrollBarValue();
