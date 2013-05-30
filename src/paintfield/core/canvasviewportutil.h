@@ -93,7 +93,7 @@ void drawViewport(const QRect &windowRepaintRect, CanvasViewportState *state, co
 		if (state->cacheAvailable && state->cacheRect == rect)
 			return state->cacheImage;
 		else
-			return state->surface.crop<Malachite::ImageU8>(rect);
+			return state->surface.crop(rect);
 	};
 	
 	if (state->translationOnly) // easy, view is only translated

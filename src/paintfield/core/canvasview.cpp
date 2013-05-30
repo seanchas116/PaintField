@@ -345,8 +345,10 @@ void CanvasViewController::updateTiles(const QPointSet &keys, const QHash<QPoint
 	
 	Surface surface = renderer.renderToSurface({canvas()->document()->layerScene()->rootLayer()}, keys, rects);
 	
-	static const Pixel whitePixel = Color::fromRgbValue(1,1,1).toPixel();
 	auto documentRect = QRect(QPoint(), d->canvas->document()->size());
+	
+	static const Pixel whitePixel = Color::fromRgbValue(1,1,1).toPixel();
+	static auto blendOp = BlendMode(BlendMode::DestinationOver).op();
 	
 	auto updateTile = [&](const QPoint &key, const QRect &rect)
 	{
@@ -355,14 +357,8 @@ void CanvasViewController::updateTiles(const QPointSet &keys, const QHash<QPoint
 		if (actualRect.isEmpty())
 			return;
 		
-		Image image(actualRect.size());
-		image.fill(whitePixel);
-		
-		if (surface.contains(key))
-		{
-			Painter painter(&image);
-			painter.drawPreTransformedImage(-actualRect.topLeft(), surface.tile(key));
-		}
+		auto image = surface.crop(actualRect.translated(key * Surface::tileWidth()));
+		blendOp->blend(image.area(), image.bits(), whitePixel);
 		
 		d->viewportContoller->updateTile(key, image, actualRect.topLeft());
 	};
