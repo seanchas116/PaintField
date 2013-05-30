@@ -154,6 +154,11 @@ CanvasViewController::CanvasViewController(Canvas *canvas) :
 			
 			connect(d->scrollBarX, SIGNAL(valueChanged(int)), this, SLOT(onScrollBarXChanged(int)));
 			connect(d->scrollBarY, SIGNAL(valueChanged(int)), this, SLOT(onScrollBarYChanged(int)));
+			
+#ifdef PF_CANVAS_VIEWPORT_COCOA
+			d->scrollBarX->setAttribute(Qt::WA_NativeWindow);
+			d->scrollBarY->setAttribute(Qt::WA_NativeWindow);
+#endif
 		}
 	}
 	
@@ -270,24 +275,29 @@ void CanvasViewController::onClicked()
 
 void CanvasViewController::onScrollBarXChanged(int x)
 {
+	if (d->canvas->isRetinaMode())
+		x *= 2;
+	
 	d->canvas->setTranslationX(d->canvas->maxAbsoluteTranslation().x() - x);
 }
 
 void CanvasViewController::onScrollBarYChanged(int y)
 {
+	if (d->canvas->isRetinaMode())
+		y *= 2;
+	
 	d->canvas->setTranslationY(d->canvas->maxAbsoluteTranslation().y() - y);
 }
 
 void CanvasViewController::updateScrollBarRange()
 {
 	auto maxAbsTranslation = d->canvas->maxAbsoluteTranslation();
-	auto viewSize = d->view->size();
 	
 	d->scrollBarX->setRange(0, 2 * maxAbsTranslation.x());
 	d->scrollBarY->setRange(0, 2 * maxAbsTranslation.y());
 	
-	d->scrollBarX->setPageStep(viewSize.width());
-	d->scrollBarY->setPageStep(viewSize.height());
+	d->scrollBarX->setPageStep(viewSize().width());
+	d->scrollBarY->setPageStep(viewSize().height());
 }
 
 void CanvasViewController::updateScrollBarValue()

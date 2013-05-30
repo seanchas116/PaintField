@@ -18,6 +18,7 @@ struct CanvasToolEventSender::Data
 	Canvas *canvas;
 	CanvasViewController *controller;
 	
+	bool retinaMode = false;
 	double mousePressure = 0;
 };
 
@@ -27,11 +28,18 @@ CanvasToolEventSender::CanvasToolEventSender(CanvasViewController *controller) :
 {
 	d->canvas = controller->canvas();
 	d->controller = controller;
+	connect(d->canvas, SIGNAL(retinaModeChanged(bool)), this, SLOT(onRetinaModeChanged(bool)));
+	onRetinaModeChanged(d->canvas->isRetinaMode());
 }
 
 CanvasToolEventSender::~CanvasToolEventSender()
 {
 	delete d;
+}
+
+void CanvasToolEventSender::onRetinaModeChanged(bool mode)
+{
+	d->retinaMode = mode;
 }
 
 void CanvasToolEventSender::setTool(Tool *tool)
@@ -112,7 +120,11 @@ bool CanvasToolEventSender::sendCanvasMouseEvent(QMouseEvent *event)
 		}
 	};
 	
-	CanvasMouseEvent canvasEvent(toCanvasEventType(event->type()), event->globalPos(), event->pos(), d->canvas->transformToScene() * event->posF(), event->modifiers());
+	auto pos = event->pos();
+	if (d->retinaMode)
+		pos *= 2;
+	
+	CanvasMouseEvent canvasEvent(toCanvasEventType(event->type()), event->globalPos(), pos, d->canvas->transformToScene() * Vec2D(pos), event->modifiers());
 	d->tool->toolEvent(&canvasEvent);
 	
 	return canvasEvent.isAccepted();
@@ -126,6 +138,10 @@ bool CanvasToolEventSender::sendCanvasTabletEvent(WidgetTabletEvent *event)
 	TabletInputData data = event->globalData;
 	Vec2D globalPos = data.pos;
 	Vec2D viewPos = globalPos + Vec2D(event->posInt - event->globalPosInt);
+	
+	if (d->retinaMode)
+		viewPos *= 2;
+	
 	data.pos = d->canvas->transformToScene() * viewPos;
 	
 	auto toCanvasEventType = [](int type)
@@ -142,7 +158,7 @@ bool CanvasToolEventSender::sendCanvasTabletEvent(WidgetTabletEvent *event)
 		}
 	};
 	
-	CanvasTabletEvent canvasEvent(toCanvasEventType(event->type()), globalPos, event->globalPosInt, viewPos, event->posInt, data, event->modifiers());
+	CanvasTabletEvent canvasEvent(toCanvasEventType(event->type()), globalPos, event->globalPosInt, viewPos, viewPos.toQPoint(), data, event->modifiers());
 	d->tool->toolEvent(&canvasEvent);
 	
 	return canvasEvent.isAccepted();
@@ -174,8 +190,15 @@ bool CanvasToolEventSender::sendCanvasTabletEvent(QMouseEvent *mouseEvent)
 	if (type == EventCanvasTabletRelease)
 		d->mousePressure = 0.0;
 	
-	TabletInputData data(d->canvas->transformToScene() * mouseEvent->posF(), d->mousePressure, 0, 0, Vec2D(0));
-	CanvasTabletEvent tabletEvent(type, mouseEvent->globalPos(), mouseEvent->globalPos(), mouseEvent->pos(), mouseEvent->pos(), data, mouseEvent->modifiers());
+	auto pos = mouseEvent->pos();
+	
+	if (d->retinaMode)
+		pos *= 2;
+	
+	auto posF = Vec2D(pos);
+	
+	TabletInputData data(d->canvas->transformToScene() * posF, d->mousePressure, 0, 0, Vec2D(0));
+	CanvasTabletEvent tabletEvent(type, mouseEvent->globalPos(), mouseEvent->globalPos(), posF, pos, data, mouseEvent->modifiers());
 	d->tool->toolEvent(&tabletEvent);
 	return tabletEvent.isAccepted();
 }

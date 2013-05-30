@@ -26,9 +26,9 @@ public:
 	void tabletEvent(QTabletEvent *event);
 	void customTabletEvent(WidgetTabletEvent *event);
 	
-signals:
+private slots:
 	
-public slots:
+	void onRetinaModeChanged(bool mode);
 	
 private:
 	
