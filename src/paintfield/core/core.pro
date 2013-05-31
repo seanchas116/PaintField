@@ -100,7 +100,8 @@ HEADERS += \
     unittest/test_json.h \
     canvasviewportcontroller.h \
     canvasviewportnormal.h \
-    canvasviewportutil.h
+    canvasviewportutil.h \
+    canvasupdatemanager.h
 
 FORMS += dialogs/exportdialog.ui dialogs/newdocumentdialog.ui
 SOURCES += \
@@ -183,7 +184,8 @@ SOURCES += \
     json.cpp \
     unittest/test_json.cpp \
     canvasviewportnormal.cpp \
-	canvasviewportcontroller.cpp
+	canvasviewportcontroller.cpp \
+    canvasupdatemanager.cpp
 
 RESOURCES += \
     resources/resource-paintfield-core.qrc

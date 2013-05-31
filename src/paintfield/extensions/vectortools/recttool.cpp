@@ -17,6 +17,7 @@
 #include "paintfield/core/rectlayer.h"
 #include "paintfield/core/layeritemmodel.h"
 #include "paintfield/core/layeredit.h"
+#include "paintfield/core/canvasupdatemanager.h"
 
 #include "recttool.h"
 
@@ -234,6 +235,8 @@ struct RectTool::Data
 	bool clickedWithShift = false;
 	
 	SelectingMode selectingMode = SelectImmediately;
+	
+	CanvasUpdateManager *updateManager = 0;
 };
 
 RectTool::RectTool(AddingType type, Canvas *canvas) :
@@ -241,6 +244,8 @@ RectTool::RectTool(AddingType type, Canvas *canvas) :
 	d(new Data)
 {
 	d->layerController = canvas->findChild<LayerUIController *>();
+	d->updateManager = new CanvasUpdateManager(this);
+	connect(d->updateManager, SIGNAL(updateTilesRequested(QPointSet)), this, SIGNAL(requestUpdate(QPointSet)));
 	
 	// set modes
 	
@@ -342,6 +347,8 @@ void RectTool::tabletPressEvent(CanvasTabletEvent *event)
 		return;
 	}
 	
+	d->updateManager->setEnabled(true);
+	
 	d->clickedLayer = layerScene()->rootLayer()->descendantAt(event->data.pos.toQPoint(), handleRadius);
 	d->clickedWithShift = event->modifiers() & Qt::ShiftModifier;
 	
@@ -441,7 +448,8 @@ void RectTool::tabletMoveEvent(CanvasTabletEvent *event)
 					d->layerToAdd->setRect(rect);
 				}
 				
-				emit requestUpdate(keys);
+				d->updateManager->addTiles(keys);
+				//emit requestUpdate(keys);
 				updateGraphicsItems();
 				break;
 			}
@@ -464,6 +472,8 @@ void RectTool::tabletMoveEvent(CanvasTabletEvent *event)
 void RectTool::tabletReleaseEvent(CanvasTabletEvent *event)
 {
 	Q_UNUSED(event)
+	
+	d->updateManager->setEnabled(false);
 	
 	bool selectLater = false;
 	
