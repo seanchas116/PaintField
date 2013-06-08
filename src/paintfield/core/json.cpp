@@ -140,7 +140,7 @@ QVariant readFromFile(const QString &filepath)
 QByteArray write(const QVariant &variant)
 {
 	auto value = getValue(variant);
-	auto str = json_spirit::write(value, json_spirit::pretty_print);
+	auto str = json_spirit::write(value, json_spirit::pretty_print | json_spirit::remove_trailing_zeros | json_spirit::single_line_arrays);
 	return QByteArray(str.data(), str.size());
 }
 

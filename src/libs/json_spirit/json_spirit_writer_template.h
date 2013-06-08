@@ -1,12 +1,17 @@
 #ifndef JSON_SPIRIT_WRITER_TEMPLATE
 #define JSON_SPIRIT_WRITER_TEMPLATE
 
-//          Copyright John W. Wilkinson 2007 - 2011
+//          Copyright John W. Wilkinson 2007 - 2013
 // Distributed under the MIT License, see accompanying file LICENSE.txt
 
-// json spirit version 4.04
+// json spirit version 4.06
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1020)
+# pragma once
+#endif
 
 #include "json_spirit_value.h"
+#include "json_spirit_writer_options.h"
 
 #include <cassert>
 #include <sstream>
@@ -15,17 +20,6 @@
 
 namespace json_spirit
 {
-    enum Output_options{ pretty_print = 0x01,   // Add whitespace to format the output nicely.
-
-                         raw_utf8 = 0x02,       // This prevents non-printable characters from being escapted using "\uNNNN" notation.
-                                                // Note, this is an extension to the JSON standard. It disables the escaping of
-                                                // non-printable characters allowing UTF-8 sequences held in 8 bit char strings
-                                                // to pass through unaltered.
-
-                         remove_trailing_zeros = 0x04
-                                                // outputs e.g. "1.200000000000000" as "1.2"
-                       };
-
     inline char to_hex_char( unsigned int c )
     {
         assert( c <= 0xF );
@@ -72,7 +66,7 @@ namespace json_spirit
     }
 
     template< class String_type >
-    String_type add_esc_chars( const String_type& s, bool raw_utf8 )
+    String_type add_esc_chars( const String_type& s, bool raw_utf8, bool esc_nonascii )
     {
         typedef typename String_type::const_iterator Iter_type;
         typedef typename String_type::value_type     Char_type;
@@ -95,7 +89,7 @@ namespace json_spirit
             {
                 const wint_t unsigned_c( ( c >= 0 ) ? c : 256 + c );
 
-                if( iswprint( unsigned_c ) )
+                if( !esc_nonascii && iswprint( unsigned_c ) )
                 {
                     result += c;
                 }
@@ -154,7 +148,8 @@ namespace json_spirit
 
         if( first_non_zero != 0 )
         {
-            str.erase( first_non_zero + 1 );
+            const int offset = str[first_non_zero] == '.' ? 2 : 1;  // note zero digits following a decimal point is non standard
+            str.erase( first_non_zero + offset );
         }
 
         str += exp;
@@ -178,9 +173,11 @@ namespace json_spirit
         Generator( const Value_type& value, Ostream_type& os, unsigned int options )
         :   os_( os )
         ,   indentation_level_( 0 )
-        ,   pretty_( ( options & pretty_print ) != 0 )
+        ,   pretty_( ( options & pretty_print ) != 0 || ( options & single_line_arrays ) != 0 )
         ,   raw_utf8_( ( options & raw_utf8 ) != 0 )
+        ,   esc_nonascii_( ( options & always_escape_nonascii ) != 0 )
         ,   remove_trailing_zeros_( ( options & remove_trailing_zeros ) != 0 )
+        ,   single_line_arrays_( ( options & single_line_arrays ) != 0 )
         ,   ios_saver_( os )
         {
             output( value );
@@ -208,11 +205,6 @@ namespace json_spirit
             output_array_or_obj( obj, '{', '}' );
         }
 
-        void output( const Array_type& arr )
-        {
-            output_array_or_obj( arr, '[', ']' );
-        }
-
         void output( const Obj_member_type& member )
         {
             output( Config_type::get_name( member ) ); space(); 
@@ -234,7 +226,7 @@ namespace json_spirit
 
         void output( const String_type& s )
         {
-            os_ << '"' << add_esc_chars( s, raw_utf8_ ) << '"';
+            os_ << '"' << add_esc_chars( s, raw_utf8_, esc_nonascii_ ) << '"';
         }
 
         void output( bool b )
@@ -263,6 +255,54 @@ namespace json_spirit
             }
         }
 
+        static bool contains_composite_elements( const Array_type& arr )
+        {
+            for( typename Array_type::const_iterator i = arr.begin(); i != arr.end(); ++i )
+            {
+                const Value_type& val = *i;
+
+                if( val.type() == obj_type ||
+                    val.type() == array_type )
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        template< class Iter >
+        void output_composite_item( Iter i, Iter last )
+        {
+            output( *i );
+
+            if( ++i != last )
+            {
+                os_ << ',';
+            }
+        }
+
+        void output( const Array_type& arr )
+        {
+            if( single_line_arrays_ && !contains_composite_elements( arr )  )
+            {
+                os_ << '['; space();
+               
+                for( typename Array_type::const_iterator i = arr.begin(); i != arr.end(); ++i )
+                {
+                    output_composite_item( i, arr.end() );
+
+                    space();
+                }
+
+                os_ << ']';
+            }
+            else
+            {
+                output_array_or_obj( arr, '[', ']' );
+            }
+        }
+
         template< class T >
         void output_array_or_obj( const T& t, Char_type start_char, Char_type end_char )
         {
@@ -272,14 +312,9 @@ namespace json_spirit
             
             for( typename T::const_iterator i = t.begin(); i != t.end(); ++i )
             {
-                indent(); output( *i );
+                indent();
 
-                typename T::const_iterator next = i;
-
-                if( ++next != t.end())
-                {
-                    os_ << ',';
-                }
+                output_composite_item( i, t.end() );
 
                 new_line();
             }
@@ -315,7 +350,9 @@ namespace json_spirit
         int indentation_level_;
         bool pretty_;
         bool raw_utf8_;
+        bool esc_nonascii_;
         bool remove_trailing_zeros_;
+        bool single_line_arrays_;
         boost::io::basic_ios_all_saver< Char_type > ios_saver_;  // so that ostream state is reset after control is returned to the caller
     };
 
