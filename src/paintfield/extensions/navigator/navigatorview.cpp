@@ -130,6 +130,7 @@ void NavigatorView::createWidgets()
 	
 	{
 		auto checkBoxLayout = new QVBoxLayout;
+		checkBoxLayout->setSpacing(12);
 		
 		{
 			auto checkBox = new QCheckBox("Mirror");
