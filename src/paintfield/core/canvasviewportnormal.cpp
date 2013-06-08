@@ -2,7 +2,7 @@
 #include <QResizeEvent>
 #include <QPainter>
 
-#include "canvasviewportutil.h"
+#include "canvasviewportstate.h"
 #include "canvasviewportnormal.h"
 
 using namespace Malachite;

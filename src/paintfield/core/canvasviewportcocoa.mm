@@ -1,6 +1,6 @@
 #import <Cocoa/Cocoa.h>
 #include <QWidget>
-#include "canvasviewportutil.h"
+#include "canvasviewportstate.h"
 
 #include "canvasviewportcocoa.h"
 

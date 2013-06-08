@@ -167,9 +167,9 @@ CanvasViewController::CanvasViewController(Canvas *canvas) :
 		auto vp = new CanvasViewportController(this);
 		d->viewportContoller = vp;
 		connect(vp, SIGNAL(viewSizeChanged(QSize)), canvas, SLOT(setViewSize(QSize)));
-		connect(canvas, SIGNAL(transformChanged(Malachite::Affine2D,Malachite::Affine2D)), vp, SLOT(setTransform(Malachite::Affine2D,Malachite::Affine2D)));
+		connect(canvas, SIGNAL(transformsChanged(std::shared_ptr<const CanvasTransforms>)), vp, SLOT(setTransforms(std::shared_ptr<const CanvasTransforms>)));
 		connect(canvas, SIGNAL(retinaModeChanged(bool)), vp, SLOT(setRetinaMode(bool)));
-		vp->setTransform(canvas->transformToScene(), canvas->transformToView());
+		vp->setTransforms(canvas->transforms());
 		vp->setRetinaMode(canvas->isRetinaMode());
 		vp->setDocumentSize(canvas->document()->size());
 	}
@@ -178,8 +178,8 @@ CanvasViewController::CanvasViewController(Canvas *canvas) :
 	
 	// connect to canvas
 	{
-		connect(canvas, SIGNAL(transformChanged(Malachite::Affine2D,Malachite::Affine2D)), this, SLOT(onTransformUpdated(Malachite::Affine2D,Malachite::Affine2D)));
-		onTransformUpdated(canvas->transformToScene(), canvas->transformToView());
+		connect(canvas, SIGNAL(transformsChanged(std::shared_ptr<const CanvasTransforms>)), this, SLOT(onTransformUpdated()));
+		onTransformUpdated();
 		
 		connect(canvas, SIGNAL(toolChanged(Tool*)), this, SLOT(setTool(Tool*)));
 		setTool(canvas->tool());
@@ -311,11 +311,8 @@ void CanvasViewController::onCanvasWillBeDeleted()
 	setTool(0);
 }
 
-void CanvasViewController::onTransformUpdated(const Affine2D &transformToScene, const Affine2D &transformToView)
+void CanvasViewController::onTransformUpdated()
 {
-	Q_UNUSED(transformToScene);
-	Q_UNUSED(transformToView);
-	
 	updateScrollBarRange();
 	updateScrollBarValue();
 	

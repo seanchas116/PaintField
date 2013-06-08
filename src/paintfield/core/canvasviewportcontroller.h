@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QObject>
-#include "global.h"
+#include "canvas.h"
 
 #if defined(Q_OS_MAC) && !defined(PF_FORCE_RASTER_ENGINE)
 #define PF_CANVAS_VIEWPORT_COCOA
@@ -39,7 +39,8 @@ signals:
 	
 public slots:
 	
-	void setTransform(const Malachite::Affine2D &toScene, const Malachite::Affine2D &fromScene);
+	void setTransforms(const std::shared_ptr<const CanvasTransforms> &transforms);
+	//void setTransform(const Malachite::Affine2D &toScene, const Malachite::Affine2D &fromScene);
 	void setRetinaMode(bool mode);
 	void setDocumentSize(const QSize &size);
 	void update();

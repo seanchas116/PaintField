@@ -1,29 +1,23 @@
 #pragma once
 
 #include <QRect>
-#include <Malachite/Surface>
 #include <QImage>
 #include <QPainter>
-#include "global.h"
+#include "canvas.h"
+
+#include "canvasviewportmipmap.h"
 
 namespace PaintField
 {
-
-struct CanvasViewportTileTraits
-{
-	static constexpr int tileWidth() { return Malachite::Surface::tileWidth(); }
-	static Malachite::ImageU8::PixelType defaultPixel() { return Malachite::ImageU8::PixelType(128, 128, 128, 255); }
-};
-
-typedef Malachite::GenericSurface<Malachite::ImageU8, CanvasViewportTileTraits> CanvasViewportSurface;
 
 struct CanvasViewportState
 {
 	QSize documentSize;
 	
-	CanvasViewportSurface surface;
+	//CanvasViewportSurface surface;
+	CanvasViewportMipmap mipmap;
 	
-	QTransform transformToScene, transformToView;
+	std::shared_ptr<const CanvasTransforms> transforms;
 	
 	bool translationOnly = false;
 	QPoint translationToScene;
@@ -93,7 +87,7 @@ void drawViewport(const QRect &windowRepaintRect, CanvasViewportState *state, co
 		if (state->cacheAvailable && state->cacheRect == rect)
 			return state->cacheImage;
 		else
-			return state->surface.crop(rect);
+			return state->mipmap.surface().crop(rect);
 	};
 	
 	if (state->translationOnly) // easy, view is only translated
@@ -114,7 +108,7 @@ void drawViewport(const QRect &windowRepaintRect, CanvasViewportState *state, co
 	{
 		auto drawInViewRect = [&](const QRect &viewRect)
 		{
-			auto sceneRect = state->transformToScene.mapRect(QRectF(viewRect)).toAlignedRect();
+			auto sceneRect = state->transforms->viewToMipmap.mapRect(QRectF(viewRect)).toAlignedRect();
 			auto croppedImage = cropSurface(sceneRect);
 			
 			QImage image(viewRect.size(), QImage::Format_ARGB32_Premultiplied);
@@ -122,7 +116,7 @@ void drawViewport(const QRect &windowRepaintRect, CanvasViewportState *state, co
 				QPainter imagePainter(&image);
 				imagePainter.setCompositionMode(QPainter::CompositionMode_Source);
 				imagePainter.setRenderHint(QPainter::SmoothPixmapTransform);
-				imagePainter.setTransform( state->transformToView * QTransform::fromTranslate(-viewRect.left(), -viewRect.top()) );
+				imagePainter.setTransform( state->transforms->mipmapToView * QTransform::fromTranslate(-viewRect.left(), -viewRect.top()) );
 				imagePainter.drawImage(sceneRect.topLeft(), croppedImage.wrapInQImage());
 			}
 			

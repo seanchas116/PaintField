@@ -69,7 +69,7 @@ private slots:
 	
 	void onCanvasWillBeDeleted();
 	
-	void onTransformUpdated(const Malachite::Affine2D &transformToScene, const Malachite::Affine2D &transformToView);
+	void onTransformUpdated();
 	void onRetinaModeChanged(bool retinaMode);
 	
 private:

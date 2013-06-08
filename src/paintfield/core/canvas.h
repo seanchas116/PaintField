@@ -16,6 +16,23 @@ class CanvasViewController;
 class CanvasExtension;
 class Workspace;
 
+struct CanvasTransforms
+{
+	double scale = 1.0;
+	double rotation = 0.0;
+	QPoint translation;
+	bool mirrored = false;
+	bool retinaMode = false;
+	QSize sceneSize;
+	QSize viewSize;
+	
+	QTransform viewToScene, sceneToView, windowToScene, sceneToWindow, viewToMipmap, mipmapToView;
+	
+	double mipmapScale = 0;
+	int mipmapLevel = 0;
+	QSize mipmapSceneSize;
+};
+
 /**
  * The Canvas is a context of document editing, which is displayed in each tabs.
  */
@@ -109,8 +126,7 @@ public:
 	 */
 	bool isRetinaMode() const;
 	
-	Malachite::Affine2D transformToScene() const;
-	Malachite::Affine2D transformToView() const;
+	std::shared_ptr<const CanvasTransforms> transforms() const;
 	
 	QPoint maxAbsoluteTranslation() const;
 	
@@ -150,12 +166,14 @@ signals:
 	void mirroredChanged(bool mirrored);
 	void retinaModeChanged(bool mode);
 	
+	void transformsChanged(const std::shared_ptr<const CanvasTransforms> &transforms);
+	
 	/**
 	 * Emitted when the transform is changed, before scale, rotation ... changed signals are emitted.
 	 * @param transformToScene
 	 * @param transformToView
 	 */
-	void transformChanged(const Malachite::Affine2D &transformToScene, const Malachite::Affine2D &transformToView);
+	//void transformChanged(const Malachite::Affine2D &transformToScene, const Malachite::Affine2D &transformToView);
 	
 	void toolChanged(Tool *tool);
 	
@@ -190,7 +208,7 @@ private slots:
 	
 private:
 	
-	void updateTransform();
+	void updateTransforms();
 	void commonInit();
 	
 	struct Data;

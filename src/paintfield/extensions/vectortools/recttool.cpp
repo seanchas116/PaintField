@@ -279,7 +279,7 @@ RectTool::RectTool(AddingType type, Canvas *canvas) :
 	
 	connect(layerScene(), SIGNAL(selectionChanged(QList<LayerConstPtr>,QList<LayerConstPtr>)), this, SLOT(updateSelected()));
 	connect(layerScene(), SIGNAL(layerChanged(LayerConstPtr)), this, SLOT(updateLayer(LayerConstPtr)));
-	connect(canvas, SIGNAL(transformChanged(Malachite::Affine2D,Malachite::Affine2D)), this, SLOT(updateGraphicsItems()));
+	connect(canvas, SIGNAL(transformsChanged(std::shared_ptr<const CanvasTransforms>)), this, SLOT(updateGraphicsItems()));
 	updateSelected();
 }
 
@@ -572,7 +572,7 @@ void RectTool::updateHandles()
 			auto rect = rectLayer->rect();
 			
 			// get vertices in scene coordinates
-			auto transformToView = canvas()->transformToView().toQTransform();
+			auto transformToView = canvas()->transforms()->sceneToView;
 			auto topLeft = rect.topLeft() * transformToView;
 			auto topRight = rect.topRight() * transformToView;
 			auto bottomLeft = rect.bottomLeft() * transformToView;
@@ -626,7 +626,7 @@ void RectTool::updateFrameRect()
 		path.addRect(rect);
 		
 		d->frameItem->setVisible(true);
-		d->frameItem->setPath(path * canvas()->transformToView().toQTransform());
+		d->frameItem->setPath(path * canvas()->transforms()->sceneToView);
 	}
 	else
 		d->frameItem->setVisible(false);
@@ -647,7 +647,7 @@ void RectTool::onHandleMoved(const QPointF &pos, int handleFlags)
 	auto rect = rectLayer->rect();
 	keys |= d->rectKeysWithHandleMargin(rect);
 	
-	auto scenePos = pos * canvas()->transformToScene().toQTransform();
+	auto scenePos = pos * canvas()->transforms()->viewToScene;
 	
 	double left = rect.left();
 	double right = rect.right();

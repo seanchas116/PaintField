@@ -36,7 +36,7 @@ contains(QMAKE_CXX, clang++) {
 		QMAKE_LFLAGS += -stdlib=libc++
 		QMAKE_OBJECTIVE_CFLAGS += -stdlib=libc++
 	}
-	DEFINES += Q_COMPILER_INITIALIZER_LISTS
+	DEFINES += Q_COMPILER_INITIALIZER_LISTS Q_COMPILER_RVALUE_REFS
 }
 
 INCLUDEPATH += $$PWD/.. $$PWD/../libs $$PWD/../libs/Malachite/include

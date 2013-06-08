@@ -5,7 +5,7 @@
 #include <QPainter>
 #include <QResizeEvent>
 
-#include "canvasviewportutil.h"
+#include "canvasviewportstate.h"
 
 #include "canvasviewportcontroller.h"
 
@@ -18,6 +18,17 @@
 using namespace Malachite;
 
 namespace PaintField {
+
+/*
+static QRect alignedHalfRect(const QRect &rect)
+{
+	int xbegin = rect.left() / 2;
+	int xend = (rect.left() + rect.width() + 1) / 2;
+	int ybegin = rect.top() / 2;
+	int yend = (rect.top() + rect.height() + 1) / 2;
+	return QRect(xbegin, ybegin, xend - xbegin, yend - ybegin);
+}
+*/
 
 struct CanvasViewportController::Data
 {
@@ -59,8 +70,10 @@ void CanvasViewportController::beginUpdateTile(int tileCount)
 void CanvasViewportController::updateTile(const QPoint &tileKey, const Malachite::Image &image, const QPoint &offset)
 {
 	auto imageU8 = image.toImageU8();
-	d->state.surface.tileRef(tileKey).paste(imageU8, offset);
-	auto rect = QRect(tileKey * Surface::tileWidth() + offset, image.size());
+	auto localRect = QRect(offset, image.size());
+	d->state.mipmap.replace(imageU8, tileKey, localRect);
+	
+	auto rect = localRect.translated(tileKey * Surface::tileWidth());
 	d->rectToBeRepainted |= rect;
 	d->rects << rect;
 	
@@ -78,7 +91,7 @@ void CanvasViewportController::updateTile(const QPoint &tileKey, const Malachite
 
 void CanvasViewportController::endUpdateTile()
 {
-	auto viewRect = d->state.transformToView.mapRect(d->rectToBeRepainted);
+	auto viewRect = d->state.transforms->sceneToView.mapRect(d->rectToBeRepainted);
 	
 	if (d->state.retinaMode)
 		viewRect = QRectF(viewRect.left() * 0.5, viewRect.top() * 0.5, viewRect.width() * 0.5, viewRect.height() * 0.5).toAlignedRect();
@@ -96,14 +109,14 @@ void CanvasViewportController::moveViewport(const QRect &rect, bool visible)
 	d->viewportWrapper.moveViewport(rect, visible);
 }
 
-void CanvasViewportController::setTransform(const Malachite::Affine2D &toScene, const Malachite::Affine2D &fromScene)
+void CanvasViewportController::setTransforms(const std::shared_ptr<const CanvasTransforms> &transforms)
 {
-	d->state.transformToView = fromScene.toQTransform();
-	d->state.transformToScene = toScene.toQTransform();
-	
-	d->state.translationOnly = (d->state.transformToScene.type() <= QTransform::TxTranslate);
-	d->state.translationToScene = QPointF(toScene.dx(), toScene.dy()).toPoint();
+	d->state.mipmap.setCurrentLevel(transforms->mipmapLevel);
+	d->state.transforms = transforms;
+	d->state.translationOnly = (transforms->mipmapScale == 1.0 && transforms->rotation == 0.0);
+	d->state.translationToScene = QPointF(transforms->viewToMipmap.dx(), transforms->viewToMipmap.dy()).toPoint();
 }
+
 
 void CanvasViewportController::setRetinaMode(bool mode)
 {
@@ -113,6 +126,7 @@ void CanvasViewportController::setRetinaMode(bool mode)
 void CanvasViewportController::setDocumentSize(const QSize &size)
 {
 	d->state.documentSize = size;
+	d->state.mipmap.setSceneSize(size);
 }
 
 void CanvasViewportController::update()

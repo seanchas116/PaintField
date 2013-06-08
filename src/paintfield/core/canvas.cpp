@@ -40,16 +40,12 @@ struct Canvas::Data
 	QActionList actions;
 	CanvasExtensionList extensions;
 	
-	double scale = 1, rotation = 0;
-	QPoint translation;
-	bool mirrored = false, retinaMode = false;
-	
-	Affine2D transformToScene, transformToView;
-	QSize viewSize;
 	QPoint maxAbsTranslation;
 	
 	double memorizedScale = 1, memorizedRotation = 0;
 	QPoint memorizedTranslation;
+	
+	std::shared_ptr<CanvasTransforms> transforms;
 	
 	QScopedPointer<Tool> tool;
 };
@@ -62,6 +58,8 @@ Canvas::Canvas(Document *document, Workspace *parent) :
 	d->document = document;
 	d->documentRefCount = new int;
 	*d->documentRefCount = 0;
+	
+	d->transforms = std::make_shared<CanvasTransforms>();
 	
 	document->setParent(0);
 	
@@ -76,15 +74,18 @@ Canvas::Canvas(Canvas *other, Workspace *parent) :
 	d->document = other->document();
 	d->documentRefCount = other->d->documentRefCount;
 	
-	d->translation = other->d->translation;
-	d->scale = other->d->scale;
-	d->rotation = other->d->rotation;
+	d->transforms = std::make_shared<CanvasTransforms>();
+	d->transforms->translation = other->d->transforms->translation;
+	d->transforms->scale = other->d->transforms->scale;
+	d->transforms->rotation = other->d->transforms->rotation;
 	
 	commonInit();
 }
 
 void Canvas::commonInit()
 {
+	d->transforms->sceneSize = d->document->size();
+	
 	appController()->documentReferenceManager()->addCanvas(this);
 	
 	connect(d->document, SIGNAL(filePathChanged(QString)), this, SIGNAL(documentPropertyChanged()));
@@ -117,7 +118,7 @@ void Canvas::commonInit()
 	connect(d->workspace->toolManager(), SIGNAL(currentToolChanged(QString)), this, SLOT(onToolChanged(QString)));
 	onToolChanged(d->workspace->toolManager()->currentTool());
 	
-	updateTransform();
+	updateTransforms();
 }
 
 Canvas::~Canvas()
@@ -128,9 +129,9 @@ Canvas::~Canvas()
 
 void Canvas::memorizeNavigation()
 {
-	d->memorizedScale = d->scale;
-	d->memorizedRotation = d->rotation;
-	d->memorizedTranslation = d->translation;
+	d->memorizedScale = d->transforms->scale;
+	d->memorizedRotation = d->transforms->rotation;
+	d->memorizedTranslation = d->transforms->translation;
 }
 
 void Canvas::restoreNavigation()
@@ -142,42 +143,37 @@ void Canvas::restoreNavigation()
 
 double Canvas::scale() const
 {
-	return d->scale;
+	return d->transforms->scale;
 }
 
 double Canvas::rotation() const
 {
-	return d->rotation;
+	return d->transforms->rotation;
 }
 
 QPoint Canvas::translation() const
 {
-	return d->translation;
+	return d->transforms->translation;
 }
 
 bool Canvas::isMirrored() const
 {
-	return d->mirrored;
+	return d->transforms->mirrored;
 }
 
 bool Canvas::isRetinaMode() const
 {
-	return d->retinaMode;
+	return d->transforms->retinaMode;
 }
 
-Affine2D Canvas::transformToScene() const
+std::shared_ptr<const CanvasTransforms> Canvas::transforms() const
 {
-	return d->transformToScene;
-}
-
-Affine2D Canvas::transformToView() const
-{
-	return d->transformToView;
+	return d->transforms;
 }
 
 QSize Canvas::viewSize() const
 {
-	return d->viewSize;
+	return d->transforms->viewSize;
 }
 
 QPoint Canvas::maxAbsoluteTranslation() const
@@ -187,49 +183,49 @@ QPoint Canvas::maxAbsoluteTranslation() const
 
 void Canvas::setScale(double scale)
 {
-	if (d->scale != scale)
+	if (d->transforms->scale != scale)
 	{
-		d->scale = scale;
-		updateTransform();
+		d->transforms->scale = scale;
+		updateTransforms();
 		emit scaleChanged(scale);
 	}
 }
 
 void Canvas::setRotation(double rotation)
 {
-	if (d->rotation != rotation)
+	if (d->transforms->rotation != rotation)
 	{
-		d->rotation = rotation;
-		updateTransform();
+		d->transforms->rotation = rotation;
+		updateTransforms();
 		emit rotationChanged(rotation);
 	}
 }
 
 void Canvas::setTranslation(const QPoint &translation)
 {
-	if (d->translation != translation)
+	if (d->transforms->translation != translation)
 	{
-		d->translation = translation;
-		updateTransform();
+		d->transforms->translation = translation;
+		updateTransforms();
 		emit translationChanged(translation);
 	}
 }
 
 void Canvas::setMirrored(bool mirrored)
 {
-	if (d->mirrored != mirrored)
+	if (d->transforms->mirrored != mirrored)
 	{
-		d->mirrored = mirrored;
-		updateTransform();
+		d->transforms->mirrored = mirrored;
+		updateTransforms();
 		emit mirroredChanged(mirrored);
 	}
 }
 
 void Canvas::setRetinaMode(bool mode)
 {
-	if (d->retinaMode != mode)
+	if (d->transforms->retinaMode != mode)
 	{
-		d->retinaMode = mode;
+		d->transforms->retinaMode = mode;
 		emit retinaModeChanged(mode);
 	}
 }
@@ -238,10 +234,10 @@ void Canvas::setViewSize(const QSize &size)
 {
 	PAINTFIELD_DEBUG << size;
 	
-	if (d->viewSize != size)
+	if (d->transforms->viewSize != size)
 	{
-		d->viewSize = size;
-		updateTransform();
+		d->transforms->viewSize = size;
+		updateTransforms();
 	}
 }
 
@@ -324,6 +320,73 @@ void Canvas::newCanvasIntoDocument()
 	workspace()->addAndShowCanvas(new Canvas(this, d->workspace));
 }
 
+static void updateCanvasTransforms(const std::shared_ptr<CanvasTransforms> &transforms)
+{
+	auto sceneSize = transforms->sceneSize;
+	auto viewSize = transforms->viewSize;
+	
+	auto mipmapScale = transforms->scale;
+	
+	int mipmapLevel = 0;
+	// get mipmap level
+	while (mipmapScale <= 0.5)
+	{
+		++mipmapLevel;
+		mipmapScale *= 2;
+	}
+	
+	auto mipmapRatio = std::pow(0.5, mipmapLevel);
+	auto mipmapSceneSize = QSize(std::round(sceneSize.width() * mipmapRatio), std::round(sceneSize.height() * mipmapRatio));
+	
+	// set transforms
+	{
+		auto mipmapSceneOffset = QPoint(mipmapSceneSize.width(), mipmapSceneSize.height()) / 2;
+		auto viewOffset = QPoint(viewSize.width(), viewSize.height()) / 2 + transforms->translation;
+		
+		auto mipmapToView = Affine2D::fromTranslation(Vec2D(viewOffset)) *
+		                    Affine2D::fromRotationDegrees(transforms->rotation) *
+		                    Affine2D::fromScale(mipmapScale) *
+		                    Affine2D::fromTranslation(Vec2D(-mipmapSceneOffset));
+		
+		if (transforms->mirrored)
+			mipmapToView = mipmapToView * Affine2D(-1, 0, 0, 1, mipmapSceneSize.width(), 0);
+		
+		auto sceneToView = (mipmapLevel != 0) ? mipmapToView * Affine2D::fromScale(mipmapRatio) : mipmapToView;
+		
+		auto sceneToWindow = (transforms->retinaMode) ? (Affine2D::fromScale(0.5) * sceneToView) : sceneToView;
+		
+		transforms->viewToScene = sceneToView.inverted().toQTransform();
+		transforms->sceneToView = sceneToView.toQTransform();
+		
+		transforms->windowToScene = sceneToWindow.inverted().toQTransform();
+		transforms->sceneToWindow = sceneToWindow.toQTransform();
+		
+		transforms->viewToMipmap = mipmapToView.inverted().toQTransform();
+		transforms->mipmapToView = mipmapToView.toQTransform();
+		
+		transforms->mipmapScale = mipmapScale;
+		transforms->mipmapLevel = mipmapLevel;
+		transforms->mipmapSceneSize = mipmapSceneSize;
+	}
+}
+
+void Canvas::updateTransforms()
+{
+	updateCanvasTransforms(d->transforms);
+	
+	// set max absolute translation
+	{
+		auto sceneSize = d->transforms->sceneSize;
+		auto viewSize = d->transforms->viewSize;
+		
+		int radius = ceil(hypot(sceneSize.width(), sceneSize.height()) * d->transforms->scale * 0.5);
+		d->maxAbsTranslation = QPoint(radius + viewSize.width(), radius + viewSize.height());
+	}
+	
+	emit transformsChanged(d->transforms);
+}
+
+/*
 void Canvas::updateTransform()
 {
 	auto sceneSize = d->document->size();
@@ -354,6 +417,6 @@ void Canvas::updateTransform()
 		d->transformToScene = transformToScene;
 		transformChanged(transformToScene, transformToView);
 	}
-}
+}*/
 
 }
