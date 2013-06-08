@@ -152,8 +152,8 @@ CanvasViewController::CanvasViewController(Canvas *canvas) :
 			d->scrollBarX = new VanishingScrollBar(Qt::Horizontal, d->view);
 			d->scrollBarY = new VanishingScrollBar(Qt::Vertical, d->view);
 			
-			connect(d->scrollBarX, SIGNAL(valueChanged(int)), this, SLOT(onScrollBarXChanged(int)));
-			connect(d->scrollBarY, SIGNAL(valueChanged(int)), this, SLOT(onScrollBarYChanged(int)));
+			connect(d->scrollBarX, SIGNAL(sliderMoved(int)), this, SLOT(onScrollBarXChanged(int)));
+			connect(d->scrollBarY, SIGNAL(sliderMoved(int)), this, SLOT(onScrollBarYChanged(int)));
 			
 #ifdef PF_CANVAS_VIEWPORT_COCOA
 			d->scrollBarX->setAttribute(Qt::WA_NativeWindow);

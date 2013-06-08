@@ -226,6 +226,7 @@ void Canvas::setRetinaMode(bool mode)
 	if (d->transforms->retinaMode != mode)
 	{
 		d->transforms->retinaMode = mode;
+		updateTransforms();
 		emit retinaModeChanged(mode);
 	}
 }

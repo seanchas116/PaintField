@@ -113,7 +113,7 @@ void CanvasViewportController::setTransforms(const std::shared_ptr<const CanvasT
 {
 	d->state.mipmap.setCurrentLevel(transforms->mipmapLevel);
 	d->state.transforms = transforms;
-	d->state.translationOnly = (transforms->mipmapScale == 1.0 && transforms->rotation == 0.0);
+	d->state.translationOnly = (transforms->mipmapScale == 1.0 && transforms->rotation == 0.0 && !transforms->mirrored);
 	d->state.translationToScene = QPointF(transforms->viewToMipmap.dx(), transforms->viewToMipmap.dy()).toPoint();
 }
 
