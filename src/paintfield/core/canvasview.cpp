@@ -484,6 +484,7 @@ bool CanvasViewController::eventFilter(QObject *watched, QEvent *event)
 				
 			case QEvent::FocusIn:
 				
+				d->keyTracker->clear();
 				return false;
 				
 			case QEvent::Enter:

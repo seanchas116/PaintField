@@ -125,4 +125,10 @@ bool KeyTracker::match(const QKeySequence &sequence) const
 	return keys.size() == 1 && sequence.count() == 1 && *keys.begin() == sequence[0];
 }
 
+void KeyTracker::clear()
+{
+	d->keys.clear();
+	d->modifiers = Qt::NoModifier;
+}
+
 } // namespace PaintField

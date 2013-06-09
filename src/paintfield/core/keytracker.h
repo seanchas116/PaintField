@@ -24,6 +24,8 @@ public:
 	
 	bool match(const QKeySequence &sequence) const;
 	
+	void clear();
+	
 	void keyEvent(QKeyEvent *event);
 	
 public slots:
