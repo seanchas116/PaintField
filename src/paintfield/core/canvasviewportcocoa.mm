@@ -78,6 +78,8 @@ static inline QRect flippedRect(const QRect &rect, int height)
 	auto context = static_cast<CGContextRef>([[NSGraphicsContext currentContext] graphicsPort]);
 	CGContextSetBlendMode(context, kCGBlendModeCopy);
 	CGContextSetFillColorWithColor(context, backgroundColor);
+	CGContextSetInterpolationQuality(context, kCGInterpolationNone);
+	CGContextSetShouldAntialias(context, NO);
 	
 	auto draw = [&](const QRect &rect, const QImage &image)
 	{

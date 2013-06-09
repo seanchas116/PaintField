@@ -12,6 +12,8 @@ namespace PaintField {
 CanvasViewportNormal::CanvasViewportNormal(QWidget *parent) :
     QWidget(parent)
 {
+	setAttribute(Qt::WA_NoSystemBackground);
+	setAttribute(Qt::WA_OpaquePaintEvent);
 }
 
 void CanvasViewportNormal::paintEvent(QPaintEvent *event)

@@ -81,17 +81,20 @@ void drawViewport(const QRect &windowRepaintRect, CanvasViewportState *state, co
 	};
 	
 	auto repaintRect = fromWindowRect(windowRepaintRect);
+	auto surface = state->mipmap.surface();
 	
 	auto cropSurface = [&](const QRect &rect)
 	{
 		if (state->cacheAvailable && state->cacheRect == rect)
 			return state->cacheImage;
 		else
-			return state->mipmap.surface().crop(rect);
+			return surface.crop(rect);
 	};
 	
 	if (state->translationOnly) // easy, view is only translated
 	{
+		PAINTFIELD_DEBUG << "translation only";
+		
 		auto drawInViewRect = [&](const QRect &viewRect)
 		{
 			auto sceneRect = viewRect.translated(state->translationToScene);
@@ -106,6 +109,8 @@ void drawViewport(const QRect &windowRepaintRect, CanvasViewportState *state, co
 	}
 	else
 	{
+		PAINTFIELD_DEBUG << "transformed";
+		
 		auto drawInViewRect = [&](const QRect &viewRect)
 		{
 			auto sceneRect = state->transforms->viewToMipmap.mapRect(QRectF(viewRect)).toAlignedRect();
