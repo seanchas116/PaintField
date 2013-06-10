@@ -229,6 +229,7 @@ void Workspace::addCanvas(Canvas *canvas)
 		connect(canvas, SIGNAL(shouldBeDeleted(Canvas*)),
 		        this, SLOT(deleteCanvas(Canvas*)));
 		connect(canvas, SIGNAL(documentPropertyChanged()), this, SLOT(onCanvasDocumentPropertyChanged()));
+		connect(canvas, SIGNAL(activated(Canvas*)), this, SLOT(setCurrentCanvas(Canvas*)));
 	}
 }
 

@@ -166,16 +166,15 @@ signals:
 	void mirroredChanged(bool mirrored);
 	void retinaModeChanged(bool mode);
 	
-	void transformsChanged(const std::shared_ptr<const CanvasTransforms> &transforms);
-	
 	/**
 	 * Emitted when the transform is changed, before scale, rotation ... changed signals are emitted.
-	 * @param transformToScene
-	 * @param transformToView
+	 * @param transforms
 	 */
-	//void transformChanged(const Malachite::Affine2D &transformToScene, const Malachite::Affine2D &transformToView);
+	void transformsChanged(const std::shared_ptr<const CanvasTransforms> &transforms);
 	
 	void toolChanged(Tool *tool);
+	
+	void activated(Canvas *thisCanvas);
 	
 public slots:
 	
@@ -201,6 +200,8 @@ public slots:
 	void setRetinaMode(bool mode);
 	
 	void setViewSize(const QSize &size);
+	
+	void activate() { emit activated(this); }
 	
 private slots:
 	
