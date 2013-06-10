@@ -391,6 +391,12 @@ void RectTool::tabletPressEvent(CanvasTabletEvent *event)
 
 void RectTool::tabletMoveEvent(CanvasTabletEvent *event)
 {
+	if (d->mode == NoOperation)
+	{
+		event->ignore();
+		return;
+	}
+	
 	auto delta = event->data.pos - d->dragStartPos;
 	
 	if ( d->dragDistanceEnough )
@@ -398,8 +404,9 @@ void RectTool::tabletMoveEvent(CanvasTabletEvent *event)
 		switch (d->mode)
 		{
 			default:
+			{
 				break;
-				
+			}
 			case Dragging:
 			case Inserting:
 			{
@@ -473,6 +480,12 @@ void RectTool::tabletReleaseEvent(CanvasTabletEvent *event)
 {
 	Q_UNUSED(event)
 	
+	if (d->mode == NoOperation)
+	{
+		event->ignore();
+		return;
+	}
+	
 	d->updateManager->setEnabled(false);
 	
 	bool selectLater = false;
@@ -492,7 +505,9 @@ void RectTool::tabletReleaseEvent(CanvasTabletEvent *event)
 				break;
 			}
 			default:
+			{
 				break;
+			}
 		}
 	}
 	else if (d->mode == Inserting && d->selectingMode == SelectLater)
