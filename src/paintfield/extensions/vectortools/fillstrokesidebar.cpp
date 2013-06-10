@@ -8,7 +8,12 @@
 #include <QFormLayout>
 #include <QGroupBox>
 #include <QSignalMapper>
+#include <QMimeData>
+#include <QApplication>
+#include <QClipboard>
+#include <QPushButton>
 
+#include "paintfield/core/layeredit.h"
 #include "paintfield/core/widgets/simplebutton.h"
 #include "paintfield/core/shapelayer.h"
 #include "paintfield/core/layerscene.h"
@@ -142,6 +147,26 @@ FillStrokeSideBar::FillStrokeSideBar(Workspace *workspace, LayerScene *scene, QW
 		formLayout->addRow(tr("Join"), hlayout);
 	}
 	
+	{
+		auto hlayout = new QHBoxLayout();
+		
+		{
+			auto b = new QPushButton(tr("Copy"));
+			connect(b, SIGNAL(pressed()), this, SLOT(copyFillStroke()));
+			hlayout->addWidget(b);
+		}
+		
+		{
+			auto b = new QPushButton(tr("Paste"));
+			connect(b, SIGNAL(pressed()), this, SLOT(pasteFillStroke()));
+			hlayout->addWidget(b);
+		}
+		
+		hlayout->addStretch(1);
+		
+		formLayout->addRow(hlayout);
+	}
+	
 	setLayout(formLayout);
 	
 	updateForCurrentPropertyChange();
@@ -260,6 +285,80 @@ void FillStrokeSideBar::onStrokeColorSet(const Color &color)
 	
 	if (d->current->strokeBrush().color() != color)
 		layerScene()->setLayerProperty(d->current, QVariant::fromValue(Brush(color)), RoleStrokeBrush, tr("Change Stroke Color"));
+}
+
+static const QString fillStrokeMimeType = "application/x-paintfield-fill-stroke";
+
+void FillStrokeSideBar::copyFillStroke()
+{
+	if (d->current)
+	{
+		auto mime = new QMimeData();
+		{
+			QByteArray data;
+			QDataStream stream(&data, QIODevice::WriteOnly);
+			d->current->encodeShapeProperties(stream);
+			mime->setData(fillStrokeMimeType, data);
+		}
+		QApplication::clipboard()->setMimeData(mime);
+	}
+}
+
+class FillStrokeSetEdit : public LayerEdit
+{
+public:
+	FillStrokeSetEdit(const LayerConstPtr &layer, const QByteArray &data) : _data(data)
+	{
+		setModifiedKeys(layer->tileKeysRecursive());
+	}
+	
+	void redo(const LayerPtr &layer)
+	{
+		change(layer);
+	}
+	
+	void undo(const LayerPtr &layer)
+	{
+		change(layer);
+	}
+	
+	void change(const LayerPtr &layer)
+	{
+		auto shapeLayer = std::dynamic_pointer_cast<ShapeLayer>(layer);
+		Q_ASSERT(shapeLayer);
+		
+		QByteArray oldData;
+		
+		{
+			QDataStream stream(&oldData, QIODevice::WriteOnly);
+			shapeLayer->encodeShapeProperties(stream);
+		}
+		
+		{
+			QDataStream stream(&_data, QIODevice::ReadOnly);
+			shapeLayer->decodeShapeProperties(stream);
+		}
+		
+		_data = oldData;
+	}
+	
+private:
+	
+	QByteArray _data;
+};
+
+void FillStrokeSideBar::pasteFillStroke()
+{
+	if (d->current)
+	{
+		auto mime = QApplication::clipboard()->mimeData();
+		
+		if (mime && mime->hasFormat(fillStrokeMimeType))
+		{
+			auto data = mime->data(fillStrokeMimeType);
+			layerScene()->editLayer(d->current, new FillStrokeSetEdit(d->current, data), tr("Paste Fill/Stroke"));
+		}
+	}
 }
 
 } // namespace PaintField

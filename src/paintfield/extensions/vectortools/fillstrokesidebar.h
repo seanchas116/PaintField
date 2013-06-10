@@ -44,6 +44,9 @@ private slots:
 	void onFillColorSet(const Malachite::Color &color);
 	void onStrokeColorSet(const Malachite::Color &color);
 	
+	void copyFillStroke();
+	void pasteFillStroke();
+	
 private:
 	
 	struct Data;

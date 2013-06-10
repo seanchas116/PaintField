@@ -89,14 +89,22 @@ QVariant ShapeLayer::property(int role) const
 void ShapeLayer::encode(QDataStream &stream) const
 {
 	super::encode(stream);
-	
-	stream << _strokePos << _strokeWidth << _joinStyle << _capStyle << _fillBrush.color() << _strokeBrush.color() << _fillEnabled << _strokeEnabled;
+	encodeShapeProperties(stream);
 }
 
 void ShapeLayer::decode(QDataStream &stream)
 {
 	super::decode(stream);
-	
+	decodeShapeProperties(stream);
+}
+
+void ShapeLayer::encodeShapeProperties(QDataStream &stream) const
+{
+	stream << _strokePos << _strokeWidth << _joinStyle << _capStyle << _fillBrush.color() << _strokeBrush.color() << _fillEnabled << _strokeEnabled;
+}
+
+void ShapeLayer::decodeShapeProperties(QDataStream &stream)
+{
 	int strokePos, joinStyle, capStyle;
 	Malachite::Color fillColor, strokeColor;
 	stream >> strokePos >> _strokeWidth >> joinStyle >> capStyle >> fillColor >> strokeColor >> _fillEnabled >> _strokeEnabled;
@@ -112,6 +120,13 @@ void ShapeLayer::decode(QDataStream &stream)
 QVariantMap ShapeLayer::saveProperies() const
 {
 	QVariantMap map = super::saveProperies();
+	map.unite(saveShapeProperties());
+	return map;
+}
+
+QVariantMap ShapeLayer::saveShapeProperties() const
+{
+	QVariantMap map;
 	
 	{
 		QVariantMap strokeMap;
@@ -137,7 +152,11 @@ QVariantMap ShapeLayer::saveProperies() const
 void ShapeLayer::loadProperties(const QVariantMap &map)
 {
 	super::loadProperties(map);
-	
+	loadShapeProperties(map);
+}
+
+void ShapeLayer::loadShapeProperties(const QVariantMap &map)
+{
 	{
 		auto sm = map["stroke"].toMap();
 		setStrokePositionString(sm["position"].toString());

@@ -30,8 +30,14 @@ public:
 	void encode(QDataStream &stream) const override;
 	void decode(QDataStream &stream) override;
 	
+	void encodeShapeProperties(QDataStream &stream) const;
+	void decodeShapeProperties(QDataStream &stream);
+	
 	QVariantMap saveProperies() const override;
 	void loadProperties(const QVariantMap &map) override;
+	
+	QVariantMap saveShapeProperties() const;
+	void loadShapeProperties(const QVariantMap &map);
 	
 	StrokePosition strokePosition() const { return _strokePos; }
 	void setStrokePosition(StrokePosition pos) { _strokePos = pos; updatePaths(); }
