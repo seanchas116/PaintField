@@ -49,8 +49,13 @@ void applyMacSmallSize(QWidget *widget)
 	if (qobject_cast<QMenu *>(widget))
 		return;
 	
+#ifdef Q_OS_MAC
 	widget->setAttribute(Qt::WA_MacSmallSize);
-	
+#else
+	auto font = widget->font();
+	font.setPixelSize(11);
+	widget->setFont(font);
+#endif
 	for (QObject *object : widget->children())
 	{
 		QWidget *widget = qobject_cast<QWidget *>(object);
