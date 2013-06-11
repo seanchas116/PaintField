@@ -587,11 +587,11 @@ void RectTool::updateHandles()
 			auto rect = rectLayer->rect();
 			
 			// get vertices in scene coordinates
-			auto transformToView = canvas()->transforms()->sceneToView;
-			auto topLeft = rect.topLeft() * transformToView;
-			auto topRight = rect.topRight() * transformToView;
-			auto bottomLeft = rect.bottomLeft() * transformToView;
-			auto bottomRight = rect.bottomRight() * transformToView;
+			auto transformToWindow = canvas()->transforms()->sceneToWindow;
+			auto topLeft = rect.topLeft() * transformToWindow;
+			auto topRight = rect.topRight() * transformToWindow;
+			auto bottomLeft = rect.bottomLeft() * transformToWindow;
+			auto bottomRight = rect.bottomRight() * transformToWindow;
 			
 			d->findHandle(Left)->setPos( (topLeft + bottomLeft) * 0.5 );
 			d->findHandle(Right)->setPos( (topRight + bottomRight) * 0.5 );
@@ -662,7 +662,7 @@ void RectTool::onHandleMoved(const QPointF &pos, int handleFlags)
 	auto rect = rectLayer->rect();
 	keys |= d->rectKeysWithHandleMargin(rect);
 	
-	auto scenePos = pos * canvas()->transforms()->viewToScene;
+	auto scenePos = pos * canvas()->transforms()->windowToScene;
 	
 	double left = rect.left();
 	double right = rect.right();
