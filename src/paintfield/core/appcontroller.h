@@ -18,6 +18,8 @@ class AppExtension;
 class ExtensionFactory;
 class CursorStack;
 class DocumentReferenceManager;
+class Canvas;
+class Workspace;
 
 /**
  * AppController is an singleton class that manages application-wide classes.
@@ -47,6 +49,8 @@ public:
 	QString unduplicatedFileTempName(const QString &name);
 	
 	Application *app();
+	
+	Canvas *findCanvasWithFilepath(const QString &filepath);
 	
 	static AppController *instance() { return _instance; }
 	

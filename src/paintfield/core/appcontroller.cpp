@@ -125,20 +125,46 @@ void AppController::zoomCurrentWindow()
 		widget->showMaximized();
 }
 
-void AppController::openFile(const QString &path)
+Canvas *AppController::findCanvasWithFilepath(const QString &filepath)
 {
-	PAINTFIELD_DEBUG << "file open requested:" << path;
+	QFileInfo info(filepath);
 	
-	if (!QFileInfo(path).exists())
+	if (!info.exists())
 	{
-		PAINTFIELD_DEBUG << "file does not exist";
-		return;
+		PAINTFIELD_WARNING << "file does not exist";
+		return 0;
 	}
 	
-	auto workspace = workspaceManager()->currentWorkspace();
+	// search for existing canvas that already opens the file
+	for (auto workspace : workspaceManager()->workspaces())
+	{
+		for (auto canvas : workspace->canvases())
+		{
+			if (canvas->document()->filePath() == info.canonicalFilePath())
+				return canvas;
+		}
+	}
 	
-	if (workspace)
-		workspace->openCanvasFromFilepath(path);
+	return 0;
+}
+
+void AppController::openFile(const QString &path)
+{
+	auto canvas = findCanvasWithFilepath(path);
+	
+	if (canvas)
+	{
+		auto workspace = canvas->workspace();
+		workspaceManager()->setCurrentWorkspace(workspace);
+		workspace->setCurrentCanvas(canvas);
+	}
+	else
+	{
+		auto workspace = workspaceManager()->currentWorkspace();
+		
+		if (workspace)
+			workspace->openCanvasFromFilepath(path);
+	}
 }
 
 void AppController::quit()

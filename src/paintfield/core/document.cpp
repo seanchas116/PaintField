@@ -1,4 +1,5 @@
 #include <Malachite/ImageIO>
+#include <QFileInfo>
 
 #include "layerscene.h"
 #include "selection.h"
@@ -82,10 +83,16 @@ void Document::setModified(bool modified)
 
 void Document::setFilePath(const QString &filePath)
 {
-	if (d->filePath == filePath)
+	auto canonicalPath = QFileInfo(filePath).canonicalFilePath();
+	
+	if (canonicalPath.isEmpty())
+		PAINTFIELD_WARNING << "invalid filepath";
+	
+	if (d->filePath == canonicalPath)
 		return;
-	d->filePath = filePath;
-	emit filePathChanged(filePath);
+	
+	d->filePath = canonicalPath;
+	emit filePathChanged(canonicalPath);
 	emit fileNameChanged(fileName());
 }
 

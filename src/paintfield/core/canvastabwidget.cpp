@@ -196,6 +196,7 @@ void CanvasTabWidget::onTabCloseRequested(int index)
 	if (canvasView)
 		canvasView->canvas()->closeCanvas();
 }
+
 CanvasView *CanvasTabWidget::canvasViewAt(int index)
 {
 	return qobject_cast<CanvasView *>(widget(index));
@@ -205,10 +206,26 @@ void CanvasTabWidget::addCanvasesFromUrls(const QList<QUrl> &urls)
 {
 	for (const QUrl &url : urls)
 	{
-		auto document = DocumentController::createFromFile(url.toLocalFile());
+		auto filepath = url.toLocalFile();
+		auto existingCanvas = appController()->findCanvasWithFilepath(filepath);
 		
-		if (document)
-			addCanvas(new Canvas(document, workspace()));
+		Canvas *canvas = nullptr;
+		
+		if (existingCanvas)
+		{
+			canvas = new Canvas(existingCanvas, workspace());
+		}
+		else
+		{
+			auto document = DocumentController::createFromFile(url.toLocalFile());
+			
+			if (document)
+				canvas = new Canvas(document, workspace());
+			else
+				return;
+		}
+		
+		addCanvas(canvas);
 	}
 }
 
