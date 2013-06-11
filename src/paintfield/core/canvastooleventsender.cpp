@@ -86,6 +86,9 @@ void CanvasToolEventSender::tabletEvent(QTabletEvent *event)
 				return PaintField::EventWidgetTabletRelease;
 		}
 	};
+
+	if (event->type() == QEvent::TabletRelease)
+		d->mousePressure = 0;
 	
 	TabletInputData data(event->hiResGlobalPos(), event->pressure(), event->rotation(), event->tangentialPressure(), Vec2D(event->xTilt(), event->yTilt()));
 	WidgetTabletEvent widgetTabletEvent(toNewEventType(event->type()), event->globalPos(), event->pos(), data, event->modifiers());
@@ -154,6 +157,7 @@ bool CanvasToolEventSender::sendCanvasTabletEvent(WidgetTabletEvent *event)
 	};
 	
 	CanvasTabletEvent canvasEvent(toCanvasEventType(event->type()), globalPos, event->globalPosInt, viewPos, viewPos.toQPoint(), data, event->modifiers());
+
 	d->tool->toolEvent(&canvasEvent);
 	
 	return canvasEvent.isAccepted();
