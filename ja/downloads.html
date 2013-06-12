@@ -4,15 +4,24 @@
 <head>
 
   <meta charset="utf-8">
-  <title>ダウンロード - PaintField</title>
+  <title>ホーム - PaintField</title>
 
-  <link href="http://fonts.googleapis.com/css?family=Open+Sans:300" rel="stylesheet">
+  <link href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
 
   <link href="../css/bootstrap.min.css" rel="stylesheet" media="screen">
   <link href="../css/bootstrap-responsive.min.css" rel="stylesheet">
-  <link href="../css/lightbox.css" rel="stylesheet">
+  <link href="../css/jquery.fancybox.css" rel="stylesheet">
   
   <link href="../css/pf-style.css" rel="stylesheet">
+
+  <script src="../js/jquery-1.9.1.min.js"></script>
+  <script src="../js/jquery.fancybox.pack.js"></script>
+
+  <script>
+    $(document).ready(function() {
+      $(".fancybox").fancybox();
+    });
+  </script>
 
 </head>
 
@@ -20,7 +29,7 @@
 
   <div class="pf-above-footer">
 
-    <div class="navbar navbar-fixed-top navbar-inverse">
+    <div class="navbar navbar-inverse navbar-fixed-top">
       <div class="navbar-inner">
         <div class="container">
           <a class="brand" href="index.html">PaintField</a>
@@ -29,10 +38,13 @@
             <li><a href="features.html">機能</a></li>
             <li class="active"><a href="#">ダウンロード</a></li>
             <li><a href="faq.html">よくある質問</a></li>
+            
           </ul>
+
           <ul class="nav pull-right">
             <li class="active"><a href="#">日本語</a></li>
             <li><a href="../en/downloads.html">English</a></li>
+            
           </ul>
         </div>
       </div>
@@ -43,64 +55,75 @@
 
     <div class="pf-top-pad"></div>
 
-
     <div class="container">
 
       <section id="Downloads">
 
-        <div class="page-header">
-          <h1>ダウンロード</h1>
-        </div>
+  <div class="page-header">
+    <h1>ダウンロード</h1>
+  </div>
 
-        <div class="row">
-          <div class="span3">
-            <p><a class="btn btn-primary btn-large btn-block" href="http://octahedronstudio.net/paintfield/paintfield-0.0.3-mac.tar.bz2">For Mac (Lion 以降)</a></p>
-          </div>
+  <div class="row">
+    <div class="span3">
+      <p><a class="btn btn-primary btn-large btn-block" href="http://sourceforge.net/projects/paintfield/files/releases/paintfield-0.0.4-mac.tar.bz2/download">For Mac</a></p>
+    </div>
 
-          <div class="span3">
-            <p><a class="btn btn-primary btn-large btn-block" href="http://octahedronstudio.net/paintfield/paintfield-0.0.3-linux-x86_64.tar.bz2">For Linux (64bit)</a><p>
-          </div>
+    <div class="span3">
+      <p><a class="btn btn-primary btn-large btn-block" href="http://sourceforge.net/projects/paintfield/files/releases/paintfield-0.0.4-linux-x86_64.tar.bz2/download">For Linux 64bit</a><p>
+    </div>
 
-          <div class="span3">
-            <p><a class="btn disabled btn-large btn-block">For Windows (もうすぐ)</a></p>
-          </div>
-        </div>
+    <div class="span3">
+      <p><a class="btn btn-primary btn-large btn-block" href="http://sourceforge.net/projects/paintfield/files/releases/paintfield-0.0.4-windows-x86_64.zip/download">For Windows 64bit</a></p>
+    </div>
+  </div>
 
-        <ul>
-          <li><a href="http://octahedronstudio.net/paintfield/paintfield-0.0.3-src.tar.bz2">ソースコード</a></li>
-          <li><a href="http://github.com/iofg2100/PaintField">GitHub で見る</a></li>
-        </ul>
+  <ul>
+    <li><a href="http://sourceforge.net/projects/paintfield/files/releases/paintfield-0.0.4-src.tar.bz2/download">ソースコード</a></li>
+    <li><a href="http://github.com/iofg2100/PaintField">GitHub で見る</a></li>
+  </ul>
 
-        <p>バージョン: 0.0.3 (2013 年 2 月 25 日公開)</p>
-        <p>OS X Lion、Mountain Lion および Ubuntu 12.10 でテスト済み</p>
+  <p>バージョン: 0.0.4 (2013 年 6 月 13 日公開)</p>
+  <p>OS X Mountain Lion, Ubuntu 13.04, Windows 8 および Windows 7 でテスト済み</p>
 
-        <h3>変更履歴</h3>
+  <h3>変更履歴</h3>
 
-        <h4>0.0.3 (2013 年 2 月 25 日)</h4>
+  <h4>0.0.4 (2013 年 6 月 13 日)</h4>
+  <ul>
+    <li>Windows に対応</li>
+    <li>テキスト、長方形、楕円を作る</li>
+    <li>ワークスペースの状態（サイドバーの位置、色）を終了時に保存</li>
+    <li>ブラシのレスポンスを向上させるいくつかの最適化</li>
+    <li>クリップボードの画像から新規作成</li>
+    <li>縮小表示時の描画がより綺麗かつ高速に</li>
+    <li>いくつかのバグ修正と小さな改良</li>
+  </ul>
 
-        <ul>
-          <li>Retina ディスプレイに対応</li>
-          <li>タブレットのペン先 (ペン / 消しゴム) とブラシプリセットの関連付け</li>
-          <li>ブラシプリセットとブラシサイズの関連付け</li>
-        </ul>
+  <h4>0.0.3 (2013 年 2 月 25 日)</h4>
 
-        <h4>0.0.2 (2013 年 2 月 23 日)</h4>
+  <ul>
+    <li>Retina ディスプレイに対応</li>
+    <li>タブレットのペン先 (ペン / 消しゴム) とブラシプリセットの関連付け</li>
+    <li>ブラシプリセットとブラシサイズの関連付け</li>
+  </ul>
 
-        <ul>
-          <li>ファイルフォーマットを改定</li>
-          <li>ブラシの応答性がかなりよくなった (特にペンタブレット使用時)</li>
-          <li>「ワークスペース」機能の追加 - ウィンドウ（ワークスペース）を複数開ける</li>
-          <li>一つのファイルに対して複数のキャンバス</li>
-          <li>いくつかのバグ修正</li>
-        </ul>
+  <h4>0.0.2 (2013 年 2 月 23 日)</h4>
 
-        <h4>0.0.1 (2013 年 1 月 18 日)</h4>
+  <ul>
+    <li>ファイルフォーマットを改定</li>
+    <li>ブラシの応答性がかなりよくなった (特にペンタブレット使用時)</li>
+    <li>「ワークスペース」機能の追加 - ウィンドウ（ワークスペース）を複数開ける</li>
+    <li>一つのファイルに対して複数のキャンバス</li>
+    <li>いくつかのバグ修正</li>
+  </ul>
 
-        <ul>
-          <li>初回リリース</li>
-        </ul>
+  <h4>0.0.1 (2013 年 1 月 18 日)</h4>
 
-      </section>
+  <ul>
+    <li>初回リリース</li>
+  </ul>
+
+</section>
+
 
     </div>
 
@@ -119,6 +142,25 @@
       </small></p>
     </div>
   </div>
+
+  <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+
+  <div id="fb-root"></div>
+  <script>(function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = "//connect.facebook.net/en_US/all.js#xfbml=1";
+    fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));</script>
+
+  <script type="text/javascript">
+    (function() {
+      var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+      po.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+    })();
+  </script>
 
 </body>
 

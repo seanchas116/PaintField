@@ -4,15 +4,24 @@
 <head>
 
   <meta charset="utf-8">
-  <title>機能 - PaintField</title>
+  <title>ホーム - PaintField</title>
 
-  <link href="http://fonts.googleapis.com/css?family=Open+Sans:300" rel="stylesheet">
+  <link href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
 
   <link href="../css/bootstrap.min.css" rel="stylesheet" media="screen">
   <link href="../css/bootstrap-responsive.min.css" rel="stylesheet">
-  <link href="../css/lightbox.css" rel="stylesheet">
+  <link href="../css/jquery.fancybox.css" rel="stylesheet">
   
   <link href="../css/pf-style.css" rel="stylesheet">
+
+  <script src="../js/jquery-1.9.1.min.js"></script>
+  <script src="../js/jquery.fancybox.pack.js"></script>
+
+  <script>
+    $(document).ready(function() {
+      $(".fancybox").fancybox();
+    });
+  </script>
 
 </head>
 
@@ -20,7 +29,7 @@
 
   <div class="pf-above-footer">
 
-    <div class="navbar navbar-fixed-top navbar-inverse">
+    <div class="navbar navbar-inverse navbar-fixed-top">
       <div class="navbar-inner">
         <div class="container">
           <a class="brand" href="index.html">PaintField</a>
@@ -29,10 +38,13 @@
             <li class="active"><a href="#">機能</a></li>
             <li><a href="downloads.html">ダウンロード</a></li>
             <li><a href="faq.html">よくある質問</a></li>
+            
           </ul>
+
           <ul class="nav pull-right">
             <li class="active"><a href="#">日本語</a></li>
             <li><a href="../en/features.html">English</a></li>
+            
           </ul>
         </div>
       </div>
@@ -40,36 +52,42 @@
 
     <a href="https://github.com/iofg2100/PaintField"><img class="pf-fork-me" src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png" alt="Fork me on GitHub"></a>
 
+
+    <div class="pf-top-pad"></div>
+
     <div class="container">
 
-      <div class="pf-top-pad"></div>
+      
+<section id="Features">
 
-      <section id="Features">
+  <div class="page-header">
+    <h1>機能</h1>
+  </div>
 
-        <div class="page-header">
-          <h1>機能</h1>
-        </div>
+  <p>
+    現在の PaintField の機能は以下の通りです:
+  </p>
 
-        <p>
-          現在の PaintField の機能は以下の通りです:
-        </p>
+  <ul>
+    <li>タブ</li>
+    <li>タブエリアを水平・垂直に分割</li>
+    <li>１つの書類に対して複数のビュー</li>
+    <li>ナビゲータ (Canvas の回転と拡大縮小)</li>
+    <li>レイヤーとグループ</li>
+    <li>無限の取り消し・やり直し</li>
+    <li>レイヤーの平行移動</li>
+    <li>ペンタブレットで使えるシンプルなブラシ</li>
+    <li>テキスト、長方形、楕円形を作る</li>
+    <li>...機能が少なすぎますか？</li>
+    <li>もっと追加されるまで待って...</li>
+  </ul>
 
-        <ul>
-          <li>タブ</li>
-          <li>ナビゲータ (Canvas の回転と拡大縮小)</li>
-          <li>レイヤーとグループ</li>
-          <li>無限の取り消し・やり直し</li>
-          <li>レイヤーの平行移動</li>
-          <li>ペンタブレットで使えるシンプルなブラシ</li>
-          <li>...機能が少なすぎますか？</li>
-          <li>もっと追加されるまで待って...</li>
-        </ul>
+</section>
 
-      </section>
-
-      <div class="pf-bottom-pad"></div>
 
     </div>
+
+    <div class="pf-bottom-pad"></div>
 
   </div>
 
@@ -84,6 +102,25 @@
       </small></p>
     </div>
   </div>
+
+  <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+
+  <div id="fb-root"></div>
+  <script>(function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = "//connect.facebook.net/en_US/all.js#xfbml=1";
+    fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));</script>
+
+  <script type="text/javascript">
+    (function() {
+      var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+      po.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+    })();
+  </script>
 
 </body>
 

@@ -1,18 +1,27 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 
 <head>
 
   <meta charset="utf-8">
-  <title>Downloads - PaintField</title>
+  <title>ホーム - PaintField</title>
 
-  <link href="http://fonts.googleapis.com/css?family=Open+Sans:300" rel="stylesheet">
+  <link href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
 
   <link href="../css/bootstrap.min.css" rel="stylesheet" media="screen">
   <link href="../css/bootstrap-responsive.min.css" rel="stylesheet">
-  <link href="../css/lightbox.css" rel="stylesheet">
+  <link href="../css/jquery.fancybox.css" rel="stylesheet">
   
   <link href="../css/pf-style.css" rel="stylesheet">
+
+  <script src="../js/jquery-1.9.1.min.js"></script>
+  <script src="../js/jquery.fancybox.pack.js"></script>
+
+  <script>
+    $(document).ready(function() {
+      $(".fancybox").fancybox();
+    });
+  </script>
 
 </head>
 
@@ -20,7 +29,7 @@
 
   <div class="pf-above-footer">
 
-    <div class="navbar navbar-fixed-top navbar-inverse">
+    <div class="navbar navbar-inverse navbar-fixed-top">
       <div class="navbar-inner">
         <div class="container">
           <a class="brand" href="index.html">PaintField</a>
@@ -29,10 +38,13 @@
             <li><a href="features.html">Features</a></li>
             <li class="active"><a href="#">Downloads</a></li>
             <li><a href="faq.html">FAQ</a></li>
+            
           </ul>
+
           <ul class="nav pull-right">
             <li><a href="../ja/downloads.html">日本語</a></li>
             <li class="active"><a href="#">English</a></li>
+            
           </ul>
         </div>
       </div>
@@ -40,65 +52,79 @@
 
     <a href="https://github.com/iofg2100/PaintField"><img class="pf-fork-me" src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png" alt="Fork me on GitHub"></a>
 
+
     <div class="pf-top-pad"></div>
 
     <div class="container">
 
-      <section id="Downloads">
+      
+<section id="Downloads">
 
-        <div class="page-header">
-          <h1>Downloads</h1>
-        </div>
+  <div class="page-header">
+    <h1>Downloads</h1>
+  </div>
 
-        <div class="row">
-          <div class="span3">
-            <p><a class="btn btn-primary btn-large btn-block" href="http://octahedronstudio.net/paintfield/paintfield-0.0.3-mac.tar.bz2">For Mac (Lion or later)</a></p>
-          </div>
+  <div class="row">
+    <div class="span3">
+      <p><a class="btn btn-primary btn-large btn-block" href="http://sourceforge.net/projects/paintfield/files/releases/paintfield-0.0.4-mac.tar.bz2/download">For Mac</a></p>
+    </div>
 
-          <div class="span3">
-            <p><a class="btn btn-primary btn-large btn-block" href="http://octahedronstudio.net/paintfield/paintfield-0.0.3-linux-x86_64.tar.bz2">For Linux (64bit)</a><p>
-          </div>
+    <div class="span3">
+      <p><a class="btn btn-primary btn-large btn-block" href="http://sourceforge.net/projects/paintfield/files/releases/paintfield-0.0.4-linux-x86_64.tar.bz2/download">For Linux 64bit</a></p>
+    </div>
 
-          <div class="span3">
-            <p><a class="btn disabled btn-large btn-block">For Windows (soon)</a></p>
-          </div>
-        </div>
+    <div class="span3">
+      <p><a class="btn btn-primary btn-large btn-block" href="http://sourceforge.net/projects/paintfield/files/releases/paintfield-0.0.4-windows-x86_64.zip/download">For Windows 64bit</a></p>
+    </div>
+  </div>
 
-        <ul>
-          <li><a href="http://octahedronstudio.net/paintfield/paintfield-0.0.3-src.tar.bz2">Source code</a></li>
-          <li><a href="http://github.com/iofg2100/PaintField">View in GitHub</a></li>
-        </ul>
+  <ul>
+    <li><a href="http://sourceforge.net/projects/paintfield/files/releases/paintfield-0.0.4-src.tar.bz2/download">Source code</a></li>
+    <li><a href="http://github.com/iofg2100/PaintField">View on GitHub</a></li>
+  </ul>
 
-        <p>Version: 0.0.3 (Released on February 25, 2013)</p>
-        <p>Tested on OS X Lion, Mountain Lion and Ubuntu 12.10.</p>
+  <p>Version: 0.0.4 (Released on June 13, 2013)</p>
+  <p>Tested on OS X Mountain Lion, Ubuntu 13.04, Windows 8 and Windows 7.</p>
 
-        <h3>Changelog</h3>
+  <h3>Changelog</h3>
 
-        <h4>0.0.3 (Feb 25, 2013)</h4>
+  <h4>0.0.4 (June 13, 2013)</h4>
+  <ul>
+    <li>Windows support</li>
+    <li>Make texts, rectangles and ellipses</li>
+    <li>Workspace states (sidebar positions and colors) are saved on quitting</li>
+    <li>Some optimizations that improve brush response</li>
+    <li>New from clipboard image</li>
+    <li>More beautiful and faster redrawing of canvas when zoomed down</li>
+    <li>Several bug fixes and small improvements</li>
+  </ul>
 
-        <ul>
-          <li>Retina display support</li>
-          <li>Tablet pointer (Pen / Eraser) associated with brush preset</li>
-          <li>Brush preset associated with brush size</li>
-        </ul>
+  <h4>0.0.3 (Feb 25, 2013)</h4>
 
-        <h4>0.0.2 (Feb 23, 2013)</h4>
+  <ul>
+    <li>Retina display support</li>
+    <li>Tablet pointer (Pen / Eraser) associated with brush preset</li>
+    <li>Brush preset associated with brush size</li>
+  </ul>
 
-        <ul>
-          <li>File format revised</li>
-          <li>Brush responce became far better - especially when you are using a Wacom tablet</li>
-          <li>The workspace feature added - you can open multiple main windows (workspaces)</li>
-          <li>Multiple views for one file</li>
-          <li>Several bug fixes</li>
-        </ul>
+  <h4>0.0.2 (Feb 23, 2013)</h4>
 
-        <h4>0.0.1 (Jan 18, 2013)</h4>
+  <ul>
+    <li>File format revised</li>
+    <li>Brush responce became far better - especially when you are using a Wacom tablet</li>
+    <li>The workspace feature added - you can open multiple main windows (workspaces)</li>
+    <li>Multiple views for one file</li>
+    <li>Several bug fixes</li>
+  </ul>
 
-        <ul>
-          <li>Initial release</li>
-        </ul>
+  <h4>0.0.1 (Jan 18, 2013)</h4>
 
-      </section>
+  <ul>
+    <li>Initial release</li>
+  </ul>
+
+</section>
+
 
     </div>
 
@@ -117,6 +143,25 @@
       </small></p>
     </div>
   </div>
+
+  <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+
+  <div id="fb-root"></div>
+  <script>(function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = "//connect.facebook.net/en_US/all.js#xfbml=1";
+    fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));</script>
+
+  <script type="text/javascript">
+    (function() {
+      var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+      po.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+    })();
+  </script>
 
 </body>
 
