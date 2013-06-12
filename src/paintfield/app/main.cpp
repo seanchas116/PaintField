@@ -23,6 +23,10 @@ int main(int argc, char *argv[])
 	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
 	QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
 	
+#ifdef Q_OS_WIN
+	qApp->addLibraryPath(QDir(qApp->applicationDirPath()).filePath("plugins"));
+#endif
+	
 #ifdef PF_TEST
 	autoTest()->run();
 	return 0;
