@@ -53,7 +53,7 @@ BrushSideBar::BrushSideBar(QWidget *parent) :
 	
 	{
 		auto checkBox = new QCheckBox(tr("Smooth"));
-		checkBox->setToolTip(tr("Enable to paint beautifully, disable to paint faster"));
+		checkBox->setToolTip(tr("Check to paint beautifully, uncheck to paint faster"));
 		checkBox->setChecked(isSmoothEnabled());
 		connect(checkBox, SIGNAL(toggled(bool)), this, SLOT(setSmoothEnabled(bool)));
 		connect(this, SIGNAL(smoothEnabledChanged(bool)), checkBox, SLOT(setChecked(bool)));

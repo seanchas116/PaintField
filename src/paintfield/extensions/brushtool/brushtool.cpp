@@ -139,7 +139,7 @@ void BrushTool::endStroke(const TabletInputData &data)
 	if (!isStroking())
 		return;
 	
-	_stroker->lineTo(data);
+	//_stroker->lineTo(data);
 	_stroker->end();
 	
 	updateTiles();
