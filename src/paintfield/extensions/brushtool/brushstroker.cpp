@@ -19,11 +19,17 @@ void BrushStroker::moveTo(const TabletInputData &data)
 	clearLastEditedKeys();
 	
 	_count = 0;
-	_dataPrev = data;
-	_dataStart = data;
 	_dataEnd = data;
 	
-	//drawFirst(data);
+	if (_smoothed)
+	{
+		_dataPrev = data;
+		_dataStart = data;
+	}
+	else
+	{
+		drawFirst(data);
+	}
 }
 
 void BrushStroker::lineTo(const TabletInputData &data)
@@ -35,6 +41,14 @@ void BrushStroker::lineTo(const TabletInputData &data)
 		if (_count >= 2)
 		{
 			auto polygon = CurveSubdivision(Curve4::fromBSpline(_dataPrev.pos, _dataStart.pos, _dataEnd.pos, data.pos)).polygon();
+			
+			if (_count == 2)
+			{
+				auto firstData = _dataStart;
+				firstData.pos = polygon.first();
+				drawFirst(firstData);
+			}
+			
 			drawInterval(polygon, _dataStart, _dataEnd);
 		}
 		
