@@ -76,6 +76,7 @@ Tool *BrushToolExtension::createTool(const QString &name, Canvas *parent)
 		connect(_preferencesManager, SIGNAL(brushSizeChanged(int)), tool, SLOT(setBrushSize(int)));
 		connect(_preferencesManager, SIGNAL(smoothEnabledChanged(bool)), tool, SLOT(setSmoothEnabled(bool)));
 		tool->setBrushSize(_preferencesManager->brushSize());
+		tool->setSmoothEnabled(_preferencesManager->isSmoothEnabled());
 		
 		return tool;
 	}

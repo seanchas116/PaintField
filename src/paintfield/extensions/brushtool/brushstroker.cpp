@@ -23,7 +23,7 @@ void BrushStroker::moveTo(const TabletInputData &data)
 	_dataStart = data;
 	_dataEnd = data;
 	
-	drawFirst(data);
+	//drawFirst(data);
 }
 
 void BrushStroker::lineTo(const TabletInputData &data)
