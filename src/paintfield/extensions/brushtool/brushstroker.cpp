@@ -10,47 +10,61 @@ namespace PaintField {
 BrushStroker::BrushStroker(Surface *surface) :
 	_surface(surface),
 	_originalSurface(*surface)
-{}
+{
+	//_smoothed = true;
+}
 
 void BrushStroker::moveTo(const TabletInputData &data)
 {
 	clearLastEditedKeys();
 	
-	_count = 1;
+	_count = 0;
+	_dataPrev = data;
+	_dataStart = data;
 	_dataEnd = data;
+	
+	drawFirst(data);
 }
 
 void BrushStroker::lineTo(const TabletInputData &data)
 {
-	_count++;
+	_count += 1;
 	
-	if (_count == 4)
-		drawFirst(_dataStart);
-	
-	if (_count > 3)
+	if (_smoothed)
 	{
-		Polygon polygon = CurveSubdivision(Curve4::fromBSpline(_dataPrev.pos, _dataStart.pos, _dataEnd.pos, data.pos)).polygon();
+		if (_count >= 2)
+		{
+			auto polygon = CurveSubdivision(Curve4::fromBSpline(_dataPrev.pos, _dataStart.pos, _dataEnd.pos, data.pos)).polygon();
+			drawInterval(polygon, _dataStart, _dataEnd);
+		}
 		
-		TabletInputData start = _dataStart;
-		TabletInputData end = _dataEnd;
-		
-		// calculating moving average
-		start.pressure = (_dataPrev.pressure + _dataStart.pressure + _dataEnd.pressure) / 3;
-		end.pressure = (_dataStart.pressure + _dataEnd.pressure + data.pressure) / 3;
-		
-		drawInterval(polygon, start, end);
-		//drawInterval(polygon, _dataStart, _dataEnd);
-	}
-	
-	if (_count > 2)
 		_dataPrev = _dataStart;
-	
-	_dataStart = _dataEnd;
-	_dataEnd = data;
+		_dataStart = _dataEnd;
+		_dataEnd = data;
+	}
+	else
+	{
+		_dataStart = _dataEnd;
+		_dataEnd = data;
+		
+		if (_dataStart.pos == _dataEnd.pos)
+			return;
+		
+		Polygon polygon;
+		polygon.reserve(2);
+		polygon.append(_dataStart.pos);
+		polygon.append(_dataEnd.pos);
+		
+		drawInterval(polygon, _dataStart, _dataEnd);
+	}
 }
 
 void BrushStroker::end()
 {
+	if (_smoothed)
+	{
+		lineTo(_dataEnd);
+	}
 }
 
 void BrushStroker::addEditedKeys(const QHash<QPoint, QRect> &keysWithRects)

@@ -42,10 +42,16 @@ BrushToolExtension::BrushToolExtension(Workspace *workspace, QObject *parent) :
 	
 	{
 		auto brushSideBar = new BrushSideBar;
+		
 		connect(brushSideBar, SIGNAL(brushSizeChanged(int)), _preferencesManager, SLOT(setBrushSize(int)));
 		connect(_preferencesManager, SIGNAL(brushSizeChanged(int)), brushSideBar, SLOT(setBrushSize(int)));
-		connect(_presetManager, SIGNAL(metadataChanged(BrushPresetMetadata)), brushSideBar, SLOT(setPresetMetadata(BrushPresetMetadata)));
 		brushSideBar->setBrushSize(_preferencesManager->brushSize());
+		
+		connect(brushSideBar, SIGNAL(smoothEnabledChanged(bool)), _preferencesManager, SLOT(setSmoothEnabled(bool)));
+		connect(_preferencesManager, SIGNAL(smoothEnabledChanged(bool)), brushSideBar, SLOT(setSmoothEnabled(bool)));
+		brushSideBar->setSmoothEnabled(_preferencesManager->isSmoothEnabled());
+		
+		connect(_presetManager, SIGNAL(metadataChanged(BrushPresetMetadata)), brushSideBar, SLOT(setPresetMetadata(BrushPresetMetadata)));
 		brushSideBar->setPresetMetadata(_presetManager->metadata());
 		
 		addSideBar(_brushSideBarName, brushSideBar);
@@ -68,6 +74,7 @@ Tool *BrushToolExtension::createTool(const QString &name, Canvas *parent)
 		tool->setBrushSettings(_presetManager->settings());
 		
 		connect(_preferencesManager, SIGNAL(brushSizeChanged(int)), tool, SLOT(setBrushSize(int)));
+		connect(_preferencesManager, SIGNAL(smoothEnabledChanged(bool)), tool, SLOT(setSmoothEnabled(bool)));
 		tool->setBrushSize(_preferencesManager->brushSize());
 		
 		return tool;

@@ -28,7 +28,7 @@ private:
 	
 	Malachite::Image *getTile(const QPoint &key, Malachite::Surface *surface);
 	
-	double _carryOver;
+	double _carryOver = 1.0;
 	Malachite::Image *_lastTile = 0;
 	QPoint _lastKey;
 };

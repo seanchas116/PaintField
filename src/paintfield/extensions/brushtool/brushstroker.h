@@ -19,6 +19,9 @@ public:
 	void setPixel(const Malachite::Pixel &pixel) { _pixel = pixel; }
 	Malachite::Pixel pixel() const { return _pixel; }
 	
+	void setSmoothed(bool enabled) { _smoothed = enabled; }
+	bool isSmoothed() const { return _smoothed; }
+	
 	virtual void loadSettings(const QVariantMap &settings) = 0;
 	
 	void moveTo(const TabletInputData &data);
@@ -58,6 +61,7 @@ private:
 	
 	Malachite::Pixel _pixel;
 	double _radiusBase = 10;
+	bool _smoothed = false;
 };
 
 class BrushStrokerFactory : public QObject

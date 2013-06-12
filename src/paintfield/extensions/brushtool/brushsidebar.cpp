@@ -4,6 +4,7 @@
 #include <QSlider>
 #include <QSpinBox>
 #include <QFormLayout>
+#include <QCheckBox>
 
 #include "brushsidebar.h"
 
@@ -50,6 +51,15 @@ BrushSideBar::BrushSideBar(QWidget *parent) :
 		formLayout->addRow(tr("Size"), hlayout);
 	}
 	
+	{
+		auto checkBox = new QCheckBox(tr("Smooth"));
+		checkBox->setToolTip(tr("Enable to paint beautifully, disable to paint faster"));
+		checkBox->setChecked(isSmoothEnabled());
+		connect(checkBox, SIGNAL(toggled(bool)), this, SLOT(setSmoothEnabled(bool)));
+		connect(this, SIGNAL(smoothEnabledChanged(bool)), checkBox, SLOT(setChecked(bool)));
+		formLayout->addRow(checkBox);
+	}
+	
 	setLayout(formLayout);
 }
 
@@ -71,6 +81,15 @@ void BrushSideBar::setBrushSize(int size)
 	{
 		_brushSize = size;
 		emit brushSizeChanged(size);
+	}
+}
+
+void BrushSideBar::setSmoothEnabled(bool enabled)
+{
+	if (_isSmoothEnabled != enabled)
+	{
+		_isSmoothEnabled = enabled;
+		emit smoothEnabledChanged(enabled);
 	}
 }
 

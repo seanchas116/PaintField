@@ -34,7 +34,8 @@ public slots:
 	void setColor(const Malachite::Color &color) { _pixel = color.toPixel(); }
 	void setStrokerFactory(BrushStrokerFactory *factory) { _strokerFactory = factory; }
 	void setBrushSettings(const QVariantMap &settings);
-	void setBrushSize(int size);
+	void setBrushSize(int size) { _brushSize = size; }
+	void setSmoothEnabled(bool enabled) { _smoothEnabled = enabled; }
 	
 protected slots:
 	
@@ -57,11 +58,14 @@ private:
 	bool isStroking() const { return _stroker; }
 	void setPrevData(const TabletInputData &data);
 	
-	Malachite::Pixel _pixel;
 	BrushStrokerFactory *_strokerFactory = 0;
 	QScopedPointer<BrushStroker> _stroker;
+	
+	Malachite::Pixel _pixel;
 	QVariantMap _settings;
-	int _brushSize;
+	bool _smoothEnabled = false;
+	int _brushSize = 5;
+	
 	TabletInputData _dataPrev;
 	bool _dataPrevSet = false;
 	std::shared_ptr<const RasterLayer> _layer = 0;

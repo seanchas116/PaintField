@@ -103,13 +103,15 @@ void BrushTool::beginStroke(const TabletInputData &data)
 	_stroker->loadSettings(_settings);
 	_stroker->setPixel(_pixel);
 	_stroker->setRadiusBase(double(_brushSize) * 0.5);
+	_stroker->setSmoothed(_smoothEnabled);
 	
 	addLayerDelegation(_layer);
 	
 	// discard pressure for the 1st time to reduce overshoot
 	TabletInputData newData = data;
-	newData.pressure = 0;
+	//newData.pressure = 0;
 	
+	/*
 	if (_dataPrevSet)
 	{
 		_stroker->moveTo(_dataPrev);
@@ -118,7 +120,8 @@ void BrushTool::beginStroke(const TabletInputData &data)
 	else
 	{
 		_stroker->moveTo(newData);
-	}
+	}*/
+	_stroker->moveTo(data);
 }
 
 void BrushTool::drawStroke(const TabletInputData &data)
@@ -168,11 +171,6 @@ void BrushTool::setPrevData(const TabletInputData &data)
 {
 	_dataPrev = data;
 	_dataPrevSet = true;
-}
-
-void BrushTool::setBrushSize(int size)
-{
-	_brushSize = size;
 }
 
 void BrushTool::setBrushSettings(const QVariantMap &settings)

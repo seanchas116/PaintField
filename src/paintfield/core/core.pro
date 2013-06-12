@@ -193,10 +193,10 @@ SOURCES += \
 RESOURCES += \
     resources/resource-paintfield-core.qrc
 
-mac {
-	HEADERS += \
-		canvasviewportcocoa.h
-	OBJECTIVE_SOURCES += \
-		canvasviewportcocoa.mm
-}
+#mac {
+#	HEADERS += \
+#		canvasviewportcocoa.h
+#	OBJECTIVE_SOURCES += \
+#		canvasviewportcocoa.mm
+#}
 
