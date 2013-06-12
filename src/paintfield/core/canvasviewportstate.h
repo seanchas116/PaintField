@@ -120,7 +120,10 @@ void drawViewport(const QRect &windowRepaintRect, CanvasViewportState *state, co
 			{
 				QPainter imagePainter(&image);
 				imagePainter.setCompositionMode(QPainter::CompositionMode_Source);
-				imagePainter.setRenderHint(QPainter::SmoothPixmapTransform);
+				
+				if (state->transforms->scale < 2.0)
+					imagePainter.setRenderHint(QPainter::SmoothPixmapTransform);
+				
 				imagePainter.setTransform( state->transforms->mipmapToView * QTransform::fromTranslate(-viewRect.left(), -viewRect.top()) );
 				imagePainter.drawImage(sceneRect.topLeft(), croppedImage.wrapInQImage());
 			}
