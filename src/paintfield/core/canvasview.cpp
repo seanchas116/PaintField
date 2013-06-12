@@ -423,6 +423,9 @@ bool CanvasViewController::eventFilter(QObject *watched, QEvent *event)
 			return willFilterInput;
 			
 		case QEvent::MouseButtonPress:
+			
+			d->canvas->activate();
+			
 		case QEvent::MouseButtonRelease:
 		case QEvent::MouseMove:
 		
@@ -435,9 +438,13 @@ bool CanvasViewController::eventFilter(QObject *watched, QEvent *event)
 			d->eventSender->mouseEvent(static_cast<QMouseEvent *>(event));
 			return false;
 			
+		case QEvent::TabletPress:
+			
+			d->canvas->activate();
+			
 		case QEvent::TabletMove:
 		case QEvent::TabletRelease:
-		case QEvent::TabletPress:
+		
 			
 			d->navigator->tabletEvent(static_cast<QTabletEvent *>(event));
 			if (event->isAccepted())
@@ -445,9 +452,12 @@ bool CanvasViewController::eventFilter(QObject *watched, QEvent *event)
 			
 			d->eventSender->tabletEvent(static_cast<QTabletEvent *>(event));
 			return willFilterInput;
+		
+		case EventWidgetTabletPress:
+			
+			d->canvas->activate();
 			
 		case EventWidgetTabletMove:
-		case EventWidgetTabletPress:
 		case EventWidgetTabletRelease:
 			
 			d->navigator->customTabletEvent(static_cast<WidgetTabletEvent *>(event));
@@ -484,7 +494,6 @@ bool CanvasViewController::eventFilter(QObject *watched, QEvent *event)
 				
 			case QEvent::FocusIn:
 				
-				d->canvas->activate();
 				d->keyTracker->clear();
 				return false;
 				
