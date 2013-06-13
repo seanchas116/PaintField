@@ -6,21 +6,18 @@ The project name and the license might be changed in the future.
 
 ## - To Build -
 
-PaintField depends on the following libraries: Qt, libfreeimage, libqjson.
-Before building, make sure that these libraries are installed.
+PaintField depends on the following libraries: Qt 4.8, libfreeimage.
+PaintField requires GCC 4.8+ or Clang 3.2+. MSVC is not supported.
 
 To build PaintField, follow these steps:
 
 	1. Copy or link Malachite[github.com/iofg2100/Malachite] source directory as src/libs/Malachite. Malachite readme file will be placed in src/libs/Malachite.
-	2. Build PaintField.
-
-Now you can start using PaintField!!
-
+	2. Build PaintField (using Qt Creator is the easiest way).
 
 ## - Planned Features -
 
 ### System:
-v	Multi-window editing
+v	Multi-tab editing
 v	Hierarchical layer structure
 v	Customizable key config
 v	Plugin system
@@ -28,6 +25,7 @@ v	Infinite undo/redo
 v	Movable tabs
 v	Multiple views for one document
 v	Multiple workspaces
+	Scripting
 
 ### GUI:
 v	Tool selection panel
