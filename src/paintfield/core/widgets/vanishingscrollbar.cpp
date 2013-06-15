@@ -145,8 +145,10 @@ void VanishingScrollBar::mouseMoveEvent(QMouseEvent *event)
 		else
 			validLen = geometry().height() - 2 * barMargin();
 		
-		double diff = double(scrollPos(event->pos(), orientation()) - _dragStartPos) / double(validLen);
-		setValue(_dragStartValue + diff * (maximum() - minimum() + pageStep()));
+		auto diff = double(scrollPos(event->pos(), orientation()) - _dragStartPos) / double(validLen);
+		auto value = _dragStartValue + diff * (maximum() - minimum() + pageStep());
+		setValue(value);
+		emit sliderMoved(value);
 		
 		event->accept();
 	}

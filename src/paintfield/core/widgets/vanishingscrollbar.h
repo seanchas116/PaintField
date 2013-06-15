@@ -20,7 +20,7 @@ public:
 	
 	constexpr static int barWidth() { return 8; }
 	constexpr static int barMargin() { return 2; }
-	constexpr static int durationWaiting() { return 1000; }
+	constexpr static int durationWaiting() { return 2000; }
 	constexpr static int durationVanishing() { return 200; }
 	constexpr static int totalBarWidth() { return barWidth() + 2 * barMargin(); }
 	
