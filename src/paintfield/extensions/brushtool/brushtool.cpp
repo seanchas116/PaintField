@@ -107,20 +107,6 @@ void BrushTool::beginStroke(const TabletInputData &data)
 	
 	addLayerDelegation(_layer);
 	
-	// discard pressure for the 1st time to reduce overshoot
-	TabletInputData newData = data;
-	//newData.pressure = 0;
-	
-	/*
-	if (_dataPrevSet)
-	{
-		_stroker->moveTo(_dataPrev);
-		_stroker->lineTo(newData);
-	}
-	else
-	{
-		_stroker->moveTo(newData);
-	}*/
 	_stroker->moveTo(data);
 }
 
@@ -136,10 +122,11 @@ void BrushTool::drawStroke(const TabletInputData &data)
 
 void BrushTool::endStroke(const TabletInputData &data)
 {
+	Q_UNUSED(data);
+	
 	if (!isStroking())
 		return;
 	
-	//_stroker->lineTo(data);
 	_stroker->end();
 	
 	updateTiles();
@@ -158,8 +145,6 @@ void BrushTool::endStroke(const TabletInputData &data)
 
 void BrushTool::updateTiles()
 {
-	PAINTFIELD_DEBUG << "updating";
-	
 	if (!_stroker || _stroker->lastEditedKeysWithRects().isEmpty())
 		return;
 	
