@@ -57,12 +57,12 @@
        </property>
        <layout class="QFormLayout" name="formLayout_2">
         <property name="fieldGrowthPolicy">
-         <enum>QFormLayout::FieldsStayAtSizeHint</enum>
+         <enum>QFormLayout::ExpandingFieldsGrow</enum>
         </property>
         <item row="2" column="0">
          <widget class="QLabel" name="qualityLabel">
           <property name="text">
-           <string>Quality:</string>
+           <string>Quality</string>
           </property>
          </widget>
         </item>

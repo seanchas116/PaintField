@@ -193,6 +193,8 @@ SOURCES += \
 RESOURCES += \
     resources/resource-paintfield-core.qrc
 
+TRANSLATIONS += core_ja.ts
+
 #mac {
 #	HEADERS += \
 #		canvasviewportcocoa.h

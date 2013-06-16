@@ -1,4 +1,6 @@
 #include <QTextCodec>
+#include <QDir>
+#include <QTranslator>
 #include "paintfield/core/application.h"
 #include "paintfield/core/appcontroller.h"
 #include "paintfield/core/unittest/autotest.h"
@@ -19,12 +21,22 @@ int main(int argc, char *argv[])
 	Application a(argc, argv);
 	a.setApplicationVersion(DEFINE_STR(PF_VERSION));
 	
+	QDir applicationDir(qApp->applicationDirPath());
+	
 	// Default codec of PaintField source is UTF-8
 	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
 	QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
 	
+	// load translations
+	for (const auto &module : {"core", "extensions", "qt_help", "qt"})
+	{
+		auto translator = new QTranslator();
+		translator->load(QLocale::system(), module, "_", applicationDir.filePath("Translations"), ".qm");
+		a.installTranslator(translator);
+	}
+	
 #ifdef Q_OS_WIN
-	qApp->addLibraryPath(QDir(qApp->applicationDirPath()).filePath("plugins"));
+	qApp->addLibraryPath(applicationDir.filePath("plugins"));
 #endif
 	
 #ifdef PF_TEST

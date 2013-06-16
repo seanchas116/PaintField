@@ -25,7 +25,7 @@ Document *DocumentController::createFromNewDialog()
 	if (dialog.exec() != QDialog::Accepted)
 		return 0;
 	
-	auto layer = std::make_shared<RasterLayer>(tr("Untitled Layer"));
+	auto layer = std::make_shared<RasterLayer>(tr("New Layer"));
 	return new Document(appController()->unduplicatedFileTempName(tr("Untitled")), dialog.documentSize(), {layer});
 }
 

@@ -38,6 +38,8 @@ private:
 
 class BrushToolExtensionFactory : public ExtensionFactory
 {
+	Q_OBJECT
+	
 public:
 	
 	explicit BrushToolExtensionFactory(QObject *parent = 0) : ExtensionFactory(parent) {}

@@ -21,6 +21,8 @@ public slots:
 
 class VectorToolsExtensionFactory : public ExtensionFactory
 {
+	Q_OBJECT
+	
 public:
 	
 	explicit VectorToolsExtensionFactory(QObject *parent = 0) : ExtensionFactory(parent) {}

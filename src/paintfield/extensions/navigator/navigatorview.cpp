@@ -133,7 +133,7 @@ void NavigatorView::createWidgets()
 		checkBoxLayout->setSpacing(12);
 		
 		{
-			auto checkBox = new QCheckBox("Mirror");
+			auto checkBox = new QCheckBox(tr("Mirror"));
 			checkBox->setToolTip(tr("Mirror horizontally"));
 			connect(checkBox, SIGNAL(toggled(bool)), this, SLOT(setMirroringEnabled(bool)));
 			connect(this, SIGNAL(mirroringEnabledChanged(bool)), checkBox, SLOT(setChecked(bool)));
@@ -142,7 +142,7 @@ void NavigatorView::createWidgets()
 		}
 		
 		{
-			auto checkBox = new QCheckBox("Retina Mode");
+			auto checkBox = new QCheckBox(tr("Retina Mode"));
 			checkBox->setToolTip(tr("Display canvas suitablly for Retina display Macs (not suitable for non-Retina displays)"));
 			connect(checkBox, SIGNAL(toggled(bool)), this, SLOT(setRetinaMode(bool)));
 			connect(this, SIGNAL(retinaModeChanged(bool)), checkBox, SLOT(setChecked(bool)));

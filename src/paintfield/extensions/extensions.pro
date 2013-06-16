@@ -78,3 +78,5 @@ SOURCES += aboutdialog/aboutdialog.cpp \
            vectortools/shapesidebar.cpp \
            vectortools/vectortoolsextension.cpp \
     rootextensionfactory.cpp
+
+TRANSLATIONS += extensions_ja.ts
