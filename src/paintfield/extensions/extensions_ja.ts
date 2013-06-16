@@ -25,16 +25,21 @@
     </message>
     <message>
         <location filename="aboutdialog/aboutdialog.ui" line="50"/>
-        <source>Powered by &lt;a href=&quot;http://qt-project.org/&quot;&gt;Qt&lt;/a&gt;, &lt;a href=&quot;http://www.antigrain.com/&quot;&gt;Anti-Grain Geometry&lt;/a&gt;, &lt;a href=&quot;http://www.angusj.com/delphi/clipper.php&quot;&gt;Clipper&lt;/a&gt;, &lt;a href=&quot;http://www.winimage.com/zLibDll/minizip.html&quot;&gt;Minizip&lt;/a&gt;, &lt;a href=&quot;http://freeimage.sourceforge.net/&quot;&gt;FreeImage&lt;/a&gt;, &lt;a href=&quot;http://www.codeproject.com/Articles/20027/JSON-Spirit-A-C-JSON-Parser-Generator-Implemented&quot;&gt;JSON Spirit&lt;/a&gt;.</source>
+        <source>Powered by:</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="aboutdialog/aboutdialog.ui" line="60"/>
+        <location filename="aboutdialog/aboutdialog.ui" line="57"/>
+        <source>&lt;a href=&quot;http://qt-project.org/&quot;&gt;Qt&lt;/a&gt;, &lt;a href=&quot;http://www.antigrain.com/&quot;&gt;Anti-Grain Geometry&lt;/a&gt;, &lt;a href=&quot;http://www.angusj.com/delphi/clipper.php&quot;&gt;Clipper&lt;/a&gt;, &lt;a href=&quot;http://www.winimage.com/zLibDll/minizip.html&quot;&gt;Minizip&lt;/a&gt;, &lt;a href=&quot;http://freeimage.sourceforge.net/&quot;&gt;FreeImage&lt;/a&gt;, &lt;a href=&quot;http://www.codeproject.com/Articles/20027/JSON-Spirit-A-C-JSON-Parser-Generator-Implemented&quot;&gt;JSON Spirit&lt;/a&gt;, &lt;a href=&quot;http://cpplinq.codeplex.com/&quot;&gt;LINQ for C++&lt;/a&gt;.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="aboutdialog/aboutdialog.ui" line="67"/>
         <source>&lt;h2&gt;Copyright&lt;/h2&gt;</source>
         <translation>&lt;h2&gt;著作権&lt;/h2&gt;</translation>
     </message>
     <message>
-        <location filename="aboutdialog/aboutdialog.ui" line="70"/>
+        <location filename="aboutdialog/aboutdialog.ui" line="77"/>
         <source>PaintField
 Copyright (C) 2011-2013 Ryohei Ikegami &lt;iofg2100@gmail.com&gt;
 Licensed under the MIT License.
@@ -446,12 +451,32 @@ Licensed under the MIT License.</source>
         <translation>Retina ディスプレイの Mac に最適な形で表示 (Retinaでないディスプレイには適しません)</translation>
     </message>
     <message>
-        <location filename="navigator/navigatorview.cpp" line="310"/>
+        <location filename="navigator/navigatorview.cpp" line="157"/>
+        <source>&lt;b&gt;Space + Drag&lt;/b&gt; to translate</source>
+        <translation>&lt;b&gt;Space + ドラッグ&lt;/b&gt; で平行移動</translation>
+    </message>
+    <message>
+        <location filename="navigator/navigatorview.cpp" line="163"/>
+        <source>&lt;b&gt;Option + Drag&lt;/b&gt; to scale</source>
+        <translation>&lt;b&gt;Option + ドラッグ&lt;/b&gt; で拡大縮小</translation>
+    </message>
+    <message>
+        <location filename="navigator/navigatorview.cpp" line="165"/>
+        <source>&lt;b&gt;Control + Drag&lt;/b&gt; to scale</source>
+        <translation>&lt;b&gt;Control + ドラッグ&lt;/b&gt; で拡大縮小</translation>
+    </message>
+    <message>
+        <location filename="navigator/navigatorview.cpp" line="171"/>
+        <source>&lt;b&gt;Shift + Drag&lt;/b&gt; to rotate</source>
+        <translation>&lt;b&gt;Shift + ドラッグ&lt;/b&gt; で回転</translation>
+    </message>
+    <message>
+        <location filename="navigator/navigatorview.cpp" line="329"/>
         <source>x:</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="navigator/navigatorview.cpp" line="329"/>
+        <location filename="navigator/navigatorview.cpp" line="348"/>
         <source>y:</source>
         <translation></translation>
     </message>

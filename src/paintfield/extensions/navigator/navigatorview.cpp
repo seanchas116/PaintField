@@ -153,6 +153,25 @@ void NavigatorView::createWidgets()
 		mainLayout->addLayout(checkBoxLayout);
 	}
 	
+	{
+		auto label = new QLabel(tr("<b>Space + Drag</b> to translate"));
+		mainLayout->addWidget(label);
+	}
+	
+	{
+#ifdef Q_OS_MAC
+		auto label = new QLabel(tr("<b>Option + Drag</b> to scale"));
+#else
+		auto label = new QLabel(tr("<b>Control + Drag</b> to scale"));
+#endif
+		mainLayout->addWidget(label);
+	}
+	
+	{
+		auto label = new QLabel(tr("<b>Shift + Drag</b> to rotate"));
+		mainLayout->addWidget(label);
+	}
+	
 	mainLayout->addStretch(1);
 	
 	setLayout(mainLayout);
