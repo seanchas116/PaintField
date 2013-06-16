@@ -10,6 +10,8 @@ LIBS += -lpaintfield-extensions
 VERSION = $$PF_VERSION
 DEFINES += "PF_VERSION=$$PF_VERSION"
 
+QMAKE_LFLAGS += '-Wl,-rpath,\'\$$ORIGIN\'' 
+
 SOURCES += main.cpp
 
 RESOURCES +=
