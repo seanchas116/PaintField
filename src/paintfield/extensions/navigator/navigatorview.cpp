@@ -6,6 +6,8 @@
 
 #include <Malachite/Division>
 #include <Malachite/Affine2D>
+#include "paintfield/core/appcontroller.h"
+#include "paintfield/core/settingsmanager.h"
 #include "paintfield/core/widgets/simplebutton.h"
 #include "paintfield/core/widgets/doubleslider.h"
 #include "paintfield/core/widgets/loosespinbox.h"
@@ -153,23 +155,30 @@ void NavigatorView::createWidgets()
 		mainLayout->addLayout(checkBoxLayout);
 	}
 	
+	// key binding descriptions
 	{
-		auto label = new QLabel(tr("<b>Space + Drag</b> to translate"));
-		mainLayout->addWidget(label);
-	}
-	
-	{
-#ifdef Q_OS_MAC
-		auto label = new QLabel(tr("<b>Option + Drag</b> to scale"));
-#else
-		auto label = new QLabel(tr("<b>Control + Drag</b> to scale"));
-#endif
-		mainLayout->addWidget(label);
-	}
-	
-	{
-		auto label = new QLabel(tr("<b>Shift + Drag</b> to rotate"));
-		mainLayout->addWidget(label);
+		auto bindingMap = appController()->settingsManager()->value({".key-bindings"}).toMap();
+		
+		auto translationKeys = bindingMap["paintfield.canvas.dragTranslation"].toString();
+		auto scaleKeys = bindingMap["paintfield.canvas.dragScale"].toString();
+		auto rotationKeys = bindingMap["paintfield.canvas.dragRotation"].toString();
+		
+		auto dragText = tr("Drag");
+		
+		{
+			auto label = new QLabel("<b>" + translationKeys + "+" + dragText + "</b> " +  tr("to translate"));
+			mainLayout->addWidget(label);
+		}
+		
+		{
+			auto label = new QLabel("<b>" + scaleKeys + "+" + dragText + "</b> " +  tr("to scale"));
+			mainLayout->addWidget(label);
+		}
+		
+		{
+			auto label = new QLabel("<b>" + rotationKeys + "+" + dragText + "</b> " +  tr("to rotate"));
+			mainLayout->addWidget(label);
+		}
 	}
 	
 	mainLayout->addStretch(1);

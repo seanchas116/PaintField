@@ -431,52 +431,68 @@ Licensed under the MIT License.</source>
 <context>
     <name>PaintField::NavigatorView</name>
     <message>
-        <location filename="navigator/navigatorview.cpp" line="136"/>
+        <location filename="navigator/navigatorview.cpp" line="138"/>
         <source>Mirror</source>
         <translation>反転</translation>
     </message>
     <message>
-        <location filename="navigator/navigatorview.cpp" line="137"/>
+        <location filename="navigator/navigatorview.cpp" line="139"/>
         <source>Mirror horizontally</source>
         <translation>水平に反転</translation>
     </message>
     <message>
-        <location filename="navigator/navigatorview.cpp" line="145"/>
+        <location filename="navigator/navigatorview.cpp" line="147"/>
         <source>Retina Mode</source>
         <translation>Retina モード</translation>
     </message>
     <message>
-        <location filename="navigator/navigatorview.cpp" line="146"/>
+        <location filename="navigator/navigatorview.cpp" line="148"/>
         <source>Display canvas suitablly for Retina display Macs (not suitable for non-Retina displays)</source>
         <translation>Retina ディスプレイの Mac に最適な形で表示 (Retinaでないディスプレイには適しません)</translation>
     </message>
     <message>
-        <location filename="navigator/navigatorview.cpp" line="157"/>
-        <source>&lt;b&gt;Space + Drag&lt;/b&gt; to translate</source>
-        <translation>&lt;b&gt;Space + ドラッグ&lt;/b&gt; で平行移動</translation>
-    </message>
-    <message>
-        <location filename="navigator/navigatorview.cpp" line="163"/>
-        <source>&lt;b&gt;Option + Drag&lt;/b&gt; to scale</source>
-        <translation>&lt;b&gt;Option + ドラッグ&lt;/b&gt; で拡大縮小</translation>
-    </message>
-    <message>
         <location filename="navigator/navigatorview.cpp" line="165"/>
+        <source>Drag</source>
+        <translation>ドラッグ</translation>
+    </message>
+    <message>
+        <location filename="navigator/navigatorview.cpp" line="168"/>
+        <source>to translate</source>
+        <translation>で平行移動</translation>
+    </message>
+    <message>
+        <location filename="navigator/navigatorview.cpp" line="173"/>
+        <source>to scale</source>
+        <translation>で拡大縮小</translation>
+    </message>
+    <message>
+        <location filename="navigator/navigatorview.cpp" line="178"/>
+        <source>to rotate</source>
+        <translation>で回転</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Space + Drag&lt;/b&gt; to translate</source>
+        <translation type="obsolete">&lt;b&gt;Space + ドラッグ&lt;/b&gt; で平行移動</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Option + Drag&lt;/b&gt; to scale</source>
+        <translation type="obsolete">&lt;b&gt;Option + ドラッグ&lt;/b&gt; で拡大縮小</translation>
+    </message>
+    <message>
         <source>&lt;b&gt;Control + Drag&lt;/b&gt; to scale</source>
-        <translation>&lt;b&gt;Control + ドラッグ&lt;/b&gt; で拡大縮小</translation>
+        <translation type="obsolete">&lt;b&gt;Control + ドラッグ&lt;/b&gt; で拡大縮小</translation>
     </message>
     <message>
-        <location filename="navigator/navigatorview.cpp" line="171"/>
         <source>&lt;b&gt;Shift + Drag&lt;/b&gt; to rotate</source>
-        <translation>&lt;b&gt;Shift + ドラッグ&lt;/b&gt; で回転</translation>
+        <translation type="obsolete">&lt;b&gt;Shift + ドラッグ&lt;/b&gt; で回転</translation>
     </message>
     <message>
-        <location filename="navigator/navigatorview.cpp" line="329"/>
+        <location filename="navigator/navigatorview.cpp" line="339"/>
         <source>x:</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="navigator/navigatorview.cpp" line="348"/>
+        <location filename="navigator/navigatorview.cpp" line="358"/>
         <source>y:</source>
         <translation></translation>
     </message>
