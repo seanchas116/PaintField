@@ -65,14 +65,6 @@ if platform == :mac
   `cp #{out_pwd_root}/src/paintfield/extensions/lib*.1.dylib #{destination_frameworks}`
 end
 
-# copy paintfield-launch.sh (other than Mac)
-
-if platform == :unix
-  FileUtils.rm_f(out_pwd_app + "paintfield-launch.sh")
-  FileUtils.cp(in_pwd_app + "paintfield-launch.sh", out_pwd_app)
-  `chmod +x #{out_pwd_app}/paintfield-launch.sh`
-end
-
 # copy contents, settings, extensions
 
 FileUtils.rm_rf(destination + "Contents")
