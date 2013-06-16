@@ -154,6 +154,8 @@ CanvasViewController::CanvasViewController(Canvas *canvas) :
 			
 			connect(d->scrollBarX, SIGNAL(sliderMoved(int)), this, SLOT(onScrollBarXChanged(int)));
 			connect(d->scrollBarY, SIGNAL(sliderMoved(int)), this, SLOT(onScrollBarYChanged(int)));
+			connect(d->scrollBarX, SIGNAL(valueChanged(int)), d->scrollBarY, SLOT(wakeUp()));
+			connect(d->scrollBarY, SIGNAL(valueChanged(int)), d->scrollBarX, SLOT(wakeUp()));
 			
 #ifdef PF_CANVAS_VIEWPORT_COCOA
 			d->scrollBarX->setAttribute(Qt::WA_NativeWindow);
