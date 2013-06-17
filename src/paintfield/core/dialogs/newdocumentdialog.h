@@ -1,11 +1,6 @@
-#ifndef FSNEWDOCUMENTDIALOG_H
-#define FSNEWDOCUMENTDIALOG_H
+#pragma once
 
 #include <QDialog>
-
-namespace Ui {
-	class PaintField_NewDocumentDialog;
-}
 
 namespace PaintField
 {
@@ -20,10 +15,18 @@ public:
 	
 	QSize documentSize() const;
 	
+public slots:
+	
+	void onWidthChanged(int w);
+	void onHeightChanged(int h);
+	
 private:
-	Ui::PaintField_NewDocumentDialog *ui;
+	
+	void setProportion();
+	
+	struct Data;
+	Data *d;
 };
 
 }
 
-#endif // FSNEWDOCUMENTDIALOG_H

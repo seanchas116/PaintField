@@ -294,6 +294,29 @@
     </message>
 </context>
 <context>
+    <name>PaintField::NewDocumentDialog</name>
+    <message>
+        <location filename="dialogs/newdocumentdialog.cpp" line="26"/>
+        <source>New Document</source>
+        <translation>新規書類</translation>
+    </message>
+    <message>
+        <location filename="dialogs/newdocumentdialog.cpp" line="37"/>
+        <source>Width</source>
+        <translation>幅</translation>
+    </message>
+    <message>
+        <location filename="dialogs/newdocumentdialog.cpp" line="42"/>
+        <source>Height</source>
+        <translation>高さ</translation>
+    </message>
+    <message>
+        <location filename="dialogs/newdocumentdialog.cpp" line="45"/>
+        <source>Keep Aspect Ratio</source>
+        <translation>縦横比を保持</translation>
+    </message>
+</context>
+<context>
     <name>PaintField_ExportDialog</name>
     <message>
         <location filename="dialogs/exportdialog.ui" line="20"/>
@@ -315,21 +338,18 @@
 <context>
     <name>PaintField_NewDocumentDialog</name>
     <message>
-        <location filename="dialogs/newdocumentdialog.ui" line="20"/>
         <source>New Document</source>
-        <translation>新規書類</translation>
+        <translation type="obsolete">新規書類</translation>
     </message>
     <message>
-        <location filename="dialogs/newdocumentdialog.ui" line="37"/>
         <source>WIdth</source>
         <oldsource>WIdth:</oldsource>
-        <translation>幅</translation>
+        <translation type="obsolete">幅</translation>
     </message>
     <message>
-        <location filename="dialogs/newdocumentdialog.ui" line="44"/>
         <source>Height</source>
         <oldsource>Height:</oldsource>
-        <translation>高さ</translation>
+        <translation type="obsolete">高さ</translation>
     </message>
 </context>
 </TS>

@@ -105,7 +105,7 @@ HEADERS += \
     canvasviewportsurface.h \
     canvasviewportstate.h
 
-FORMS += dialogs/exportdialog.ui dialogs/newdocumentdialog.ui
+FORMS += dialogs/exportdialog.ui
 SOURCES += \
            document.cpp \
            documentio.cpp \
