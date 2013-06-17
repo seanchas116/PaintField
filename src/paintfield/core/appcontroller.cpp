@@ -150,6 +150,9 @@ Canvas *AppController::findCanvasWithFilepath(const QString &filepath)
 
 void AppController::openFile(const QString &path)
 {
+	if (path.isEmpty())
+		return;
+	
 	auto canvas = findCanvasWithFilepath(path);
 	
 	if (canvas)
