@@ -53,9 +53,9 @@ CanvasUpdateManager::CanvasUpdateManager(QObject *parent) :
 
 CanvasUpdateManager::~CanvasUpdateManager()
 {
-	delete d->timer;
 	d->thread->quit();
 	d->thread->wait();
+	delete d->timer;
 	delete d;
 }
 
