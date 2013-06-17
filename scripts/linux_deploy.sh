@@ -12,6 +12,7 @@ mkdir $DEST
 cp $SRC/src/paintfield/app/PaintField $DEST
 cp -r $SRC/src/paintfield/app/Settings $DEST
 cp -r $SRC/src/paintfield/app/Contents $DEST
+cp -r $SRC/src/paintfield/app/Translations $DEST
 cp $SRC/src/libs/Malachite/src/lib*.so.1 $DEST
 cp $SRC/src/libs/minizip/lib*.so.1 $DEST
 cp $SRC/src/libs/qtsingleapplication/lib*.so.1 $DEST
