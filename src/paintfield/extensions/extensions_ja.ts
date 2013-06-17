@@ -451,22 +451,22 @@ Licensed under the MIT License.</source>
         <translation>Retina ディスプレイの Mac に最適な形で表示 (Retinaでないディスプレイには適しません)</translation>
     </message>
     <message>
-        <location filename="navigator/navigatorview.cpp" line="165"/>
+        <location filename="navigator/navigatorview.cpp" line="166"/>
         <source>Drag</source>
         <translation>ドラッグ</translation>
     </message>
     <message>
-        <location filename="navigator/navigatorview.cpp" line="168"/>
+        <location filename="navigator/navigatorview.cpp" line="169"/>
         <source>to translate</source>
         <translation>で平行移動</translation>
     </message>
     <message>
-        <location filename="navigator/navigatorview.cpp" line="173"/>
+        <location filename="navigator/navigatorview.cpp" line="174"/>
         <source>to scale</source>
         <translation>で拡大縮小</translation>
     </message>
     <message>
-        <location filename="navigator/navigatorview.cpp" line="178"/>
+        <location filename="navigator/navigatorview.cpp" line="179"/>
         <source>to rotate</source>
         <translation>で回転</translation>
     </message>
@@ -487,12 +487,12 @@ Licensed under the MIT License.</source>
         <translation type="obsolete">&lt;b&gt;Shift + ドラッグ&lt;/b&gt; で回転</translation>
     </message>
     <message>
-        <location filename="navigator/navigatorview.cpp" line="339"/>
+        <location filename="navigator/navigatorview.cpp" line="338"/>
         <source>x:</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="navigator/navigatorview.cpp" line="358"/>
+        <location filename="navigator/navigatorview.cpp" line="357"/>
         <source>y:</source>
         <translation></translation>
     </message>
@@ -534,6 +534,11 @@ Licensed under the MIT License.</source>
 <context>
     <name>PaintField::ShapeSideBar</name>
     <message>
+        <location filename="vectortools/shapesidebar.cpp" line="74"/>
+        <source>RECTANGLE</source>
+        <translation>長方形</translation>
+    </message>
+    <message>
         <location filename="vectortools/shapesidebar.cpp" line="106"/>
         <source>Position</source>
         <translation>位置</translation>
@@ -542,6 +547,11 @@ Licensed under the MIT License.</source>
         <location filename="vectortools/shapesidebar.cpp" line="126"/>
         <source>Size</source>
         <translation>サイズ</translation>
+    </message>
+    <message>
+        <location filename="vectortools/shapesidebar.cpp" line="132"/>
+        <source>TEXT</source>
+        <translation>テキスト</translation>
     </message>
     <message>
         <location filename="vectortools/shapesidebar.cpp" line="143"/>

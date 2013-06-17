@@ -71,7 +71,7 @@ ShapeSideBar::ShapeSideBar(LayerScene *scene, QWidget *parent) :
 	
 	{
 		{
-			auto label = new QLabel("RECTANGLE");
+			auto label = new QLabel(tr("RECTANGLE"));
 			label->setFont(boldFont);
 			d->rectGroup->addWidget(label);
 			layout->addRow(label);
@@ -129,7 +129,7 @@ ShapeSideBar::ShapeSideBar(LayerScene *scene, QWidget *parent) :
 	
 	{
 		{
-			auto label = new QLabel("TEXT");
+			auto label = new QLabel(tr("TEXT"));
 			label->setFont(boldFont);
 			d->textGroup->addWidget(label);
 			layout->addRow(label);
