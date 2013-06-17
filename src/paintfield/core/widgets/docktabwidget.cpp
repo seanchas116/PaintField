@@ -268,6 +268,8 @@ void DockTabBar::dragDropTab(int index, const QPoint &globalPos, const QPoint &d
 		widget = widget->parentWidget();
 	}
 	
+	// dropping outside tab widget is temporarily disabled
+	/*
 	int dstIndex = 0;
 	auto dstTabWidget = d->tabWidget->createNewTabWidget();
 	QRect dstGeom = d->tabWidget->geometry();
@@ -279,6 +281,7 @@ void DockTabBar::dragDropTab(int index, const QPoint &globalPos, const QPoint &d
 	
 	if (!d->tabWidget->moveTab(index, dstTabWidget, dstIndex))
 		dstTabWidget->deleteLater();
+	*/
 }
 
 bool DockTabBar::dropDockTab(DockTabWidget *srcTabWidget, int srcIndex, const QPoint &pos)
