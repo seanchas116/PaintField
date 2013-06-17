@@ -45,8 +45,8 @@ NewDocumentDialog::NewDocumentDialog(QWidget *parent) :
 		d->keepRatioCheck = new QCheckBox(tr("Keep Aspect Ratio"));
 		layout->addRow(d->keepRatioCheck);
 		
-		d->widthSpin->setValue(1600);
-		d->heightSpin->setValue(1200);
+		d->widthSpin->setValue(1024);
+		d->heightSpin->setValue(1024);
 		d->keepRatioCheck->setChecked(false);
 		
 		setProportion();
