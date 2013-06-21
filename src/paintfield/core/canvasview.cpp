@@ -417,6 +417,27 @@ bool CanvasViewController::eventFilter(QObject *watched, QEvent *event)
 	
 	switch ((int)event->type())
 	{
+		case QEvent::TabletPress:
+		case QEvent::MouseButtonPress:
+		case EventWidgetTabletPress:
+		{
+			d->canvas->document()->layerScene()->abortThumbnailUpdate();
+			d->canvas->disableUndoRedo();
+			break;
+		}
+		case QEvent::TabletRelease:
+		case QEvent::MouseButtonRelease:
+		case EventWidgetTabletRelease:
+		{
+			d->canvas->enableUndoRedo();
+			break;
+		}
+		default:
+			break;
+	}
+	
+	switch ((int)event->type())
+	{
 		case QEvent::KeyPress:
 		case QEvent::KeyRelease:
 			

@@ -64,7 +64,7 @@ void CanvasViewportController::beginUpdateTile(int tileCount)
 	d->rects.reserve(tileCount);
 	d->tileCount = tileCount;
 	d->rectToBeRepainted = QRect();
-	PAINTFIELD_DEBUG << tileCount;
+	//PAINTFIELD_DEBUG << tileCount;
 }
 
 void CanvasViewportController::updateTile(const QPoint &tileKey, const Malachite::Image &image, const QPoint &offset)

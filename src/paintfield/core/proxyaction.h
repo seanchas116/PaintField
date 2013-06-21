@@ -15,6 +15,9 @@ public:
 	void setBackendAction(QAction *action);
 	QAction *backendAction() { return _backendAction; }
 	
+	void setCanBeEnabled(bool enabled);
+	bool canBeEnabled() const { return _canBeEnabled; }
+	
 private slots:
 	
 	void onBackendActionChanged();
@@ -22,6 +25,7 @@ private slots:
 private:
 	
 	QPointer<QAction> _backendAction = 0;
+	bool _canBeEnabled = true;
 };
 
 } // namespace PaintField

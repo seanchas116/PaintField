@@ -18,6 +18,8 @@
 #include "appcontroller.h"
 #include "documentreferencemanager.h"
 #include "layeritemmodel.h"
+#include "proxyaction.h"
+#include "layerscene.h"
 
 #include "dialogs/messagebox.h"
 
@@ -48,6 +50,9 @@ struct Canvas::Data
 	std::shared_ptr<CanvasTransforms> transforms;
 	
 	QScopedPointer<Tool> tool;
+	
+	ProxyAction *undoAction = 0;
+	ProxyAction *redoAction = 0;
 };
 
 Canvas::Canvas(Document *document, Workspace *parent) :
@@ -104,13 +109,19 @@ void Canvas::commonInit()
 	d->actions << Util::createAction("paintfield.file.close", this, SLOT(closeCanvas()));
 	d->actions << Util::createAction("paintfield.file.newCanvasIntoDocument", this, SLOT(newCanvasIntoDocument()));
 	
-	auto undoAction  = d->document->undoStack()->createUndoAction(this);
+	auto trueUndoAction  = d->document->undoStack()->createUndoAction(this);
+	auto undoAction = new ProxyAction(this);
+	undoAction->setBackendAction(trueUndoAction);
 	undoAction->setObjectName("paintfield.edit.undo");
 	d->actions << undoAction;
+	d->undoAction = undoAction;
 	
-	auto redoAction = d->document->undoStack()->createRedoAction(this);
+	auto trueRedoAction = d->document->undoStack()->createRedoAction(this);
+	auto redoAction = new ProxyAction(this);
+	redoAction->setBackendAction(trueRedoAction);
 	redoAction->setObjectName("paintfield.edit.redo");
 	d->actions << redoAction;
+	d->redoAction = redoAction;
 	
 	addExtensions(appController()->extensionManager()->createCanvasExtensions(this, this));
 	
@@ -304,6 +315,18 @@ void Canvas::onToolChanged(const QString &name)
 	auto tool = ExtensionUtil::createTool(appController()->extensions(), workspace()->extensions(), extensions(), name, this);
 	d->tool.reset(tool);
 	emit toolChanged(tool);
+}
+
+void Canvas::disableUndoRedo()
+{
+	d->undoAction->setCanBeEnabled(false);
+	d->redoAction->setCanBeEnabled(false);
+}
+
+void Canvas::enableUndoRedo()
+{
+	d->undoAction->setCanBeEnabled(true);
+	d->redoAction->setCanBeEnabled(true);
 }
 
 bool Canvas::closeCanvas()

@@ -27,12 +27,16 @@ public:
 signals:
 	
 	void colorChanged(const Malachite::Color &c);
+	void colorEditingFinished(const Malachite::Color &c);
 	
 public slots:
 	
 	void setColor(const Malachite::Color &c);
+	void finishEditingColor();
 	void copyColor();
 	void pasteColor();
+	void undo();
+	void redo();
 	
 protected:
 	

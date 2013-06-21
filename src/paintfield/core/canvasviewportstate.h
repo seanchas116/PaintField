@@ -85,15 +85,21 @@ void drawViewport(const QRect &windowRepaintRect, CanvasViewportState *state, co
 	
 	auto cropSurface = [&](const QRect &rect)
 	{
+		PAINTFIELD_DEBUG << state->cacheRect << rect;
 		if (state->cacheAvailable && state->cacheRect == rect)
+		{
+			PAINTFIELD_DEBUG << "cached";
 			return state->cacheImage;
+		}
 		else
+		{
 			return surface.crop(rect);
+		}
 	};
 	
 	if (state->translationOnly) // easy, view is only translated
 	{
-		PAINTFIELD_DEBUG << "translation only";
+		//PAINTFIELD_DEBUG << "translation only";
 		
 		auto drawInViewRect = [&](const QRect &viewRect)
 		{
@@ -109,7 +115,7 @@ void drawViewport(const QRect &windowRepaintRect, CanvasViewportState *state, co
 	}
 	else
 	{
-		PAINTFIELD_DEBUG << "transformed";
+		//PAINTFIELD_DEBUG << "transformed";
 		
 		auto drawInViewRect = [&](const QRect &viewRect)
 		{

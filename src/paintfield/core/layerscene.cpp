@@ -880,6 +880,7 @@ void LayerScene::abortThumbnailUpdate()
 
 void LayerScene::update()
 {
+	PAINTFIELD_DEBUG << d->updatedKeys;
 	emit tilesUpdated(d->updatedKeys);
 	d->thumbnailUpdateTimer->start();
 	d->updatedKeys.clear();

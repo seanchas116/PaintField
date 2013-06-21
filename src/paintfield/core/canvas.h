@@ -149,6 +149,9 @@ public:
 	 */
 	Tool *tool();
 	
+	void disableUndoRedo();
+	void enableUndoRedo();
+	
 signals:
 	
 	void documentPropertyChanged();

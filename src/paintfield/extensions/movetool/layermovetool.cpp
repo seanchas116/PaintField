@@ -41,7 +41,6 @@ void LayerMoveTool::tabletPressEvent(CanvasTabletEvent *event)
 	_layer = currentLayer();
 	if (_layer && _layer->isType<RasterLayer>() && !_layer->isLocked())
 	{
-		canvas()->document()->layerScene()->abortThumbnailUpdate();
 		_layerIsDragged = true;
 		addLayerDelegation(_layer);
 		_dragStartPoint = event->data.pos.toQPoint();
@@ -57,7 +56,7 @@ void LayerMoveTool::tabletReleaseEvent(CanvasTabletEvent *event)
 		_offset = event->data.pos.toQPoint() - _dragStartPoint;
 		_layerIsDragged = false;
 		clearLayerDelegation();
-		canvas()->document()->layerScene()->editLayer(currentLayer(), new LayerMoveEdit(_offset), tr("Layer Move"));
+		canvas()->document()->layerScene()->editLayer(_layer, new LayerMoveEdit(_offset), tr("Layer Move"));
 	}
 }
 

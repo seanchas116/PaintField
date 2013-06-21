@@ -4,6 +4,7 @@
 #include <QClipboard>
 #include <QMenu>
 #include <QContextMenuEvent>
+#include <QStack>
 #include <stdexcept>
 
 #include "colorbutton.h"
@@ -70,6 +71,11 @@ void ColorButton::setColor(const Color &c)
 	}
 }
 
+void ColorButton::finishEditingColor()
+{
+	emit colorEditingFinished(d->color);
+}
+
 Color ColorButton::color() const
 {
 	return d->color;
@@ -106,6 +112,16 @@ void ColorButton::pasteColor()
 			
 		}
 	}
+}
+
+void ColorButton::redo()
+{
+	
+}
+
+void ColorButton::undo()
+{
+	
 }
 
 void ColorButton::mousePressEvent(QMouseEvent *e)

@@ -8,6 +8,15 @@ ProxyAction::ProxyAction(QObject *parent) :
 	setEnabled(false);
 }
 
+void ProxyAction::setCanBeEnabled(bool enabled)
+{
+	if (_canBeEnabled != enabled)
+	{
+		_canBeEnabled = enabled;
+		onBackendActionChanged();
+	}
+}
+
 void ProxyAction::setBackendAction(QAction *action)
 {
 	if (action == _backendAction)
@@ -43,7 +52,7 @@ void ProxyAction::setBackendAction(QAction *action)
 void ProxyAction::onBackendActionChanged()
 {
 	Q_ASSERT(_backendAction);
-	setEnabled(_backendAction->isEnabled());
+	setEnabled(_backendAction->isEnabled() && _canBeEnabled);
 	
 	if (!_backendAction->text().isEmpty())
 		setText(_backendAction->text());

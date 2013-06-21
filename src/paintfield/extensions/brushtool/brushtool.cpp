@@ -62,18 +62,12 @@ void BrushTool::tabletPressEvent(CanvasTabletEvent *event)
 
 void BrushTool::tabletMoveEvent(CanvasTabletEvent *event)
 {
-	if (event->data.pressure)
-	{
-		if (isStroking())
-			drawStroke(event->data);
-		else
-			beginStroke(event->data);
-	}
-	else
-	{
-		if (isStroking())
-			endStroke(event->data);
-	}
+	PAINTFIELD_DEBUG << "press" << "pressure:" << event->data.pressure;
+	
+	if (event->data.pressure && !isStroking())
+		beginStroke(event->data);
+	else if (isStroking())
+		drawStroke(event->data);
 	
 	setPrevData(event->data);
 	
@@ -82,6 +76,8 @@ void BrushTool::tabletMoveEvent(CanvasTabletEvent *event)
 
 void BrushTool::tabletReleaseEvent(CanvasTabletEvent *event)
 {
+	PAINTFIELD_DEBUG << "release" << "pressure:" << event->data.pressure;
+	endStroke(event->data);
 	event->accept();
 }
 
@@ -94,8 +90,6 @@ void BrushTool::beginStroke(const TabletInputData &data)
 	
 	if (!_layer || _layer->isLocked())
 		return;
-	
-	canvas()->document()->layerScene()->abortThumbnailUpdate();
 	
 	_surface = _layer->surface();
 	
@@ -137,6 +131,7 @@ void BrushTool::endStroke(const TabletInputData &data)
 		canvas()->viewController()->setUpdateTilesEnabled(false);
 		canvas()->document()->layerScene()->editLayer(_layer, new LayerSurfaceEdit(_surface, _stroker->totalEditedKeys()), tr("Brush"));
 		canvas()->viewController()->setUpdateTilesEnabled(true);
+		PAINTFIELD_DEBUG << "ending editing";
 	}
 	
 	_stroker.reset();
