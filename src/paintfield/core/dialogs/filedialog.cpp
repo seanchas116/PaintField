@@ -11,11 +11,6 @@ QString FileDialog::getFilePath(QWidget *parent, const QString &title, Mode mode
 {
 	QString lastDialogPath = appController()->settingsManager()->lastFileDialogPath();
 	
-	if (lastDialogPath.isEmpty())
-	{
-		lastDialogPath = QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation);
-	}
-	
 	QStringList filters;
 	
 	for (auto iter = filterTextToSuffixes.begin(); iter != filterTextToSuffixes.end(); ++iter)
@@ -64,13 +59,8 @@ QString FileDialog::getFilePath(QWidget *parent, const QString &title, Mode mode
 	if (fileDialog.selectedFiles().size() == 0)
 		return QString();
 	
-	QString result = fileDialog.selectedFiles().first();
-	
-	if (!result.isEmpty())
-		lastDialogPath = fileDialog.directory().path();
-	
-	appController()->settingsManager()->setLastFileDialogPath(lastDialogPath);
-	return result;
+	appController()->settingsManager()->setLastFileDialogPath(fileDialog.directory().path());
+	return fileDialog.selectedFiles().first();
 }
 
 QString FileDialog::getFilePath(QWidget *parent, const QString &title, Mode mode, const QString &filterText, const QStringList &filterSuffixes)

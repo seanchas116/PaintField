@@ -52,6 +52,8 @@ SettingsManager::SettingsManager(QObject *parent) :
 	dir.mkdir("PaintField");
 	dir.cd("PaintField");
 	dir.mkdir("Settings");
+	
+	d->lastFileDialogPath = QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation);
 }
 
 SettingsManager::~SettingsManager()
