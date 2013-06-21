@@ -44,6 +44,9 @@ void ProxyAction::onBackendActionChanged()
 {
 	Q_ASSERT(_backendAction);
 	setEnabled(_backendAction->isEnabled());
+	
+	if (!_backendAction->text().isEmpty())
+		setText(_backendAction->text());
 }
 
 } // namespace PaintField
