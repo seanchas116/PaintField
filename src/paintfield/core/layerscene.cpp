@@ -174,6 +174,19 @@ public:
 		change();
 	}
 	
+	int id() const
+	{
+		return _role;
+	}
+	
+	bool mergeWith(const QUndoCommand *cmd)
+	{
+		auto other = dynamic_cast<const LayerScenePropertyChangeCommand *>(cmd);
+		if (!other || other->_path != _path || other->_role != _role)
+			return false;
+		return true;
+	}
+	
 private:
 	
 	void change()
