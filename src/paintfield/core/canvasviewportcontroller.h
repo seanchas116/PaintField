@@ -3,11 +3,11 @@
 #include <QObject>
 #include "canvas.h"
 
-/*
+
 #if defined(Q_OS_MAC) && !defined(PF_FORCE_RASTER_ENGINE)
 #define PF_CANVAS_VIEWPORT_COCOA
 #endif
-*/
+
 
 class QPoint;
 class QSize;

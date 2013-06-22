@@ -195,10 +195,10 @@ RESOURCES += \
 
 TRANSLATIONS += core_ja.ts
 
-#mac {
-#	HEADERS += \
-#		canvasviewportcocoa.h
-#	OBJECTIVE_SOURCES += \
-#		canvasviewportcocoa.mm
-#}
+mac {
+	HEADERS += \
+		canvasviewportcocoa.h
+	OBJECTIVE_SOURCES += \
+		canvasviewportcocoa.mm
+}
 

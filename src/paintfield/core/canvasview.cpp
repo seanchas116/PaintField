@@ -160,6 +160,8 @@ CanvasViewController::CanvasViewController(Canvas *canvas) :
 #ifdef PF_CANVAS_VIEWPORT_COCOA
 			d->scrollBarX->setAttribute(Qt::WA_NativeWindow);
 			d->scrollBarY->setAttribute(Qt::WA_NativeWindow);
+			connect(d->graphicsScene, SIGNAL(changed(QList<QRectF>)), d->scrollBarX, SLOT(update()));
+			connect(d->graphicsScene, SIGNAL(changed(QList<QRectF>)), d->scrollBarY, SLOT(update()));
 #endif
 		}
 	}
@@ -253,6 +255,8 @@ void CanvasViewController::setTool(Tool *tool)
 		{
 			d->graphicsScene->addItem(tool->graphicsItem());
 			d->graphicsView->setVisible(true);
+			d->scrollBarX->raise();
+			d->scrollBarY->raise();
 		}
 		else
 		{
