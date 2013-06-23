@@ -29,9 +29,9 @@ QString DocumentController::getOpenSavedFilePath()
 	return FileDialog::getOpenFilePath(0, tr("Open"), tr("PaintField Document"), {"pfield"});
 }
 
-Document *DocumentController::createFromNewDialog()
+Document *DocumentController::createFromNewDialog(QWidget *dialogParent)
 {
-	NewDocumentDialog dialog;
+	NewDocumentDialog dialog(dialogParent);
 	if (dialog.exec() != QDialog::Accepted)
 		return 0;
 	
@@ -161,9 +161,9 @@ bool DocumentController::save(Document *document)
 	return true;
 }
 
-bool DocumentController::exportToImage(Document *document)
+bool DocumentController::exportToImage(Document *document, QWidget *dialogParent)
 {
-	ExportDialog dialog;
+	ExportDialog dialog(dialogParent);
 	
 	if (!dialog.exec())
 		return false;
@@ -205,7 +205,7 @@ bool DocumentController::save()
 
 bool DocumentController::exportToImage()
 {
-	return exportToImage(_document);
+	return exportToImage(_document, _dialogParent.data());
 }
 
 } // namespace PaintField

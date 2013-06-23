@@ -20,6 +20,7 @@
 #include "layeritemmodel.h"
 #include "proxyaction.h"
 #include "layerscene.h"
+#include "workspaceview.h"
 
 #include "dialogs/messagebox.h"
 
@@ -104,6 +105,8 @@ void Canvas::commonInit()
 		d->actions << Util::createAction("paintfield.file.save", documentController, SLOT(save()));
 		d->actions << Util::createAction("paintfield.file.saveAs", documentController, SLOT(saveAs()));
 		d->actions << Util::createAction("paintfield.file.export", documentController, SLOT(exportToImage()));
+		
+		documentController->setDialogParent(d->workspace->view());
 	}
 	
 	d->actions << Util::createAction("paintfield.file.close", this, SLOT(closeCanvas()));

@@ -157,7 +157,7 @@ void Workspace::addAndShowDocument(Document *document)
 
 void Workspace::newCanvas()
 {
-	addAndShowDocument(DocumentController::createFromNewDialog());
+	addAndShowDocument(DocumentController::createFromNewDialog(view()));
 }
 
 void Workspace::newCanvasFromImageFile()

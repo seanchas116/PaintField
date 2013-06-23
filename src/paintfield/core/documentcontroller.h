@@ -2,6 +2,8 @@
 #define PAINTFIELD_DOCUMENTCONTROLLER_H
 
 #include <QObject>
+#include <QPointer>
+#include <QWidget>
 
 namespace PaintField {
 
@@ -23,7 +25,7 @@ public:
 	 * Shows a dialog and creates a new document.
 	 * @return Null if failed
 	 */
-	static Document *createFromNewDialog();
+	static Document *createFromNewDialog(QWidget *dialogParent);
 	
 	/**
 	 * Creates a document from the clipboard image.
@@ -58,7 +60,9 @@ public:
 	
 	static bool save(Document *document);
 	static bool saveAs(Document *document);
-	static bool exportToImage(Document *document);
+	static bool exportToImage(Document *document, QWidget *dialogParent);
+	
+	void setDialogParent(QWidget *parent) { _dialogParent = parent; }
 	
 signals:
 	
@@ -83,6 +87,7 @@ public slots:
 private:
 	
 	Document *_document = 0;
+	QPointer<QWidget> _dialogParent;
 };
 
 } // namespace PaintField
