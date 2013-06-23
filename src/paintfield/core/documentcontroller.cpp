@@ -19,6 +19,16 @@ using namespace Malachite;
 
 namespace PaintField {
 
+QString DocumentController::getOpenImageFilePath()
+{
+	return FileDialog::getOpenFilePath(0, tr("Open"), tr("Image File"), ImageImporter::importableExtensions());
+}
+
+QString DocumentController::getOpenSavedFilePath()
+{
+	return FileDialog::getOpenFilePath(0, tr("Open"), tr("PaintField Document"), {"pfield"});
+}
+
 Document *DocumentController::createFromNewDialog()
 {
 	NewDocumentDialog dialog;
@@ -27,16 +37,6 @@ Document *DocumentController::createFromNewDialog()
 	
 	auto layer = std::make_shared<RasterLayer>(tr("New Layer"));
 	return new Document(appController()->unduplicatedFileTempName(tr("Untitled")), dialog.documentSize(), {layer});
-}
-
-Document *DocumentController::createFromOpenDialog()
-{
-	QString filePath = FileDialog::getOpenFilePath(0, tr("Open"), tr("PaintField Document"), {"pfield"});
-	
-	if (filePath.isEmpty())	// cancelled
-		return 0;
-	
-	return createFromSavedFile(filePath);
 }
 
 Document *DocumentController::createFromClipboard()
@@ -48,16 +48,6 @@ Document *DocumentController::createFromClipboard()
 	auto layer = RasterLayer::createFromImage(pixmap.toImage());
 	layer->setName(tr("Clipboard"));
 	return new Document(appController()->unduplicatedFileTempName(tr("Clipboard")), pixmap.size(), {layer});
-}
-
-Document *DocumentController::createFromNewFromImageDialog()
-{
-	QString filePath = FileDialog::getOpenFilePath(0, tr("Open"), tr("Image File"), ImageImporter::importableExtensions());
-	
-	if (filePath.isEmpty())
-		return 0;
-	
-	return createFromImageFile(filePath);
 }
 
 Document *DocumentController::createFromFile(const QString &path)

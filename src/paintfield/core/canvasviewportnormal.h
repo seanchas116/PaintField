@@ -61,9 +61,14 @@ public:
 		_viewport->setVisible(visible);
 	}
 	
+	void deleteLater()
+	{
+		_viewport->deleteLater();
+	}
+	
 private:
 	
-	QScopedPointer<CanvasViewportNormal> _viewport;
+	CanvasViewportNormal *_viewport;
 };
 
 } // namespace PaintField

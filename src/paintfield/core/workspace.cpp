@@ -162,7 +162,7 @@ void Workspace::newCanvas()
 
 void Workspace::newCanvasFromImageFile()
 {
-	addAndShowDocument(DocumentController::createFromNewFromImageDialog());
+	openCanvasFromFilepath(DocumentController::getOpenImageFilePath());
 }
 
 void Workspace::newCanvasFromClipboard()
@@ -172,12 +172,30 @@ void Workspace::newCanvasFromClipboard()
 
 void Workspace::openCanvas()
 {
-	addAndShowDocument(DocumentController::createFromOpenDialog());
+	openCanvasFromFilepath(DocumentController::getOpenSavedFilePath());
 }
 
 void Workspace::openCanvasFromFilepath(const QString &filepath)
 {
-	addAndShowDocument(DocumentController::createFromFile(filepath));
+	if (filepath.isEmpty())
+		return;
+	
+	auto canvas = appController()->findCanvasWithFilepath(filepath);
+	if (canvas)
+	{
+		if (d->canvases.contains(canvas))
+		{
+			setCurrentCanvas(canvas);
+		}
+		else
+		{
+			addAndShowCanvas(new Canvas(canvas, this));
+		}
+	}
+	else
+	{
+		addAndShowDocument(DocumentController::createFromFile(filepath));
+	}
 }
 
 bool Workspace::tryClose()

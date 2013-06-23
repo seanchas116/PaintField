@@ -51,6 +51,7 @@ public:
 	Application *app();
 	
 	Canvas *findCanvasWithFilepath(const QString &filepath);
+	void setCurrentCanvas(Canvas *canvas);
 	
 	static AppController *instance() { return _instance; }
 	

@@ -16,23 +16,14 @@ public:
 		_document(document)
 	{}
 	
+	static QString getOpenSavedFilePath();
+	static QString getOpenImageFilePath();
+	
 	/**
 	 * Shows a dialog and creates a new document.
 	 * @return Null if failed
 	 */
 	static Document *createFromNewDialog();
-	
-	/**
-	 * Shows a file dialog and opens a document.
-	 * @return Null if failed
-	 */
-	static Document *createFromOpenDialog();
-	
-	/**
-	 * Shows a file dialog, opens a image file and creates a document from it.
-	 * @return Null if failed
-	 */
-	static Document *createFromNewFromImageDialog();
 	
 	/**
 	 * Creates a document from the clipboard image.

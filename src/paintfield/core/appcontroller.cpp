@@ -148,6 +148,13 @@ Canvas *AppController::findCanvasWithFilepath(const QString &filepath)
 	return 0;
 }
 
+void AppController::setCurrentCanvas(Canvas *canvas)
+{
+	auto workspace = canvas->workspace();
+	workspaceManager()->setCurrentWorkspace(workspace);
+	workspace->setCurrentCanvas(canvas);
+}
+
 void AppController::openFile(const QString &path)
 {
 	if (path.isEmpty())
@@ -157,9 +164,7 @@ void AppController::openFile(const QString &path)
 	
 	if (canvas)
 	{
-		auto workspace = canvas->workspace();
-		workspaceManager()->setCurrentWorkspace(workspace);
-		workspace->setCurrentCanvas(canvas);
+		setCurrentCanvas(canvas);
 	}
 	else
 	{

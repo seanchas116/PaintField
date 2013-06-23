@@ -47,6 +47,8 @@ public slots:
 	void setDocumentSize(const QSize &size);
 	void update();
 	
+	void deleteViewportLater();
+	
 private:
 	
 	struct Data;

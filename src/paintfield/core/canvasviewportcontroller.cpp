@@ -134,4 +134,9 @@ void CanvasViewportController::update()
 	d->viewportWrapper.update();
 }
 
+void CanvasViewportController::deleteViewportLater()
+{
+	d->viewportWrapper.deleteLater();
+}
+
 } // namespace PaintField

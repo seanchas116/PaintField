@@ -130,13 +130,14 @@ CanvasViewController::CanvasViewController(Canvas *canvas) :
 	
 	// setup views
 	{
-		d->view = new CanvasView(canvas);
-		d->view->setMouseTracking(true);
-		d->view->installEventFilter(this);
-		d->view->setFocusPolicy(Qt::ClickFocus);
-		connect(canvas, SIGNAL(shouldBeDeleted(Canvas*)), d->view, SLOT(deleteLater()));
+		auto view = new CanvasView(canvas);
+		d->view = view;
+		view->setMouseTracking(true);
+		view->installEventFilter(this);
+		view->setFocusPolicy(Qt::ClickFocus);
+		connect(canvas, SIGNAL(shouldBeDeleted(Canvas*)), view, SLOT(deleteLater()));
 		
-		d->graphicsView = new QGraphicsView(d->view);
+		d->graphicsView = new QGraphicsView(view);
 		d->graphicsView->viewport()->installEventFilter(this);
 		d->graphicsView->setStyleSheet("QGraphicsView { border-style: none; background: transparent; }");
 		d->graphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -151,8 +152,8 @@ CanvasViewController::CanvasViewController(Canvas *canvas) :
 		
 		// setup scrollbars
 		{
-			d->scrollBarX = new VanishingScrollBar(Qt::Horizontal, d->view);
-			d->scrollBarY = new VanishingScrollBar(Qt::Vertical, d->view);
+			d->scrollBarX = new VanishingScrollBar(Qt::Horizontal, view);
+			d->scrollBarY = new VanishingScrollBar(Qt::Vertical, view);
 			
 			connect(d->scrollBarX, SIGNAL(sliderMoved(int)), this, SLOT(onScrollBarXChanged(int)));
 			connect(d->scrollBarY, SIGNAL(sliderMoved(int)), this, SLOT(onScrollBarYChanged(int)));
@@ -178,6 +179,7 @@ CanvasViewController::CanvasViewController(Canvas *canvas) :
 		vp->setTransforms(canvas->transforms());
 		vp->setRetinaMode(canvas->isRetinaMode());
 		vp->setDocumentSize(canvas->document()->size());
+		connect(canvas, SIGNAL(shouldBeDeleted(Canvas*)), vp, SLOT(deleteViewportLater()));
 	}
 	
 	moveWidgets();
@@ -197,6 +199,7 @@ CanvasViewController::CanvasViewController(Canvas *canvas) :
 		connect(canvas, SIGNAL(retinaModeChanged(bool)), this, SLOT(onRetinaModeChanged(bool)));
 		
 		connect(canvas, SIGNAL(shouldBeDeleted(Canvas*)), this, SLOT(onCanvasWillBeDeleted()));
+		connect(canvas, SIGNAL(shouldBeDeleted(Canvas*)), this, SLOT(deleteLater()));
 	}
 	
 	connect(canvas->document()->layerScene(), SIGNAL(tilesUpdated(QPointSet)), this, SLOT(updateTiles(QPointSet)));
