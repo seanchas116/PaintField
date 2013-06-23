@@ -21,9 +21,13 @@ using namespace Malachite;
 namespace PaintField {
 
 BrushTool::BrushTool(Canvas *parent) :
-	Tool(parent)
+	Tool(parent),
+    _commitTimer(new QTimer(this))
 {
 	setCursor(QCursor(QPixmap(":/icons/32x32/tinycursor.png")));
+	_commitTimer->setInterval(200);
+	_commitTimer->setSingleShot(true);
+	connect(_commitTimer, SIGNAL(timeout()), this, SLOT(commitStroke()));
 }
 
 BrushTool::~BrushTool() {}
@@ -64,9 +68,9 @@ void BrushTool::tabletMoveEvent(CanvasTabletEvent *event)
 {
 	PAINTFIELD_DEBUG << "press" << "pressure:" << event->data.pressure;
 	
-	if (event->data.pressure && !isStroking())
+	if (event->data.pressure && !_isStroking)
 		beginStroke(event->data);
-	else if (isStroking())
+	else if (_isStroking)
 		drawStroke(event->data);
 	
 	setPrevData(event->data);
@@ -86,27 +90,39 @@ void BrushTool::beginStroke(const TabletInputData &data)
 	if (!_strokerFactory)
 		return;
 	
-	_layer = std::dynamic_pointer_cast<const RasterLayer>(currentLayer());
+	PAINTFIELD_DEBUG << "begin";
 	
-	if (!_layer || _layer->isLocked())
-		return;
+	_isStroking = true;
+	_commitTimer->stop();
 	
-	_surface = _layer->surface();
-	
-	_stroker.reset(_strokerFactory->createStroker(&_surface));
-	_stroker->loadSettings(_settings);
-	_stroker->setPixel(_pixel);
-	_stroker->setRadiusBase(double(_brushSize) * 0.5);
-	_stroker->setSmoothed(_smoothEnabled);
-	
-	addLayerDelegation(_layer);
+	if (!_stroker || _layer != currentLayer())
+	{
+		commitStroke();
+		
+		setEditing(true);
+		
+		_layer = std::dynamic_pointer_cast<const RasterLayer>(currentLayer());
+		
+		if (!_layer || _layer->isLocked())
+			return;
+		
+		_surface = _layer->surface();
+		
+		_stroker.reset(_strokerFactory->createStroker(&_surface));
+		_stroker->loadSettings(_settings);
+		_stroker->setPixel(_pixel);
+		_stroker->setRadiusBase(double(_brushSize) * 0.5);
+		_stroker->setSmoothed(_smoothEnabled);
+		
+		addLayerDelegation(_layer);
+	}
 	
 	_stroker->moveTo(data);
 }
 
 void BrushTool::drawStroke(const TabletInputData &data)
 {
-	if (!isStroking())
+	if (!_isStroking)
 		return;
 	
 	_stroker->lineTo(data);
@@ -118,24 +134,35 @@ void BrushTool::endStroke(const TabletInputData &data)
 {
 	Q_UNUSED(data);
 	
-	if (!isStroking())
+	if (!_isStroking)
 		return;
+	
+	PAINTFIELD_DEBUG << "end";
 	
 	_stroker->end();
 	
 	updateTiles();
 	
-	if (_layer && _layer == currentLayer())
-	{
-		_surface.squeeze(_stroker->totalEditedKeys());
-		canvas()->viewController()->setUpdateTilesEnabled(false);
-		canvas()->document()->layerScene()->editLayer(_layer, new LayerSurfaceEdit(_surface, _stroker->totalEditedKeys()), tr("Brush"));
-		canvas()->viewController()->setUpdateTilesEnabled(true);
-		PAINTFIELD_DEBUG << "ending editing";
-	}
+	_isStroking = false;
+	_commitTimer->start();
+}
+
+void BrushTool::commitStroke()
+{
+	if (!_stroker)
+		return;
+	
+	_surface.squeeze(_stroker->totalEditedKeys());
+	
+	canvas()->viewController()->setUpdateTilesEnabled(false);
+	canvas()->document()->layerScene()->editLayer(_layer, new LayerSurfaceEdit(_surface, _stroker->totalEditedKeys()), tr("Brush"));
+	canvas()->viewController()->setUpdateTilesEnabled(true);
 	
 	_stroker.reset();
 	clearLayerDelegation();
+	PAINTFIELD_DEBUG << "commit editing";
+	
+	setEditing(false);
 }
 
 void BrushTool::updateTiles()

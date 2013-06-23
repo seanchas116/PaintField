@@ -37,25 +37,23 @@ public slots:
 	void setBrushSize(int size) { _brushSize = size; }
 	void setSmoothEnabled(bool enabled) { _smoothEnabled = enabled; }
 	
-protected slots:
-	
-	void updateTiles();
-	
 protected:
 	
 	void tabletPressEvent(CanvasTabletEvent *event);
 	void tabletMoveEvent(CanvasTabletEvent *event);
 	void tabletReleaseEvent(CanvasTabletEvent *event);
 	
-	bool canvasEventFilter(QEvent *event);
+private slots:
+	
+	void updateTiles();
+	void commitStroke();
+	
+private:
 	
 	void beginStroke(const TabletInputData &data);
 	void drawStroke(const TabletInputData &data);
 	void endStroke(const TabletInputData &data);
 	
-private:
-	
-	bool isStroking() const { return _stroker; }
 	void setPrevData(const TabletInputData &data);
 	
 	BrushStrokerFactory *_strokerFactory = 0;
@@ -66,10 +64,13 @@ private:
 	bool _smoothEnabled = false;
 	int _brushSize = 5;
 	
+	bool _isStroking = false;
 	TabletInputData _dataPrev;
 	bool _dataPrevSet = false;
 	std::shared_ptr<const RasterLayer> _layer = 0;
 	Malachite::Surface _surface;
+	
+	QTimer *_commitTimer = 0;
 };
 
 }

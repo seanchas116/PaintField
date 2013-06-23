@@ -72,6 +72,8 @@ private slots:
 	void onTransformUpdated();
 	void onRetinaModeChanged(bool retinaMode);
 	
+	void onStrokingOrToolEditingChanged();
+	
 private:
 	
 	void updateTiles(const QPointSet &keys, const QHash<QPoint, QRect> &rects);

@@ -102,6 +102,8 @@ struct CanvasViewController::Data
 	// other
 	bool updateEnabled = true;
 	bool graphicsViewDraggingItem = false;
+	bool stroking = false;
+	bool strokingOrToolEditing = false;
 };
 
 CanvasViewController::CanvasViewController(Canvas *canvas) :
@@ -248,6 +250,8 @@ void CanvasViewController::setTool(Tool *tool)
 	{
 		connect(tool, SIGNAL(requestUpdate(QPointSet)), this, SLOT(updateTiles(QPointSet)));
 		connect(tool, SIGNAL(requestUpdate(QHash<QPoint,QRect>)), this, SLOT(updateTiles(QHash<QPoint,QRect>)));
+		connect(tool, SIGNAL(editingChanged(bool)), this, SLOT(onStrokingOrToolEditingChanged()));
+		onStrokingOrToolEditingChanged();
 		
 		d->toolCursor = tool->cursor();
 		
@@ -331,6 +335,28 @@ void CanvasViewController::onRetinaModeChanged(bool retinaMode)
 	Q_UNUSED(retinaMode);
 	emit viewSizeChanged(viewSize());
 	d->viewportContoller->update();
+}
+
+void CanvasViewController::onStrokingOrToolEditingChanged()
+{
+	if (!d->tool)
+		return;
+	
+	bool strokingOrToolEditing = d->stroking || d->tool->isEditing();
+	
+	if (d->strokingOrToolEditing != strokingOrToolEditing)
+	{
+		if (strokingOrToolEditing)
+		{
+			d->canvas->document()->layerScene()->abortThumbnailUpdate();
+			d->canvas->disableUndoRedo();
+		}
+		else
+		{
+			d->canvas->enableUndoRedo();
+		}
+		d->strokingOrToolEditing = strokingOrToolEditing;
+	}
 }
 
 void CanvasViewController::updateTiles(const QPointSet &keys, const QHash<QPoint, QRect> &rects)
@@ -425,15 +451,16 @@ bool CanvasViewController::eventFilter(QObject *watched, QEvent *event)
 		case QEvent::MouseButtonPress:
 		case EventWidgetTabletPress:
 		{
-			d->canvas->document()->layerScene()->abortThumbnailUpdate();
-			d->canvas->disableUndoRedo();
+			d->stroking = true;
+			onStrokingOrToolEditingChanged();
 			break;
 		}
 		case QEvent::TabletRelease:
 		case QEvent::MouseButtonRelease:
 		case EventWidgetTabletRelease:
 		{
-			d->canvas->enableUndoRedo();
+			d->stroking = false;
+			onStrokingOrToolEditingChanged();
 			break;
 		}
 		default:

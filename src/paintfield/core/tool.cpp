@@ -16,6 +16,8 @@ struct Tool::Data
 	
 	QCursor cursor;
 	QScopedPointer<QGraphicsItem> graphicsItem;
+	
+	bool editing = false;
 };
 
 Tool::Tool(Canvas *parent) :
@@ -32,12 +34,6 @@ Tool::~Tool()
 LayerConstPtr Tool::currentLayer()
 {
 	return canvas()->document()->layerScene()->current();
-}
-
-void Tool::addLayerInsertion(const LayerConstPtr &parent, int index, const LayerPtr &layer)
-{
-	LayerInsertion insertion = { .parent = parent, .index = index, .layer = layer };
-	d->layerInsertions << insertion;
 }
 
 void Tool::clearLayerInsertions()
@@ -85,9 +81,23 @@ void Tool::setGraphicsItem(QGraphicsItem *item)
 	d->graphicsItem.reset(item);
 }
 
+void Tool::setEditing(bool editing)
+{
+	if (d->editing != editing)
+	{
+		d->editing = editing;
+		emit editingChanged(editing);
+	}
+}
+
+bool Tool::isEditing() const
+{
+	return d->editing;
+}
+
 void Tool::toolEvent(QEvent *event)
 {
-    switch((int)event->type())
+	switch((int)event->type())
 	{
 		case QEvent::KeyPress:
 			keyPressEvent(static_cast<QKeyEvent *>(event));
@@ -119,6 +129,12 @@ void Tool::toolEvent(QEvent *event)
 		default:
 			return;
 	}
+}
+
+void Tool::addLayerInsertion(const LayerConstPtr &parent, int index, const LayerPtr &layer)
+{
+	LayerInsertion insertion = { .parent = parent, .index = index, .layer = layer };
+	d->layerInsertions << insertion;
 }
 
 }

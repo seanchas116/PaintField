@@ -97,12 +97,17 @@ public:
 	
 	virtual void toolEvent(QEvent *event);
 	
+	void setEditing(bool editing);
+	bool isEditing() const;
+	
 public slots:
 	
 signals:
 	
 	void requestUpdate(const QPointSet &tiles);
 	void requestUpdate(const QHash<QPoint, QRect> &rects);
+	
+	void editingChanged(bool editing);
 	
 protected:
 	
