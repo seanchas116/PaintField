@@ -92,7 +92,6 @@ void BrushTool::beginStroke(const TabletInputData &data)
 	
 	PAINTFIELD_DEBUG << "begin";
 	
-	_isStroking = true;
 	_commitTimer->stop();
 	
 	if (!_stroker || _layer != currentLayer())
@@ -117,6 +116,7 @@ void BrushTool::beginStroke(const TabletInputData &data)
 		addLayerDelegation(_layer);
 	}
 	
+	_isStroking = true;
 	_stroker->moveTo(data);
 }
 
