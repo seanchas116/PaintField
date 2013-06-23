@@ -14,6 +14,8 @@ BrushStrokerSimpleBrush::BrushStrokerSimpleBrush(Surface *surface) :
 
 void BrushStrokerSimpleBrush::drawFirst(const TabletInputData &data)
 {
+	int maxDabWidth = std::ceil(2 * radiusBase()) + 1;
+	_covers.reset(new PixelVec[maxDabWidth % 4 ? maxDabWidth / 4 + 1 : maxDabWidth / 4]);
 	_carryOver = 1;
 	drawDab(data.pos, data.pressure);
 }
@@ -88,7 +90,7 @@ QRect BrushStrokerSimpleBrush::drawDab(const Vec2D &pos, double pressure)
 	if (pressure <= 0)
 		return QRect();
 	
-	BrushRasterizerFast ras(pos, radiusBase() * pressure, 2);
+	BrushRasterizerFast ras(pos, radiusBase() * pressure, 2, _covers.data());
 	
 	while (ras.hasNextScanline())
 		drawScanline(ras.nextScanline(), surface());

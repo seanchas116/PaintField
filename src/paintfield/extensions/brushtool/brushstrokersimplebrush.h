@@ -31,6 +31,7 @@ private:
 	double _carryOver = 1.0;
 	Malachite::Image *_lastTile = 0;
 	QPoint _lastKey;
+	QScopedArrayPointer<Malachite::PixelVec> _covers;
 };
 
 class BrushStrokerSimpleBrushFactory : public BrushStrokerFactory

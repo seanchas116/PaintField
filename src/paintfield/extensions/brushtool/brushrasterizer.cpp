@@ -72,7 +72,7 @@ BrushScanline BrushRasterizer::nextScanline()
 	return scanline;
 }
 
-BrushRasterizerFast::BrushRasterizerFast(const Vec2D &center, float radius, float aaWidth)
+BrushRasterizerFast::BrushRasterizerFast(const Vec2D &center, float radius, float aaWidth, PixelVec *coverData)
 {
 	_rect = QRectF(center.x() - radius, center.y() - radius, radius * 2.f, radius * 2.f).toAlignedRect();
 	_y = _rect.top();
@@ -106,7 +106,7 @@ BrushRasterizerFast::BrushRasterizerFast(const Vec2D &center, float radius, floa
 	_offsetCenterXs = PixelVec(center.x() - 0.5f);
 	_offsetCenterYs = PixelVec(center.y() - 0.5f);
 	
-	_covers.reset(new PixelVec[_rect.width() / 4 + 1]);
+	_covers = coverData;
 }
 
 inline static PixelVec sseVec4FromInt(int x1, int x2, int x3, int x4)
@@ -142,7 +142,7 @@ BrushScanline BrushRasterizerFast::nextScanline()
 {
 	int x = _rect.left();
 	
-	PixelVec *vp = _covers.data();
+	PixelVec *vp = _covers;
 	
 	BrushScanline scanline;
 	scanline.pos = QPoint(x, _y);
