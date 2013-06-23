@@ -103,10 +103,10 @@ void CanvasTabWidget::insertCanvas(int index, Canvas *canvas)
 	
 	canvas->memorizeNavigation();
 	
+	workspace()->addCanvas(canvas);
 	if (!canvas->viewController())
 		new CanvasViewController(canvas);
 	
-	workspace()->addCanvas(canvas);
 	DockTabWidget::insertTab(index, canvas->view(), canvasTabText(canvas));
 	
 	canvas->restoreNavigation();

@@ -32,6 +32,7 @@ class CanvasViewController : public QObject
 {
 	Q_OBJECT
 public:
+	
 	explicit CanvasViewController(Canvas *canvas);
 	~CanvasViewController();
 	
