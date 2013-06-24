@@ -62,6 +62,8 @@ private:
 	Malachite::Pixel _pixel;
 	double _radiusBase = 10;
 	bool _smoothed = false;
+	
+	Malachite::Polygon _segment;
 };
 
 class BrushStrokerFactory : public QObject

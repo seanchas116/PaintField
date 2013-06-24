@@ -9,7 +9,8 @@ namespace PaintField {
 
 BrushStroker::BrushStroker(Surface *surface) :
 	_surface(surface),
-	_originalSurface(*surface)
+	_originalSurface(*surface),
+    _segment(2)
 {
 	//_smoothed = true;
 }
@@ -64,12 +65,10 @@ void BrushStroker::lineTo(const TabletInputData &data)
 		if (_dataStart.pos == _dataEnd.pos)
 			return;
 		
-		Polygon polygon;
-		polygon.reserve(2);
-		polygon.append(_dataStart.pos);
-		polygon.append(_dataEnd.pos);
+		_segment[0] = _dataStart.pos;
+		_segment[1] = _dataEnd.pos;
 		
-		drawInterval(polygon, _dataStart, _dataEnd);
+		drawInterval(_segment, _dataStart, _dataEnd);
 	}
 }
 

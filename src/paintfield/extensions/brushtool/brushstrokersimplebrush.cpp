@@ -27,11 +27,21 @@ void BrushStrokerSimpleBrush::drawInterval(const Malachite::Polygon &polygon, co
 	if (count < 1)
 		return;
 	
+	if (count == 1)
+	{
+		auto p0 = polygon[0];
+		auto p1 = polygon[1];
+		auto len = (p1 - p0).length();
+		auto pressure = dataStart.pressure;
+		auto pressureNormalized = (dataEnd.pressure - dataStart.pressure) / len;
+		_carryOver = drawSegment(p0, p1, len, pressure, pressureNormalized, _carryOver);
+		return;
+	}
+	
 	double totalLen;
 	QVector<double> lengths = calcLength(polygon, &totalLen);
 	
-	double totalNormalizeFactor = 1.0 / totalLen;
-	double pressureNormalized = (dataEnd.pressure - dataStart.pressure) * totalNormalizeFactor;
+	double pressureNormalized = (dataEnd.pressure - dataStart.pressure) / totalLen;
 	
 	double pressure = dataStart.pressure;
 	double carryOver = _carryOver;
