@@ -157,11 +157,12 @@ class LayerScenePropertyChangeCommand : public LayerSceneCommand
 {
 public:
 	
-	LayerScenePropertyChangeCommand(const LayerConstPtr &layer, const QVariant &data, int role, LayerScene *scene, QUndoCommand *parent = 0) :
+	LayerScenePropertyChangeCommand(const LayerConstPtr &layer, const QVariant &data, int role, bool mergeOn, LayerScene *scene, QUndoCommand *parent = 0) :
 		LayerSceneCommand(scene, parent),
 		_path(pathForLayer(layer)),
 		_data(data),
-		_role(role)
+		_role(role),
+	    _mergeOn(mergeOn)
 	{}
 	
 	void redo()
@@ -181,9 +182,17 @@ public:
 	
 	bool mergeWith(const QUndoCommand *cmd)
 	{
-		auto other = dynamic_cast<const LayerScenePropertyChangeCommand *>(cmd);
-		if (!other || other->_path != _path || other->_role != _role)
+		if (!_mergeOn)
 			return false;
+		
+		auto other = dynamic_cast<const LayerScenePropertyChangeCommand *>(cmd);
+		
+		if (!other || !other->_mergeOn)
+			return false;
+		
+		if (other->_path != _path || other->_role != _role || other->text() != text())
+			return false;
+		
 		return true;
 	}
 	
@@ -220,6 +229,7 @@ private:
 	Path _path;
 	QVariant _data;
 	int _role;
+	bool _mergeOn;
 };
 
 class LayerSceneAddCommand : public LayerSceneCommand
@@ -777,7 +787,7 @@ void LayerScene::editLayer(const LayerConstPtr &layer, LayerEdit *edit, const QS
 	pushCommand(command);
 }
 
-void LayerScene::setLayerProperty(const LayerConstPtr &layer, const QVariant &data, int role, const QString &description)
+void LayerScene::setLayerProperty(const LayerConstPtr &layer, const QVariant &data, int role, const QString &description, bool mergeOn)
 {
 	if (!d->checkLayer(layer))
 	{
@@ -816,7 +826,7 @@ void LayerScene::setLayerProperty(const LayerConstPtr &layer, const QVariant &da
 		}
 	}
 	
-	auto command = new LayerScenePropertyChangeCommand(layer, data, role, this, 0);
+	auto command = new LayerScenePropertyChangeCommand(layer, data, role, mergeOn, this, 0);
 	command->setText(text);
 	pushCommand(command);
 }

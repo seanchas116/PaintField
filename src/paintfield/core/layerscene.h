@@ -28,7 +28,7 @@ public:
 	void mergeLayers(const LayerConstPtr &parent, int index, int count);
 	
 	void editLayer(const LayerConstPtr &layer, LayerEdit *edit, const QString &description);
-	void setLayerProperty(const LayerConstPtr &layer, const QVariant &data, int role, const QString &description = QString());
+	void setLayerProperty(const LayerConstPtr &layer, const QVariant &data, int role, const QString &description = QString(), bool mergeOn = true);
 	
 	LayerConstPtr rootLayer() const;
 	Document *document();

@@ -719,7 +719,7 @@ void RectTool::commit()
 	for (const auto &info : d->selectedLayerInfos)
 	{
 		if (info.rectLayer)
-			layerScene()->setLayerProperty(info.original, info.rectLayer->rect(), RoleRect, tr("Change Rect"));
+			layerScene()->setLayerProperty(info.original, info.rectLayer->rect(), RoleRect, tr("Change Rect"), false);
 		else if (info.original->isType<RasterLayer>())
 			layerScene()->editLayer(info.original, new LayerMoveEdit(info.rasterOffset), tr("Move Layer"));
 	}
