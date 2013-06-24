@@ -17,6 +17,7 @@ struct CanvasToolEventSender::Data
 	QPointer<Tool> tool;
 	Canvas *canvas;
 	CanvasViewController *controller;
+	std::shared_ptr<const CanvasTransforms> transforms;
 	
 	bool retinaMode = false;
 	double mousePressure = 0;
@@ -27,6 +28,7 @@ CanvasToolEventSender::CanvasToolEventSender(CanvasViewController *controller) :
 	d(new Data)
 {
 	d->canvas = controller->canvas();
+	d->transforms = d->canvas->transforms();
 	d->controller = controller;
 	connect(d->canvas, SIGNAL(retinaModeChanged(bool)), this, SLOT(onRetinaModeChanged(bool)));
 	onRetinaModeChanged(d->canvas->isRetinaMode());
@@ -125,7 +127,7 @@ bool CanvasToolEventSender::sendCanvasMouseEvent(QMouseEvent *event)
 	
 	auto pos = event->pos();
 	
-	CanvasMouseEvent canvasEvent(toCanvasEventType(event->type()), event->globalPos(), pos, Vec2D(pos) *  d->canvas->transforms()->windowToScene, event->modifiers());
+	CanvasMouseEvent canvasEvent(toCanvasEventType(event->type()), event->globalPos(), pos, Vec2D(pos) *  d->transforms->windowToScene, event->modifiers());
 	d->tool->toolEvent(&canvasEvent);
 	
 	return canvasEvent.isAccepted();
@@ -140,7 +142,7 @@ bool CanvasToolEventSender::sendCanvasTabletEvent(WidgetTabletEvent *event)
 	Vec2D globalPos = data.pos;
 	Vec2D viewPos = globalPos + Vec2D(event->posInt - event->globalPosInt);
 	
-	data.pos = viewPos * d->canvas->transforms()->windowToScene;
+	data.pos = viewPos * d->transforms->windowToScene;
 	
 	auto toCanvasEventType = [](int type)
 	{
@@ -192,7 +194,7 @@ bool CanvasToolEventSender::sendCanvasTabletEvent(QMouseEvent *mouseEvent)
 	auto pos = mouseEvent->pos();
 	auto posF = Vec2D(pos);
 	
-	TabletInputData data(posF * d->canvas->transforms()->windowToScene, d->mousePressure, 0, 0, Vec2D(0));
+	TabletInputData data(posF * d->transforms->windowToScene, d->mousePressure, 0, 0, Vec2D(0));
 	CanvasTabletEvent tabletEvent(type, mouseEvent->globalPos(), mouseEvent->globalPos(), posF, pos, data, mouseEvent->modifiers());
 	d->tool->toolEvent(&tabletEvent);
 	return tabletEvent.isAccepted();
