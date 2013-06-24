@@ -53,7 +53,10 @@ SettingsManager::SettingsManager(QObject *parent) :
 	dir.cd("PaintField");
 	dir.mkdir("Settings");
 	
-	d->lastFileDialogPath = QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation);
+	d->lastFileDialogPath = value({"last-file-dialog-path"}).toString();
+	
+	if (d->lastFileDialogPath.isEmpty())
+		d->lastFileDialogPath = QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation);
 }
 
 SettingsManager::~SettingsManager()
@@ -231,6 +234,10 @@ QString SettingsManager::userDataDir() const
 }
 
 QString SettingsManager::lastFileDialogPath() const { return d->lastFileDialogPath; }
-void SettingsManager::setLastFileDialogPath(const QString &path) { d->lastFileDialogPath = path; }
+void SettingsManager::setLastFileDialogPath(const QString &path)
+{
+	setValue({"last-file-dialog-path"}, path);
+	d->lastFileDialogPath = path;
+}
 
 } // namespace PaintField
