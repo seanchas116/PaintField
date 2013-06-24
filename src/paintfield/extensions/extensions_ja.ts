@@ -109,7 +109,7 @@ Licensed under the MIT License.</source>
 <context>
     <name>PaintField::BrushTool</name>
     <message>
-        <location filename="brushtool/brushtool.cpp" line="138"/>
+        <location filename="brushtool/brushtool.cpp" line="158"/>
         <source>Brush</source>
         <translation>ブラシ</translation>
     </message>
@@ -279,7 +279,7 @@ Licensed under the MIT License.</source>
 <context>
     <name>PaintField::LayerMoveTool</name>
     <message>
-        <location filename="movetool/layermovetool.cpp" line="60"/>
+        <location filename="movetool/layermovetool.cpp" line="59"/>
         <source>Layer Move</source>
         <translation>レイヤーを移動</translation>
     </message>

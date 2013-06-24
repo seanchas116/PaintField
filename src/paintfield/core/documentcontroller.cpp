@@ -180,7 +180,7 @@ bool DocumentController::exportToImage(Document *document, QWidget *dialogParent
 	if (path.isEmpty())
 		return false;
 	
-	ImageExporter exporter(dialog.currentFormat());
+	ImageExporter exporter(dialog.currentFormat(), dialog.isAlphaEnabled());
 	exporter.setSurface(surface, document->size());
 	exporter.setQuality(dialog.currentQuality());
 	
