@@ -54,7 +54,7 @@
    <item>
     <widget class="QLabel" name="label_4">
      <property name="text">
-      <string>&lt;a href=&quot;http://qt-project.org/&quot;&gt;Qt&lt;/a&gt;, &lt;a href=&quot;http://www.antigrain.com/&quot;&gt;Anti-Grain Geometry&lt;/a&gt;, &lt;a href=&quot;http://www.angusj.com/delphi/clipper.php&quot;&gt;Clipper&lt;/a&gt;, &lt;a href=&quot;http://www.winimage.com/zLibDll/minizip.html&quot;&gt;Minizip&lt;/a&gt;, &lt;a href=&quot;http://freeimage.sourceforge.net/&quot;&gt;FreeImage&lt;/a&gt;, &lt;a href=&quot;http://www.codeproject.com/Articles/20027/JSON-Spirit-A-C-JSON-Parser-Generator-Implemented&quot;&gt;JSON Spirit&lt;/a&gt;, &lt;a href=&quot;http://cpplinq.codeplex.com/&quot;&gt;LINQ for C++&lt;/a&gt;.</string>
+      <string>&lt;a href=&quot;http://qt-project.org/&quot;&gt;Qt&lt;/a&gt;, &lt;a href=&quot;http://www.antigrain.com/&quot;&gt;Anti-Grain Geometry&lt;/a&gt;, &lt;a href=&quot;http://www.angusj.com/delphi/clipper.php&quot;&gt;Clipper&lt;/a&gt;, &lt;a href=&quot;http://www.winimage.com/zLibDll/minizip.html&quot;&gt;Minizip&lt;/a&gt;, &lt;a href=&quot;http://freeimage.sourceforge.net/&quot;&gt;FreeImage&lt;/a&gt;, &lt;a href=&quot;http://www.codeproject.com/Articles/20027/JSON-Spirit-A-C-JSON-Parser-Generator-Implemented&quot;&gt;JSON Spirit&lt;/a&gt;, &lt;a href=&quot;http://cpplinq.codeplex.com/&quot;&gt;LINQ for C++&lt;/a&gt;, &lt;a href=&quot;http://www.boost.org/&quot;&gt;Boost&lt;/a&gt;.</string>
      </property>
      <property name="openExternalLinks">
       <bool>true</bool>
