@@ -1,7 +1,7 @@
 
 include(../src.pri)
 
-PF_VERSION = 0.0.5
+PF_VERSION = 0.0.6
 
 macx {
 	PF_PLATFORM = "mac"
