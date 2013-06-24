@@ -85,10 +85,10 @@ void drawViewport(const QRect &windowRepaintRect, CanvasViewportState *state, co
 	
 	auto cropSurface = [&](const QRect &rect)
 	{
-		PAINTFIELD_DEBUG << state->cacheRect << rect;
+		//PAINTFIELD_DEBUG << state->cacheRect << rect;
 		if (state->cacheAvailable && state->cacheRect == rect)
 		{
-			PAINTFIELD_DEBUG << "cached";
+			//PAINTFIELD_DEBUG << "cached";
 			return state->cacheImage;
 		}
 		else

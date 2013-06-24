@@ -154,7 +154,7 @@ static QByteArray loadFromUnzip(unzFile unzip, const QString &path)
 	return data;
 }
 
-struct DocumentSaver::Data
+struct DocumentWriter::Data
 {
 	zipFile zip = 0;
 	Document *document;
@@ -197,19 +197,19 @@ struct DocumentSaver::Data
 	}
 };
 
-DocumentSaver::DocumentSaver(Document *document, QObject *parent) :
+DocumentWriter::DocumentWriter(Document *document, QObject *parent) :
 	QObject(parent),
 	d(new Data)
 {
 	d->document = document;
 }
 
-DocumentSaver::~DocumentSaver()
+DocumentWriter::~DocumentWriter()
 {
 	delete d;
 }
 
-bool DocumentSaver::save(const QString &filePath)
+bool DocumentWriter::save(const QString &filePath)
 {
 	try
 	{
@@ -266,7 +266,7 @@ bool DocumentSaver::save(const QString &filePath)
 	}
 }
 
-struct DocumentLoader::Data
+struct DocumentReader::Data
 {
 	unzFile unzip = 0;
 	
@@ -300,17 +300,17 @@ struct DocumentLoader::Data
 	}
 };
 
-DocumentLoader::DocumentLoader(QObject *parent) :
+DocumentReader::DocumentReader(QObject *parent) :
 	QObject(parent),
 	d(new Data)
 {}
 
-DocumentLoader::~DocumentLoader()
+DocumentReader::~DocumentReader()
 {
 	delete d;
 }
 
-Document *DocumentLoader::load(const QString &filePath, QObject *parent)
+Document *DocumentReader::load(const QString &filePath, QObject *parent)
 {
 	try
 	{

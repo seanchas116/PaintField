@@ -13,14 +13,14 @@ namespace PaintField
 
 class DocumentDatabase;
 
-class DocumentSaver : public QObject
+class DocumentWriter : public QObject
 {
 	Q_OBJECT
 	
 public:
 	
-	explicit DocumentSaver(Document *document, QObject *parent = 0);
-	~DocumentSaver();
+	explicit DocumentWriter(Document *document, QObject *parent = 0);
+	~DocumentWriter();
 	
 	bool save(const QString &filePath);
 	
@@ -30,14 +30,14 @@ private:
 	Data *d;
 };
 
-class DocumentLoader : public QObject
+class DocumentReader : public QObject
 {
 	Q_OBJECT
 	
 public:
 	
-	explicit DocumentLoader(QObject *parent = 0);
-	~DocumentLoader();
+	explicit DocumentReader(QObject *parent = 0);
+	~DocumentReader();
 	
 	Document *load(const QString &filePath, QObject *parent);
 	

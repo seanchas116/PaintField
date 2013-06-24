@@ -64,7 +64,7 @@ Document *DocumentController::createFromSavedFile(const QString &path)
 {
 	PAINTFIELD_DEBUG << path;
 	
-	DocumentLoader loader;
+	DocumentReader loader;
 	auto document = loader.load(path, 0);
 	
 	if (!document)
@@ -134,7 +134,7 @@ bool DocumentController::saveAs(Document *document)
 		return false;
 	}
 	
-	DocumentSaver saver(document);
+	DocumentWriter saver(document);
 	
 	if (!saver.save(filePath))
 	{
@@ -152,7 +152,7 @@ bool DocumentController::save(Document *document)
 	if (document->filePath().isEmpty())	// first save
 		return saveAs(document);
 	
-	DocumentSaver saver(document);
+	DocumentWriter saver(document);
 	if (!saver.save(document->filePath()))
 	{
 		showMessageBox(QMessageBox::Warning, tr("Failed to save file."), QString());
