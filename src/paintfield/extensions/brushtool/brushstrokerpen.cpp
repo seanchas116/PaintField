@@ -46,7 +46,7 @@ BrushStrokerPen::BrushStrokerPen(Surface *surface) :
 
 void BrushStrokerPen::drawFirst(const TabletInputData &data)
 {
-	_drawnShapes.clear();
+	//_drawnShapes.clear();
 	
 	double radius = data.pressure * radiusBase();
 	
