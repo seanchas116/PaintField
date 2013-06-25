@@ -1,7 +1,7 @@
 PaintField - A Cross-platform Digital Painting Tool
 ========
 
-This app is currently under development. The source files are licensed under the MIT license (see copying file).
+This app is currently under development. The source files are licensed under LGPL (see copying file).
 The project name and the license might be changed in the future.
 
 ## - To Build -
