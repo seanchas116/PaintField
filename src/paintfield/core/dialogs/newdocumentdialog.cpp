@@ -5,6 +5,9 @@
 #include <cmath>
 #include <QLabel>
 
+#include "appcontroller.h"
+#include "settingsmanager.h"
+
 #include "newdocumentdialog.h"
 
 namespace PaintField
@@ -69,6 +72,13 @@ NewDocumentDialog::NewDocumentDialog(QWidget *parent) :
 	
 	mainLayout->setAlignment(Qt::AlignHCenter);
 	setLayout(mainLayout);
+	
+	auto sizeList = appController()->settingsManager()->value({"last-new-document-size"}).toList();
+	if (sizeList.size() == 2)
+	{
+		d->widthSpin->setValue(sizeList.at(0).toInt());
+		d->heightSpin->setValue(sizeList.at(1).toInt());
+	}
 }
 
 QSize NewDocumentDialog::documentSize() const
@@ -107,6 +117,8 @@ void NewDocumentDialog::setProportion()
 
 NewDocumentDialog::~NewDocumentDialog()
 {
+	appController()->settingsManager()->setValue({"last-new-document-size"}, QVariantList({d->widthSpin->value(), d->heightSpin->value()}));
+	
 	delete d;
 }
 
