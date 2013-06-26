@@ -16,8 +16,9 @@ windows {
 }
 
 QT += core gui network xml svg
-QMAKE_CXXFLAGS += -std=c++11
+QMAKE_CXXFLAGS += -std=c++11 -msse2
 QMAKE_LFLAGS += -std=c++11
+CONFIG += sse2
 
 mac {
 	CONFIG += objective_c
