@@ -8,6 +8,7 @@ The project name and the license might be changed in the future.
 
 PaintField depends on the following libraries: Qt 4.8, libfreeimage.
 PaintField requires GCC 4.8+ or Clang 3.2+. MSVC is not supported.
+PaintField supports Mac, Linux 32/64bit and Windows 64bit.
 
 To build PaintField, follow these steps:
 
