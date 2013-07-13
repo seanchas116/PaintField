@@ -14,9 +14,8 @@
 
 namespace PaintField {
 
-BrushLibraryController::BrushLibraryController(BrushPresetManager *presetManager, QObject *parent) :
-    QObject(parent),
-    _presetManager(presetManager)
+BrushLibraryController::BrushLibraryController(QObject *parent) :
+    QObject(parent)
 {
 	_model = new BrushLibraryModel(this);
 	
@@ -44,6 +43,11 @@ BrushLibraryController::BrushLibraryController(BrushPresetManager *presetManager
 	}
 }
 
+QString BrushLibraryController::currentPath()
+{
+	return _model->pathFromIndex(_selectionModel->currentIndex());
+}
+
 void BrushLibraryController::onCurrentTabletPointerChanged(const TabletPointerInfo &curr, const TabletPointerInfo &prev)
 {
 	_itemHash[prev] = _model->itemFromIndex(_selectionModel->currentIndex());
@@ -63,42 +67,16 @@ void BrushLibraryController::onCurrentTabletPointerChanged(const TabletPointerIn
 
 void BrushLibraryController::onCurrentChanged(const QModelIndex &index, const QModelIndex &prev)
 {
-	if (index.isValid())
-	{
-		auto data = _model->loadPreset(index);
-		if (!data.isEmpty())
-			_presetManager->setPreset(data);
-	}
-	
-	emit currentItemChanged(_model->itemFromIndex(index), _model->itemFromIndex(prev));
+	emit currentPathChanged(_model->pathFromIndex(index), _model->pathFromIndex(prev));
 }
 
 void BrushLibraryController::onSaveRequested()
 {
-	auto currentIndex = _selectionModel->currentIndex();
-	auto item = _model->itemFromIndex(currentIndex);
-	
-	QString dirPath = _model->dirPathFromItem(item);
-	if (dirPath.isNull())
-	{
-		PAINTFIELD_DEBUG << "invalid directory path";
+	auto path = currentPath();
+	if (path.isEmpty())
 		return;
-	}
 	
-	QDir dir(dirPath);
-	
-	if (!dir.exists())
-	{
-		PAINTFIELD_DEBUG << "invalid directory path";
-		return;
-	}
-	
-	auto filePath = QFileDialog::getSaveFileName(0,
-	                                             tr("Save Preset"),
-	                                             dir.filePath(_presetManager->metadata().title()),
-	                                             tr("Preset File (*.json)"));
-	
-	Json::writeIntoFile(filePath, _presetManager->preset());
+	emit saveRequested(path);
 }
 
 void BrushLibraryController::onReloadRequested()

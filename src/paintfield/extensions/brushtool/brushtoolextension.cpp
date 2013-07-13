@@ -33,10 +33,12 @@ BrushToolExtension::BrushToolExtension(Workspace *workspace, QObject *parent) :
 	_strokerFactoryManager->addFactory(new BrushStrokerSimpleBrushFactory);
 	
 	connect(_presetManager, SIGNAL(strokerChanged(QString)), this, SLOT(onStrokerChanged(QString)));
+	connect(_presetManager, SIGNAL(presetChanged(QVariantMap,QString)), _preferencesManager, SLOT(onPresetChanged(QVariantMap,QString)));
 	
-	auto libraryController = new BrushLibraryController(_presetManager, this);
+	auto libraryController = new BrushLibraryController(this);
 	
-	connect(libraryController, SIGNAL(currentItemChanged(QStandardItem*,QStandardItem*)), _preferencesManager, SLOT(onCurrentPresetItemChanged(QStandardItem*,QStandardItem*)));
+	connect(libraryController, SIGNAL(currentPathChanged(QString,QString)), _presetManager, SLOT(setPreset(QString)));
+	_presetManager->setPreset(libraryController->currentPath());
 	
 	addSideBar(_brushLibrarySidebarName, libraryController->view());
 	

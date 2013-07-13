@@ -1,3 +1,5 @@
+#include "paintfield/core/json.h"
+
 #include "brushpresetmanager.h"
 
 namespace PaintField {
@@ -43,9 +45,18 @@ void BrushPresetManager::setSettings(const QVariantMap &settings)
 	emit settingsChanged(settings);
 }
 
-void BrushPresetManager::setPreset(const QVariantMap &preset)
+void BrushPresetManager::setPreset(const QString &path)
 {
+	if (path.isEmpty())
+		return;
+	
+	auto preset = Json::readFromFile(path).toMap();
+	
+	if (preset.isEmpty())
+		return;
+	
 	_preset = preset;
+	emit presetChanged(preset, path);
 	emit metadataChanged(metadata());
 	emit strokerChanged(stroker());
 	emit settingsChanged(settings());

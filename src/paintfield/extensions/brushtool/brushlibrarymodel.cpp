@@ -30,18 +30,4 @@ QVariant  BrushLibraryModel::data(const QModelIndex &index, int role) const
 	return value;
 }
 
-QVariantMap BrushLibraryModel::loadPreset(const QModelIndex &index)
-{
-	return Json::readFromFile(pathFromIndex(index)).toMap();
-}
-
-bool BrushLibraryModel::savePreset(const QModelIndex &parent, const QString &name, const QVariantMap &data)
-{
-	auto parentItem = itemFromIndex(parent);
-	if (parentItem->type() != LibraryItemType::Dir)
-		return false;
-	
-	return Json::writeIntoFile(QDir(pathFromItem(parentItem)).filePath(name), data);
-}
-
 }

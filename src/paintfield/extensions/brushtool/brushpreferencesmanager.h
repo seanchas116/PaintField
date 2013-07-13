@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QHash>
+#include <QVariant>
 
 class QStandardItem;
 
@@ -22,7 +23,7 @@ public slots:
 	void setBrushSize(int brushSize);
 	void setSmoothEnabled(bool enabled);
 	
-	void onCurrentPresetItemChanged(QStandardItem *item, QStandardItem *prev);
+	void onPresetChanged(const QVariantMap &preset, const QString &filePath);
 	
 signals:
 	
@@ -32,8 +33,9 @@ signals:
 private:
 	
 	int _brushSize = 5;
-	QHash<QStandardItem *, int> _brushSizeHash;
+	QHash<QString, int> _brushSizeHash;
 	bool _smoothEnabled = false;
+	QString _currentPresetPath;
 };
 
 } // namespace PaintField

@@ -21,13 +21,15 @@ class BrushLibraryController : public QObject
 {
 	Q_OBJECT
 public:
-	explicit BrushLibraryController(BrushPresetManager *presetManager, QObject *parent = 0);
+	explicit BrushLibraryController(QObject *parent = 0);
 	
 	QWidget *view() { return _view.data(); }
+	QString currentPath();
 	
 signals:
 	
-	void currentItemChanged(QStandardItem *item, QStandardItem *prev);
+	void currentPathChanged(const QString &current, const QString &prev);
+	void saveRequested(const QString &filepath);
 	
 public slots:
 	
@@ -42,7 +44,6 @@ private:
 	
 	void setCurrentItem(QStandardItem *item);
 	
-	BrushPresetManager *_presetManager = 0;
 	BrushLibraryModel *_model = 0;
 	QItemSelectionModel *_selectionModel = 0;
 	

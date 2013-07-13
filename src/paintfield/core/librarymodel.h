@@ -95,10 +95,6 @@ public:
 	QModelIndex findIndex(const QString &text, const QModelIndex &parent) const;
 	QModelIndex findIndex(const QStringList &texts, const QModelIndex &parent = QModelIndex()) const;
 	
-signals:
-	
-public slots:
-	
 };
 
 } // namespace PaintField

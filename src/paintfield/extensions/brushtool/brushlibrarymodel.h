@@ -13,9 +13,6 @@ public:
 	
 	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 	
-	QVariantMap loadPreset(const QModelIndex &index);
-	bool savePreset(const QModelIndex &parent, const QString &name, const QVariantMap &data);
-	
 signals:
 	
 public slots:

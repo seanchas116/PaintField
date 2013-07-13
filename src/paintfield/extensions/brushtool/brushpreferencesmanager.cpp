@@ -1,3 +1,5 @@
+
+
 #include "brushpreferencesmanager.h"
 
 namespace PaintField {
@@ -25,10 +27,20 @@ void BrushPreferencesManager::setSmoothEnabled(bool enabled)
 	}
 }
 
-void BrushPreferencesManager::onCurrentPresetItemChanged(QStandardItem *item, QStandardItem *prev)
+void BrushPreferencesManager::onPresetChanged(const QVariantMap &preset, const QString &filePath)
 {
-	_brushSizeHash[prev] = _brushSize;
-	setBrushSize(_brushSizeHash.value(item, _brushSize));
+	_brushSizeHash[_currentPresetPath] = _brushSize;
+	
+	int defaultBrushSize;
+	
+	if (preset.contains("default-size"))
+		defaultBrushSize = preset["default-size"].toInt();
+	else
+		defaultBrushSize = _brushSize;
+	
+	setBrushSize(_brushSizeHash.value(filePath, defaultBrushSize));
+	
+	_currentPresetPath = filePath;
 }
 
 } // namespace PaintField

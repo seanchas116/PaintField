@@ -50,10 +50,11 @@ public:
 	
 public slots:
 	
-	void setPreset(const QVariantMap &preset);
+	void setPreset(const QString &path);
 	
 signals:
 	
+	void presetChanged(const QVariantMap &preset, const QString &filePath);
 	void metadataChanged(const BrushPresetMetadata &metadata);
 	void strokerChanged(const QString &stroker);
 	void settingsChanged(const QVariantMap &settings);
