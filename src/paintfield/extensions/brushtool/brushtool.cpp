@@ -62,6 +62,22 @@ QRect BrushTool::customCursorRect(const Vec2D &pos)
 void BrushTool::tabletPressEvent(CanvasTabletEvent *event)
 {
 	event->accept();
+	
+	if (event->modifiers() == Qt::ShiftModifier)
+	{
+		if (_lastEndData)
+		{
+			auto beginData = *_lastEndData;
+			beginData.pressure = event->data.pressure;
+			beginStroke(beginData);
+			drawStroke(event->data);
+			endStroke(event->data);
+		}
+		else
+		{
+			_lastEndData = boost::make_optional(event->data);
+		}
+	}
 }
 
 void BrushTool::tabletMoveEvent(CanvasTabletEvent *event)
@@ -69,11 +85,11 @@ void BrushTool::tabletMoveEvent(CanvasTabletEvent *event)
 	PAINTFIELD_DEBUG << "press" << "pressure:" << event->data.pressure;
 	
 	if (event->data.pressure && !_isStroking)
+	{
 		beginStroke(event->data);
+	}
 	else if (_isStroking)
 		drawStroke(event->data);
-	
-	setPrevData(event->data);
 	
 	event->accept();
 }
@@ -132,8 +148,6 @@ void BrushTool::drawStroke(const TabletInputData &data)
 
 void BrushTool::endStroke(const TabletInputData &data)
 {
-	Q_UNUSED(data);
-	
 	if (!_isStroking)
 		return;
 	
@@ -142,6 +156,8 @@ void BrushTool::endStroke(const TabletInputData &data)
 	_stroker->end();
 	
 	updateTiles();
+	
+	_lastEndData = boost::make_optional(data);
 	
 	_isStroking = false;
 	_commitTimer->start();
@@ -172,12 +188,6 @@ void BrushTool::updateTiles()
 	
 	emit requestUpdate(_stroker->lastEditedKeysWithRects());
 	_stroker->clearLastEditedKeys();
-}
-
-void BrushTool::setPrevData(const TabletInputData &data)
-{
-	_dataPrev = data;
-	_dataPrevSet = true;
 }
 
 void BrushTool::setBrushSettings(const QVariantMap &settings)

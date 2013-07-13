@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QElapsedTimer>
+#include <boost/optional.hpp>
 #include "paintfield/core/tool.h"
 
 class QTimer;
@@ -54,8 +55,6 @@ private:
 	void drawStroke(const TabletInputData &data);
 	void endStroke(const TabletInputData &data);
 	
-	void setPrevData(const TabletInputData &data);
-	
 	BrushStrokerFactory *_strokerFactory = 0;
 	QScopedPointer<BrushStroker> _stroker;
 	
@@ -65,10 +64,11 @@ private:
 	int _brushSize = 5;
 	
 	bool _isStroking = false;
-	TabletInputData _dataPrev;
-	bool _dataPrevSet = false;
+	
 	std::shared_ptr<const RasterLayer> _layer = 0;
 	Malachite::Surface _surface;
+	
+	boost::optional<TabletInputData> _lastEndData;
 	
 	QTimer *_commitTimer = 0;
 };
