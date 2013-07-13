@@ -19,11 +19,11 @@ LayerItemModel::LayerItemModel(LayerScene *scene, QObject *parent) :
 	d(new Data)
 {
 	d->scene = scene;
-	connect(scene, SIGNAL(layerAboutToBeInserted(LayerConstPtr,int)), this, SLOT(onLayerAboutToBeInserted(LayerConstPtr,int)));
-	connect(scene, SIGNAL(layerInserted(LayerConstPtr,int)), this, SLOT(onLayerInserted(LayerConstPtr,int)));
-	connect(scene, SIGNAL(layerAboutToBeRemoved(LayerConstPtr,int)), this, SLOT(onLayerAboutToBeRemoved(LayerConstPtr,int)));
-	connect(scene, SIGNAL(layerRemoved(LayerConstPtr,int)), this, SLOT(onLayerRemoved(LayerConstPtr,int)));
-	connect(scene, SIGNAL(layerChanged(LayerConstPtr)), this, SLOT(onLayerPropertyChanged(LayerConstPtr)));
+	connect(scene, SIGNAL(layerAboutToBeInserted(LayerConstRef,int)), this, SLOT(onLayerAboutToBeInserted(LayerConstRef,int)));
+	connect(scene, SIGNAL(layerInserted(LayerConstRef,int)), this, SLOT(onLayerInserted(LayerConstRef,int)));
+	connect(scene, SIGNAL(layerAboutToBeRemoved(LayerConstRef,int)), this, SLOT(onLayerAboutToBeRemoved(LayerConstRef,int)));
+	connect(scene, SIGNAL(layerRemoved(LayerConstRef,int)), this, SLOT(onLayerRemoved(LayerConstRef,int)));
+	connect(scene, SIGNAL(layerChanged(LayerConstRef)), this, SLOT(onLayerPropertyChanged(LayerConstRef)));
 }
 
 LayerItemModel::~LayerItemModel()
@@ -137,7 +137,7 @@ bool LayerItemModel::dropMimeData(const QMimeData *data, Qt::DropAction action, 
 		QByteArray encodedData = data->data(_layerRefMimeType);
 		QDataStream stream(&encodedData, QIODevice::ReadOnly);
 		
-		QList<LayerConstPtr> layers;
+		QList<LayerConstRef> layers;
 		
 		while (!stream.atEnd())
 		{
@@ -173,7 +173,7 @@ bool LayerItemModel::dropMimeData(const QMimeData *data, Qt::DropAction action, 
 	return false;
 }
 
-LayerConstPtr LayerItemModel::layerForIndex(const QModelIndex &index) const
+LayerConstRef LayerItemModel::layerForIndex(const QModelIndex &index) const
 {
 	if (index.isValid())
 		return static_cast<const Layer *>(index.internalPointer())->shared_from_this();
@@ -181,7 +181,7 @@ LayerConstPtr LayerItemModel::layerForIndex(const QModelIndex &index) const
 		return d->scene->rootLayer();
 }
 
-LayerConstPtr LayerItemModel::layerExceptRootForIndex(const QModelIndex &index) const
+LayerConstRef LayerItemModel::layerExceptRootForIndex(const QModelIndex &index) const
 {
 	if (index.isValid())
 		return static_cast<const Layer *>(index.internalPointer())->shared_from_this();
@@ -189,7 +189,7 @@ LayerConstPtr LayerItemModel::layerExceptRootForIndex(const QModelIndex &index) 
 		return nullptr;
 }
 
-QModelIndex LayerItemModel::indexForLayer(const LayerConstPtr &layer) const
+QModelIndex LayerItemModel::indexForLayer(const LayerConstRef &layer) const
 {
 	if (!layer)
 		return QModelIndex();
@@ -200,9 +200,9 @@ QModelIndex LayerItemModel::indexForLayer(const LayerConstPtr &layer) const
 		return createIndex(layer->index(), 0, const_cast<Layer *>(layer.get()));
 }
 
-QList<LayerConstPtr> LayerItemModel::layersForIndexes(const QModelIndexList &indexes) const
+QList<LayerConstRef> LayerItemModel::layersForIndexes(const QModelIndexList &indexes) const
 {
-	QList<LayerConstPtr> layers;
+	QList<LayerConstRef> layers;
 	layers.reserve(indexes.size());
 	
 	for (const auto &index : indexes)
@@ -211,7 +211,7 @@ QList<LayerConstPtr> LayerItemModel::layersForIndexes(const QModelIndexList &ind
 	return layers;
 }
 
-QModelIndexList LayerItemModel::indexesFromLayers(const QList<LayerConstPtr> &layers) const
+QModelIndexList LayerItemModel::indexesFromLayers(const QList<LayerConstRef> &layers) const
 {
 	QModelIndexList indexes;
 	indexes.reserve(layers.size());
@@ -238,31 +238,31 @@ int LayerItemModel::normalizeRole(int role) const
 	}
 }
 
-void LayerItemModel::onLayerAboutToBeInserted(const LayerConstPtr &parent, int index)
+void LayerItemModel::onLayerAboutToBeInserted(const LayerConstRef &parent, int index)
 {
 	beginInsertRows(indexForLayer(parent), index, index);
 }
 
-void LayerItemModel::onLayerInserted(const LayerConstPtr &parent, int index)
+void LayerItemModel::onLayerInserted(const LayerConstRef &parent, int index)
 {
 	Q_UNUSED(parent)
 	Q_UNUSED(index)
 	endInsertRows();
 }
 
-void LayerItemModel::onLayerAboutToBeRemoved(const LayerConstPtr &parent, int index)
+void LayerItemModel::onLayerAboutToBeRemoved(const LayerConstRef &parent, int index)
 {
 	beginRemoveRows(indexForLayer(parent), index, index);
 }
 
-void LayerItemModel::onLayerRemoved(const LayerConstPtr &parent, int index)
+void LayerItemModel::onLayerRemoved(const LayerConstRef &parent, int index)
 {
 	Q_UNUSED(parent)
 	Q_UNUSED(index)
 	endRemoveRows();
 }
 
-void LayerItemModel::onLayerPropertyChanged(const LayerConstPtr &layer)
+void LayerItemModel::onLayerPropertyChanged(const LayerConstRef &layer)
 {
 	auto idx = indexForLayer(layer);
 	emit dataChanged(idx, idx);

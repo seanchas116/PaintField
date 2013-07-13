@@ -16,7 +16,7 @@ class LayerMoveTool : public Tool
 public:
 	explicit LayerMoveTool(Canvas *parent = 0);
 	
-	void drawLayer(Malachite::SurfacePainter *painter, const LayerConstPtr &layer);
+	void drawLayer(Malachite::SurfacePainter *painter, const LayerConstRef &layer);
 	
 signals:
 	
@@ -30,7 +30,7 @@ protected:
 	
 private:
 	
-	LayerConstPtr _layer = 0;
+	LayerConstRef _layer = 0;
 	QPoint _dragStartPoint, _offset;
 	QPointSet _lastKeys;
 	bool _layerIsDragged = false;

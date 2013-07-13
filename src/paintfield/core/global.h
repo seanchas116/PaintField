@@ -3,6 +3,7 @@
 #include <Qt>
 #include <QEvent>
 #include <QDebug>
+#include <memory>
 
 #if defined(PAINTFIELD_LIBRARY)
 #define PAINTFIELDCORE_EXPORT Q_DECL_EXPORT
@@ -16,6 +17,12 @@
 
 namespace PaintField
 {
+
+template <typename T>
+using Ref = std::shared_ptr<T>;
+
+template <typename T>
+using WeakRef = std::weak_ptr<T>;
 
 enum LayerPropertyRole
 {

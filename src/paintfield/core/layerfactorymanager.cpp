@@ -17,7 +17,7 @@ LayerFactoryManager::LayerFactoryManager(QObject *parent) :
 			<< new TextLayerFactory();
 }
 
-LayerPtr LayerFactoryManager::createLayer(const QString &name) const
+LayerRef LayerFactoryManager::createLayer(const QString &name) const
 {
 	for (auto factory : _factories)
 	{

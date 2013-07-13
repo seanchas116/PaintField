@@ -24,14 +24,14 @@ Layer::~Layer()
 {
 }
 
-LayerConstPtr Layer::constChild(int index) const
+LayerConstRef Layer::constChild(int index) const
 {
 	if (!contains(index))
 		return nullptr;
 	return _children[index];
 }
 
-LayerConstPtr Layer::constRoot() const
+LayerConstRef Layer::constRoot() const
 {
 	auto layer = shared_from_this();
 	
@@ -43,7 +43,7 @@ LayerConstPtr Layer::constRoot() const
 	}
 }
 
-bool Layer::isAncestorOf(const LayerConstPtr &layer) const
+bool Layer::isAncestorOf(const LayerConstRef &layer) const
 {
 	auto l = layer;
 	
@@ -57,7 +57,7 @@ bool Layer::isAncestorOf(const LayerConstPtr &layer) const
 	}
 }
 
-bool Layer::isAncestorOfSafe(const LayerConstPtr &layer) const
+bool Layer::isAncestorOfSafe(const LayerConstRef &layer) const
 {
 	if (this == layer.get())
 		return true;
@@ -71,7 +71,7 @@ bool Layer::isAncestorOfSafe(const LayerConstPtr &layer) const
 	return false;
 }
 
-bool Layer::insert(int index, const LayerPtr &child)
+bool Layer::insert(int index, const LayerRef &child)
 {
 	if (!insertable(index))
 	{
@@ -85,7 +85,7 @@ bool Layer::insert(int index, const LayerPtr &child)
 	return true;
 }
 
-bool Layer::insert(int index, const QList<LayerPtr> &children)
+bool Layer::insert(int index, const QList<LayerRef> &children)
 {
 	if (!insertable(index))
 	{
@@ -101,7 +101,7 @@ bool Layer::insert(int index, const QList<LayerPtr> &children)
 	return true;
 }
 
-LayerPtr Layer::take(int row)
+LayerRef Layer::take(int row)
 {
 	if (!contains(row))
 	{
@@ -114,7 +114,7 @@ LayerPtr Layer::take(int row)
 	return child;
 }
 
-QList<LayerPtr> Layer::takeAll()
+QList<LayerRef> Layer::takeAll()
 {
 	auto children = _children;
 	_children.clear();
@@ -125,7 +125,7 @@ QList<LayerPtr> Layer::takeAll()
 	return children;
 }
 
-LayerPtr Layer::clone() const
+LayerRef Layer::clone() const
 {
 	auto layer = this->createAnother();
 	QByteArray array;
@@ -143,7 +143,7 @@ LayerPtr Layer::clone() const
 	return layer;
 }
 
-LayerPtr Layer::cloneRecursive() const
+LayerRef Layer::cloneRecursive() const
 {
 	auto dest = clone();
 	
@@ -230,7 +230,7 @@ void Layer::updateDirtyThumbnailRecursive(const QSize &size)
 		child->updateDirtyThumbnailRecursive(size);
 }
 
-LayerConstPtr Layer::descendantAt(const QPoint &pos, int margin) const
+LayerConstRef Layer::descendantAt(const QPoint &pos, int margin) const
 {
 	for (const auto &child : _children)
 	{
@@ -266,7 +266,7 @@ void Layer::encodeRecursive(QDataStream &stream) const
 		child->encodeRecursive(stream);
 }
 
-LayerPtr Layer::decodeRecursive(QDataStream &stream)
+LayerRef Layer::decodeRecursive(QDataStream &stream)
 {
 	QString typeName;
 	stream >> typeName;
@@ -327,7 +327,7 @@ void Layer::decode(QDataStream &stream)
 
 }
 
-QDebug operator<<(QDebug debug, const PaintField::LayerConstPtr &layer)
+QDebug operator<<(QDebug debug, const PaintField::LayerConstRef &layer)
 {
 	debug.nospace() << "(" << layer.get() << ", " << (layer ? layer->name() : QString()) << ")";
 	return debug.space();

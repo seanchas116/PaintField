@@ -126,7 +126,7 @@ public:
 	 */
 	bool isRetinaMode() const;
 	
-	std::shared_ptr<const CanvasTransforms> transforms() const;
+	Ref<const CanvasTransforms> transforms() const;
 	
 	QPoint maxAbsoluteTranslation() const;
 	
@@ -173,7 +173,7 @@ signals:
 	 * Emitted when the transform is changed, before scale, rotation ... changed signals are emitted.
 	 * @param transforms
 	 */
-	void transformsChanged(const std::shared_ptr<const CanvasTransforms> &transforms);
+	void transformsChanged(const Ref<const CanvasTransforms> &transforms);
 	
 	void toolChanged(Tool *tool);
 	

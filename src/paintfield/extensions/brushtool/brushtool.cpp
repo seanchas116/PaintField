@@ -32,7 +32,7 @@ BrushTool::BrushTool(Canvas *parent) :
 
 BrushTool::~BrushTool() {}
 
-void BrushTool::drawLayer(SurfacePainter *painter, const LayerConstPtr &layer)
+void BrushTool::drawLayer(SurfacePainter *painter, const LayerConstRef &layer)
 {
 	Q_UNUSED(layer)
 	painter->drawPreTransformedSurface(QPoint(), _surface);

@@ -17,7 +17,7 @@ LayerMoveTool::LayerMoveTool(Canvas *parent) :
 	Tool(parent)
 {}
 
-void LayerMoveTool::drawLayer(SurfacePainter *painter, const LayerConstPtr &layer)
+void LayerMoveTool::drawLayer(SurfacePainter *painter, const LayerConstRef &layer)
 {
 	PAINTFIELD_DEBUG << "offset:" << _offset;
 	auto rasterLayer = std::dynamic_pointer_cast<const RasterLayer>(layer);

@@ -11,7 +11,7 @@ using namespace Malachite;
 
 namespace PaintField {
 
-std::shared_ptr<RasterLayer> RasterLayer::createFromImageFile(const QString &path, QSize *imageSize)
+Ref<RasterLayer> RasterLayer::createFromImageFile(const QString &path, QSize *imageSize)
 {
 	Malachite::ImageImporter importer;
 	if (!importer.load(path))
@@ -30,7 +30,7 @@ std::shared_ptr<RasterLayer> RasterLayer::createFromImageFile(const QString &pat
 	return layer;
 }
 
-std::shared_ptr<RasterLayer> RasterLayer::createFromImage(const QImage &image)
+Ref<RasterLayer> RasterLayer::createFromImage(const QImage &image)
 {
 	Surface surface;
 	surface.paste(ImageU8::wrapQImage(image));

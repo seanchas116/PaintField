@@ -106,7 +106,7 @@ LayerUIController::LayerUIController(Document *document, QObject *parent) :
 		d->actions[ActionRasterize] = a;
 	}
 	
-	connect(document->layerScene(), SIGNAL(selectionChanged(QList<LayerConstPtr>,QList<LayerConstPtr>)), this, SLOT(onSelectionChanged()));
+	connect(document->layerScene(), SIGNAL(selectionChanged(QList<LayerConstRef>,QList<LayerConstRef>)), this, SLOT(onSelectionChanged()));
 	onSelectionChanged();
 }
 
@@ -160,7 +160,7 @@ void LayerUIController::removeLayers()
 	d->document->layerScene()->removeLayers(d->document->layerScene()->selection());
 }
 
-static std::tuple<LayerConstPtr, int , int> layerRangeFromLayers(const QList<LayerConstPtr> &layers)
+static std::tuple<LayerConstRef, int , int> layerRangeFromLayers(const QList<LayerConstRef> &layers)
 {
 	// this value is returned if failed
 	auto defaultValue = std::make_tuple(nullptr, 0, 0);
@@ -168,7 +168,7 @@ static std::tuple<LayerConstPtr, int , int> layerRangeFromLayers(const QList<Lay
 	if (layers.size() == 0)
 		return defaultValue;
 	
-	LayerConstPtr parent = layers.at(0)->parent();
+	LayerConstRef parent = layers.at(0)->parent();
 	QList<int> indexes;
 	
 	for (auto &layer : layers)
@@ -193,7 +193,7 @@ static std::tuple<LayerConstPtr, int , int> layerRangeFromLayers(const QList<Lay
 
 void LayerUIController::mergeLayers()
 {
-	LayerConstPtr parent;
+	LayerConstRef parent;
 	int start, count;
 	std::tie(parent, start, count) = layerRangeFromLayers(d->document->layerScene()->selection());
 	
@@ -213,9 +213,9 @@ void LayerUIController::rasterizeLayers()
 	auto scene = d->document->layerScene();
 	auto layers = scene->selection();
 	auto current = scene->current();
-	auto filtered = cpplinq::from(layers) >> cpplinq::where( []( const LayerConstPtr &layer ){ return layer->isType<ShapeLayer>(); }) >> cpplinq::to_vector();
+	auto filtered = cpplinq::from(layers) >> cpplinq::where( []( const LayerConstRef &layer ){ return layer->isType<ShapeLayer>(); }) >> cpplinq::to_vector();
 	
-	QList<LayerConstPtr> newLayers = layers;
+	QList<LayerConstRef> newLayers = layers;
 	
 	for (auto &layer : filtered)
 	{
@@ -289,7 +289,7 @@ void LayerUIController::pasteLayers()
 		if (count == 0)
 			return;
 		
-		QList<LayerPtr> layers;
+		QList<LayerRef> layers;
 		layers.reserve(count);
 		
 		for (int i = 0; i < count; ++i)
@@ -304,7 +304,7 @@ void LayerUIController::pasteLayers()
 	}
 }
 
-void LayerUIController::addLayers(const QList<LayerPtr> &layers, const QString &description)
+void LayerUIController::addLayers(const QList<LayerRef> &layers, const QString &description)
 {
 	auto scene = d->document->layerScene();
 	
@@ -315,15 +315,15 @@ void LayerUIController::addLayers(const QList<LayerPtr> &layers, const QString &
 	scene->setCurrent(parent->child(row));
 }
 
-static bool isSelectionMergeable(const QList<LayerConstPtr> &selection)
+static bool isSelectionMergeable(const QList<LayerConstRef> &selection)
 {
-	LayerConstPtr parent;
+	LayerConstRef parent;
 	int start, count;
 	std::tie(parent, start, count) = layerRangeFromLayers(selection);
 	return count >= 2;
 }
 
-static bool isSelectionRasterizable(const QList<LayerConstPtr> &selection)
+static bool isSelectionRasterizable(const QList<LayerConstRef> &selection)
 {
 	for (auto &layer : selection)
 	{

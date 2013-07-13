@@ -159,7 +159,7 @@ struct DocumentWriter::Data
 	zipFile zip = 0;
 	Document *document;
 	
-	QVariantList saveLayerChildrenRecursive(const LayerConstPtr &parent, int &sourceFileCount)
+	QVariantList saveLayerChildrenRecursive(const LayerConstRef &parent, int &sourceFileCount)
 	{
 		Q_ASSERT(parent);
 		
@@ -270,7 +270,7 @@ struct DocumentReader::Data
 {
 	unzFile unzip = 0;
 	
-	void loadLayerChildrenRecursive(const LayerPtr &parent, const QVariantList &propertyMaps)
+	void loadLayerChildrenRecursive(const LayerRef &parent, const QVariantList &propertyMaps)
 	{
 		for (const QVariant &item : propertyMaps)
 		{

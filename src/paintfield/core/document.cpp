@@ -25,7 +25,7 @@ struct Document::Data
 	Selection *selection = 0;
 };
 
-Document::Document(const QString &tempName, const QSize &size, const QList<LayerPtr> &layers, QObject *parent) :
+Document::Document(const QString &tempName, const QSize &size, const QList<LayerRef> &layers, QObject *parent) :
     QObject(parent),
     d(new Data)
 {

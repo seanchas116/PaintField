@@ -11,7 +11,7 @@ public:
 	
 	RasterLayer(const QString &name = QString()) : Layer(name) {}
 	
-	LayerPtr createAnother() const override { return std::make_shared<RasterLayer>(); }
+	LayerRef createAnother() const override { return std::make_shared<RasterLayer>(); }
 	
 	Malachite::Surface surface() const { return _surface; }
 	void setSurface(const Malachite::Surface &surface) { _surface = surface; setThumbnailDirty(true); }
@@ -38,8 +38,8 @@ public:
 	
 	void render(Malachite::Painter *painter) const override;
 	
-	static std::shared_ptr<RasterLayer> createFromImageFile(const QString &path, QSize *imageSize = 0);
-	static std::shared_ptr<RasterLayer> createFromImage(const QImage &image);
+	static Ref<RasterLayer> createFromImageFile(const QString &path, QSize *imageSize = 0);
+	static Ref<RasterLayer> createFromImage(const QImage &image);
 	
 private:
 	
@@ -53,7 +53,7 @@ public:
 	RasterLayerFactory() : LayerFactory() {}
 	
 	QString name() const override;
-	LayerPtr create() const override { return std::make_shared<RasterLayer>(); }
+	LayerRef create() const override { return std::make_shared<RasterLayer>(); }
 	const std::type_info &typeInfo() const override { return typeid(RasterLayer); }
 };
 

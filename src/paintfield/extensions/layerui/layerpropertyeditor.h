@@ -20,7 +20,7 @@ signals:
 	
 public slots:
 	
-	void setCurrentLayer(const LayerConstPtr &current);
+	void setCurrentLayer(const LayerConstRef &current);
 	void updateEditor();
 	
 private slots:

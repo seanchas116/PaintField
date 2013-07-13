@@ -41,7 +41,7 @@ signals:
 	
 public slots:
 	
-	void setTransforms(const std::shared_ptr<const CanvasTransforms> &transforms);
+	void setTransforms(const Ref<const CanvasTransforms> &transforms);
 	//void setTransform(const Malachite::Affine2D &toScene, const Malachite::Affine2D &fromScene);
 	void setRetinaMode(bool mode);
 	void setDocumentSize(const QSize &size);

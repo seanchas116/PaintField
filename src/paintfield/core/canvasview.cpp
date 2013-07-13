@@ -31,7 +31,7 @@ public:
 	
 protected:
 	
-	void drawLayer(SurfacePainter *painter, const LayerConstPtr &layer) override
+	void drawLayer(SurfacePainter *painter, const LayerConstRef &layer) override
 	{
 		if (_tool && _tool->layerDelegations().contains(layer))
 			_tool->drawLayer(painter, layer);
@@ -39,7 +39,7 @@ protected:
 			LayerRenderer::drawLayer(painter, layer);
 	}
 	
-	void renderChildren(SurfacePainter *painter, const LayerConstPtr &parent) override
+	void renderChildren(SurfacePainter *painter, const LayerConstRef &parent) override
 	{
 		if (!_tool || _tool->layerInsertions().isEmpty())
 		{
@@ -174,7 +174,7 @@ CanvasViewController::CanvasViewController(Canvas *canvas) :
 		auto vp = new CanvasViewportController(this);
 		d->viewportContoller = vp;
 		connect(vp, SIGNAL(viewSizeChanged(QSize)), canvas, SLOT(setViewSize(QSize)));
-		connect(canvas, SIGNAL(transformsChanged(std::shared_ptr<const CanvasTransforms>)), vp, SLOT(setTransforms(std::shared_ptr<const CanvasTransforms>)));
+		connect(canvas, SIGNAL(transformsChanged(Ref<const CanvasTransforms>)), vp, SLOT(setTransforms(Ref<const CanvasTransforms>)));
 		connect(canvas, SIGNAL(retinaModeChanged(bool)), vp, SLOT(setRetinaMode(bool)));
 		vp->setTransforms(canvas->transforms());
 		vp->setRetinaMode(canvas->isRetinaMode());
@@ -186,7 +186,7 @@ CanvasViewController::CanvasViewController(Canvas *canvas) :
 	
 	// connect to canvas
 	{
-		connect(canvas, SIGNAL(transformsChanged(std::shared_ptr<const CanvasTransforms>)), this, SLOT(onTransformUpdated()));
+		connect(canvas, SIGNAL(transformsChanged(Ref<const CanvasTransforms>)), this, SLOT(onTransformUpdated()));
 		onTransformUpdated();
 		
 		connect(canvas, SIGNAL(toolChanged(Tool*)), this, SLOT(setTool(Tool*)));

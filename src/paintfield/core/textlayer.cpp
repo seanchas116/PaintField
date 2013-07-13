@@ -130,7 +130,7 @@ QString TextLayerFactory::name() const
 	return "text";
 }
 
-LayerPtr TextLayerFactory::create() const
+LayerRef TextLayerFactory::create() const
 {
 	return std::make_shared<TextLayer>();
 }

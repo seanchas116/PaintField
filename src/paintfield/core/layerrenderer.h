@@ -55,9 +55,9 @@ public:
 	 * @param keyRectClip Tiles and their regions to render (Priority 1)
 	 * @return
 	 */
-	Malachite::Surface renderToSurface(const QList<LayerConstPtr> &layers, const QPointSet &keyClip, const QHash<QPoint, QRect> &keyRectClip);
+	Malachite::Surface renderToSurface(const QList<LayerConstRef> &layers, const QPointSet &keyClip, const QHash<QPoint, QRect> &keyRectClip);
 	
-	Malachite::Surface renderToSurface(const QList<LayerConstPtr> &layers, const QPointSet &keyClip = QPointSet())
+	Malachite::Surface renderToSurface(const QList<LayerConstRef> &layers, const QPointSet &keyClip = QPointSet())
 	{
 		return renderToSurface(layers, keyClip, QHash<QPoint, QRect>());
 	}
@@ -67,18 +67,18 @@ protected:
 	/**
 	  Applies "layer"'s opacity and blend mode, and call drawLayer.
 	*/
-	void renderLayer(Malachite::SurfacePainter *painter, const LayerConstPtr &layer);
+	void renderLayer(Malachite::SurfacePainter *painter, const LayerConstRef &layer);
 	
 	/**
 	  Draws "layer" on "painter". Reimplement this function to customize layer drawing.
 	  "painter" is not transformed; you shoud use Malachite::Painter::drawTransformed*.
 	  Opacity and blend mode are already applied on painter.
 	*/
-	virtual void drawLayer(Malachite::SurfacePainter *painter, const LayerConstPtr &layer);
+	virtual void drawLayer(Malachite::SurfacePainter *painter, const LayerConstRef &layer);
 	
-	virtual void renderChildren(Malachite::SurfacePainter *painter, const LayerConstPtr &parent);
+	virtual void renderChildren(Malachite::SurfacePainter *painter, const LayerConstRef &parent);
 	
-	void renderLayers(Malachite::SurfacePainter *painter, const QList<LayerConstPtr> &layers);
+	void renderLayers(Malachite::SurfacePainter *painter, const QList<LayerConstRef> &layers);
 	
 private:
 	

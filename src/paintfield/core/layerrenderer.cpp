@@ -9,7 +9,7 @@ using namespace boost;
 namespace PaintField
 {
 
-Surface LayerRenderer::renderToSurface(const QList<LayerConstPtr> &layers, const QPointSet &keyClip, const QHash<QPoint, QRect> &keyRectClip)
+Surface LayerRenderer::renderToSurface(const QList<LayerConstRef> &layers, const QPointSet &keyClip, const QHash<QPoint, QRect> &keyRectClip)
 {
 	Surface surface;
 	SurfacePainter painter(&surface);
@@ -26,7 +26,7 @@ Surface LayerRenderer::renderToSurface(const QList<LayerConstPtr> &layers, const
 	return surface;
 }
 
-void LayerRenderer::renderLayer(SurfacePainter *painter, const LayerConstPtr &layer)
+void LayerRenderer::renderLayer(SurfacePainter *painter, const LayerConstRef &layer)
 {
 	if (!layer->isVisible() || !layer->opacity())
 		return;
@@ -47,7 +47,7 @@ void LayerRenderer::renderLayer(SurfacePainter *painter, const LayerConstPtr &la
 	painter->setOpacity(opacity);
 }
 
-void LayerRenderer::drawLayer(SurfacePainter *painter, const LayerConstPtr &layer)
+void LayerRenderer::drawLayer(SurfacePainter *painter, const LayerConstRef &layer)
 {
 	if (layer->count())
 		painter->drawPreTransformedSurface(QPoint(), renderToSurface({layer}, painter->keyClip()));
@@ -55,12 +55,12 @@ void LayerRenderer::drawLayer(SurfacePainter *painter, const LayerConstPtr &laye
 	layer->render(painter);
 }
 
-void LayerRenderer::renderChildren(SurfacePainter *painter, const LayerConstPtr &parent)
+void LayerRenderer::renderChildren(SurfacePainter *painter, const LayerConstRef &parent)
 {
 	renderLayers(painter, parent->children());
 }
 
-void LayerRenderer::renderLayers(SurfacePainter *painter, const QList<LayerConstPtr> &layers)
+void LayerRenderer::renderLayers(SurfacePainter *painter, const QList<LayerConstRef> &layers)
 {
 	for (auto layer : layers | adaptors::reversed)
 		renderLayer(painter, layer);

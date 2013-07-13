@@ -18,7 +18,7 @@ namespace PaintField
 struct LayerPropertyEditor::Data
 {
 	LayerScene *scene = 0;
-	LayerConstPtr current;
+	LayerConstRef current;
 	
 	DoubleSlider *opacitySlider = 0;
 	LooseSpinBox *opacitySpinBox = 0;
@@ -81,7 +81,7 @@ LayerPropertyEditor::LayerPropertyEditor(LayerScene *scene, QWidget *parent) :
 	if (scene)
 	{
 		connect(scene, SIGNAL(currentLayerChanged()), this, SLOT(updateEditor()));
-		connect(scene, SIGNAL(currentChanged(LayerConstPtr,LayerConstPtr)), this, SLOT(setCurrentLayer(LayerConstPtr)));
+		connect(scene, SIGNAL(currentChanged(LayerConstRef,LayerConstRef)), this, SLOT(setCurrentLayer(LayerConstRef)));
 		setCurrentLayer(scene->current());
 	}
 	else
@@ -95,7 +95,7 @@ LayerPropertyEditor::~LayerPropertyEditor()
 	delete d;
 }
 
-void LayerPropertyEditor::setCurrentLayer(const LayerConstPtr &current)
+void LayerPropertyEditor::setCurrentLayer(const LayerConstRef &current)
 {
 	PAINTFIELD_DEBUG << current;
 	d->current = current;

@@ -48,7 +48,7 @@ struct Canvas::Data
 	double memorizedScale = 1, memorizedRotation = 0;
 	QPoint memorizedTranslation;
 	
-	std::shared_ptr<CanvasTransforms> transforms;
+	Ref<CanvasTransforms> transforms;
 	
 	QScopedPointer<Tool> tool;
 	
@@ -180,7 +180,7 @@ bool Canvas::isRetinaMode() const
 	return d->transforms->retinaMode;
 }
 
-std::shared_ptr<const CanvasTransforms> Canvas::transforms() const
+Ref<const CanvasTransforms> Canvas::transforms() const
 {
 	return d->transforms;
 }
@@ -347,7 +347,7 @@ void Canvas::newCanvasIntoDocument()
 	workspace()->addAndShowCanvas(new Canvas(this, d->workspace));
 }
 
-static void updateCanvasTransforms(const std::shared_ptr<CanvasTransforms> &transforms)
+static void updateCanvasTransforms(const Ref<CanvasTransforms> &transforms)
 {
 	auto sceneSize = transforms->sceneSize;
 	auto viewSize = transforms->viewSize;

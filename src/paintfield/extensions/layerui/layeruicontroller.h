@@ -59,7 +59,7 @@ private:
 	
 	void copyOrCutLayers(bool cut);
 	
-	void addLayers(const QList<LayerPtr> &layers, const QString &description);
+	void addLayers(const QList<LayerRef> &layers, const QString &description);
 	
 	struct Data;
 	Data *d;

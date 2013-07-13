@@ -23,7 +23,7 @@ public:
 	BrushTool(Canvas *parent = 0);
 	~BrushTool();
 	
-	void drawLayer(Malachite::SurfacePainter *painter, const LayerConstPtr &layer);
+	void drawLayer(Malachite::SurfacePainter *painter, const LayerConstRef &layer);
 	
 	void drawCustomCursor(QPainter *painter, const Malachite::Vec2D &pos);
 	QRect customCursorRect(const Malachite::Vec2D &pos);
@@ -65,7 +65,7 @@ private:
 	
 	bool _isStroking = false;
 	
-	std::shared_ptr<const RasterLayer> _layer = 0;
+	Ref<const RasterLayer> _layer = 0;
 	Malachite::Surface _surface;
 	
 	boost::optional<TabletInputData> _lastEndData;

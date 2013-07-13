@@ -18,61 +18,61 @@ class LayerScene : public QObject
 {
 	Q_OBJECT
 public:
-	LayerScene(const QList<LayerPtr> &layers, Document *document);
+	LayerScene(const QList<LayerRef> &layers, Document *document);
 	~LayerScene();
 	
-	void addLayers(const QList<LayerPtr> &layers, const LayerConstPtr &parent, int index, const QString &description);
-	void removeLayers(const QList<LayerConstPtr> &layers, const QString &description = QString());
-	void moveLayers(const QList<LayerConstPtr> &layers, const LayerConstPtr &parent, int index);
-	void copyLayers(const QList<LayerConstPtr> &layers, const LayerConstPtr &parent, int index);
-	void mergeLayers(const LayerConstPtr &parent, int index, int count);
+	void addLayers(const QList<LayerRef> &layers, const LayerConstRef &parent, int index, const QString &description);
+	void removeLayers(const QList<LayerConstRef> &layers, const QString &description = QString());
+	void moveLayers(const QList<LayerConstRef> &layers, const LayerConstRef &parent, int index);
+	void copyLayers(const QList<LayerConstRef> &layers, const LayerConstRef &parent, int index);
+	void mergeLayers(const LayerConstRef &parent, int index, int count);
 	
-	void editLayer(const LayerConstPtr &layer, LayerEdit *edit, const QString &description);
-	void setLayerProperty(const LayerConstPtr &layer, const QVariant &data, int role, const QString &description = QString(), bool mergeOn = true);
+	void editLayer(const LayerConstRef &layer, LayerEdit *edit, const QString &description);
+	void setLayerProperty(const LayerConstRef &layer, const QVariant &data, int role, const QString &description = QString(), bool mergeOn = true);
 	
-	LayerConstPtr rootLayer() const;
+	LayerConstRef rootLayer() const;
 	Document *document();
 	
 	LayerItemModel *itemModel();
 	QItemSelectionModel *itemSelectionModel();
 	
-	LayerConstPtr current() const;
-	QList<LayerConstPtr> selection() const;
+	LayerConstRef current() const;
+	QList<LayerConstRef> selection() const;
 	
-	LayerConstPtr layerForPath(const QList<int> &path);
+	LayerConstRef layerForPath(const QList<int> &path);
 	
-	static QList<int> pathForLayer(const LayerConstPtr &layer);
+	static QList<int> pathForLayer(const LayerConstRef &layer);
 	
 public slots:
 	
 	void abortThumbnailUpdate();
 	void update();
 	
-	void setCurrent(const LayerConstPtr &layer);
-	void setSelection(const QList<LayerConstPtr> &layers);
+	void setCurrent(const LayerConstRef &layer);
+	void setSelection(const QList<LayerConstRef> &layers);
 	
 signals:
 	
-	void layerAboutToBeInserted(const LayerConstPtr &parent, int index);
-	void layerInserted(const LayerConstPtr &parent, int index);
+	void layerAboutToBeInserted(const LayerConstRef &parent, int index);
+	void layerInserted(const LayerConstRef &parent, int index);
 	
-	void layerAboutToBeRemoved(const LayerConstPtr &parent, int index);
-	void layerRemoved(const LayerConstPtr &parent, int index);
+	void layerAboutToBeRemoved(const LayerConstRef &parent, int index);
+	void layerRemoved(const LayerConstRef &parent, int index);
 	
-	void layerChanged(const LayerConstPtr &layer);
+	void layerChanged(const LayerConstRef &layer);
 	
 	void tilesUpdated(const QPointSet &tileKeys);
 	void thumbnailsUpdated();
 	
-	void currentChanged(const LayerConstPtr &now, const LayerConstPtr &old);
-	void selectionChanged(const QList<LayerConstPtr> &selected, const QList<LayerConstPtr> &deselected);
+	void currentChanged(const LayerConstRef &now, const LayerConstRef &old);
+	void selectionChanged(const QList<LayerConstRef> &selected, const QList<LayerConstRef> &deselected);
 	
 	void currentLayerChanged();
 	
 protected:
 	
 	void enqueueTileUpdate(const QPointSet &keys);
-	LayerPtr mutableRootLayer();
+	LayerRef mutableRootLayer();
 	
 	void pushCommand(QUndoCommand *command);
 	
@@ -82,7 +82,7 @@ private slots:
 	
 	void onCurrentIndexChanged(const QModelIndex &now, const QModelIndex &old);
 	void onItemSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
-	void onLayerPropertyChanged(const LayerConstPtr &layer);
+	void onLayerPropertyChanged(const LayerConstRef &layer);
 	
 private:
 	

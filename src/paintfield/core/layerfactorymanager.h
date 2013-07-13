@@ -12,7 +12,7 @@ class LayerFactoryManager : public QObject
 public:
 	explicit LayerFactoryManager(QObject *parent = 0);
 	
-	LayerPtr createLayer(const QString &name) const;
+	LayerRef createLayer(const QString &name) const;
 	
 	template <class T> QString nameForType() const { return nameForTypeInfo(typeid(T)); }
 	QString nameForTypeInfo(const std::type_info &info) const;

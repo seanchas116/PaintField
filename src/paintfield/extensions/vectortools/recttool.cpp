@@ -185,15 +185,15 @@ struct RectTool::Data
 	
 	struct LayerInfo
 	{
-		LayerConstPtr original; // original layer
+		LayerConstRef original; // original layer
 		
-		std::shared_ptr<AbstractRectLayer> rectLayer; // editable rect layer (only if original layer is rect)
+		Ref<AbstractRectLayer> rectLayer; // editable rect layer (only if original layer is rect)
 		Vec2D originalRectPos;
 		
 		QRect rasterBoundingRect;
 		QPoint rasterOffset;
 		
-		void setOriginalLayer(const LayerConstPtr &layer)
+		void setOriginalLayer(const LayerConstRef &layer)
 		{
 			original = layer;
 			
@@ -227,11 +227,11 @@ struct RectTool::Data
 	}
 	
 	AddingType addingType = NoAdding;
-	std::shared_ptr<AbstractRectLayer> layerToAdd;
-	LayerConstPtr layerToAddParent;
+	Ref<AbstractRectLayer> layerToAdd;
+	LayerConstRef layerToAddParent;
 	int layerToAddIndex;
 	
-	LayerConstPtr clickedLayer;
+	LayerConstRef clickedLayer;
 	bool clickedWithShift = false;
 	
 	SelectingMode selectingMode = SelectImmediately;
@@ -277,9 +277,9 @@ RectTool::RectTool(AddingType type, Canvas *canvas) :
 	addHandle(Left, 0);
 	addHandle(Right, 0);
 	
-	connect(layerScene(), SIGNAL(selectionChanged(QList<LayerConstPtr>,QList<LayerConstPtr>)), this, SLOT(updateSelected()));
-	connect(layerScene(), SIGNAL(layerChanged(LayerConstPtr)), this, SLOT(updateLayer(LayerConstPtr)));
-	connect(canvas, SIGNAL(transformsChanged(std::shared_ptr<const CanvasTransforms>)), this, SLOT(updateGraphicsItems()));
+	connect(layerScene(), SIGNAL(selectionChanged(QList<LayerConstRef>,QList<LayerConstRef>)), this, SLOT(updateSelected()));
+	connect(layerScene(), SIGNAL(layerChanged(LayerConstRef)), this, SLOT(updateLayer(LayerConstRef)));
+	connect(canvas, SIGNAL(transformsChanged(Ref<const CanvasTransforms>)), this, SLOT(updateGraphicsItems()));
 	updateSelected();
 }
 
@@ -288,7 +288,7 @@ RectTool::~RectTool()
 	delete d;
 }
 
-void RectTool::drawLayer(SurfacePainter *painter, const LayerConstPtr &layer)
+void RectTool::drawLayer(SurfacePainter *painter, const LayerConstRef &layer)
 {
 	for (const auto &info : d->selectedLayerInfos)
 	{
@@ -546,7 +546,7 @@ void RectTool::updateSelected()
 	updateGraphicsItems();
 }
 
-void RectTool::updateLayer(const LayerConstPtr &layer)
+void RectTool::updateLayer(const LayerConstRef &layer)
 {
 	for (auto &info : d->selectedLayerInfos)
 	{
@@ -729,7 +729,7 @@ void RectTool::startAdding()
 {
 	auto createNew = [this]()
 	{
-		std::shared_ptr<AbstractRectLayer> layer;
+		Ref<AbstractRectLayer> layer;
 		
 		if (d->addingType == RectTool::AddText)
 		{
@@ -797,7 +797,7 @@ void RectTool::finishAdding()
 	d->layerToAdd = nullptr;
 }
 
-void RectTool::selectLayer(const LayerConstPtr &layer, bool isShiftPressed)
+void RectTool::selectLayer(const LayerConstRef &layer, bool isShiftPressed)
 {
 	auto selection = layerScene()->selection();
 	

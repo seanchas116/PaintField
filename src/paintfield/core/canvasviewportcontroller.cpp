@@ -109,7 +109,7 @@ void CanvasViewportController::moveViewport(const QRect &rect, bool visible)
 	d->viewportWrapper.moveViewport(rect, visible);
 }
 
-void CanvasViewportController::setTransforms(const std::shared_ptr<const CanvasTransforms> &transforms)
+void CanvasViewportController::setTransforms(const Ref<const CanvasTransforms> &transforms)
 {
 	d->state.mipmap.setCurrentLevel(transforms->mipmapLevel);
 	d->state.transforms = transforms;

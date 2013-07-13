@@ -10,17 +10,17 @@ namespace PaintField
 
 using namespace Malachite;
 
-void LayerEdit::redo(const LayerPtr &layer)
+void LayerEdit::redo(const LayerRef &layer)
 {
 	Q_UNUSED(layer)
 }
 
-void LayerEdit::undo(const LayerPtr &layer)
+void LayerEdit::undo(const LayerRef &layer)
 {
 	Q_UNUSED(layer)
 }
 
-LayerPropertyEdit::LayerPropertyEdit(const LayerPtr &layer, const QVariant &property, int role) :
+LayerPropertyEdit::LayerPropertyEdit(const LayerRef &layer, const QVariant &property, int role) :
       LayerEdit(),
       _newProperty(property),
       _role(role)
@@ -37,17 +37,17 @@ LayerPropertyEdit::LayerPropertyEdit(const LayerPtr &layer, const QVariant &prop
 	}
 }
 
-void LayerPropertyEdit::redo(const LayerPtr &layer)
+void LayerPropertyEdit::redo(const LayerRef &layer)
 {
 	change(layer);
 }
 
-void LayerPropertyEdit::undo(const LayerPtr &layer)
+void LayerPropertyEdit::undo(const LayerRef &layer)
 {
 	change(layer);
 }
 
-void LayerPropertyEdit::change(const LayerPtr &layer)
+void LayerPropertyEdit::change(const LayerRef &layer)
 {
 	auto property = layer->property(_role);
 	layer->setProperty(_newProperty, _role);
@@ -61,7 +61,7 @@ LayerSurfaceEdit::LayerSurfaceEdit(const Surface &surface, const QPointSet &tile
 	setModifiedKeys(tileKeys);
 }
 
-void LayerSurfaceEdit::redo(const LayerPtr &layer)
+void LayerSurfaceEdit::redo(const LayerRef &layer)
 {
 	auto rasterLayer = std::dynamic_pointer_cast<RasterLayer>(layer);
 	Q_ASSERT(rasterLayer);
@@ -71,7 +71,7 @@ void LayerSurfaceEdit::redo(const LayerPtr &layer)
 	_surface = surface;
 }
 
-void LayerSurfaceEdit::undo(const LayerPtr &layer)
+void LayerSurfaceEdit::undo(const LayerRef &layer)
 {
 	auto rasterLayer = std::dynamic_pointer_cast<RasterLayer>(layer);
 	Q_ASSERT(rasterLayer);
@@ -81,7 +81,7 @@ void LayerSurfaceEdit::undo(const LayerPtr &layer)
 	_surface = surface;
 }
 
-void LayerMoveEdit::redo(const LayerPtr &layer)
+void LayerMoveEdit::redo(const LayerRef &layer)
 {
 	auto rasterLayer = std::dynamic_pointer_cast<RasterLayer>(layer);
 	Q_ASSERT(rasterLayer);
@@ -97,7 +97,7 @@ void LayerMoveEdit::redo(const LayerPtr &layer)
 	rasterLayer->setSurface(surface);
 }
 
-void LayerMoveEdit::undo(const LayerPtr &layer)
+void LayerMoveEdit::undo(const LayerRef &layer)
 {
 	auto rasterLayer = std::dynamic_pointer_cast<RasterLayer>(layer);
 	Q_ASSERT(rasterLayer);

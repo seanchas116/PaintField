@@ -41,7 +41,7 @@ public:
 	explicit RectTool(AddingType type, Canvas *canvas);
 	~RectTool();
 	
-	void drawLayer(Malachite::SurfacePainter *painter, const LayerConstPtr &layer) override;
+	void drawLayer(Malachite::SurfacePainter *painter, const LayerConstRef &layer) override;
 	
 	void setSelectingMode(SelectingMode mode);
 	SelectingMode selectingMode() const;
@@ -58,7 +58,7 @@ protected:
 private slots:
 	
 	void updateSelected();
-	void updateLayer(const LayerConstPtr &layer);
+	void updateLayer(const LayerConstRef &layer);
 	void updateGraphicsItems();
 	
 private:
@@ -83,7 +83,7 @@ private:
 	void startAdding();
 	void finishAdding();
 	
-	void selectLayer(const LayerConstPtr &layer, bool isShiftPressed);
+	void selectLayer(const LayerConstRef &layer, bool isShiftPressed);
 	
 	friend class RectInserter;
 	friend class RectHandleItem;

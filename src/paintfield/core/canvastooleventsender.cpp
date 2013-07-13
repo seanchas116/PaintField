@@ -17,7 +17,7 @@ struct CanvasToolEventSender::Data
 	QPointer<Tool> tool;
 	Canvas *canvas;
 	CanvasViewController *controller;
-	std::shared_ptr<const CanvasTransforms> transforms;
+	Ref<const CanvasTransforms> transforms;
 	
 	bool retinaMode = false;
 	double mousePressure = 0;

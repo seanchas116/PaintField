@@ -24,8 +24,8 @@ namespace PaintField
 {
 
 class Layer;
-typedef std::shared_ptr<Layer> LayerPtr;
-typedef std::shared_ptr<const Layer> LayerConstPtr;
+typedef Ref<Layer> LayerRef;
+typedef Ref<const Layer> LayerConstRef;
 
 class Layer : public std::enable_shared_from_this<Layer>
 {
@@ -34,49 +34,49 @@ public:
 	Layer(const QString &name = QString());
 	virtual ~Layer();
 	
-	QList<LayerPtr> children() { return _children; }
-	QList<LayerConstPtr> children() const { return Malachite::blindCast<QList<LayerConstPtr> >(_children); }
+	QList<LayerRef> children() { return _children; }
+	QList<LayerConstRef> children() const { return Malachite::blindCast<QList<LayerConstRef> >(_children); }
 	
 	/**
 	 * Same as QList::mid
 	 */
-	QList<LayerPtr> children(int start, int length = -1) { return _children.mid(start, length); }
+	QList<LayerRef> children(int start, int length = -1) { return _children.mid(start, length); }
 	
-	LayerConstPtr constChild(int index) const;
-	LayerConstPtr child(int index) const { return constChild(index); }
-	LayerPtr child(int index) { return std::const_pointer_cast<Layer>(constChild(index)); }
+	LayerConstRef constChild(int index) const;
+	LayerConstRef child(int index) const { return constChild(index); }
+	LayerRef child(int index) { return std::const_pointer_cast<Layer>(constChild(index)); }
 	
-	LayerConstPtr sibling(int index) const { return parent()->child(index); }
-	LayerPtr sibling(int index) { return parent()->child(index); }
+	LayerConstRef sibling(int index) const { return parent()->child(index); }
+	LayerRef sibling(int index) { return parent()->child(index); }
 	
-	LayerConstPtr parent() const { return _parent.lock(); }
-	LayerPtr parent() { return _parent.lock(); }
-	
-	/**
-	 * @return The root layer of this layer
-	 */
-	LayerConstPtr constRoot() const;
-	
-	LayerConstPtr root() const { return constRoot(); }
+	LayerConstRef parent() const { return _parent.lock(); }
+	LayerRef parent() { return _parent.lock(); }
 	
 	/**
 	 * @return The root layer of this layer
 	 */
-	LayerPtr root() { return std::const_pointer_cast<Layer>(constRoot()); }
+	LayerConstRef constRoot() const;
+	
+	LayerConstRef root() const { return constRoot(); }
+	
+	/**
+	 * @return The root layer of this layer
+	 */
+	LayerRef root() { return std::const_pointer_cast<Layer>(constRoot()); }
 	
 	/**
 	 * This function is faster than isAncestorOfSafe().
 	 * @param layer
 	 * @return Whether this layer is an ancestor of the "layer"
 	 */
-	bool isAncestorOf(const LayerConstPtr &layer) const;
+	bool isAncestorOf(const LayerConstRef &layer) const;
 	
 	/**
 	 * This function is slower but safer than isAncestorOf() because it even works if "layer" is already deleted.
 	 * @param layer
 	 * @return Whether this layer is an ancestor of "layer"
 	 */
-	bool isAncestorOfSafe(const LayerConstPtr &layer) const;
+	bool isAncestorOfSafe(const LayerConstRef &layer) const;
 	
 	/**
 	 * @param row
@@ -88,7 +88,7 @@ public:
 	 * @param layer
 	 * @return Wheter this layer contains "layer"
 	 */
-	bool contains(const LayerPtr &layer) const { return _children.contains(layer); }
+	bool contains(const LayerRef &layer) const { return _children.contains(layer); }
 	
 	/**
 	 * @param row
@@ -110,7 +110,7 @@ public:
 	 * @param child
 	 * @return The index of a child layer
 	 */
-	int indexOf(const LayerConstPtr &child) const { return _children.indexOf(std::const_pointer_cast<Layer>(child)); }
+	int indexOf(const LayerConstRef &child) const { return _children.indexOf(std::const_pointer_cast<Layer>(child)); }
 	
 	/**
 	 * @return The index of this layer in its parent.
@@ -127,7 +127,7 @@ public:
 	 * @param child
 	 * @return Whether succeeded
 	 */
-	bool insert(int index, const LayerPtr &child);
+	bool insert(int index, const LayerRef &child);
 	
 	/**
 	 * Inserts child layers.
@@ -135,23 +135,23 @@ public:
 	 * @param children
 	 * @return Whether succeeded
 	 */
-	bool insert(int index, const QList<LayerPtr> &children);
+	bool insert(int index, const QList<LayerRef> &children);
 	
 	/**
 	 * Prepends a child layer.
 	 * @param child
 	 */
-	void prepend(const LayerPtr &child) { insert(0, child); }
+	void prepend(const LayerRef &child) { insert(0, child); }
 	
-	void prepend(const QList<LayerPtr> &layers) { insert(0, layers); }
+	void prepend(const QList<LayerRef> &layers) { insert(0, layers); }
 	
 	/**
 	 * Appends a child layer.
 	 * @param child
 	 */
-	void append(const LayerPtr &child) { insert(count(), child); }
+	void append(const LayerRef &child) { insert(count(), child); }
 	
-	void append(const QList<LayerPtr> &layers) { insert(count(), layers); }
+	void append(const QList<LayerRef> &layers) { insert(count(), layers); }
 	
 	/**
 	 * Take a child layer.
@@ -159,26 +159,26 @@ public:
 	 * @param row
 	 * @return The taken layer
 	 */
-	LayerPtr take(int index);
+	LayerRef take(int index);
 	
 	/**
 	 * Take all child layers.
 	 * @return The taken layers
 	 */
-	QList<LayerPtr> takeAll();
+	QList<LayerRef> takeAll();
 	
 	/**
 	 * Clones this layer.
 	 * Calls createAnother to duplicate the layer and use encode / decode to copy data.
 	 * @return 
 	 */
-	LayerPtr clone() const;
+	LayerRef clone() const;
 	
 	/**
 	 * Clones this layer and its descendants.
 	 * @return The cloned layer
 	 */
-	LayerPtr cloneRecursive() const;
+	LayerRef cloneRecursive() const;
 	
 	/**
 	 * Creates an unduplicated child name (eg "Layer 1").
@@ -242,20 +242,20 @@ public:
 	 */
 	void updateDirtyThumbnailRecursive(const QSize &size);
 	
-	LayerConstPtr descendantAt(const QPoint &pos, int margin) const;
+	LayerConstRef descendantAt(const QPoint &pos, int margin) const;
 	
 	virtual QPointSet tileKeys() const { return QPointSet(); }
 	QPointSet tileKeysRecursive() const;
 	
 	void encodeRecursive(QDataStream &stream) const;
-	static LayerPtr decodeRecursive(QDataStream &stream);
+	static LayerRef decodeRecursive(QDataStream &stream);
 	
 	/**
 	 * Creates another instance of the layer.
 	 * The properties does not have to be copied.
 	 * @return 
 	 */
-	virtual LayerPtr createAnother() const = 0;
+	virtual LayerRef createAnother() const = 0;
 	
 	virtual bool canHaveChildren() const { return false; }
 	
@@ -294,10 +294,8 @@ protected:
 	
 private:
 	
-	friend class LayerRef;
-	
 	std::weak_ptr<Layer> _parent;
-	QList<LayerPtr> _children;
+	QList<LayerRef> _children;
 	
 	QString _name;
 	bool _isLocked = false, _isVisible = true;
@@ -315,12 +313,12 @@ public:
 	virtual ~LayerFactory() {}
 	
 	virtual QString name() const = 0;
-	virtual LayerPtr create() const = 0;
+	virtual LayerRef create() const = 0;
 	virtual const std::type_info &typeInfo() const = 0;
 };
 
 }
 
-QDebug operator<<(QDebug debug, const PaintField::LayerConstPtr &layer);
+QDebug operator<<(QDebug debug, const PaintField::LayerConstRef &layer);
 
 #endif // FSLAYER_H
