@@ -76,20 +76,23 @@ LayerPropertyEditor::LayerPropertyEditor(LayerScene *scene, QWidget *parent) :
 		}
 		
 		{
-			d->comboBoxBlendModes =
+			d->comboBoxBlendModes = 
 			{
 				BlendMode::Normal,
 				-1,
-				BlendMode::Plus,
-				BlendMode::Multiply,
-				BlendMode::Screen,
-				BlendMode::Overlay,
-				BlendMode::Darken,
 				BlendMode::Lighten,
+				BlendMode::Screen,
 				BlendMode::ColorDodge,
+				BlendMode::Plus,
+				-1,
+				BlendMode::Darken,
+				BlendMode::Multiply,
 				BlendMode::ColorBurn,
-				BlendMode::HardLight,
+				-1,
+				BlendMode::Overlay,
 				BlendMode::SoftLight,
+				BlendMode::HardLight,
+				-1,
 				BlendMode::Difference,
 				BlendMode::Exclusion,
 				-1,

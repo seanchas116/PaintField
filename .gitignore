@@ -1,7 +1,7 @@
 src/libs/Malachite
-PaintField.pro.user
+*.pro.user
 *.autosave
 *.swp
 *.swo
 *~
-
+*.pro.user.2.7pre1
