@@ -26,8 +26,11 @@ public slots:
 private slots:
 	
 	void setOpacityPercent(double value);
+	void onBlendModeComboBoxChanged(int index);
 	
 private:
+	
+	void updateComboBoxItems();
 	
 	struct Data;
 	Data *d;

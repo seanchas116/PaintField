@@ -5,30 +5,38 @@
 #include <QComboBox>
 #include <QLabel>
 
+#include "paintfield/core/grouplayer.h"
 #include "paintfield/core/document.h"
 #include "paintfield/core/layerscene.h"
 #include "paintfield/core/widgets/doubleslider.h"
 #include "paintfield/core/widgets/loosespinbox.h"
+#include "paintfield/core/blendmodetexts.h"
 
 #include "layerpropertyeditor.h"
 
 namespace PaintField
 {
 
+using namespace Malachite;
+
 struct LayerPropertyEditor::Data
 {
 	LayerScene *scene = 0;
 	LayerConstRef current;
+	bool isCurrentGroup = false;
 	
 	DoubleSlider *opacitySlider = 0;
 	LooseSpinBox *opacitySpinBox = 0;
 	QComboBox *blendModeComboBox = 0;
+	
+	QList<int> comboBoxBlendModes;
 };
 
 LayerPropertyEditor::LayerPropertyEditor(LayerScene *scene, QWidget *parent) :
 	QWidget(parent),
 	d(new Data)
 {
+	
 	d->scene = scene;
 	
 	{
@@ -68,9 +76,31 @@ LayerPropertyEditor::LayerPropertyEditor(LayerScene *scene, QWidget *parent) :
 		}
 		
 		{
+			d->comboBoxBlendModes =
+			{
+				BlendMode::Normal,
+				-1,
+				BlendMode::Plus,
+				BlendMode::Multiply,
+				BlendMode::Screen,
+				BlendMode::Overlay,
+				BlendMode::Darken,
+				BlendMode::Lighten,
+				BlendMode::ColorDodge,
+				BlendMode::ColorBurn,
+				BlendMode::HardLight,
+				BlendMode::SoftLight,
+				BlendMode::Difference,
+				BlendMode::Exclusion,
+				-1,
+				BlendMode::PassThrough
+			};
+			
 			auto combo = new QComboBox();
-			combo->addItem(tr("Unimplemented"));
+			connect(combo, SIGNAL(currentIndexChanged(int)), this, SLOT(onBlendModeComboBoxChanged(int)));
 			d->blendModeComboBox = combo;
+			
+			updateComboBoxItems();
 			
 			formLayout->addRow(tr("Blend"), combo);
 		}
@@ -108,13 +138,48 @@ void LayerPropertyEditor::updateEditor()
 	
 	if (d->current)
 	{
+		bool isCurrentGroup = d->current->isType<GroupLayer>();
+		
+		if (d->isCurrentGroup != isCurrentGroup)
+		{
+			d->isCurrentGroup = isCurrentGroup;
+			updateComboBoxItems();
+		}
+		
 		d->opacitySpinBox->setValue(d->current->property(RoleOpacity).toDouble() * 100.0);
+		
+		d->blendModeComboBox->setCurrentIndex(d->comboBoxBlendModes.indexOf(d->current->blendMode().toInt()));
 	}
 }
 
 void LayerPropertyEditor::setOpacityPercent(double value)
 {
 	d->scene->setLayerProperty(d->current, value / 100.0, RoleOpacity, tr("Set Layer Opacity"));
+}
+
+void LayerPropertyEditor::onBlendModeComboBoxChanged(int index)
+{
+	if (d->current)
+		d->scene->setLayerProperty(d->current, d->comboBoxBlendModes.at(index), RoleBlendMode, tr("Set Blend Mode"));
+}
+
+void LayerPropertyEditor::updateComboBoxItems()
+{
+	disconnect(d->blendModeComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onBlendModeComboBoxChanged(int)));
+	d->blendModeComboBox->clear();
+	
+	for (int blendMode : d->comboBoxBlendModes)
+	{
+		if (blendMode == -1)
+			d->blendModeComboBox->insertSeparator(d->blendModeComboBox->count());
+		else
+			d->blendModeComboBox->addItem(BlendModeTexts::text(blendMode));
+		
+		if (blendMode == BlendMode::Exclusion && !d->isCurrentGroup)
+			break;
+	}
+	
+	connect(d->blendModeComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onBlendModeComboBoxChanged(int)));
 }
 
 }

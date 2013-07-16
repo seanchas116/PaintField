@@ -103,7 +103,8 @@ HEADERS += \
     canvasupdatemanager.h \
     canvasviewportmipmap.h \
     canvasviewportsurface.h \
-    canvasviewportstate.h
+    canvasviewportstate.h \
+    blendmodetexts.h
 
 FORMS +=
 SOURCES += \
@@ -188,7 +189,8 @@ SOURCES += \
     canvasviewportnormal.cpp \
 	canvasviewportcontroller.cpp \
     canvasupdatemanager.cpp \
-    canvasviewportmipmap.cpp
+    canvasviewportmipmap.cpp \
+    blendmodetexts.cpp
 
 RESOURCES += \
     resources/resource-paintfield-core.qrc
