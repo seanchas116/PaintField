@@ -11,6 +11,7 @@
 #include "paintfield/core/widgets/doubleslider.h"
 #include "paintfield/core/widgets/loosespinbox.h"
 #include "paintfield/core/blendmodetexts.h"
+#include "paintfield/core/appcontroller.h"
 
 #include "layerpropertyeditor.h"
 
@@ -181,7 +182,7 @@ void LayerPropertyEditor::updateComboBoxItems()
 		if (blendMode == -1)
 			d->blendModeComboBox->insertSeparator(d->blendModeComboBox->count());
 		else
-			d->blendModeComboBox->addItem(BlendModeTexts::text(blendMode));
+			d->blendModeComboBox->addItem(appController()->blendModeTexts()->text(blendMode));
 		
 		if (blendMode == BlendMode::Luminosity && !d->isCurrentGroup)
 			break;

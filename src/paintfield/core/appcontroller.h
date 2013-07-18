@@ -20,6 +20,7 @@ class CursorStack;
 class DocumentReferenceManager;
 class Canvas;
 class Workspace;
+class BlendModeTexts;
 
 /**
  * AppController is an singleton class that manages application-wide classes.
@@ -34,6 +35,7 @@ public:
 	
 	void begin();
 	
+	BlendModeTexts *blendModeTexts();
 	WorkspaceManager *workspaceManager();
 	ExtensionManager *extensionManager();
 	SettingsManager *settingsManager();

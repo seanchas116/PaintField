@@ -30,8 +30,9 @@
     </message>
     <message>
         <location filename="aboutdialog/aboutdialog.ui" line="57"/>
-        <source>&lt;a href=&quot;http://qt-project.org/&quot;&gt;Qt&lt;/a&gt;, &lt;a href=&quot;http://www.antigrain.com/&quot;&gt;Anti-Grain Geometry&lt;/a&gt;, &lt;a href=&quot;http://www.angusj.com/delphi/clipper.php&quot;&gt;Clipper&lt;/a&gt;, &lt;a href=&quot;http://www.winimage.com/zLibDll/minizip.html&quot;&gt;Minizip&lt;/a&gt;, &lt;a href=&quot;http://freeimage.sourceforge.net/&quot;&gt;FreeImage&lt;/a&gt;, &lt;a href=&quot;http://www.codeproject.com/Articles/20027/JSON-Spirit-A-C-JSON-Parser-Generator-Implemented&quot;&gt;JSON Spirit&lt;/a&gt;, &lt;a href=&quot;http://cpplinq.codeplex.com/&quot;&gt;LINQ for C++&lt;/a&gt;.</source>
-        <translation></translation>
+        <source>&lt;a href=&quot;http://qt-project.org/&quot;&gt;Qt&lt;/a&gt;, &lt;a href=&quot;http://www.antigrain.com/&quot;&gt;Anti-Grain Geometry&lt;/a&gt;, &lt;a href=&quot;http://www.angusj.com/delphi/clipper.php&quot;&gt;Clipper&lt;/a&gt;, &lt;a href=&quot;http://www.winimage.com/zLibDll/minizip.html&quot;&gt;Minizip&lt;/a&gt;, &lt;a href=&quot;http://freeimage.sourceforge.net/&quot;&gt;FreeImage&lt;/a&gt;, &lt;a href=&quot;http://www.codeproject.com/Articles/20027/JSON-Spirit-A-C-JSON-Parser-Generator-Implemented&quot;&gt;JSON Spirit&lt;/a&gt;, &lt;a href=&quot;http://cpplinq.codeplex.com/&quot;&gt;LINQ for C++&lt;/a&gt;, &lt;a href=&quot;http://www.boost.org/&quot;&gt;Boost&lt;/a&gt;.</source>
+        <oldsource>&lt;a href=&quot;http://qt-project.org/&quot;&gt;Qt&lt;/a&gt;, &lt;a href=&quot;http://www.antigrain.com/&quot;&gt;Anti-Grain Geometry&lt;/a&gt;, &lt;a href=&quot;http://www.angusj.com/delphi/clipper.php&quot;&gt;Clipper&lt;/a&gt;, &lt;a href=&quot;http://www.winimage.com/zLibDll/minizip.html&quot;&gt;Minizip&lt;/a&gt;, &lt;a href=&quot;http://freeimage.sourceforge.net/&quot;&gt;FreeImage&lt;/a&gt;, &lt;a href=&quot;http://www.codeproject.com/Articles/20027/JSON-Spirit-A-C-JSON-Parser-Generator-Implemented&quot;&gt;JSON Spirit&lt;/a&gt;, &lt;a href=&quot;http://cpplinq.codeplex.com/&quot;&gt;LINQ for C++&lt;/a&gt;.</oldsource>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="aboutdialog/aboutdialog.ui" line="67"/>
@@ -41,6 +42,20 @@
     <message>
         <location filename="aboutdialog/aboutdialog.ui" line="77"/>
         <source>PaintField
+Copyright (C) 2011-2013 Ryohei Ikegami &lt;iofg2100@gmail.com&gt;
+Licensed under The GNU Lesser General Public License, version 3.0.
+
+Anti-Grain Geometry - Version 2.4
+Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
+
+QtSingleApplication
+Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+Licensed under the BSD 3-Clause License.
+
+JSON Spirit
+Copyright (c) 2007 - 2013 John W. Wilkinson
+Licensed under the MIT License.</source>
+        <oldsource>PaintField
 Copyright (C) 2011-2013 Ryohei Ikegami &lt;iofg2100@gmail.com&gt;
 Licensed under the MIT License.
 
@@ -53,8 +68,8 @@ Licensed under the BSD 3-Clause License.
 
 JSON Spirit
 Copyright (c) 2007 - 2013 John W. Wilkinson
-Licensed under the MIT License.</source>
-        <translation></translation>
+Licensed under the MIT License.</oldsource>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -73,14 +88,12 @@ Licensed under the MIT License.</source>
 <context>
     <name>PaintField::BrushLibraryController</name>
     <message>
-        <location filename="brushtool/brushlibrarycontroller.cpp" line="97"/>
         <source>Save Preset</source>
-        <translation>プリセットを保存</translation>
+        <translation type="obsolete">プリセットを保存</translation>
     </message>
     <message>
-        <location filename="brushtool/brushlibrarycontroller.cpp" line="99"/>
         <source>Preset File (*.json)</source>
-        <translation>プリセットファイル (*.json)</translation>
+        <translation type="obsolete">プリセットファイル (*.json)</translation>
     </message>
 </context>
 <context>
@@ -109,7 +122,7 @@ Licensed under the MIT License.</source>
 <context>
     <name>PaintField::BrushTool</name>
     <message>
-        <location filename="brushtool/brushtool.cpp" line="158"/>
+        <location filename="brushtool/brushtool.cpp" line="174"/>
         <source>Brush</source>
         <translation>ブラシ</translation>
     </message>
@@ -117,12 +130,12 @@ Licensed under the MIT License.</source>
 <context>
     <name>PaintField::BrushToolExtensionFactory</name>
     <message>
-        <location filename="brushtool/brushtoolextension.cpp" line="102"/>
+        <location filename="brushtool/brushtoolextension.cpp" line="104"/>
         <source>Brush Library</source>
         <translation>ブラシライブラリ</translation>
     </message>
     <message>
-        <location filename="brushtool/brushtoolextension.cpp" line="103"/>
+        <location filename="brushtool/brushtoolextension.cpp" line="105"/>
         <source>Brush</source>
         <translation>ブラシ</translation>
     </message>
@@ -287,24 +300,28 @@ Licensed under the MIT License.</source>
 <context>
     <name>PaintField::LayerPropertyEditor</name>
     <message>
-        <location filename="layerui/layerpropertyeditor.cpp" line="67"/>
+        <location filename="layerui/layerpropertyeditor.cpp" line="75"/>
         <source>Opacity</source>
         <translation>不透明度</translation>
     </message>
     <message>
-        <location filename="layerui/layerpropertyeditor.cpp" line="72"/>
         <source>Unimplemented</source>
-        <translation>未実装</translation>
+        <translation type="obsolete">未実装</translation>
     </message>
     <message>
-        <location filename="layerui/layerpropertyeditor.cpp" line="75"/>
+        <location filename="layerui/layerpropertyeditor.cpp" line="113"/>
         <source>Blend</source>
         <translation>ブレンド</translation>
     </message>
     <message>
-        <location filename="layerui/layerpropertyeditor.cpp" line="117"/>
+        <location filename="layerui/layerpropertyeditor.cpp" line="165"/>
         <source>Set Layer Opacity</source>
         <translation>レイヤー不透明度を設定</translation>
+    </message>
+    <message>
+        <location filename="layerui/layerpropertyeditor.cpp" line="171"/>
+        <source>Set Blend Mode</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -663,7 +680,7 @@ Licensed under the MIT License.</source>
 <context>
     <name>QObject</name>
     <message>
-        <location filename="brushtool/brushtoolextension.cpp" line="95"/>
+        <location filename="brushtool/brushtoolextension.cpp" line="97"/>
         <source>Brush</source>
         <translation>ブラシ</translation>
     </message>

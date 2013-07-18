@@ -10,8 +10,9 @@ class BlendModeTexts : public QObject
 	Q_OBJECT
 public:
 	explicit BlendModeTexts(QObject *parent = 0);
+	~BlendModeTexts();
 	
-	static QString text(Malachite::BlendMode mode);
+	QString text(Malachite::BlendMode mode);
 	
 signals:
 	
@@ -19,8 +20,8 @@ public slots:
 	
 private:
 	
-	struct Dictionary;
-	static Dictionary *dict;
+	struct Data;
+	Data *d;
 };
 
 } // namespace PaintField
