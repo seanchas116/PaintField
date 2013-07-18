@@ -26,6 +26,11 @@ struct BlendModeTexts::Dictionary
 		texts[BlendMode::SoftLight] = tr("Soft Light");
 		texts[BlendMode::Difference] = tr("Difference");
 		texts[BlendMode::Exclusion] = tr("Exclusion");
+		texts[BlendMode::Hue] = tr("Hue");
+		texts[BlendMode::Saturation] = tr("Saturation");
+		texts[BlendMode::Color] = tr("Color");
+		texts[BlendMode::Luminosity] = tr("Luminosity");
+		
 		texts[BlendMode::PassThrough] = tr("Pass Through");
 	}
 	

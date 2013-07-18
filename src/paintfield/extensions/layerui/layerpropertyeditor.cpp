@@ -96,6 +96,11 @@ LayerPropertyEditor::LayerPropertyEditor(LayerScene *scene, QWidget *parent) :
 				BlendMode::Difference,
 				BlendMode::Exclusion,
 				-1,
+				BlendMode::Hue,
+				BlendMode::Saturation,
+				BlendMode::Color,
+				BlendMode::Luminosity,
+				-1,
 				BlendMode::PassThrough
 			};
 			
@@ -178,7 +183,7 @@ void LayerPropertyEditor::updateComboBoxItems()
 		else
 			d->blendModeComboBox->addItem(BlendModeTexts::text(blendMode));
 		
-		if (blendMode == BlendMode::Exclusion && !d->isCurrentGroup)
+		if (blendMode == BlendMode::Luminosity && !d->isCurrentGroup)
 			break;
 	}
 	
