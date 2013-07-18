@@ -160,7 +160,7 @@ BrushScanline BrushRasterizerFast::nextScanline()
 	for (int i = 0; i < scanline.count; i += 4)
 	{
 		PixelVec rrs = xs * xs + yys;
-		PixelVec rs = sseRsqrt(rrs) * rrs;
+		PixelVec rs = rrs.rsqrt() * rrs;
 		
 		PixelVec covers = ((rs - _radiuses) * _cutoffSlopes).bound(zeros, _maxs);
 		
