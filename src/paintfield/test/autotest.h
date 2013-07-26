@@ -1,5 +1,4 @@
 #pragma once
-#ifdef PF_TEST
 
 #include <QTest>
 #include <QObject>
@@ -60,4 +59,3 @@ public:
 
 #define PF_ADD_TESTCLASS(CLASS) static AutoTestRegisterer<CLASS> _autoTestRegisterer;
 
-#endif

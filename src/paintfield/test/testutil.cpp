@@ -1,4 +1,3 @@
-#ifdef PF_TEST
 
 #include <QtCore>
 #include <Malachite/Painter>
@@ -37,7 +36,7 @@ void createTestFile(const QString &path)
 
 Document *createTestDocument(QObject *parent)
 {
-	LayerPtr layer[3];
+	LayerRef layer[3];
 	
 	for (int i = 0; i < 3; ++i)
 	{
@@ -50,7 +49,7 @@ Document *createTestDocument(QObject *parent)
 	group->append(layer[1]);
 	group->append(layer[2]);
 	
-	QList<LayerPtr> layers = { layer[0], group };
+	QList<LayerRef> layers = { layer[0], group };
 	
 	return new Document("document", QSize(400, 300), layers, parent);
 }
@@ -92,4 +91,3 @@ Surface createTestSurface(int patternIndex)
 
 }
 
-#endif

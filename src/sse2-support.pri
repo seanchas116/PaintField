@@ -1,0 +1,3 @@
+
+QMAKE_CXXFLAGS += -msse2
+CONFIG += sse2

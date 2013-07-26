@@ -1,4 +1,3 @@
-#ifdef PF_TEST
 
 #include <QtGui>
 #include "autotest.h"
@@ -105,4 +104,3 @@ PF_ADD_TESTCLASS(Test_LibraryModel)
 
 }
 
-#endif

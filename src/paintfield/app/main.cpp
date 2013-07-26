@@ -3,7 +3,6 @@
 #include <QTranslator>
 #include "paintfield/core/application.h"
 #include "paintfield/core/appcontroller.h"
-#include "paintfield/core/unittest/autotest.h"
 #include "paintfield/core/extensionmanager.h"
 #include "paintfield/extensions/rootextensionfactory.h"
 
@@ -37,11 +36,6 @@ int main(int argc, char *argv[])
 	
 #ifdef Q_OS_WIN
 	qApp->addLibraryPath(applicationDir.filePath("plugins"));
-#endif
-	
-#ifdef PF_TEST
-	autoTest()->run();
-	return 0;
 #endif
 	
 	QString message;

@@ -1,7 +1,7 @@
 
 include(../src.pri)
-
-PF_VERSION = 0.0.6
+include(../sse2-support.pri)
+include(../c++11-support.pri)
 
 macx {
 	PF_PLATFORM = "mac"
@@ -16,28 +16,10 @@ windows {
 }
 
 QT += core gui network xml svg
-QMAKE_CXXFLAGS += -std=c++11 -msse2
-QMAKE_LFLAGS += -std=c++11
-CONFIG += sse2
 
 mac {
 	CONFIG += objective_c
-	QMAKE_OBJECTIVE_CFLAGS += -std=c++11
 	QMAKE_LFLAGS += -lobjc -framework Cocoa
-}
-
-contains(DEFINES, PF_TEST) {
-	QT += testlib
-}
-
-contains(QMAKE_CXX, clang++) {
-	QMAKE_CXXFLAGS_WARN_ON = -Wall -Wno-unused-private-field
-	mac {
-		QMAKE_CXXFLAGS += -stdlib=libc++
-		QMAKE_LFLAGS += -stdlib=libc++
-		QMAKE_OBJECTIVE_CFLAGS += -stdlib=libc++
-	}
-	DEFINES += Q_COMPILER_INITIALIZER_LISTS Q_COMPILER_RVALUE_REFS
 }
 
 INCLUDEPATH += $$PWD/.. $$PWD/../libs $$PWD/../libs/Malachite/include

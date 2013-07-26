@@ -1,4 +1,3 @@
-#ifdef PF_TEST
 
 #include "test_document.h"
 
@@ -14,5 +13,4 @@ Test_Document::Test_Document(QObject *parent) :
 
 }
 
-#endif
 

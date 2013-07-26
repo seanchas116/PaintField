@@ -1,6 +1,5 @@
 #pragma once
 
-#ifdef PF_TEST
 
 #include <QtCore>
 #include <Malachite/Surface>
@@ -23,4 +22,3 @@ Malachite::Surface createTestSurface(int patternIndex);
 
 }
 
-#endif

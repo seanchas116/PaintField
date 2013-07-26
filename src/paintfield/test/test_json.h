@@ -1,5 +1,4 @@
 #pragma once
-#ifdef PF_TEST
 
 #include <QObject>
 
@@ -19,4 +18,3 @@ private slots:
 
 }
 
-#endif

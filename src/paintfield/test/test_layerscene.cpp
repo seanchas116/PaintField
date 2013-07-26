@@ -1,12 +1,11 @@
-#ifdef PF_TEST
 
 #include "autotest.h"
 #include "testutil.h"
 
-#include "../rasterlayer.h"
-#include "../grouplayer.h"
-#include "../document.h"
-#include "../layerscene.h"
+#include "paintfield/core/rasterlayer.h"
+#include "paintfield/core/grouplayer.h"
+#include "paintfield/core/document.h"
+#include "paintfield/core/layerscene.h"
 
 #include "test_layerscene.h"
 
@@ -20,7 +19,7 @@ Test_LayerScene::Test_LayerScene(QObject *parent) :
 
 void Test_LayerScene::test_addLayers()
 {
-	QList<LayerPtr> layers;
+	QList<LayerRef> layers;
 	
 	for (int i = 0; i < 4; ++i)
 		layers << std::make_shared<RasterLayer>("layer" + QString::number(i));
@@ -47,7 +46,7 @@ void Test_LayerScene::test_addLayers()
 
 void Test_LayerScene::test_removeLayers()
 {
-	QList<LayerPtr> layers;
+	QList<LayerRef> layers;
 	
 	for (int i = 0; i < 4; ++i)
 		layers << std::make_shared<RasterLayer>("layer" + QString::number(i));
@@ -100,7 +99,7 @@ void Test_LayerScene::test_moveLayers()
 
 void Test_LayerScene::test_moveLayers_sibling()
 {
-	QList<LayerPtr> layers;
+	QList<LayerRef> layers;
 	
 	for (int i = 0; i < 4; ++i)
 		layers << std::make_shared<RasterLayer>("layer" + QString::number(i));
@@ -127,7 +126,7 @@ void Test_LayerScene::test_moveLayers_sibling()
 
 void Test_LayerScene::test_copyLayers()
 {
-	QList<LayerPtr> layers;
+	QList<LayerRef> layers;
 	
 	for (int i = 0; i < 4; ++i)
 		layers << std::make_shared<RasterLayer>("layer" + QString::number(i));
@@ -176,4 +175,3 @@ PF_ADD_TESTCLASS(Test_LayerScene)
 
 }
 
-#endif

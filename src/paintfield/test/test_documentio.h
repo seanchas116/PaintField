@@ -1,5 +1,4 @@
 #pragma once
-#ifdef PF_TEST
 
 #include <QObject>
 #include "autotest.h"
@@ -24,4 +23,3 @@ private slots:
 
 }
 
-#endif // TEST_DOCUMENTIO_H

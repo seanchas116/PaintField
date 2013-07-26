@@ -6,7 +6,6 @@ TEMPLATE = lib
 TARGET = paintfield-extensions
 
 include(../paintfield.pri)
-include(../postlink.pri)
 
 # Input
 HEADERS += aboutdialog/aboutdialog.h \

@@ -1,4 +1,3 @@
-#ifdef PF_TEST
 
 #include "autotest.h"
 #include "paintfield/core/rectlayer.h"
@@ -89,4 +88,3 @@ PF_ADD_TESTCLASS(Test_RectLayer)
 
 }
 
-#endif

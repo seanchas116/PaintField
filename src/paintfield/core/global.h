@@ -24,6 +24,12 @@ using Ref = std::shared_ptr<T>;
 template <typename T>
 using WeakRef = std::weak_ptr<T>;
 
+template< class T, class... Args >
+inline Ref<T> makeSharedRef(Args&&... args)
+{
+	return std::make_shared(args...);
+}
+
 enum LayerPropertyRole
 {
 	RoleName = Qt::UserRole,

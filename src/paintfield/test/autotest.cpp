@@ -1,4 +1,3 @@
-#ifdef PF_TEST
 
 #include "autotest.h"
 
@@ -13,4 +12,3 @@ AutoTest *AutoTest::_instance = 0;
 
 } // namespace PaintField
 
-#endif

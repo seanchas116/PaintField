@@ -55,7 +55,7 @@ if platform == :mac
 end
 
 # copy dylibs (Mac)
-
+=begin
 if platform == :mac
   destination_frameworks = out_pwd_app + "PaintField.app/Contents/Frameworks"
   FileUtils.mkpath(destination_frameworks)
@@ -64,6 +64,7 @@ if platform == :mac
   `cp #{out_pwd_root}/src/paintfield/core/lib*.1.dylib #{destination_frameworks}`
   `cp #{out_pwd_root}/src/paintfield/extensions/lib*.1.dylib #{destination_frameworks}`
 end
+=end
 
 # copy contents, settings, extensions
 

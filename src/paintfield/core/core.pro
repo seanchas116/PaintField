@@ -8,7 +8,6 @@ TARGET = paintfield-core
 DEFINES += PAINTFIELD_LIBRARY
 
 include(../paintfield-core.pri)
-include(../postlink.pri)
 
 # Input
 HEADERS += \
@@ -76,15 +75,7 @@ HEADERS += \
     documentcontroller.h \
     documentreferencemanager.h \
     rectlayer.h \
-    unittest/test_shapelayer.h \
-    unittest/test_rectlayer.h \
-    unittest/test_librarymodel.h \
-    unittest/test_documentio.h \
-    unittest/test_document.h \
-    unittest/autotest.h \
-    unittest/testutil.h \
     layerscene.h \
-    unittest/test_layerscene.h \
     layeritemmodel.h \
     colorbuttongroup.h \
     canvasnavigator.h \
@@ -97,7 +88,6 @@ HEADERS += \
     cpplinq.hpp \
     cpplinq-paintfield.h \
     json.h \
-    unittest/test_json.h \
     canvasviewportcontroller.h \
     canvasviewportnormal.h \
     canvasupdatemanager.h \
@@ -170,15 +160,7 @@ SOURCES += \
     documentcontroller.cpp \
     documentreferencemanager.cpp \
     rectlayer.cpp \
-    unittest/test_shapelayer.cpp \
-    unittest/test_rectlayer.cpp \
-    unittest/test_librarymodel.cpp \
-    unittest/test_documentio.cpp \
-    unittest/test_document.cpp \
-    unittest/autotest.cpp \
-    unittest/testutil.cpp \
     layerscene.cpp \
-    unittest/test_layerscene.cpp \
     layeritemmodel.cpp \
     colorbuttongroup.cpp \
     canvasnavigator.cpp \
@@ -189,7 +171,6 @@ SOURCES += \
     serializationutil.cpp \
     widgets/abstractlayerpropertyeditor.cpp \
     json.cpp \
-    unittest/test_json.cpp \
     canvasviewportnormal.cpp \
 	canvasviewportcontroller.cpp \
     canvasupdatemanager.cpp \

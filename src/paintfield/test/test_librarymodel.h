@@ -1,9 +1,8 @@
 #pragma once
 
-#ifdef PF_TEST
 
 #include "testutil.h"
-#include "../librarymodel.h"
+#include "paintfield/core/librarymodel.h"
 #include <QObject>
 
 namespace PaintField
@@ -37,4 +36,3 @@ private:
 
 }
 
-#endif

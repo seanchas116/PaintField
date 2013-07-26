@@ -1,4 +1,3 @@
-#ifdef PF_TEST
 
 #include <QtCore>
 #include "paintfield/core/documentio.h"
@@ -23,13 +22,13 @@ void Test_DocumentIO::saveLoad()
 	auto doc = TestUtil::createTestDocument(this);
 	
 	{
-		DocumentSaver saver(doc);
+		DocumentWriter saver(doc);
 		saver.save(path);
 	}
 	
 	Document *openedDoc;
 	{
-		DocumentLoader loader;
+		DocumentReader loader;
 		openedDoc = loader.load(path, 0);
 	}
 	
@@ -40,4 +39,3 @@ PF_ADD_TESTCLASS(Test_DocumentIO)
 
 }
 
-#endif

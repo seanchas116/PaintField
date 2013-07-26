@@ -1,6 +1,5 @@
 #pragma once
 
-#ifdef PF_TEST
 
 #include <QObject>
 #include "autotest.h"
@@ -23,4 +22,3 @@ public slots:
 
 }
 
-#endif

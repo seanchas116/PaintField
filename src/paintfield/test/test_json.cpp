@@ -1,9 +1,8 @@
 #include "autotest.h"
-#include "json.h"
+#include "paintfield/core/json.h"
 
 #include "test_json.h"
 
-#ifdef PF_TEST
 
 namespace PaintField
 {
@@ -54,4 +53,3 @@ PF_ADD_TESTCLASS(Test_Json)
 
 }
 
-#endif

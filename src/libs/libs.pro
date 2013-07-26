@@ -1,3 +1,3 @@
 TEMPLATE = subdirs
 
-SUBDIRS = Malachite/src minizip qtsingleapplication
+SUBDIRS = Malachite minizip qtsingleapplication
