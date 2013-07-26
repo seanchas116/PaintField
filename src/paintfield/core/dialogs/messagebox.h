@@ -1,13 +1,14 @@
-#ifndef MESSAGEBOX_H
-#define MESSAGEBOX_H
+#pragma once
 
 #include <QMessageBox>
 
 namespace PaintField
 {
+namespace MessageBox
+{
 
-int showMessageBox(QMessageBox::Icon iconType, const QString &text, const QString &informativeText, QMessageBox::StandardButtons buttons = QMessageBox::Ok, QMessageBox::StandardButton defaultButton = QMessageBox::Ok);
+int show(QMessageBox::Icon iconType, const QString &text, const QString &informativeText, QMessageBox::StandardButtons buttons = QMessageBox::Ok, QMessageBox::StandardButton defaultButton = QMessageBox::Ok);
 
 }
+}
 
-#endif // MESSAGEBOX_H

@@ -2,8 +2,10 @@
 
 namespace PaintField
 {
+namespace MessageBox
+{
 
-int showMessageBox(QMessageBox::Icon iconType, const QString &text, const QString &informativeText, QMessageBox::StandardButtons buttons, QMessageBox::StandardButton defaultButton)
+int show(QMessageBox::Icon iconType, const QString &text, const QString &informativeText, QMessageBox::StandardButtons buttons, QMessageBox::StandardButton defaultButton)
 {
 	QMessageBox box;
 	box.setIcon(iconType);
@@ -15,4 +17,5 @@ int showMessageBox(QMessageBox::Icon iconType, const QString &text, const QStrin
 	return box.exec();
 }
 
+}
 }

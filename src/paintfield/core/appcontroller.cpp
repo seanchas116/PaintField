@@ -12,6 +12,7 @@
 #include "canvas.h"
 #include "documentreferencemanager.h"
 #include "blendmodetexts.h"
+#include "formatsupportmanager.h"
 
 #include "appcontroller.h"
 
@@ -22,12 +23,13 @@ struct AppController::Data
 {
 	Application *app = 0;
 	
-	BlendModeTexts *blendModeTexts = 0;
-	WorkspaceManager *workspaceManager = 0;
-	ExtensionManager *extensionManager = 0;
-	SettingsManager *settingsManager = 0;
-	CursorStack *cursorStack = 0;
-	DocumentReferenceManager *documentReferenceManager = 0;
+	FormatSupportManager *formatSupportManager = nullptr;
+	BlendModeTexts *blendModeTexts = nullptr;
+	WorkspaceManager *workspaceManager = nullptr;
+	ExtensionManager *extensionManager = nullptr;
+	SettingsManager *settingsManager = nullptr;
+	CursorStack *cursorStack = nullptr;
+	DocumentReferenceManager *documentReferenceManager = nullptr;
 	
 	QList<AppExtension *> extensions;
 	QList<QAction *> actions;
@@ -38,6 +40,7 @@ AppController::AppController(Application *app, QObject *parent) :
     d(new Data)
 {
 	d->app = app;
+	d->formatSupportManager = new FormatSupportManager(this);
 	d->blendModeTexts = new BlendModeTexts(this);
 	d->workspaceManager = new WorkspaceManager(this);
 	d->extensionManager = new ExtensionManager(this);
@@ -68,6 +71,7 @@ void AppController::begin()
 	workspaceManager()->loadLastWorkspaces();
 }
 
+FormatSupportManager *AppController::formatSupportManager() { return d->formatSupportManager; }
 BlendModeTexts *AppController::blendModeTexts() { return d->blendModeTexts; }
 WorkspaceManager *AppController::workspaceManager() { return d->workspaceManager; }
 ExtensionManager *AppController::extensionManager() { return d->extensionManager; }

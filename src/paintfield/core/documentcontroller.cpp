@@ -8,6 +8,8 @@
 #include "documentio.h"
 #include "rasterlayer.h"
 #include "appcontroller.h"
+#include "formatsupport.h"
+#include "formatsupportmanager.h"
 #include "dialogs/newdocumentdialog.h"
 #include "dialogs/filedialog.h"
 #include "dialogs/messagebox.h"
@@ -68,7 +70,7 @@ Document *DocumentController::createFromSavedFile(const QString &path)
 	auto document = loader.load(path, 0);
 	
 	if (!document)
-		showMessageBox(QMessageBox::Warning, tr("Failed to open file."), QString());
+		MessageBox::show(QMessageBox::Warning, tr("Failed to open file."), QString());
 	
 	return document;
 }
@@ -87,7 +89,7 @@ Document *DocumentController::createFromImageFile(const QString &path)
 	auto layer = RasterLayer::createFromImageFile(path, &size);
 	if (!layer)
 	{
-		showMessageBox(QMessageBox::Warning, tr("Failed to open file."), QString());
+		MessageBox::show(QMessageBox::Warning, tr("Failed to open file."), QString());
 		return 0;
 	}
 	
@@ -99,11 +101,12 @@ bool DocumentController::confirmClose(Document *document)
 	if (!document->isModified())
 		return true;
 	
-	int ret = showMessageBox(QMessageBox::NoIcon,
-							 tr("Do you want to save your changes on \"%1\"?").arg(document->fileName()),
-							 tr("The changes will be lost if you don't save them."),
-							 QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel,
-							 QMessageBox::Save);
+	int ret = MessageBox::show(
+			QMessageBox::NoIcon,
+			tr("Do you want to save your changes on \"%1\"?").arg(document->fileName()),
+			tr("The changes will be lost if you don't save them."),
+			QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel,
+			QMessageBox::Save);
 	
 	switch (ret)
 	{
@@ -130,7 +133,7 @@ bool DocumentController::saveAs(Document *document)
 	
 	if (!dirInfo.isWritable())
 	{
-		showMessageBox(QMessageBox::Warning, tr("The specified folder is not writable."), tr("Save in another folder."));
+		MessageBox::show(QMessageBox::Warning, tr("The specified folder is not writable."), tr("Save in another folder."));
 		return false;
 	}
 	
@@ -138,7 +141,7 @@ bool DocumentController::saveAs(Document *document)
 	
 	if (!saver.save(filePath))
 	{
-		showMessageBox(QMessageBox::Warning, tr("Failed to save file."), QString());
+		MessageBox::show(QMessageBox::Warning, tr("Failed to save file."), QString());
 		return false;
 	}
 	return true;
@@ -155,7 +158,7 @@ bool DocumentController::save(Document *document)
 	DocumentWriter saver(document);
 	if (!saver.save(document->filePath()))
 	{
-		showMessageBox(QMessageBox::Warning, tr("Failed to save file."), QString());
+		MessageBox::show(QMessageBox::Warning, tr("Failed to save file."), QString());
 		return false;
 	}
 	return true;
@@ -163,6 +166,7 @@ bool DocumentController::save(Document *document)
 
 bool DocumentController::exportToImage(Document *document, QWidget *dialogParent)
 {
+	/*
 	ExportDialog dialog(dialogParent);
 	
 	if (!dialog.exec())
@@ -186,11 +190,18 @@ bool DocumentController::exportToImage(Document *document, QWidget *dialogParent
 	
 	if (!exporter.save(path))
 	{
-		showMessageBox(QMessageBox::Warning, tr("Failed to export file."), QString());
+		MessageBox::show(QMessageBox::Warning, tr("Failed to export file."), QString());
 		return false;
 	}
 	
-	return true;
+	return true;*/
+	
+	return FormatSupport::exportToFileDialog(
+			appController()->formatSupportManager()->formatSupports(),
+			document->layerScene()->rootLayer()->children(),
+			document->size(), tr("Export"),
+			true
+	);
 }
 
 bool DocumentController::saveAs()

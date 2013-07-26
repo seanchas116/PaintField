@@ -104,7 +104,11 @@ HEADERS += \
     canvasviewportmipmap.h \
     canvasviewportsurface.h \
     canvasviewportstate.h \
-    blendmodetexts.h
+    blendmodetexts.h \
+    formatsupport.h \
+    singlelayerformatsupport.h \
+    formatsupportmanager.h \
+    dialogs/formatexportdialog.h
 
 FORMS +=
 SOURCES += \
@@ -190,7 +194,11 @@ SOURCES += \
 	canvasviewportcontroller.cpp \
     canvasupdatemanager.cpp \
     canvasviewportmipmap.cpp \
-    blendmodetexts.cpp
+    blendmodetexts.cpp \
+    formatsupport.cpp \
+    singlelayerformatsupport.cpp \
+    formatsupportmanager.cpp \
+    dialogs/formatexportdialog.cpp
 
 RESOURCES += \
     resources/resource-paintfield-core.qrc
@@ -200,7 +208,7 @@ TRANSLATIONS += core_ja.ts
 mac {
 	HEADERS += \
 		canvasviewportcocoa.h
-	OBJECTIVE_SOURCES += \
-		canvasviewportcocoa.mm
+	#OBJECTIVE_SOURCES += \
+	#	canvasviewportcocoa.mm
 }
 

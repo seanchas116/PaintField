@@ -1,5 +1,4 @@
-#ifndef FSAPPLICATION_H
-#define FSAPPLICATION_H
+#pragma once
 
 #include <QMainWindow>
 #include <QDir>
@@ -21,6 +20,7 @@ class DocumentReferenceManager;
 class Canvas;
 class Workspace;
 class BlendModeTexts;
+class FormatSupportManager;
 
 /**
  * AppController is an singleton class that manages application-wide classes.
@@ -35,6 +35,7 @@ public:
 	
 	void begin();
 	
+	FormatSupportManager *formatSupportManager();
 	BlendModeTexts *blendModeTexts();
 	WorkspaceManager *workspaceManager();
 	ExtensionManager *extensionManager();
@@ -85,5 +86,3 @@ private:
 inline AppController *appController() { return AppController::instance(); }
 
 }
-
-#endif // FSAPPLICATION_H

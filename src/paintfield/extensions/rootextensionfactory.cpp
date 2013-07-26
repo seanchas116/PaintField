@@ -6,6 +6,7 @@
 #include "navigator/navigatorextension.h"
 #include "toolui/tooluiextension.h"
 #include "vectortools/vectortoolsextension.h"
+#include "formatsupports/formatsupportsextension.h"
 
 #include "rootextensionfactory.h"
 
@@ -22,6 +23,7 @@ RootExtensionFactory::RootExtensionFactory(QObject *parent) :
 	addSubExtensionFactory(new NavigatorExtensionFactory(this));
 	addSubExtensionFactory(new ToolUIExtensionFactory(this));
 	addSubExtensionFactory(new VectorToolsExtensionFactory(this));
+	addSubExtensionFactory(new FormatSupportsExtensionFactory(this));
 }
 
 void RootExtensionFactory::initialize(AppController *app)

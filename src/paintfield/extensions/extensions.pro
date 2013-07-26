@@ -42,8 +42,14 @@ HEADERS += aboutdialog/aboutdialog.h \
            vectortools/recttool.h \
            vectortools/shapesidebar.h \
            vectortools/vectortoolsextension.h \
-    rootextensionfactory.h
-FORMS += aboutdialog/aboutdialog.ui
+    rootextensionfactory.h \
+    formatsupports/formatsupportsextension.h \
+    formatsupports/malachiteformatsupport.h \
+    formatsupports/jpegexportform.h \
+    formatsupports/pngexportform.h
+FORMS += aboutdialog/aboutdialog.ui \
+    formatsupports/jpegexportform.ui \
+    formatsupports/pngexportform.ui
 SOURCES += aboutdialog/aboutdialog.cpp \
            aboutdialog/aboutdialogextension.cpp \
            brushtool/brushlibrarycontroller.cpp \
@@ -77,6 +83,10 @@ SOURCES += aboutdialog/aboutdialog.cpp \
            vectortools/recttool.cpp \
            vectortools/shapesidebar.cpp \
            vectortools/vectortoolsextension.cpp \
-    rootextensionfactory.cpp
+    rootextensionfactory.cpp \
+    formatsupports/formatsupportsextension.cpp \
+    formatsupports/malachiteformatsupport.cpp \
+    formatsupports/jpegexportform.cpp \
+    formatsupports/pngexportform.cpp
 
 TRANSLATIONS += extensions_ja.ts
