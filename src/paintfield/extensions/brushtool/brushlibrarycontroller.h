@@ -1,5 +1,4 @@
-#ifndef PAINTFIELD_BRUSH_BRUSHLIBRARYCONTROLLER_H
-#define PAINTFIELD_BRUSH_BRUSHLIBRARYCONTROLLER_H
+#pragma once
 
 #include <QObject>
 #include <QModelIndex>
@@ -55,4 +54,3 @@ private:
 
 } // namespace PaintField
 
-#endif // PAINTFIELD_BRUSH_BRUSHLIBRARYCONTROLLER_H

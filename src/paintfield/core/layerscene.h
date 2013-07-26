@@ -1,5 +1,4 @@
-#ifndef PAINTFIELD_LAYERSCENE_H
-#define PAINTFIELD_LAYERSCENE_H
+#pragma once
 
 #include <QObject>
 #include "layer.h"
@@ -94,4 +93,3 @@ private:
 
 } // namespace PaintField
 
-#endif // PAINTFIELD_LAYERSCENE_H

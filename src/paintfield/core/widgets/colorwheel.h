@@ -1,5 +1,4 @@
-#ifndef MLColorWHEEL_H
-#define MLColorWHEEL_H
+#pragma once
 
 #include <QWidget>
 #include <Malachite/Color>
@@ -52,4 +51,3 @@ private:
 
 }
 
-#endif // MLColorWHEEL_H

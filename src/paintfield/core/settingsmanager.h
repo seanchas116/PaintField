@@ -1,5 +1,4 @@
-#ifndef PAINTFIELD_SETTINGSMANAGER_H
-#define PAINTFIELD_SETTINGSMANAGER_H
+#pragma once
 
 #include <QObject>
 #include <QIcon>
@@ -100,5 +99,3 @@ private:
 };
 
 } // namespace PaintField
-
-#endif // PAINTFIELD_SETTINGSMANAGER_H

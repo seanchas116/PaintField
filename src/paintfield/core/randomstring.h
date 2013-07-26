@@ -1,5 +1,4 @@
-#ifndef FSRANDOMSTRING_H
-#define FSRANDOMSTRING_H
+#pragma once
 
 #include <QString>
 
@@ -9,5 +8,3 @@ QString randomString(int length);
 QString createTemporaryFilePath();
 
 }
-
-#endif // FSRANDOMSTRING_H

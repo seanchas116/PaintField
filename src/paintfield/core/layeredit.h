@@ -1,5 +1,4 @@
-#ifndef FSLAYEREDIT_H
-#define FSLAYEREDIT_H
+#pragma once
 
 #include <QVariant>
 #include "layer.h"
@@ -74,5 +73,3 @@ private:
 };
 
 }
-
-#endif // FSLAYEREDIT_H

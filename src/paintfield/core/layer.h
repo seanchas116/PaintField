@@ -1,5 +1,4 @@
-#ifndef FSLAYER_H
-#define FSLAYER_H
+#pragma once
 
 #include <QList>
 #include <QPixmap>
@@ -320,5 +319,3 @@ public:
 }
 
 QDebug operator<<(QDebug debug, const PaintField::LayerConstRef &layer);
-
-#endif // FSLAYER_H

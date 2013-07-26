@@ -1,5 +1,4 @@
-#ifndef DRAGGABLETABWIDGET_H
-#define DRAGGABLETABWIDGET_H
+#pragma once
 
 #include <QTabBar>
 #include <QTabWidget>
@@ -110,4 +109,3 @@ private:
 
 }
 
-#endif // DRAGGABLETABWIDGET_H

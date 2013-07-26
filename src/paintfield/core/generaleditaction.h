@@ -1,5 +1,4 @@
-#ifndef PAINTFIELD_GENERALEDITACTION_H
-#define PAINTFIELD_GENERALEDITACTION_H
+#pragma once
 
 #include "proxyaction.h"
 
@@ -21,4 +20,3 @@ private slots:
 
 } // namespace PaintField
 
-#endif // PAINTFIELD_GENERALEDITACTION_H

@@ -1,5 +1,4 @@
-#ifndef WORKSPACEMANAGER_H
-#define WORKSPACEMANAGER_H
+#pragma once
 
 #include <QObject>
 #include "workspace.h"
@@ -64,4 +63,3 @@ private:
 
 }
 
-#endif // WORKSPACEMANAGER_H

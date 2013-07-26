@@ -1,5 +1,4 @@
-#ifndef PAINTFIELD_SELECTION_H
-#define PAINTFIELD_SELECTION_H
+#pragma once
 
 #include <QObject>
 #include <QVariant>
@@ -48,4 +47,3 @@ private:
 
 } // namespace PaintField
 
-#endif // PAINTFIELD_SELECTION_H

@@ -1,5 +1,4 @@
-#ifndef FSLAYERRENDERER_H
-#define FSLAYERRENDERER_H
+#pragma once
 
 #include "layer.h"
 #include <Malachite/SurfacePainter>
@@ -86,5 +85,3 @@ private:
 };
 
 }
-
-#endif // FSLAYERRENDERER_H

@@ -1,5 +1,4 @@
-#ifndef FSLOOSESPINBOX_H
-#define FSLOOSESPINBOX_H
+#pragma once
 
 #include <QWidget>
 #include <QDoubleSpinBox>
@@ -57,4 +56,3 @@ private:
 
 }
 
-#endif // FSLOOSESPINBOX_H

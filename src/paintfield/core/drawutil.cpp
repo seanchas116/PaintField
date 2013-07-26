@@ -1,6 +1,5 @@
 
 #include <Malachite/GenericImage>
-#include <Malachite/PixelConversion>
 #include "util.h"
 
 #include "drawutil.h"

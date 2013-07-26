@@ -1,5 +1,4 @@
-#ifndef FSSIMPLEBUTTON_H
-#define FSSIMPLEBUTTON_H
+#pragma once
 
 #include <QToolButton>
 #include <QMargins>
@@ -48,4 +47,3 @@ private:
 
 }
 
-#endif // FSSIMPLEBUTTON_H

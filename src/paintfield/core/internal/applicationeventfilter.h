@@ -1,5 +1,4 @@
-#ifndef APPLICATIONEVENTFILTER_H
-#define APPLICATIONEVENTFILTER_H
+#pragma once
 
 #include <QWidget>
 #include <QObject>
@@ -52,4 +51,3 @@ private:
 
 }
 
-#endif // APPLICATIONEVENTFILTER_H

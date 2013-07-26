@@ -1,5 +1,4 @@
-#ifndef BRUSHSTROKER_H
-#define BRUSHSTROKER_H
+#pragma once
 
 #include "brushstroker.h"
 
@@ -56,4 +55,3 @@ public:
 };
 
 }
-#endif // BRUSHSTROKER_H

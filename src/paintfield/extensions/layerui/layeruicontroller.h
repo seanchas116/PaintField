@@ -1,5 +1,4 @@
-#ifndef FSLAYERUICONTROLLER_H
-#define FSLAYERUICONTROLLER_H
+#pragma once
 
 #include <QObject>
 #include "paintfield/core/workspace.h"
@@ -67,4 +66,3 @@ private:
 
 }
 
-#endif // FSLAYERUICONTROLLER_H

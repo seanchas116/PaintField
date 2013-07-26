@@ -1,5 +1,4 @@
-#ifndef PAINTFIELD_MEMORIZABLESPLITTER_H
-#define PAINTFIELD_MEMORIZABLESPLITTER_H
+#pragma once
 
 #include <QSplitter>
 
@@ -26,4 +25,3 @@ private:
 
 } // namespace PaintField
 
-#endif // PAINTFIELD_MEMORIZABLESPLITTER_H

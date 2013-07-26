@@ -1,5 +1,4 @@
-#ifndef APPLICATION_H
-#define APPLICATION_H
+#pragma once
 
 #include <qtsingleapplication/qtsingleapplication.h>
 #include <QTabletEvent>
@@ -59,4 +58,3 @@ private:
 
 }
 
-#endif // APPLICATION_H

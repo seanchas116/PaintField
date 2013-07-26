@@ -1,5 +1,4 @@
-#ifndef PAINTFIELD_VECTORTOOLSEXTENSION_H
-#define PAINTFIELD_VECTORTOOLSEXTENSION_H
+#pragma once
 
 #include "paintfield/core/extension.h"
 
@@ -37,4 +36,3 @@ public:
 
 }// namespace PaintField
 
-#endif // PAINTFIELD_VECTORTOOLSEXTENSION_H

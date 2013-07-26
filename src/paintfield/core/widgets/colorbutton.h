@@ -1,5 +1,4 @@
-#ifndef FSCOLORBUTTON_H
-#define FSCOLORBUTTON_H
+#pragma once
 
 #include <QAbstractButton>
 #include <Malachite/Color>
@@ -55,4 +54,3 @@ private:
 
 }
 
-#endif // FSCOLORBUTTON_H

@@ -1,5 +1,4 @@
-#ifndef FSPALETTEMANAGER_H
-#define FSPALETTEMANAGER_H
+#pragma once
 
 #include <QObject>
 #include <Malachite/Color>
@@ -47,5 +46,3 @@ private:
 };
 
 }
-
-#endif // FSPALETTEMANAGER_H

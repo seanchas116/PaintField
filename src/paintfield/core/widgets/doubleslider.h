@@ -1,5 +1,4 @@
-#ifndef FSDOUBLESLIDER_H
-#define FSDOUBLESLIDER_H
+#pragma once
 
 #include <QSlider>
 #include "../global.h"
@@ -40,4 +39,3 @@ private:
 
 }
 
-#endif // FSDOUBLESLIDER_H

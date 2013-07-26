@@ -1,5 +1,4 @@
-#ifndef FSTHUMBNAIL_H
-#define FSTHUMBNAIL_H
+#pragma once
 
 #include <QPixmap>
 #include <QHash>
@@ -28,5 +27,3 @@ private:
 };
 
 }
-
-#endif // FSTHUMBNAIL_H

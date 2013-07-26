@@ -1,5 +1,4 @@
-#ifndef VANISHINGSCROLLBAR_H
-#define VANISHINGSCROLLBAR_H
+#pragma once
 
 #include <QAbstractSlider>
 #include <tuple>
@@ -80,4 +79,3 @@ private:
 
 }
 
-#endif // VANISHINGSCROLLBAR_H

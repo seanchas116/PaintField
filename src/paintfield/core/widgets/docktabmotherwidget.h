@@ -1,5 +1,4 @@
-#ifndef MOTHERWIDGET_H
-#define MOTHERWIDGET_H
+#pragma once
 
 #include <QWidget>
 #include <QHash>
@@ -102,4 +101,3 @@ private:
 
 }
 
-#endif // MOTHERWIDGET_H

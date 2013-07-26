@@ -1,5 +1,4 @@
-#ifndef PAINTFIELD_BRUSHRASTERIZER_H
-#define PAINTFIELD_BRUSHRASTERIZER_H
+#pragma once
 
 #include <QPoint>
 #include <QVector>
@@ -65,4 +64,3 @@ private:
 
 } // namespace PaintField
 
-#endif // PAINTFIELD_BRUSHRASTERIZER_H

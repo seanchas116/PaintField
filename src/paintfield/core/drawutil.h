@@ -1,5 +1,4 @@
-#ifndef FSDRAWUTIL_H
-#define FSDRAWUTIL_H
+#pragma once
 
 #include <QPainter>
 #include <Malachite/Surface>
@@ -26,4 +25,3 @@ inline void drawMLImage(QPainter *painter, int x, int y, const Malachite::Image 
 
 }
 
-#endif // FSDRAWUTIL_H

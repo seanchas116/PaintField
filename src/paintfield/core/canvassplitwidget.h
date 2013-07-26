@@ -1,5 +1,4 @@
-#ifndef PAINTFIELD_CANVASSPLITWIDGET_H
-#define PAINTFIELD_CANVASSPLITWIDGET_H
+#pragma once
 
 #include <QStackedWidget>
 #include "interface.h"
@@ -70,4 +69,3 @@ private:
 
 } // namespace PaintField
 
-#endif // PAINTFIELD_CANVASSPLITWIDGET_H

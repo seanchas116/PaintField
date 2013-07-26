@@ -1,5 +1,4 @@
-#ifndef PAINTFIELD_LAYERITEMMODEL_H
-#define PAINTFIELD_LAYERITEMMODEL_H
+#pragma once
 
 #include <QAbstractItemModel>
 #include "layer.h"
@@ -71,4 +70,3 @@ private:
 
 } // namespace PaintField
 
-#endif // PAINTFIELD_LAYERITEMMODEL_H

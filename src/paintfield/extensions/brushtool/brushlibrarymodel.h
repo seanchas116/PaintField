@@ -1,5 +1,4 @@
-#ifndef BRUSHLIBRARYMODEL_H
-#define BRUSHLIBRARYMODEL_H
+#pragma once
 
 #include "paintfield/core/librarymodel.h"
 
@@ -21,4 +20,3 @@ public slots:
 
 }
 
-#endif // BRUSHLIBRARYMODEL_H

@@ -1,5 +1,4 @@
-#ifndef PAINTFIELD_BRUSHSTROKERSIMPLEBRUSH_H
-#define PAINTFIELD_BRUSHSTROKERSIMPLEBRUSH_H
+#pragma once
 
 #include "brushstroker.h"
 
@@ -50,4 +49,3 @@ public:
 
 } // namespace PaintField
 
-#endif // PAINTFIELD_BRUSHSTROKERSIMPLEBRUSH_H

@@ -1,5 +1,4 @@
-#ifndef FSTOOLMANAGER_H
-#define FSTOOLMANAGER_H
+#pragma once
 
 #include <QObject>
 #include "settingsmanager.h"
@@ -44,4 +43,3 @@ private:
 
 }
 
-#endif // FSTOOLMANAGER_H

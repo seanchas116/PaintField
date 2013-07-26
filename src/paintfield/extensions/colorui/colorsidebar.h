@@ -1,5 +1,4 @@
-#ifndef FSCOLORPANEL_H
-#define FSCOLORPANEL_H
+#pragma once
 
 #include <QWidget>
 #include <Malachite/Color>
@@ -107,4 +106,3 @@ private:
 
 }
 
-#endif // FSCOLORPANEL_H

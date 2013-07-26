@@ -1,5 +1,4 @@
-#ifndef PENSTROKER_H
-#define PENSTROKER_H
+#pragma once
 
 #include "brushstroker.h"
 #include <Malachite/BlendMode>
@@ -51,4 +50,3 @@ public:
 
 }
 
-#endif // PENSTROKER_H

@@ -1,5 +1,4 @@
-#ifndef CALLBACKANIMATION_H
-#define CALLBACKANIMATION_H
+#pragma once
 
 #include <functional>
 #include <QVariantAnimation>
@@ -41,4 +40,3 @@ private:
 
 }
 
-#endif // CALLBACKANIMATION_H

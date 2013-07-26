@@ -1,5 +1,4 @@
-#ifndef FSDOCUMENTMODEL_H
-#define FSDOCUMENTMODEL_H
+#pragma once
 
 #include <QUndoStack>
 
@@ -102,4 +101,3 @@ private:
 
 }
 
-#endif // FSDOCUMENTMODEL_H

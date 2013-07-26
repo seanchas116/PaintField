@@ -1,5 +1,4 @@
-#ifndef LAYERPROPERTYEDITOR_H
-#define LAYERPROPERTYEDITOR_H
+#pragma once
 
 #include <QWidget>
 #include "paintfield/core/layer.h"
@@ -38,4 +37,3 @@ private:
 
 }
 
-#endif // LAYERPROPERTYEDITOR_H

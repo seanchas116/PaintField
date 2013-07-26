@@ -1,5 +1,4 @@
-#ifndef FSLAYERMOVETOOL_H
-#define FSLAYERMOVETOOL_H
+#pragma once
 
 #include <QObject>
 #include "paintfield/core/tool.h"
@@ -38,4 +37,3 @@ private:
 
 }
 
-#endif // FSLAYERMOVETOOL_H

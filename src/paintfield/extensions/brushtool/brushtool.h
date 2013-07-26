@@ -1,5 +1,4 @@
-#ifndef FSBRUSHTOOL_H
-#define FSBRUSHTOOL_H
+#pragma once
 
 #include <QObject>
 #include <QElapsedTimer>
@@ -75,4 +74,3 @@ private:
 
 }
 
-#endif // FSBRUSHTOOL_H

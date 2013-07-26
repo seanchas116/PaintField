@@ -1,5 +1,4 @@
-#ifndef PAINTFIELD_ABOUTDIALOG_H
-#define PAINTFIELD_ABOUTDIALOG_H
+#pragma once
 
 #include <QDialog>
 
@@ -23,4 +22,3 @@ private:
 
 
 } // namespace PaintField
-#endif // PAINTFIELD_ABOUTDIALOG_H

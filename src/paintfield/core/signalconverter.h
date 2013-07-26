@@ -1,5 +1,4 @@
-#ifndef PAINTFIELD_SIGNALCHANGER_H
-#define PAINTFIELD_SIGNALCHANGER_H
+#pragma once
 
 #include <QObject>
 #include <QVariant>
@@ -85,5 +84,3 @@ private:
 
 
 } // namespace PaintField
-
-#endif // PAINTFIELD_SIGNALCHANGER_H

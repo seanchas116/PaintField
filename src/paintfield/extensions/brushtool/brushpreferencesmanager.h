@@ -1,5 +1,4 @@
-#ifndef PAINTFIELD_BRUSHPREFERENCESMANAGER_H
-#define PAINTFIELD_BRUSHPREFERENCESMANAGER_H
+#pragma once
 
 #include <QObject>
 #include <QHash>
@@ -40,4 +39,3 @@ private:
 
 } // namespace PaintField
 
-#endif // PAINTFIELD_BRUSHPREFERENCESMANAGER_H

@@ -1,5 +1,4 @@
-#ifndef PAINTFIELD_LIBRARYMODEL_H
-#define PAINTFIELD_LIBRARYMODEL_H
+#pragma once
 
 #include <QStandardItemModel>
 #include <QDir>
@@ -98,5 +97,3 @@ public:
 };
 
 } // namespace PaintField
-
-#endif // PAINTFIELD_LIBRARYMODEL_H

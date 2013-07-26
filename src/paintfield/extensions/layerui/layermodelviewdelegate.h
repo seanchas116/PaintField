@@ -1,5 +1,4 @@
-#ifndef FSLAYERTREEVIEWDELEGATE_H
-#define FSLAYERTREEVIEWDELEGATE_H
+#pragma once
 
 #include <QStyledItemDelegate>
 
@@ -35,4 +34,3 @@ private:
 
 }
 
-#endif // FSLAYERTREEVIEWDELEGATE_H

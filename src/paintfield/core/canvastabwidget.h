@@ -1,5 +1,4 @@
-#ifndef PAINTFIELD_CANVASTABWIDGET_H
-#define PAINTFIELD_CANVASTABWIDGET_H
+#pragma once
 
 #include <QWidget>
 #include "workspacetabwidget.h"
@@ -84,4 +83,3 @@ private:
 
 } // namespace PaintField
 
-#endif // PAINTFIELD_CANVASTABWIDGET_H

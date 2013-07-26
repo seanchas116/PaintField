@@ -1,5 +1,4 @@
-#ifndef INTERFACE_H
-#define INTERFACE_H
+#pragma once
 
 #include <QObject>
 
@@ -39,6 +38,3 @@ public:
 
 Q_DECLARE_INTERFACE(PaintField::ReproductiveInterface, "PaintField.ReproductiveInterface")
 Q_DECLARE_INTERFACE(PaintField::DockTabDroppableInterface, "PaintField.DockTabDroppableInterface")
-
-
-#endif // INTERFACE_H

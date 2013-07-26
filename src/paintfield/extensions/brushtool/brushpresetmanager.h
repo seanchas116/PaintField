@@ -1,5 +1,4 @@
-#ifndef PAINTFIELD_BRUSH_PRESETMANAGER_H
-#define PAINTFIELD_BRUSH_PRESETMANAGER_H
+#pragma once
 
 #include <QObject>
 #include <QStringList>
@@ -66,4 +65,3 @@ private:
 
 } // namespace PaintField
 
-#endif // PAINTFIELD_BRUSH_PRESETMANAGER_H

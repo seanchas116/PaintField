@@ -1,5 +1,4 @@
-#ifndef FSTOOL_H
-#define FSTOOL_H
+#pragma once
 
 #include <QObject>
 #include <QString>
@@ -125,5 +124,3 @@ private:
 };
 
 }
-
-#endif // FSTOOL_H

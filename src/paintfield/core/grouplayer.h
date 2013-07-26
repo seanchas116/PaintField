@@ -1,4 +1,5 @@
 #pragma once
+
 #include "layer.h"
 
 namespace PaintField {

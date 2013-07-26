@@ -1,5 +1,4 @@
-#ifndef DOCUMENTIO_H
-#define DOCUMENTIO_H
+#pragma once
 
 #include <QObject>
 #include <QByteArray>
@@ -48,7 +47,3 @@ private:
 };
 
 }
-
-
-
-#endif // DOCUMENTIO_H

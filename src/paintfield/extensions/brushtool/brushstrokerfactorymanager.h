@@ -1,5 +1,4 @@
-#ifndef PAINTFIELD_BRUSH_SOURCEFACTORYMANAGER_H
-#define PAINTFIELD_BRUSH_SOURCEFACTORYMANAGER_H
+#pragma once
 
 #include <QObject>
 #include <QVariant>
@@ -39,4 +38,3 @@ private:
 
 } // namespace PaintField
 
-#endif // PAINTFIELD_BRUSH_SOURCEFACTORYMANAGER_H

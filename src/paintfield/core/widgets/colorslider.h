@@ -1,5 +1,4 @@
-#ifndef FSCOLORSLIDER_H
-#define FSCOLORSLIDER_H
+#pragma once
 
 #include <QWidget>
 #include <Malachite/Color>
@@ -73,4 +72,3 @@ private:
 
 }
 
-#endif // FSCOLORSLIDER_H

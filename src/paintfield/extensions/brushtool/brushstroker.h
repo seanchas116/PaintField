@@ -1,5 +1,4 @@
-#ifndef FSBRUSHSTROKER_H
-#define FSBRUSHSTROKER_H
+#pragma once
 
 #include <Malachite/SurfacePainter>
 #include "paintfield/core/tabletinputdata.h"
@@ -87,5 +86,3 @@ private:
 };
 
 }
-
-#endif // FSBRUSHSTROKER_H

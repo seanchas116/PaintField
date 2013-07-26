@@ -1,5 +1,4 @@
-#ifndef PAINTFIELD_NAVIGATORCONTROLLER_H
-#define PAINTFIELD_NAVIGATORCONTROLLER_H
+#pragma once
 
 #include <QObject>
 #include "navigatorview.h"
@@ -27,4 +26,3 @@ private:
 
 } // namespace PaintField
 
-#endif // PAINTFIELD_NAVIGATORCONTROLLER_H

@@ -1,5 +1,4 @@
-#ifndef PAINTFIELD_FILEDIALOG_H
-#define PAINTFIELD_FILEDIALOG_H
+#pragma once
 
 #include <QString>
 #include <QFileDialog>
@@ -44,4 +43,3 @@ public:
 
 } // namespace PaintField
 
-#endif // PAINTFIELD_FILEDIALOG_H

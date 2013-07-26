@@ -1,5 +1,4 @@
-#ifndef PAINTFIELD_DOCUMENTCONTROLLER_H
-#define PAINTFIELD_DOCUMENTCONTROLLER_H
+#pragma once
 
 #include <QObject>
 #include <QPointer>
@@ -92,4 +91,3 @@ private:
 
 } // namespace PaintField
 
-#endif // PAINTFIELD_DOCUMENTCONTROLLER_H

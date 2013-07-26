@@ -1,5 +1,4 @@
-#ifndef UTIL_H
-#define UTIL_H
+#pragma once
 
 #include <QObject>
 #include <QTransform>
@@ -107,4 +106,3 @@ QPoint mapToWindow(QWidget *widget, const QPoint &pos);
 }
 }
 
-#endif // UTIL_H

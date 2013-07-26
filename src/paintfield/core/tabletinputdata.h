@@ -1,5 +1,4 @@
-#ifndef FSTABLETINPUTDATA_H
-#define FSTABLETINPUTDATA_H
+#pragma once
 
 #include <Malachite/Vec2D>
 #include <QTransform>
@@ -24,5 +23,3 @@ struct TabletInputData
 };
 
 }
-
-#endif // FSTABLETINPUTDATA_H

@@ -1,5 +1,4 @@
-#ifndef PAINTFIELD_BRUSH_BRUSHLIBRARYVIEW_H
-#define PAINTFIELD_BRUSH_BRUSHLIBRARYVIEW_H
+#pragma once
 
 #include <QWidget>
 
@@ -30,4 +29,3 @@ private:
 
 } // namespace PaintField
 
-#endif // PAINTFIELD_BRUSH_BRUSHLIBRARYVIEW_H

@@ -1,5 +1,4 @@
-#ifndef PAINTFIELD_COLORBUTTONGROUP_H
-#define PAINTFIELD_COLORBUTTONGROUP_H
+#pragma once
 
 #include <QObject>
 #include <Malachite/Color>
@@ -51,4 +50,3 @@ private:
 
 } // namespace PaintField
 
-#endif // PAINTFIELD_COLORBUTTONGROUP_H

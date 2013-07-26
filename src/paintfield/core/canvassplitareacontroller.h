@@ -1,5 +1,4 @@
-#ifndef PAINTFIELD_CANVASSPLITAREACONTROLLER_H
-#define PAINTFIELD_CANVASSPLITAREACONTROLLER_H
+#pragma once
 
 #include <QObject>
 
@@ -53,4 +52,3 @@ private:
 
 } // namespace PaintField
 
-#endif // PAINTFIELD_CANVASSPLITAREACONTROLLER_H

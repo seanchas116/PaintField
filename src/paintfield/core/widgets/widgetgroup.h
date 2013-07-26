@@ -1,5 +1,4 @@
-#ifndef FSWIDGETGROUP_H
-#define FSWIDGETGROUP_H
+#pragma once
 
 #include <QObject>
 
@@ -37,4 +36,3 @@ private:
 
 }
 
-#endif // FSWIDGETGROUP_H

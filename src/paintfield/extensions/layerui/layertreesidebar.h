@@ -1,5 +1,4 @@
-#ifndef FSLAYERTREEPANEL_H
-#define FSLAYERTREEPANEL_H
+#pragma once
 
 #include "paintfield/core/layer.h"
 #include "paintfield/core/widgets/loosespinbox.h"
@@ -54,4 +53,3 @@ private:
 
 }
 
-#endif // FSLAYERTREEPANEL_H

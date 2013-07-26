@@ -1,5 +1,4 @@
-#ifndef WORKSPACEVIEW_H
-#define WORKSPACEVIEW_H
+#pragma once
 
 #include <QMainWindow>
 #include <QMdiArea>
@@ -122,5 +121,3 @@ private:
 };
 
 }
-
-#endif // WORKSPACEVIEW_H

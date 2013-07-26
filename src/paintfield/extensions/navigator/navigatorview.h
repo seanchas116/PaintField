@@ -1,5 +1,4 @@
-#ifndef NAVIGATORVIEW_H
-#define NAVIGATORVIEW_H
+#pragma once
 
 #include <QWidget>
 #include <cmath>
@@ -134,4 +133,3 @@ private:
 
 }
 
-#endif // NAVIGATORVIEW_H

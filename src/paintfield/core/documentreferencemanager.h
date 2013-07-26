@@ -1,5 +1,4 @@
-#ifndef PAINTFIELD_DOCUMENTREFERENCEMANAGER_H
-#define PAINTFIELD_DOCUMENTREFERENCEMANAGER_H
+#pragma once
 
 #include <QObject>
 
@@ -48,4 +47,3 @@ private:
 
 } // namespace PaintField
 
-#endif // PAINTFIELD_DOCUMENTREFERENCEMANAGER_H

@@ -1,5 +1,4 @@
-#ifndef FSMODULARDOUBLESPINBOX_H
-#define FSMODULARDOUBLESPINBOX_H
+#pragma once
 
 #include <QDoubleSpinBox>
 
@@ -22,4 +21,3 @@ public slots:
 
 }
 
-#endif // FSMODULARDOUBLESPINBOX_H

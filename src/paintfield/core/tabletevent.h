@@ -1,5 +1,4 @@
-#ifndef FSTABLETEVENT_H
-#define FSTABLETEVENT_H
+#pragma once
 
 #include <QInputEvent>
 
@@ -59,9 +58,4 @@ public:
 	Malachite::Vec2D pos;
 };
 
-
-
-
 }
-
-#endif // FSTABLETEVENT_H

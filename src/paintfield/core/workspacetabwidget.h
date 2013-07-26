@@ -1,5 +1,4 @@
-#ifndef PAINTFIELD_WORKSPACETABWIDGET_H
-#define PAINTFIELD_WORKSPACETABWIDGET_H
+#pragma once
 
 #include "widgets/docktabwidget.h"
 
@@ -38,4 +37,3 @@ private:
 
 } // namespace PaintField
 
-#endif // PAINTFIELD_WORKSPACETABWIDGET_H

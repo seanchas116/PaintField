@@ -1,5 +1,4 @@
-#ifndef PAINTFIELD_BRUSHSIDEBAR_H
-#define PAINTFIELD_BRUSHSIDEBAR_H
+#pragma once
 
 #include <QWidget>
 #include "brushpresetmanager.h"
@@ -42,4 +41,3 @@ private:
 
 } // namespace PaintField
 
-#endif // PAINTFIELD_BRUSHSIDEBAR_H
