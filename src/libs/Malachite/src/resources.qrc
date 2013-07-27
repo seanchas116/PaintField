@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+        <file>resources/shader/default.vert</file>
+        <file>resources/shader/test.frag</file>
+        <file>resources/shader/test.vert</file>
+        <file>resources/shader/blend/src_over.frag</file>
+    </qresource>
+</RCC>
