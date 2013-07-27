@@ -7,13 +7,10 @@ The project name and the license might be changed in the future.
 ## - To Build -
 
 PaintField depends on the following libraries: Qt 4.8, libfreeimage.
-PaintField requires GCC 4.8+ or Clang 3.2+. MSVC is not supported.
+PaintField requires GCC 4.8+ or Clang 3.2+ (Clang is recommended). MSVC is not supported.
 PaintField supports Mac, Linux 32/64bit and Windows 64bit.
 
-To build PaintField, follow these steps:
-
-	1. Copy or link Malachite[github.com/iofg2100/Malachite] source directory as src/libs/Malachite. Malachite readme file will be placed in src/libs/Malachite.
-	2. Build PaintField (using Qt Creator is the easiest way).
+Opening PaintField.pro in Qt Creator is the easiest way to build PaintField.
 
 ## - Planned Features -
 
