@@ -30,7 +30,7 @@ def get_qt_path(bin_path)
 
 	IO.popen("otool -L #{bin_path}") do |io|
 		io.each do |line|
-			if /\S+QtCore.framework/ =~ line
+			if /\S+QtCore\.framework/ =~ line
 				qtcore_path = Pathname.new $&
 			end
 		end
@@ -47,6 +47,45 @@ def get_qt_path(bin_path)
 
 end
 
+def fix_framework_paths(lib_path)
+
+	item_struct = Struct.new :old_path, :new_path
+
+	items = []
+
+	IO.popen "otool -L #{lib_path}" do |io|
+
+		io.each do |line|
+
+			if /Qt.+\.framework\S+/ =~ line
+
+				item = item_struct.new
+				item.old_path = line.split(" ")[0]
+				item.new_path = "@executable_path/../Frameworks/#{$&}"
+
+				items << item
+
+			end
+		end
+	end
+
+	items.each do |item|
+		`install_name_tool -change #{item.old_path} #{item.new_path} #{lib_path}`
+	end
+
+end
+
+def fix_framework_paths_recursive(path)
+
+	if path.directory?
+		path.each_child do |child|
+			fix_framework_paths_recursive(child)
+		end
+	elsif path.extname == ".dylib"
+		fix_framework_paths(path)
+	end
+
+end
 
 def deploy(original_path, destination_path)
 
@@ -81,7 +120,9 @@ def deploy(original_path, destination_path)
 	original_plugins_path = qt_path + "plugins"
 
 	FileUtils.cp_r(original_plugins_path, app_path + "Contents")
-	
+
+	fix_framework_paths_recursive(app_path + "Contents/plugins")
+
 end
 
 if not ARGV.size == 2
