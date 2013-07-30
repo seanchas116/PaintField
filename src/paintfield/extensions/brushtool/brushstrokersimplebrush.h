@@ -13,6 +13,8 @@ public:
 	
 	void loadSettings(const QVariantMap &settings);
 	
+	Malachite::Image *getTile(const QPoint &key, Malachite::Surface *surface);
+	
 protected:
 	
 	void drawFirst(const TabletInputData &data);
@@ -24,8 +26,6 @@ private:
 	QRect drawDab(const Malachite::Vec2D &pos, double pressure);
 	
 	void drawScanline(const BrushScanline &scanline, Malachite::Surface *surface);
-	
-	Malachite::Image *getTile(const QPoint &key, Malachite::Surface *surface);
 	
 	double _carryOver = 1.0;
 	Malachite::Image *_lastTile = 0;

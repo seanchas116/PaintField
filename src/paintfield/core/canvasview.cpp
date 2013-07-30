@@ -379,8 +379,8 @@ void CanvasViewController::updateTiles(const QPointSet &keys, const QHash<QPoint
 	
 	auto documentRect = QRect(QPoint(), d->canvas->document()->size());
 	
-	static const Pixel whitePixel = Color::fromRgbValue(1,1,1).toPixel();
-	static auto blendOp = BlendMode(BlendMode::DestinationOver).op();
+	const Pixel whitePixel(1.f);
+	auto blendOp = BlendMode(BlendMode::DestinationOver).op();
 	
 	auto updateTile = [&](const QPoint &key, const QRect &rect)
 	{

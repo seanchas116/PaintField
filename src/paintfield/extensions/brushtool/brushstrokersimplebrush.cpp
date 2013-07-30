@@ -1,5 +1,6 @@
 #include <Malachite/Interval>
 #include "brushrasterizer.h"
+#include <Malachite/BlendTraits>
 
 #include "brushstrokersimplebrush.h"
 
@@ -95,17 +96,146 @@ double BrushStrokerSimpleBrush::drawSegment(const Malachite::Vec2D &p1, const Ma
 	return -len;
 }
 
+inline static PixelVec sseVec4FromInt(int x1, int x2, int x3, int x4)
+{
+	union
+	{
+		std::array<int32_t, 4> a;
+		__m128i m;
+	} u;
+	
+	u.a[0] = x1;
+	u.a[1] = x2;
+	u.a[2] = x3;
+	u.a[3] = x4;
+	return _mm_cvtepi32_ps(u.m);
+}
+
+inline static PixelVec sseVec4FromInt(int32_t i)
+{
+	union
+	{
+		std::array<int32_t, 4> a;
+		__m128i m;
+	} u;
+	
+	u.a[0] = i;
+	u.m = _mm_unpacklo_epi32(u.m, u.m);
+	u.m = _mm_unpacklo_epi32(u.m, u.m);
+	return _mm_cvtepi32_ps(u.m);
+}
+
+
+template <typename TBlendTraits>
+static QRect drawDabToSurface(BrushStrokerSimpleBrush *stroker, Surface *surface, const Pixel &color, const Vec2D &pos, double radius)
+{
+	auto rect = QRectF(pos.x() - radius, pos.y() - radius, radius * 2.0, radius * 2.0).toAlignedRect();
+	
+	float max, cutoffSlope;
+	constexpr float aaWidth = 1.f;
+	
+	if (radius <= 1.f)
+	{
+		max = radius;
+		//cutoff = 0.f;
+		radius = 1.f;
+		cutoffSlope = -max;
+	}
+	else if (radius <= 1.f + aaWidth)
+	{
+		max = 1.f;
+		//cutoff = 0.f;
+		cutoffSlope = -max / radius;
+	}
+	else
+	{
+		max = 1.f;
+		//cutoff = radius - aaWidth;
+		cutoffSlope = -max / aaWidth;
+	}
+	
+	auto maxs = PixelVec(max);
+	auto radiuses = PixelVec(radius);
+	auto cutoffSlopes = PixelVec(cutoffSlope);
+	
+	constexpr auto tileWidth = Surface::tileWidth();
+	auto tileTopLeft = QPoint( rect.left() / tileWidth, rect.top() / tileWidth );
+	auto tileBottomRight = QPoint( rect.right() / tileWidth, rect.bottom() / tileWidth);
+	
+	for (int tileY = tileTopLeft.y(); tileY <= tileBottomRight.y(); ++tileY)
+	{
+		for (int tileX = tileTopLeft.x(); tileX <= tileBottomRight.x(); ++tileX)
+		{
+			QPoint key(tileX, tileY);
+			
+			auto image = stroker->getTile(key, surface);
+			
+			auto subRect = QRect(0, 0, tileWidth, tileWidth) & rect.translated(-tileX * tileWidth, -tileY * tileWidth);
+			
+			auto x0 = subRect.left();
+			auto y0 = subRect.top();
+			
+			auto offsetCenter = pos - key * tileWidth - 0.5;
+			
+			PixelVec offsetCenterXs(offsetCenter.x());
+			PixelVec offsetCenterYs(offsetCenter.y());
+			
+			auto xs0 = sseVec4FromInt(x0, x0+1, x0+2, x0+3) - offsetCenterXs;
+			auto ys = sseVec4FromInt(y0) - offsetCenterYs;
+			
+			int w = subRect.width();
+			
+			for (int y = subRect.top(); y <= subRect.bottom(); ++y)
+			{
+				auto xs = xs0;
+				auto yys = ys * ys;
+				
+				auto sl = image->pixelPointer(x0, y);
+				
+				int rem = w;
+				
+				while (rem)
+				{
+					auto rrs = xs * xs + yys;
+					auto rs = rrs.rsqrt() * rrs;
+					auto covers = ((rs - radiuses) * cutoffSlopes).bound(0.f, maxs);
+					covers = PixelVec::choose( PixelVec::equal(covers, covers) , covers, maxs);
+					
+					if (!rem--) break;
+					*sl = TBlendTraits::blend(*sl, color * covers[0]);
+					++sl;
+					
+					if (!rem--) break;
+					*sl = TBlendTraits::blend(*sl, color * covers[1]);
+					++sl;
+					
+					if (!rem--) break;
+					*sl = TBlendTraits::blend(*sl, color * covers[2]);
+					++sl;
+					
+					if (!rem--) break;
+					*sl = TBlendTraits::blend(*sl, color * covers[3]);
+					++sl;
+					
+					xs += 4.f;
+				}
+				
+				ys += 1.f;
+			}
+		}
+	}
+	
+	return rect;
+}
+
 QRect BrushStrokerSimpleBrush::drawDab(const Vec2D &pos, double pressure)
 {
 	if (pressure <= 0)
 		return QRect();
 	
-	BrushRasterizerFast ras(pos, radiusBase() * pressure, 2, _covers.data());
+	auto radius = radiusBase() * pressure;
 	
-	while (ras.hasNextScanline())
-		drawScanline(ras.nextScanline(), surface());
-	
-	return ras.boundingRect();
+	return drawDabToSurface<BlendTraitsSourceOver>(this, surface(), pixel(), pos, radius);
 }
 
 static void drawScanlineInTile(Image *tileImage, const QPoint &offset, const BrushScanline &scanline, const Pixel &argb, BlendOp *blendOp)
@@ -136,6 +266,7 @@ static void drawScanlineInTile(Image *tileImage, const QPoint &offset, const Bru
 		}
 	}
 }
+
 
 void BrushStrokerSimpleBrush::drawScanline(const BrushScanline &scanline, Surface *surface)
 {
