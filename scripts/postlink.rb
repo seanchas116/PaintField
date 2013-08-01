@@ -54,18 +54,6 @@ if platform == :mac
   replace_info_plist_version(out_pwd_app + "PaintField.app/Contents/Info.plist", version_str)
 end
 
-# copy dylibs (Mac)
-=begin
-if platform == :mac
-  destination_frameworks = out_pwd_app + "PaintField.app/Contents/Frameworks"
-  FileUtils.mkpath(destination_frameworks)
-  `cp #{out_pwd_root}/src/libs/Malachite/src/lib*.1.dylib #{destination_frameworks}`
-  `cp #{out_pwd_root}/src/libs/*/lib*.1.dylib #{destination_frameworks}`
-  `cp #{out_pwd_root}/src/paintfield/core/lib*.1.dylib #{destination_frameworks}`
-  `cp #{out_pwd_root}/src/paintfield/extensions/lib*.1.dylib #{destination_frameworks}`
-end
-=end
-
 # copy contents, settings, extensions
 
 FileUtils.rm_rf(destination + "Contents")
