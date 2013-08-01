@@ -1,66 +1,47 @@
-
 require 'pathname'
 
 Qualifier = "//ExportName:"
 
-scriptPath = Pathname.new(File.expand_path(File.dirname(__FILE__)))
+script_path = Pathname.new(__FILE__).parent
 
-srcPath = scriptPath + "src"
-outputPath = scriptPath + "include/Malachite"
+src__dir_path = script_path + "src"
+output_dir_path = script_path + "include/Malachite"
 
-def exportedClasseNames(filePath)
+def get_exported_class_name(filepath)
 
-	classnames = Array.new
-	
-	file = File.open(filePath, "r")
-	
-	while rawline = file.gets
-		
-		line = rawline.encode("UTF-8", "UTF-8", invalid: :replace, undef: :replace, replace: '.')
-		
-		tokens = line.split
-		
-		if tokens.length >= 2
-			
-			if tokens[0] == Qualifier
-				classnames.push tokens[1]
-			end
-			
-		end
-	end
-	
-	return classnames
-	
+  filepath.each_line do |line|
+
+    tokens = line.split
+    if tokens.length >= 2 && tokens[0] == Qualifier
+      return tokens[1]
+    end
+
+  end
+
+  return nil
+
 end
 
-def writeHeaderFile(filepath, includePath)
-	
-	file = File.open(filepath, "w")
-	file.puts('#include "' + includePath + '"')
-	file.close
-	
+def write_header_file(filepath, include_path)
+
+  filepath.open("w") do |file|
+    file.puts("#include \"#{include_path}\"")
+  end
+
 end
 
+src__dir_path.each_child do |filepath|
 
-srcdir = Dir::open(srcPath.to_s)
+  if /\.h$/ =~ filepath.to_s
 
-srcdir.each do |file|
-	
-	if /\.h$/ =~ file
-		
-		path = srcPath + file
-		
-		classnames = exportedClasseNames(path.to_s)
-		
-		classnames.each do |name|
-			
-			outHeaderPath = outputPath + name
-			
-			writeHeaderFile(outHeaderPath.to_s, path.relative_path_from(outputPath).to_s)
-			
-			puts name
-		end
-	end
+    classname = get_exported_class_name(filepath)
+
+    if classname
+      out_path = output_dir_path + classname
+      write_header_file(out_path, filepath.relative_path_from(output_dir_path))
+      puts classname
+    end
+
+  end
+
 end
-
-
