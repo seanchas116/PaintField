@@ -162,7 +162,7 @@ void Workspace::newCanvas()
 
 void Workspace::newCanvasFromImageFile()
 {
-	openCanvasFromFilepath(DocumentController::getOpenImageFilePath());
+	addAndShowDocument(DocumentController::createFromImportDialog());
 }
 
 void Workspace::newCanvasFromClipboard()

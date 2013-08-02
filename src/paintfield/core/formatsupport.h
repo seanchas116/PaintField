@@ -9,15 +9,31 @@ class FormatSupport : public QObject
 {
 	Q_OBJECT
 public:
+	
+	enum Capability
+	{
+		CapabilityLayers = 1 << 1,
+		CapabilityAlphaChannel = 1 << 2,
+		CapabilityLossless = 1 << 3
+	};
+	Q_DECLARE_FLAGS(Capabilities, Capability)
+	
+	static bool importFromFile(const QString &filepath, const QList<FormatSupport *> &formatSupports, QList<LayerRef> *layers, QSize *size, QString *name);
+	static bool importFromFileDialog(QWidget *parent, const QList<FormatSupport *> &formatSupports, QList<LayerRef> *layers, QSize *size, QString *name, const QString &dialogTitle);
+	static bool exportToFileDialog(QWidget *parent, const QList<FormatSupport *> &formatSupports, const QList<LayerConstRef> &layers, const QSize &size, const QString &dialogTitle, bool showOptions);
+	
+	static QList<Capability> allCapabilities()
+	{
+		return
+		{
+			CapabilityLayers,
+			CapabilityAlphaChannel,
+			CapabilityLossless
+		};
+	}
+	
 	explicit FormatSupport(QObject *parent = 0);
 	~FormatSupport();
-	
-	enum class Capability
-	{
-		Layers,
-		AlphaChannel,
-		Lossless
-	};
 	
 	virtual QString name() const = 0;
 	virtual QStringList suffixes() const = 0;
@@ -27,15 +43,12 @@ public:
 	virtual bool canRead() const;
 	virtual bool canWrite() const;
 	
-	virtual bool hasCapability(Capability capability) const = 0;
+	virtual Capabilities capabilities() const = 0;
 	virtual bool read(QIODevice *device, QList<LayerRef> *layers, QSize *size) = 0;
 	virtual bool write(QIODevice *device, const QList<LayerConstRef> &layers, const QSize &size) = 0;
 	
 	virtual QWidget *createExportOptionWidget();
 	virtual void setExportOptions(QWidget *widget);
-	
-	static bool importFromFileDialog(const QList<FormatSupport *> &formatSupports, QList<LayerRef> *layers, QSize *size, const QString &dialogTitle);
-	static bool exportToFileDialog(const QList<FormatSupport *> &formatSupports, const QList<LayerConstRef> &layers, const QSize &size, const QString &dialogTitle, bool showOptions);
 	
 signals:
 	
@@ -51,5 +64,7 @@ private:
 	struct Data;
 	Data *d;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(FormatSupport::Capabilities)
 
 } // namespace PaintField

@@ -42,21 +42,6 @@ JpegFormatSupport::JpegFormatSupport(QObject *parent) :
 	setShortDescription(tr("JPEG"));
 }
 
-bool JpegFormatSupport::hasCapability(Capability capability) const
-{
-	switch (capability)
-	{
-		case Capability::AlphaChannel:
-			return false;
-		case Capability::Layers:
-			return false;
-		case Capability::Lossless:
-			return false;
-		default:
-			return false;
-	}
-}
-
 QWidget *JpegFormatSupport::createExportOptionWidget()
 {
 	return new JpegExportForm();
@@ -78,21 +63,6 @@ PngFormatSupport::PngFormatSupport(QObject *parent) :
 	MalachiteFormatSupport(parent)
 {
 	setShortDescription(tr("PNG"));
-}
-
-bool PngFormatSupport::hasCapability(Capability capability) const
-{
-	switch (capability)
-	{
-		case Capability::AlphaChannel:
-			return true;
-		case Capability::Layers:
-			return false;
-		case Capability::Lossless:
-			return true;
-		default:
-			return false;
-	}
 }
 
 QWidget *PngFormatSupport::createExportOptionWidget()

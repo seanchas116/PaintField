@@ -290,6 +290,32 @@ Licensed under the MIT License.</oldsource>
     </message>
 </context>
 <context>
+    <name>PaintField::JpegExportForm</name>
+    <message>
+        <location filename="formatsupports/jpegexportform.ui" line="14"/>
+        <source>Form</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="formatsupports/jpegexportform.ui" line="20"/>
+        <source>Quality</source>
+        <translation>品質</translation>
+    </message>
+    <message>
+        <location filename="formatsupports/jpegexportform.ui" line="52"/>
+        <source>%</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PaintField::JpegFormatSupport</name>
+    <message>
+        <location filename="formatsupports/malachiteformatsupport.cpp" line="42"/>
+        <source>JPEG</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>PaintField::LayerMoveTool</name>
     <message>
         <location filename="movetool/layermovetool.cpp" line="59"/>
@@ -300,7 +326,7 @@ Licensed under the MIT License.</oldsource>
 <context>
     <name>PaintField::LayerPropertyEditor</name>
     <message>
-        <location filename="layerui/layerpropertyeditor.cpp" line="75"/>
+        <location filename="layerui/layerpropertyeditor.cpp" line="76"/>
         <source>Opacity</source>
         <translation>不透明度</translation>
     </message>
@@ -309,17 +335,17 @@ Licensed under the MIT License.</oldsource>
         <translation type="obsolete">未実装</translation>
     </message>
     <message>
-        <location filename="layerui/layerpropertyeditor.cpp" line="113"/>
+        <location filename="layerui/layerpropertyeditor.cpp" line="114"/>
         <source>Blend</source>
         <translation>ブレンド</translation>
     </message>
     <message>
-        <location filename="layerui/layerpropertyeditor.cpp" line="165"/>
+        <location filename="layerui/layerpropertyeditor.cpp" line="166"/>
         <source>Set Layer Opacity</source>
         <translation>レイヤー不透明度を設定</translation>
     </message>
     <message>
-        <location filename="layerui/layerpropertyeditor.cpp" line="171"/>
+        <location filename="layerui/layerpropertyeditor.cpp" line="172"/>
         <source>Set Blend Mode</source>
         <translation type="unfinished"></translation>
     </message>
@@ -512,6 +538,27 @@ Licensed under the MIT License.</oldsource>
         <location filename="navigator/navigatorview.cpp" line="357"/>
         <source>y:</source>
         <translation></translation>
+    </message>
+</context>
+<context>
+    <name>PaintField::PngExportForm</name>
+    <message>
+        <location filename="formatsupports/pngexportform.ui" line="14"/>
+        <source>Form</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="formatsupports/pngexportform.ui" line="20"/>
+        <source>Alpha Channel</source>
+        <translation>アルファチャンネル</translation>
+    </message>
+</context>
+<context>
+    <name>PaintField::PngFormatSupport</name>
+    <message>
+        <location filename="formatsupports/malachiteformatsupport.cpp" line="65"/>
+        <source>PNG</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

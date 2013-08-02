@@ -7,6 +7,13 @@
 namespace PaintField
 {
 
+struct SimpleButton::Data
+{
+	QMargins margins;
+	bool active = false;
+	bool pressable = true;
+};
+
 static void paintPixmapWithBrush(QPixmap *pixmap, const QBrush &brush)
 {
 	QPainter painter(pixmap);
@@ -51,7 +58,8 @@ QIcon SimpleButton::createIcon(const QString &path, const QBrush &onBrush, const
 }
 
 SimpleButton::SimpleButton(QWidget *parent) :
-	QToolButton(parent)
+	QToolButton(parent),
+	d(new Data)
 {
 	setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	setPopupMode(QToolButton::InstantPopup);
@@ -81,20 +89,53 @@ SimpleButton::SimpleButton(const QString &basePixmapFile, const QSize &size, QOb
 	connect(this, SIGNAL(pressed()), obj, slot);
 }
 
+SimpleButton::~SimpleButton()
+{
+	delete d;
+}
+
 QSize SimpleButton::sizeHint() const
 {
-	return QSize(_margins.left() + iconSize().width() + _margins.right(), _margins.top() + iconSize().height() + _margins.bottom());
+	return QSize(d->margins.left() + iconSize().width() + d->margins.right(), d->margins.top() + iconSize().height() + d->margins.bottom());
+}
+
+void SimpleButton::setPressable(bool pressable)
+{
+	d->pressable = pressable;
+}
+
+bool SimpleButton::isPressable() const
+{
+	return d->pressable;
+}
+
+void SimpleButton::setMargins(const QMargins &margins)
+{
+	d->margins = margins;
+}
+
+QMargins SimpleButton::margins() const
+{
+	return d->margins;
+}
+
+bool SimpleButton::hitButton(const QPoint &pos) const
+{
+	if (d->pressable)
+		return QToolButton::hitButton(pos);
+	else
+		return false;
 }
 
 void SimpleButton::enterEvent(QEvent *)
 {
-	_active = true;
+	d->active = true;
 	update();
 }
 
 void SimpleButton::leaveEvent(QEvent *)
 {
-	_active = false;
+	d->active = false;
 	update();
 }
 
@@ -104,16 +145,16 @@ void SimpleButton::paintEvent(QPaintEvent *)
 	
 	if (isEnabled())
 	{
-		mode = _active ? QIcon::Active : QIcon::Normal;
+		mode = d->active ? QIcon::Active : QIcon::Normal;
 	}
 	else
 	{
 		mode = QIcon::Disabled;
 	}
 	
-	QPixmap pixmap = icon().pixmap(iconSize(), mode, isChecked() || isDown() ? QIcon::On : QIcon::Off);
+	QPixmap pixmap = icon().pixmap(iconSize(), mode, (isChecked() || isDown()) ? QIcon::On : QIcon::Off);
 	QPainter painter(this);
-	painter.drawPixmap(_margins.left(), _margins.top(), pixmap);
+	painter.drawPixmap(d->margins.left(), d->margins.top(), pixmap);
 }
 
 }

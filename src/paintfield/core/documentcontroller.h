@@ -18,7 +18,6 @@ public:
 	{}
 	
 	static QString getOpenSavedFilePath();
-	static QString getOpenImageFilePath();
 	
 	/**
 	 * Shows a dialog and creates a new document.
@@ -31,6 +30,8 @@ public:
 	 * @return Null if failed
 	 */
 	static Document *createFromClipboard();
+	
+	static Document *createFromImportDialog();
 	
 	/**
 	 * Opens a file and creates a canvas.

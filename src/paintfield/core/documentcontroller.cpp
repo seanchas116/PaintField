@@ -21,11 +21,6 @@ using namespace Malachite;
 
 namespace PaintField {
 
-QString DocumentController::getOpenImageFilePath()
-{
-	return FileDialog::getOpenFilePath(0, tr("Open"), tr("Image File"), ImageImporter::importableExtensions());
-}
-
 QString DocumentController::getOpenSavedFilePath()
 {
 	return FileDialog::getOpenFilePath(0, tr("Open"), tr("PaintField Document"), {"pfield"});
@@ -50,6 +45,27 @@ Document *DocumentController::createFromClipboard()
 	auto layer = RasterLayer::createFromImage(pixmap.toImage());
 	layer->setName(tr("Clipboard"));
 	return new Document(appController()->unduplicatedFileTempName(tr("Clipboard")), pixmap.size(), {layer});
+}
+
+Document *DocumentController::createFromImportDialog()
+{
+	QList<LayerRef> layers;
+	QSize size;
+	QString name;
+	
+	bool result = FormatSupport::importFromFileDialog(
+			0,
+			appController()->formatSupportManager()->formatSupports(),
+			&layers,
+			&size,
+			&name,
+			tr("Import")
+	);
+	
+	if (result)
+		return new Document(appController()->unduplicatedFileTempName(name), size, layers);
+	else
+		return nullptr;
 }
 
 Document *DocumentController::createFromFile(const QString &path)
@@ -77,23 +93,22 @@ Document *DocumentController::createFromSavedFile(const QString &path)
 
 Document *DocumentController::createFromImageFile(const QString &path)
 {
+	QList<LayerRef> layers;
+	QSize size;
 	QString name;
 	
-	{
-		QFileInfo fileInfo(path);
-		name = fileInfo.baseName();
-	}
+	bool result = FormatSupport::importFromFile(
+			path,
+			appController()->formatSupportManager()->formatSupports(),
+			&layers,
+			&size,
+			&name
+	);
 	
-	QSize size;
-	
-	auto layer = RasterLayer::createFromImageFile(path, &size);
-	if (!layer)
-	{
-		MessageBox::show(QMessageBox::Warning, tr("Failed to open file."), QString());
-		return 0;
-	}
-	
-	return new Document(appController()->unduplicatedFileTempName(name), size, {layer});
+	if (result)
+		return new Document(appController()->unduplicatedFileTempName(name), size, layers);
+	else
+		return nullptr;
 }
 
 bool DocumentController::confirmClose(Document *document)
@@ -166,37 +181,8 @@ bool DocumentController::save(Document *document)
 
 bool DocumentController::exportToImage(Document *document, QWidget *dialogParent)
 {
-	/*
-	ExportDialog dialog(dialogParent);
-	
-	if (!dialog.exec())
-		return false;
-	
-	Surface surface;
-	
-	{
-		LayerRenderer renderer;
-		surface = renderer.renderToSurface({document->layerScene()->rootLayer()}, document->tileKeys());
-	}
-	
-	QString path = FileDialog::getSaveFilePath(0, tr("Export"), dialog.currentText(), dialog.currentFormat());
-	
-	if (path.isEmpty())
-		return false;
-	
-	ImageExporter exporter(dialog.currentFormat(), dialog.isAlphaEnabled());
-	exporter.setSurface(surface, document->size());
-	exporter.setQuality(dialog.currentQuality());
-	
-	if (!exporter.save(path))
-	{
-		MessageBox::show(QMessageBox::Warning, tr("Failed to export file."), QString());
-		return false;
-	}
-	
-	return true;*/
-	
 	return FormatSupport::exportToFileDialog(
+			dialogParent,
 			appController()->formatSupportManager()->formatSupports(),
 			document->layerScene()->rootLayer()->children(),
 			document->size(), tr("Export"),

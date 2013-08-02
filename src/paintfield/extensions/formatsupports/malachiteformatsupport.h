@@ -43,7 +43,7 @@ public:
 	bool canRead() const override { return true; }
 	bool canWrite() const override { return true; }
 	
-	bool hasCapability(Capability capability) const override;
+	Capabilities capabilities() const override { return 0; }
 	
 	QWidget *createExportOptionWidget() override;
 	void setExportOptions(QWidget *widget) override;
@@ -65,7 +65,7 @@ public:
 	bool canRead() const override { return true; }
 	bool canWrite() const override { return true; }
 	
-	bool hasCapability(Capability capability) const override;
+	Capabilities capabilities() const override { return CapabilityLossless | CapabilityAlphaChannel; }
 	
 	QWidget *createExportOptionWidget() override;
 	void setExportOptions(QWidget *widget) override;
