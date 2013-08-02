@@ -20,8 +20,15 @@ void CanvasViewportNormal::paintEvent(QPaintEvent *event)
 {
 	QPainter painter(this);
 	painter.setCompositionMode(QPainter::CompositionMode_Source);
-	painter.setPen(Qt::NoPen);
-	painter.setBrush(QColor(128, 128, 128));
+	
+	QRect rect = event->rect();
+	
+	// get rid of unnecessary state change for performance
+	if (!(rect & QRect(QPoint(), _state->documentSize)).isEmpty())
+	{
+		painter.setPen(Qt::NoPen);
+		painter.setBrush(QColor(128, 128, 128));
+	}
 	
 	auto draw = [&](const QRect &rect, const QImage &image)
 	{
@@ -33,7 +40,7 @@ void CanvasViewportNormal::paintEvent(QPaintEvent *event)
 		painter.drawRect(rect);
 	};
 	
-	drawViewport(event->rect(), _state, draw, drawBackground);
+	drawViewport(rect, _state, draw, drawBackground);
 }
 
 } // namespace PaintField
