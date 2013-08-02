@@ -51,22 +51,24 @@ bool FormatSupport::read(QIODevice *device, QList<LayerRef> *layers, QSize *size
 	return false;
 }
 
-bool FormatSupport::write(QIODevice *device, const QList<LayerConstRef> &layers, const QSize &size)
+bool FormatSupport::write(QIODevice *device, const QList<LayerConstRef> &layers, const QSize &size, const QVariant &option)
 {
 	Q_UNUSED(device);
 	Q_UNUSED(layers);
 	Q_UNUSED(size);
+	Q_UNUSED(option);
 	return false;
 }
 
-QWidget *FormatSupport::createExportOptionWidget()
+QWidget *FormatSupport::createExportingOptionWidget()
 {
 	return nullptr;
 }
 
-void FormatSupport::setExportOptions(QWidget *widget)
+QVariant FormatSupport::exportingOptionForWidget(QWidget *widget)
 {
 	Q_UNUSED(widget);
+	return QVariant();
 }
 
 void FormatSupport::setShortDescription(const QString &text)
@@ -139,6 +141,7 @@ bool FormatSupport::exportToFileDialog(QWidget *parent, const QList<FormatSuppor
 		return false;
 	
 	FormatSupport *exportingFormat;
+	QVariant option;
 	
 	if (showOptions)
 	{
@@ -149,7 +152,7 @@ bool FormatSupport::exportToFileDialog(QWidget *parent, const QList<FormatSuppor
 			return true;
 		
 		exportingFormat = dialog.currentFormatSupport();
-		exportingFormat->setExportOptions(dialog.currentOptionWidget());
+		option = exportingFormat->exportingOptionForWidget(dialog.currentOptionWidget());
 	}
 	else
 	{
@@ -178,7 +181,7 @@ bool FormatSupport::exportToFileDialog(QWidget *parent, const QList<FormatSuppor
 	
 	QFile file(filepath);
 	
-	if (!file.open(QIODevice::WriteOnly) || !exportingFormat->write(&file, layers, size))
+	if (!file.open(QIODevice::WriteOnly) || !exportingFormat->write(&file, layers, size, option))
 	{
 		MessageBox::show(QMessageBox::Warning, tr("Failed to write file."), QString());
 		return false;

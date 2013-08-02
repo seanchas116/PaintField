@@ -13,10 +13,7 @@ public:
 	explicit MalachiteFormatSupport(QObject *parent = 0);
 	
 	bool readSingleLayer(QIODevice *device, Malachite::Surface *surface, QSize *size) override;
-	bool writeSingleLayer(QIODevice *device, const Malachite::Surface &surface, const QSize &size) override;
-	
-	QVariantHash settings() const { return _settings; }
-	void setSettings(const QVariantHash &hash) { _settings = hash; }
+	bool writeSingleLayer(QIODevice *device, const Malachite::Surface &surface, const QSize &size, const QVariant &option) override;
 	
 	virtual QString malachiteFormat() const = 0;
 	
@@ -25,8 +22,6 @@ signals:
 public slots:
 	
 private:
-	
-	QVariantHash _settings;
 };
 
 class JpegFormatSupport : public MalachiteFormatSupport
@@ -45,8 +40,8 @@ public:
 	
 	Capabilities capabilities() const override { return 0; }
 	
-	QWidget *createExportOptionWidget() override;
-	void setExportOptions(QWidget *widget) override;
+	QWidget *createExportingOptionWidget() override;
+	QVariant exportingOptionForWidget(QWidget *widget) override;
 	
 	QString malachiteFormat() const override { return "jpeg"; }
 };
@@ -67,8 +62,8 @@ public:
 	
 	Capabilities capabilities() const override { return CapabilityLossless | CapabilityAlphaChannel; }
 	
-	QWidget *createExportOptionWidget() override;
-	void setExportOptions(QWidget *widget) override;
+	QWidget *createExportingOptionWidget() override;
+	QVariant exportingOptionForWidget(QWidget *widget) override;
 	
 	QString malachiteFormat() const override { return "png"; }
 };

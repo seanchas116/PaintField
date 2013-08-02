@@ -23,11 +23,13 @@ bool MalachiteFormatSupport::readSingleLayer(QIODevice *device, Malachite::Surfa
 	return true;
 }
 
-bool MalachiteFormatSupport::writeSingleLayer(QIODevice *device, const Malachite::Surface &surface, const QSize &size)
+bool MalachiteFormatSupport::writeSingleLayer(QIODevice *device, const Malachite::Surface &surface, const QSize &size, const QVariant &option)
 {
-	auto settings = this->settings();
+	auto settings = option.toHash();
 	bool hasAlpha = settings.value("hasAlpha", true).toBool();
 	int quality = settings.value("quality", 100).toInt();
+	
+	PAINTFIELD_DEBUG << "exporing with alpha = " << hasAlpha << "quality = " << quality;
 	
 	Malachite::ImageExporter exporter(this->malachiteFormat(), hasAlpha);
 	exporter.setSurface(surface, size);
@@ -42,21 +44,20 @@ JpegFormatSupport::JpegFormatSupport(QObject *parent) :
 	setShortDescription(tr("JPEG"));
 }
 
-QWidget *JpegFormatSupport::createExportOptionWidget()
+QWidget *JpegFormatSupport::createExportingOptionWidget()
 {
 	return new JpegExportForm();
 }
 
-void JpegFormatSupport::setExportOptions(QWidget *widget)
+QVariant JpegFormatSupport::exportingOptionForWidget(QWidget *widget)
 {
-	auto form = dynamic_cast<JpegExportForm *>(widget);
+	auto form = qobject_cast<JpegExportForm *>(widget);
 	if (!form)
-		return;
+		return QVariant();
 	
 	QVariantHash hash;
 	hash["quality"] = form->quality();
-	
-	setSettings(hash);
+	return hash;
 }
 
 PngFormatSupport::PngFormatSupport(QObject *parent) :
@@ -65,21 +66,21 @@ PngFormatSupport::PngFormatSupport(QObject *parent) :
 	setShortDescription(tr("PNG"));
 }
 
-QWidget *PngFormatSupport::createExportOptionWidget()
+QWidget *PngFormatSupport::createExportingOptionWidget()
 {
 	return new PngExportForm();
 }
 
-void PngFormatSupport::setExportOptions(QWidget *widget)
+QVariant PngFormatSupport::exportingOptionForWidget(QWidget *widget)
 {
-	auto form = dynamic_cast<PngExportForm *>(widget);
+	auto form = qobject_cast<PngExportForm *>(widget);
 	if (!form)
-		return;
+		return QVariant();
 	
 	QVariantHash hash;
 	hash["hasAlpha"] = form->isAlphaEnabled();
 	
-	setSettings(hash);
+	return hash;
 }
 
 } // namespace PaintField

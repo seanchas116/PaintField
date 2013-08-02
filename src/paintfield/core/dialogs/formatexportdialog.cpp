@@ -89,7 +89,7 @@ FormatExportDialog::FormatExportDialog(const QList<FormatSupport *> &formatSuppo
 		d->formatSupports[index] = format;
 		d->comboBox->addItem(format->shortDescription());
 		
-		auto widget = format->createExportOptionWidget();
+		auto widget = format->createExportingOptionWidget();
 		
 		if (widget)
 		{

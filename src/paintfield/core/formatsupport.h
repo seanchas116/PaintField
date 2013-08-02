@@ -45,10 +45,10 @@ public:
 	
 	virtual Capabilities capabilities() const = 0;
 	virtual bool read(QIODevice *device, QList<LayerRef> *layers, QSize *size) = 0;
-	virtual bool write(QIODevice *device, const QList<LayerConstRef> &layers, const QSize &size) = 0;
+	virtual bool write(QIODevice *device, const QList<LayerConstRef> &layers, const QSize &size, const QVariant &option) = 0;
 	
-	virtual QWidget *createExportOptionWidget();
-	virtual void setExportOptions(QWidget *widget);
+	virtual QWidget *createExportingOptionWidget();
+	virtual QVariant exportingOptionForWidget(QWidget *widget);
 	
 signals:
 	

@@ -25,11 +25,11 @@ bool SingleLayerFormatSupport::read(QIODevice *device, QList<LayerRef> *layers, 
 	return true;
 }
 
-bool SingleLayerFormatSupport::write(QIODevice *device, const QList<LayerConstRef> &layers, const QSize &size)
+bool SingleLayerFormatSupport::write(QIODevice *device, const QList<LayerConstRef> &layers, const QSize &size, const QVariant &option)
 {
 	LayerRenderer renderer;
 	auto surface = renderer.renderToSurface(layers, Malachite::Surface::rectToKeys(QRect(QPoint(), size)));
-	return writeSingleLayer(device, surface, size);
+	return writeSingleLayer(device, surface, size, option);
 }
 
 bool SingleLayerFormatSupport::readSingleLayer(QIODevice *device, Malachite::Surface *surface, QSize *size)
@@ -40,11 +40,12 @@ bool SingleLayerFormatSupport::readSingleLayer(QIODevice *device, Malachite::Sur
 	return false;
 }
 
-bool SingleLayerFormatSupport::writeSingleLayer(QIODevice *device, const Malachite::Surface &surface, const QSize &size)
+bool SingleLayerFormatSupport::writeSingleLayer(QIODevice *device, const Malachite::Surface &surface, const QSize &size, const QVariant &option)
 {
 	Q_UNUSED(device);
 	Q_UNUSED(surface);
 	Q_UNUSED(size);
+	Q_UNUSED(option);
 	return false;
 }
 
