@@ -97,8 +97,6 @@ public:
 	
 	CanvasView *view();
 	
-	virtual void onSetCurrent();
-	
 	// transform
 	
 	/**
@@ -177,8 +175,6 @@ signals:
 	
 	void toolChanged(Tool *tool);
 	
-	void activated(Canvas *thisCanvas);
-	
 public slots:
 	
 	/**
@@ -203,8 +199,6 @@ public slots:
 	void setRetinaMode(bool mode);
 	
 	void setViewSize(const QSize &size);
-	
-	void activate() { emit activated(this); }
 	
 private slots:
 	

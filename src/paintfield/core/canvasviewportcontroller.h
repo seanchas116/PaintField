@@ -32,6 +32,8 @@ public:
 	void updateTile(const QPoint &tileKey, const Malachite::Image &image, const QPoint &offset);
 	void endUpdateTile();
 	
+	QWidget *viewport();
+	
 	void placeViewport(QWidget *window);
 	void moveViewport(const QRect &rect, bool visible);
 	

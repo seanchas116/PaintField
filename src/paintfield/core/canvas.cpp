@@ -303,11 +303,6 @@ void Canvas::addExtensions(const CanvasExtensionList &extensions)
 	d->extensions += extensions;
 }
 
-void Canvas::onSetCurrent()
-{
-	view()->setFocus();
-}
-
 Tool *Canvas::tool()
 {
 	return d->tool.data();

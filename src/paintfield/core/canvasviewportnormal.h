@@ -57,13 +57,19 @@ public:
 	{
 		_viewport->setGeometry(rect);
 		_viewport->show();
-		_viewport->lower();
+		//_viewport->lower();
+		_viewport->raise();
 		_viewport->setVisible(visible);
 	}
 	
 	void deleteLater()
 	{
 		_viewport->deleteLater();
+	}
+	
+	QWidget *viewport()
+	{
+		return _viewport;
 	}
 	
 private:

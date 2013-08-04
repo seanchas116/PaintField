@@ -22,6 +22,39 @@ using namespace Malachite;
 
 namespace PaintField {
 
+void CanvasView::paintEvent(QPaintEvent *)
+{
+	PAINTFIELD_DEBUG << "paintevent";
+}
+
+void CanvasView::resizeEvent(QResizeEvent *)
+{
+	emit resized(size());
+	emit moved();
+}
+
+void CanvasView::changeEvent(QEvent *ev)
+{
+	switch (ev->type())
+	{
+		case QEvent::ParentChange:
+		case QEvent::EnabledChange:
+			emit moved();
+		default:
+			break;
+	}
+}
+
+void CanvasView::showEvent(QShowEvent *)
+{
+	emit moved();
+}
+
+void CanvasView::hideEvent(QHideEvent *)
+{
+	emit moved();
+}
+
 class CanvasRenderer : public LayerRenderer
 {
 public:
@@ -92,7 +125,7 @@ struct CanvasViewController::Data
 	VanishingScrollBar *scrollBarX = 0, *scrollBarY = 0;
 	
 	// other objects
-	CanvasViewportController *viewportContoller = 0;
+	CanvasViewportController *viewportController = 0;
 	KeyTracker *keyTracker = 0;
 	QGraphicsScene *graphicsScene = 0;
 	QTimer *accurateUpdateTimer = 0;
@@ -133,12 +166,24 @@ CanvasViewController::CanvasViewController(Canvas *canvas) :
 		auto view = new CanvasView(canvas);
 		d->view = view;
 		view->setMouseTracking(true);
-		view->installEventFilter(this);
-		view->setFocusPolicy(Qt::ClickFocus);
 		connect(canvas, SIGNAL(shouldBeDeleted(Canvas*)), view, SLOT(deleteLater()));
+		connect(view, SIGNAL(resized(QSize)), this, SLOT(onViewWidgetSizeChanged()));
+	
+		// setup viewport
+		{
+			auto vp = new CanvasViewportController(this);
+			d->viewportController = vp;
+			vp->viewport()->setFocusPolicy(Qt::ClickFocus);
+			connect(vp, SIGNAL(viewSizeChanged(QSize)), canvas, SLOT(setViewSize(QSize)));
+			connect(canvas, SIGNAL(transformsChanged(Ref<const CanvasTransforms>)), vp, SLOT(setTransforms(Ref<const CanvasTransforms>)));
+			connect(canvas, SIGNAL(retinaModeChanged(bool)), vp, SLOT(setRetinaMode(bool)));
+			vp->setTransforms(canvas->transforms());
+			vp->setRetinaMode(canvas->isRetinaMode());
+			vp->setDocumentSize(canvas->document()->size());
+			connect(canvas, SIGNAL(shouldBeDeleted(Canvas*)), vp, SLOT(deleteViewportLater()));
+		}
 		
 		d->graphicsView = new QGraphicsView(view);
-		d->graphicsView->viewport()->installEventFilter(this);
 		d->graphicsView->setStyleSheet("QGraphicsView { border-style: none; background: transparent; }");
 		d->graphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 		d->graphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -152,8 +197,8 @@ CanvasViewController::CanvasViewController(Canvas *canvas) :
 		
 		// setup scrollbars
 		{
-			d->scrollBarX = new VanishingScrollBar(Qt::Horizontal, view);
-			d->scrollBarY = new VanishingScrollBar(Qt::Vertical, view);
+			d->scrollBarX = new VanishingScrollBar(Qt::Horizontal, viewport());
+			d->scrollBarY = new VanishingScrollBar(Qt::Vertical, viewport());
 			
 			connect(d->scrollBarX, SIGNAL(sliderMoved(int)), this, SLOT(onScrollBarXChanged(int)));
 			connect(d->scrollBarY, SIGNAL(sliderMoved(int)), this, SLOT(onScrollBarYChanged(int)));
@@ -167,19 +212,11 @@ CanvasViewController::CanvasViewController(Canvas *canvas) :
 			connect(d->graphicsScene, SIGNAL(changed(QList<QRectF>)), d->scrollBarY, SLOT(update()));
 #endif
 		}
-	}
-	
-	// setup viewport
-	{
-		auto vp = new CanvasViewportController(this);
-		d->viewportContoller = vp;
-		connect(vp, SIGNAL(viewSizeChanged(QSize)), canvas, SLOT(setViewSize(QSize)));
-		connect(canvas, SIGNAL(transformsChanged(Ref<const CanvasTransforms>)), vp, SLOT(setTransforms(Ref<const CanvasTransforms>)));
-		connect(canvas, SIGNAL(retinaModeChanged(bool)), vp, SLOT(setRetinaMode(bool)));
-		vp->setTransforms(canvas->transforms());
-		vp->setRetinaMode(canvas->isRetinaMode());
-		vp->setDocumentSize(canvas->document()->size());
-		connect(canvas, SIGNAL(shouldBeDeleted(Canvas*)), vp, SLOT(deleteViewportLater()));
+		
+		viewport()->installEventFilter(this);
+		d->graphicsView->viewport()->installEventFilter(this);
+		
+		connect(view, SIGNAL(moved()), this, SLOT(moveWidgets()));
 	}
 	
 	moveWidgets();
@@ -200,6 +237,9 @@ CanvasViewController::CanvasViewController(Canvas *canvas) :
 		
 		connect(canvas, SIGNAL(shouldBeDeleted(Canvas*)), this, SLOT(onCanvasWillBeDeleted()));
 		connect(canvas, SIGNAL(shouldBeDeleted(Canvas*)), this, SLOT(deleteLater()));
+		
+		connect(canvas->workspace(), SIGNAL(currentCanvasChanged(Canvas*)), this, SLOT(onCurrentCanvasChanged(Canvas*)));
+		onCurrentCanvasChanged(canvas->workspace()->currentCanvas());
 	}
 	
 	connect(canvas->document()->layerScene(), SIGNAL(tilesUpdated(QPointSet)), this, SLOT(updateTiles(QPointSet)));
@@ -232,6 +272,11 @@ QSize CanvasViewController::viewSize()
 	if (d->canvas->isRetinaMode())
 		size = QSize(size.width() * 2, size.height() * 2);
 	return size;
+}
+
+QWidget *CanvasViewController::viewport()
+{
+	return d->viewportController->viewport();
 }
 
 void CanvasViewController::setUpdateTilesEnabled(bool enable)
@@ -277,7 +322,7 @@ void CanvasViewController::updateViewportAccurately()
 	if (d->navigator->dragMode() != CanvasNavigator::NoNavigation)
 		return;
 	
-	d->viewportContoller->update();
+	d->viewportController->update();
 }
 
 void CanvasViewController::onClicked()
@@ -330,14 +375,14 @@ void CanvasViewController::onTransformUpdated()
 	updateScrollBarValue();
 	
 	d->accurateUpdateTimer->start();
-	d->viewportContoller->update();
+	d->viewportController->update();
 }
 
 void CanvasViewController::onRetinaModeChanged(bool retinaMode)
 {
 	Q_UNUSED(retinaMode);
 	emit viewSizeChanged(viewSize());
-	d->viewportContoller->update();
+	d->viewportController->update();
 }
 
 void CanvasViewController::onStrokingOrToolEditingChanged()
@@ -370,7 +415,7 @@ void CanvasViewController::updateTiles(const QPointSet &keys, const QHash<QPoint
 	int keyCount = keys.size();
 	int rectCount = rects.size();
 	
-	d->viewportContoller->beginUpdateTile(rectCount ? rectCount : keyCount);
+	d->viewportController->beginUpdateTile(rectCount ? rectCount : keyCount);
 	
 	CanvasRenderer renderer;
 	renderer.setTool(d->tool);
@@ -392,7 +437,7 @@ void CanvasViewController::updateTiles(const QPointSet &keys, const QHash<QPoint
 		auto image = surface.crop(actualRect.translated(key * Surface::tileWidth()));
 		blendOp->blend(image.area(), image.bits(), whitePixel);
 		
-		d->viewportContoller->updateTile(key, image, actualRect.topLeft());
+		d->viewportController->updateTile(key, image, actualRect.topLeft());
 	};
 	
 	if (rectCount)
@@ -409,7 +454,7 @@ void CanvasViewController::updateTiles(const QPointSet &keys, const QHash<QPoint
 		}
 	}
 	
-	d->viewportContoller->endUpdateTile();
+	d->viewportController->endUpdateTile();
 }
 
 void CanvasViewController::moveWidgets()
@@ -418,8 +463,8 @@ void CanvasViewController::moveWidgets()
 	{
 		QRect geom(Util::mapToWindow(d->view, QPoint()), d->view->geometry().size());
 		
-		d->viewportContoller->placeViewport(d->view->window());
-		d->viewportContoller->moveViewport(geom, d->view->isVisible());
+		d->viewportController->placeViewport(d->view->window());
+		d->viewportController->moveViewport(geom, d->view->isVisible());
 	}
 	
 	// move graphics view & scroll bars
@@ -439,6 +484,26 @@ void CanvasViewController::moveWidgets()
 		d->graphicsView->setGeometry(widgetRect);
 		d->graphicsView->setSceneRect(widgetRect);
 	}
+	
+	// set focus on viewport
+	if (d->canvas->workspace()->currentCanvas() == d->canvas)
+		setFocus();
+}
+
+void CanvasViewController::setFocus()
+{
+	viewport()->setFocus();
+}
+
+void CanvasViewController::activate()
+{
+	setFocus();
+	d->canvas->workspace()->setCurrentCanvas(d->canvas);
+}
+
+void CanvasViewController::onViewWidgetSizeChanged()
+{
+	emit viewSizeChanged(viewSize());
 }
 
 static const QString toolCursorId = "paintfield.canvas.tool";
@@ -446,7 +511,7 @@ static const QString toolCursorId = "paintfield.canvas.tool";
 
 bool CanvasViewController::eventFilter(QObject *watched, QEvent *event)
 {
-	bool willFilterInput = (watched == d->view);
+	bool willFilterInput = (watched == viewport());
 	
 	switch ((int)event->type())
 	{
@@ -472,6 +537,17 @@ bool CanvasViewController::eventFilter(QObject *watched, QEvent *event)
 	
 	switch ((int)event->type())
 	{
+		case QEvent::Enter:
+			
+			setFocus();
+			appController()->cursorStack()->add(toolCursorId, d->toolCursor);
+			return false;
+			
+		case QEvent::Leave:
+			
+			appController()->cursorStack()->remove(toolCursorId);
+			return false;
+		
 		case QEvent::KeyPress:
 		case QEvent::KeyRelease:
 			
@@ -481,7 +557,7 @@ bool CanvasViewController::eventFilter(QObject *watched, QEvent *event)
 			
 		case QEvent::MouseButtonPress:
 			
-			d->canvas->activate();
+			activate();
 			
 		case QEvent::MouseButtonRelease:
 		case QEvent::MouseMove:
@@ -497,11 +573,10 @@ bool CanvasViewController::eventFilter(QObject *watched, QEvent *event)
 			
 		case QEvent::TabletPress:
 			
-			d->canvas->activate();
+			activate();
 			
 		case QEvent::TabletMove:
 		case QEvent::TabletRelease:
-		
 			
 			d->navigator->tabletEvent(static_cast<QTabletEvent *>(event));
 			if (event->isAccepted())
@@ -512,7 +587,7 @@ bool CanvasViewController::eventFilter(QObject *watched, QEvent *event)
 		
 		case EventWidgetTabletPress:
 			
-			d->canvas->activate();
+			activate();
 			
 		case EventWidgetTabletMove:
 		case EventWidgetTabletRelease:
@@ -533,46 +608,14 @@ bool CanvasViewController::eventFilter(QObject *watched, QEvent *event)
 			break;
 	}
 	
-	if (watched == d->view)
-	{
-		switch (event->type())
-		{
-			case QEvent::Resize:
-				
-				emit viewSizeChanged(viewSize());
-				
-			case QEvent::ParentChange:
-			case QEvent::EnabledChange:
-			case QEvent::Show:
-			case QEvent::Hide:
-				
-				moveWidgets();
-				return false;
-				
-			case QEvent::FocusIn:
-				
-				d->keyTracker->clear();
-				return false;
-				
-			case QEvent::Enter:
-				
-				d->view->setFocus();
-				appController()->cursorStack()->add(toolCursorId, d->toolCursor);
-				return false;
-				
-			case QEvent::Leave:
-				
-				appController()->cursorStack()->remove(toolCursorId);
-				return false;
-				
-			default:
-				break;
-		}
-	}
-	
 	return false;
 }
 
+void CanvasViewController::onCurrentCanvasChanged(Canvas *canvas)
+{
+	if (d->canvas == canvas)
+		setFocus();
+}
 
 
 } // namespace PaintField

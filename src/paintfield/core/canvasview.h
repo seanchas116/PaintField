@@ -10,6 +10,8 @@ namespace PaintField {
 class Tool;
 class Canvas;
 
+/// The CanvasView class provides canvas view "placeholders" in tab areas.
+/// Actual views that receive events and draw canvases are created separately for performance.
 class CanvasView : public QWidget
 {
 	Q_OBJECT
@@ -22,6 +24,22 @@ public:
 	{}
 	
 	Canvas *canvas() { return _canvas; }
+	
+signals:
+	
+	/// Emitted when resized
+	void resized(const QSize &size);
+	
+	/// Emitted when parent changed, enabled changed or visibility changed
+	void moved();
+	
+protected:
+	
+	void resizeEvent(QResizeEvent *);
+	void changeEvent(QEvent *ev);
+	void showEvent(QShowEvent *);
+	void hideEvent(QHideEvent *);
+	void paintEvent(QPaintEvent *);
 	
 private:
 	
@@ -44,6 +62,8 @@ public:
 	Canvas *canvas();
 	
 	QSize viewSize();
+	
+	QWidget *viewport();
 	
 signals:
 	
@@ -75,10 +95,19 @@ private slots:
 	
 	void onStrokingOrToolEditingChanged();
 	
+	void onCurrentCanvasChanged(Canvas *canvas);
+	
+	void moveWidgets();
+	
+	/// set focus on the viewport and make canvas current
+	void activate();
+	void setFocus();
+	
+	void onViewWidgetSizeChanged();
+	
 private:
 	
 	void updateTiles(const QPointSet &keys, const QHash<QPoint, QRect> &rects);
-	void moveWidgets();
 	
 	struct Data;
 	Data *d;

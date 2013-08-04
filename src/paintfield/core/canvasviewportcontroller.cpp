@@ -99,6 +99,11 @@ void CanvasViewportController::endUpdateTile()
 	d->viewportWrapper.repaint(viewRect);
 }
 
+QWidget *CanvasViewportController::viewport()
+{
+	return d->viewportWrapper.viewport();
+}
+
 void CanvasViewportController::placeViewport(QWidget *window)
 {
 	d->viewportWrapper.placeViewport(window);

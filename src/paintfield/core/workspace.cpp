@@ -221,8 +221,6 @@ void Workspace::setCurrentCanvas(Canvas *canvas)
 	if (d->currentCanvas != canvas)
 	{
 		d->currentCanvas = canvas;
-		if (canvas)
-			canvas->onSetCurrent();
 		
 		PAINTFIELD_DEBUG << "current canvas changed:" << canvas;
 		emit currentCanvasChanged(canvas);
@@ -247,7 +245,6 @@ void Workspace::addCanvas(Canvas *canvas)
 		connect(canvas, SIGNAL(shouldBeDeleted(Canvas*)),
 		        this, SLOT(deleteCanvas(Canvas*)));
 		connect(canvas, SIGNAL(documentPropertyChanged()), this, SLOT(onCanvasDocumentPropertyChanged()));
-		connect(canvas, SIGNAL(activated(Canvas*)), this, SLOT(setCurrentCanvas(Canvas*)));
 	}
 }
 
