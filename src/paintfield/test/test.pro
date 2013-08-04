@@ -14,7 +14,8 @@ SOURCES += main.cpp \
     test_json.cpp \
     test_documentio.cpp \
     test_document.cpp \
-    autotest.cpp
+    autotest.cpp \
+    test_zipunzip.cpp
 
 HEADERS += \
     testutil.h \
@@ -25,4 +26,5 @@ HEADERS += \
     test_json.h \
     test_documentio.h \
     test_document.h \
-    autotest.h
+    autotest.h \
+    test_zipunzip.h
