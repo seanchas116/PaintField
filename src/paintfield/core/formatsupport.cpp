@@ -1,6 +1,9 @@
 #include "dialogs/filedialog.h"
 #include "dialogs/messagebox.h"
 #include "dialogs/formatexportdialog.h"
+#include "document.h"
+#include <QLabel>
+#include <QFormLayout>
 
 #include "formatsupport.h"
 
@@ -62,7 +65,13 @@ bool FormatSupport::write(QIODevice *device, const QList<LayerConstRef> &layers,
 
 QWidget *FormatSupport::createExportingOptionWidget()
 {
-	return nullptr;
+	auto l = new QFormLayout();
+	l->addRow(new QLabel(tr("[None]")));
+	
+	auto w = new QWidget();
+	w->setLayout(l);
+	
+	return w;
 }
 
 QVariant FormatSupport::exportingOptionForWidget(QWidget *widget)
@@ -85,13 +94,13 @@ bool FormatSupport::importFromFile(const QString &filepath, const QList<FormatSu
 {
 	FormatSupport *importingFormat = nullptr;
 	
-	QString basename;
-	
 	{
 		QFileInfo fileInfo(filepath);
 		
 		auto suffix = fileInfo.suffix();
-		basename = fileInfo.baseName();
+		
+		if (name)
+			*name = fileInfo.baseName();
 		
 		for (auto format : formatSupports)
 		{
@@ -114,11 +123,10 @@ bool FormatSupport::importFromFile(const QString &filepath, const QList<FormatSu
 		return false;
 	}
 	
-	*name = basename;
 	return true;
 }
 
-bool FormatSupport::importFromFileDialog(QWidget *parent, const QList<FormatSupport *> &formatSupports, QList<LayerRef> *layers, QSize *size, QString *name, const QString &dialogTitle)
+bool FormatSupport::importFromFileDialog(QWidget *parent, const QString &dialogTitle, const QList<FormatSupport *> &formatSupports, QList<LayerRef> *layers, QSize *size, QString *name, QString *path)
 {
 	if (formatSupports.size() < 1)
 		return false;
@@ -131,6 +139,9 @@ bool FormatSupport::importFromFileDialog(QWidget *parent, const QList<FormatSupp
 	auto filepath = FileDialog::getFilePath(parent, dialogTitle, FileDialog::OpenFile, filter);
 	if (filepath.isEmpty())
 		return true;
+	
+	if (path)
+		*path = filepath;
 	
 	return importFromFile(filepath, formatSupports, layers, size, name);
 }
@@ -159,7 +170,7 @@ bool FormatSupport::exportToFile(const QString &filepath, FormatSupport *format,
 	return true;
 }
 
-bool FormatSupport::exportToFileDialog(QWidget *parent, const QList<FormatSupport *> &formatSupports, const QList<LayerConstRef> &layers, const QSize &size, const QString &dialogTitle, bool showOptions)
+bool FormatSupport::exportToFileDialog(QWidget *parent, const QString &dialogTitle, bool showOptions, const QList<FormatSupport *> &formatSupports, const QList<LayerConstRef> &layers, const QSize &size)
 {
 	// todo: buffered save
 	
@@ -196,6 +207,5 @@ bool FormatSupport::exportToFileDialog(QWidget *parent, const QList<FormatSuppor
 	
 	return exportToFile(filepath, exportingFormat, layers, size, option);
 }
-
 
 } // namespace PaintField

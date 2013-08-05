@@ -11,7 +11,7 @@ namespace PaintField {
 PaintFieldFormatSupport::PaintFieldFormatSupport(QObject *parent) :
 	FormatSupport(parent)
 {
-	setShortDescription(tr("PaintField document"));
+	setShortDescription(tr("PaintField Document"));
 }
 
 QString PaintFieldFormatSupport::name() const

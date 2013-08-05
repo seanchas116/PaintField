@@ -1,6 +1,6 @@
 
 #include <QtCore>
-#include "paintfield/core/documentio.h"
+#include "paintfield/core/document.h"
 #include "paintfield/core/layerscene.h"
 #include "paintfield/core/paintfieldformatsupport.h"
 

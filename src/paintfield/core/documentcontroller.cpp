@@ -5,11 +5,11 @@
 
 #include "layerscene.h"
 #include "layerrenderer.h"
-#include "documentio.h"
 #include "rasterlayer.h"
 #include "appcontroller.h"
 #include "formatsupport.h"
 #include "formatsupportmanager.h"
+#include "document.h"
 #include "dialogs/newdocumentdialog.h"
 #include "dialogs/filedialog.h"
 #include "dialogs/messagebox.h"
@@ -55,11 +55,11 @@ Document *DocumentController::createFromImportDialog()
 	
 	bool result = FormatSupport::importFromFileDialog(
 			0,
+			tr("Import"),
 			appController()->formatSupportManager()->formatSupports(),
 			&layers,
 			&size,
-			&name,
-			tr("Import")
+			&name
 	);
 	
 	if (result)
@@ -82,11 +82,23 @@ Document *DocumentController::createFromSavedFile(const QString &path)
 {
 	PAINTFIELD_DEBUG << path;
 	
-	DocumentReader loader;
-	auto document = loader.load(path, 0);
+	QList<LayerRef> layers;
+	QSize size;
+	QString name;
 	
-	if (!document)
+	bool result = FormatSupport::importFromFile(
+			path,
+			{appController()->formatSupportManager()->paintFieldFormatSupport()},
+			&layers,
+			&size,
+			&name
+	);
+	
+	if (!result)
 		MessageBox::show(QMessageBox::Warning, tr("Failed to open file."), QString());
+	
+	auto document = new Document(name, size, layers, 0);
+	document->setFilePath(path);
 	
 	return document;
 }
@@ -138,28 +150,14 @@ bool DocumentController::confirmClose(Document *document)
 
 bool DocumentController::saveAs(Document *document)
 {
-	QString filePath = FileDialog::getSaveFilePath(0, tr("Save As"), tr("PaintField Document"), "pfield");
-	
-	if (filePath.isEmpty())
-		return false;
-	
-	QFileInfo fileInfo(filePath);
-	QFileInfo dirInfo(fileInfo.dir().path());
-	
-	if (!dirInfo.isWritable())
-	{
-		MessageBox::show(QMessageBox::Warning, tr("The specified folder is not writable."), tr("Save in another folder."));
-		return false;
-	}
-	
-	DocumentWriter saver(document);
-	
-	if (!saver.save(filePath))
-	{
-		MessageBox::show(QMessageBox::Warning, tr("Failed to save file."), QString());
-		return false;
-	}
-	return true;
+	return FormatSupport::exportToFileDialog(
+			0,
+			tr("Save As"),
+			false,
+			{appController()->formatSupportManager()->paintFieldFormatSupport()},
+			document->layerScene()->topLevelLayers(),
+			document->size()
+	);
 }
 
 bool DocumentController::save(Document *document)
@@ -170,12 +168,21 @@ bool DocumentController::save(Document *document)
 	if (document->filePath().isEmpty())	// first save
 		return saveAs(document);
 	
-	DocumentWriter saver(document);
-	if (!saver.save(document->filePath()))
+	auto result = FormatSupport::exportToFile(
+			document->filePath(),
+			appController()->formatSupportManager()->paintFieldFormatSupport(),
+			document->layerScene()->topLevelLayers(),
+			document->size()
+	);
+	
+	if (!result)
 	{
 		MessageBox::show(QMessageBox::Warning, tr("Failed to save file."), QString());
 		return false;
 	}
+	
+	document->setModified(false);
+	
 	return true;
 }
 
@@ -183,10 +190,11 @@ bool DocumentController::exportToImage(Document *document, QWidget *dialogParent
 {
 	return FormatSupport::exportToFileDialog(
 			dialogParent,
+			tr("Export"),
+			true,
 			appController()->formatSupportManager()->formatSupports(),
-			document->layerScene()->rootLayer()->children(),
-			document->size(), tr("Export"),
-			true
+			document->layerScene()->topLevelLayers(),
+			document->size()
 	);
 }
 

@@ -12,7 +12,6 @@ include(../paintfield-core.pri)
 # Input
 HEADERS += \
            document.h \
-           documentio.h \
            drawutil.h \
            global.h \
            layer.h \
@@ -105,7 +104,6 @@ HEADERS += \
 FORMS +=
 SOURCES += \
            document.cpp \
-           documentio.cpp \
            drawutil.cpp \
            layer.cpp \
            layeredit.cpp \

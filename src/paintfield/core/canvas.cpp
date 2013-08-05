@@ -8,7 +8,6 @@
 #include "documentcontroller.h"
 #include "appcontroller.h"
 #include "toolmanager.h"
-#include "documentio.h"
 #include "workspace.h"
 #include "extension.h"
 #include "layerrenderer.h"

@@ -29,6 +29,8 @@ public:
 	void editLayer(const LayerConstRef &layer, LayerEdit *edit, const QString &description);
 	void setLayerProperty(const LayerConstRef &layer, const QVariant &data, int role, const QString &description = QString(), bool mergeOn = true);
 	
+	QList<LayerConstRef> topLevelLayers() const { return rootLayer()->children(); }
+	
 	LayerConstRef rootLayer() const;
 	Document *document();
 	
