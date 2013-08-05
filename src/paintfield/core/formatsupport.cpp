@@ -135,8 +135,34 @@ bool FormatSupport::importFromFileDialog(QWidget *parent, const QList<FormatSupp
 	return importFromFile(filepath, formatSupports, layers, size, name);
 }
 
+bool FormatSupport::exportToFile(const QString &filepath, FormatSupport *format, const QList<LayerConstRef> &layers, const QSize &size, const QVariant &option)
+{
+	{
+		QFileInfo fileInfo(filepath);
+		QFileInfo dirInfo(fileInfo.dir().path());
+		
+		if (!dirInfo.isWritable())
+		{
+			MessageBox::show(QMessageBox::Warning, tr("The specified folder is not writable."), tr("Save in another folder."));
+			return false;
+		}
+	}
+	
+	QFile file(filepath);
+	
+	if (!file.open(QIODevice::WriteOnly) || !format->write(&file, layers, size, option))
+	{
+		MessageBox::show(QMessageBox::Warning, tr("Failed to write file."), QString());
+		return false;
+	}
+	
+	return true;
+}
+
 bool FormatSupport::exportToFileDialog(QWidget *parent, const QList<FormatSupport *> &formatSupports, const QList<LayerConstRef> &layers, const QSize &size, const QString &dialogTitle, bool showOptions)
 {
+	// todo: buffered save
+	
 	if (formatSupports.size() < 1)
 		return false;
 	
@@ -168,26 +194,7 @@ bool FormatSupport::exportToFileDialog(QWidget *parent, const QList<FormatSuppor
 	if (filepath.isEmpty())
 		return true;
 	
-	{
-		QFileInfo fileInfo(filepath);
-		QFileInfo dirInfo(fileInfo.dir().path());
-		
-		if (!dirInfo.isWritable())
-		{
-			MessageBox::show(QMessageBox::Warning, tr("The specified folder is not writable."), tr("Save in another folder."));
-			return false;
-		}
-	}
-	
-	QFile file(filepath);
-	
-	if (!file.open(QIODevice::WriteOnly) || !exportingFormat->write(&file, layers, size, option))
-	{
-		MessageBox::show(QMessageBox::Warning, tr("Failed to write file."), QString());
-		return false;
-	}
-	
-	return true;
+	return exportToFile(filepath, exportingFormat, layers, size, option);
 }
 
 

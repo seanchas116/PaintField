@@ -2,6 +2,7 @@
 #include <QtCore>
 #include "paintfield/core/documentio.h"
 #include "paintfield/core/layerscene.h"
+#include "paintfield/core/paintfieldformatsupport.h"
 
 #include "testutil.h"
 #include "test_documentio.h"
@@ -18,18 +19,23 @@ void Test_DocumentIO::saveLoad()
 {
 	auto tempDir = TestUtil::createTestDir();
 	auto path = tempDir.filePath("test.pfield");
+	qDebug() << path;
+	
+	auto formatSupport = new PaintFieldFormatSupport(this);
 	
 	auto doc = TestUtil::createTestDocument(this);
-	
-	{
-		DocumentWriter saver(doc);
-		saver.save(path);
-	}
+	FormatSupport::exportToFile(path, formatSupport, doc->layerScene()->rootLayer()->children(), doc->size(), QVariant());
 	
 	Document *openedDoc;
+	
 	{
-		DocumentReader loader;
-		openedDoc = loader.load(path, 0);
+		QSize size;
+		QList<LayerRef> layers;
+		QString name;
+		
+		FormatSupport::importFromFile(path, {formatSupport}, &layers, &size, &name);
+		
+		openedDoc = new Document(name, size, layers, this);
 	}
 	
 	QCOMPARE(doc->layerScene()->rootLayer()->count(), openedDoc->layerScene()->rootLayer()->count());

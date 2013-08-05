@@ -37,6 +37,6 @@ QString LayerFactoryManager::nameForTypeInfo(const std::type_info &info) const
 	return QString();
 }
 
-LayerFactoryManager LayerFactoryManager::_instance;
+LayerFactoryManager LayerFactoryManager::instance;
 
 } // namespace PaintField

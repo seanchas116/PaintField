@@ -65,9 +65,9 @@ QRectF rectFromMap(const QVariantMap &map)
 	return QRectF(x, y, width, height);
 }
 
-QVariantMap AbstractRectLayer::saveProperies() const
+QVariantMap AbstractRectLayer::saveProperties() const
 {
-	auto map = super::saveProperies();
+	auto map = super::saveProperties();
 	map["rect"] = mapFromRect(_rect);
 	map["shapeType"] = shapeTypeString();
 	return map;

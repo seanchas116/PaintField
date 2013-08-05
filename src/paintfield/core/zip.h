@@ -13,12 +13,9 @@ public:
 	
 	friend class ZipFile;
 	
-	ZipArchive();
-	explicit ZipArchive(const QString &filepath);
-	
+	explicit ZipArchive(QIODevice *device);
 	~ZipArchive();
 	
-	bool open(const QString &filepath);
 	bool open();
 	void close();
 	
@@ -64,14 +61,10 @@ public:
 	
 	friend class UnzipFile;
 	
-	UnzipArchive();
-	explicit UnzipArchive(const QString &filepath);
-	
+	explicit UnzipArchive(QIODevice *device);
 	~UnzipArchive();
 	
-	bool open(const QString &filepath);
 	bool open();
-	
 	void close();
 	
 	bool isOpen() const;

@@ -117,9 +117,9 @@ void ShapeLayer::decodeShapeProperties(QDataStream &stream)
 	updatePaths();
 }
 
-QVariantMap ShapeLayer::saveProperies() const
+QVariantMap ShapeLayer::saveProperties() const
 {
-	QVariantMap map = super::saveProperies();
+	QVariantMap map = super::saveProperties();
 	map.unite(saveShapeProperties());
 	return map;
 }

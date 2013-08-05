@@ -10,6 +10,7 @@ class FormatSupportManager : public QObject
 {
 	Q_OBJECT
 public:
+	
 	explicit FormatSupportManager(QObject *parent = 0);
 	~FormatSupportManager();
 	
@@ -17,6 +18,8 @@ public:
 	
 	FormatSupport *formatSupport(const QString &name);
 	QList<FormatSupport *> formatSupports();
+	
+	FormatSupport *paintFieldFormatSupport();
 	
 signals:
 	

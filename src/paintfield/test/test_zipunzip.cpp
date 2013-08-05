@@ -20,24 +20,28 @@ void Test_ZipUnzip::zipUnzip()
 	QString testString = "Lorem ipsum dolor sit amet";
 	
 	{
-		ZipArchive zipArchive(path);
+		QFile file(path);
+		
+		ZipArchive zipArchive(&file);
 		zipArchive.open();
 		
-		ZipFile file(&zipArchive, "test.txt");
-		file.open();
+		ZipFile zipFile(&zipArchive, "test.txt");
+		zipFile.open();
 		
-		QTextStream stream(&file);
+		QTextStream stream(&zipFile);
 		stream << testString;
 	}
 	
 	{
-		UnzipArchive unzArchive(path);
+		QFile file(path);
+		
+		UnzipArchive unzArchive(&file);
 		unzArchive.open();
 		
-		UnzipFile file(&unzArchive, "test.txt");
-		file.open();
+		UnzipFile unzipFile(&unzArchive, "test.txt");
+		unzipFile.open();
 		
-		QTextStream stream(&file);
+		QTextStream stream(&unzipFile);
 		
 		QCOMPARE(stream.readAll(), testString);
 	}

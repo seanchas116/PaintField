@@ -58,9 +58,9 @@ void TextLayer::decode(QDataStream &stream)
 	updateFillPath();
 }
 
-QVariantMap TextLayer::saveProperies() const
+QVariantMap TextLayer::saveProperties() const
 {
-	auto map = super::saveProperies();
+	auto map = super::saveProperties();
 	
 	map["text"] = _text;
 	map["font"] = SerializationUtil::mapFromFont(_font);

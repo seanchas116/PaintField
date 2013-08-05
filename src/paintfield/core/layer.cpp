@@ -293,7 +293,7 @@ LayerRef Layer::decodeRecursive(QDataStream &stream)
 	return layer;
 }
 
-QVariantMap Layer::saveProperies() const
+QVariantMap Layer::saveProperties() const
 {
 	QVariantMap map;
 	map["name"] = _name;

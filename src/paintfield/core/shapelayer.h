@@ -33,7 +33,7 @@ public:
 	void encodeShapeProperties(QDataStream &stream) const;
 	void decodeShapeProperties(QDataStream &stream);
 	
-	QVariantMap saveProperies() const override;
+	QVariantMap saveProperties() const override;
 	void loadProperties(const QVariantMap &map) override;
 	
 	QVariantMap saveShapeProperties() const;

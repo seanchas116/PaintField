@@ -38,7 +38,7 @@ void Test_RectLayer::test_saveProperties()
 	l1.setRect(QRectF(10,20,30,40));
 	l1.setShapeType(AbstractRectLayer::ShapeTypeEllipse);
 	
-	auto map = l1.saveProperies();
+	auto map = l1.saveProperties();
 	
 	QVariantMap rectMap;
 	rectMap["x"] = 10.0;

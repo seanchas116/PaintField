@@ -24,7 +24,7 @@ public:
 	void encode(QDataStream &stream) const override;
 	void decode(QDataStream &stream) override;
 	
-	QVariantMap saveProperies() const override;
+	QVariantMap saveProperties() const override;
 	void loadProperties(const QVariantMap &map) override;
 	
 	void setRect(const QRectF &rect);

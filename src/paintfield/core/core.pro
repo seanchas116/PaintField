@@ -99,7 +99,8 @@ HEADERS += \
     singlelayerformatsupport.h \
     formatsupportmanager.h \
     dialogs/formatexportdialog.h \
-    zip.h
+    zip.h \
+    paintfieldformatsupport.h
 
 FORMS +=
 SOURCES += \
@@ -181,7 +182,8 @@ SOURCES += \
     singlelayerformatsupport.cpp \
     formatsupportmanager.cpp \
     dialogs/formatexportdialog.cpp \
-    zip.cpp
+    zip.cpp \
+    paintfieldformatsupport.cpp
 
 RESOURCES += \
     resources/resource-paintfield-core.qrc

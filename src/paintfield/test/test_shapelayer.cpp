@@ -72,7 +72,7 @@ void Test_ShapeLayer::test_saveProperties()
 	l1.setFillBrush(fillBrush);
 	l1.setStrokeBrush(strokeBrush);
 	
-	auto map = l1.saveProperies();
+	auto map = l1.saveProperties();
 	
 	QVariantMap strokeMap = map["stroke"].toMap();
 	

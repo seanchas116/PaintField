@@ -14,12 +14,14 @@ public:
 	{
 		CapabilityLayers = 1 << 1,
 		CapabilityAlphaChannel = 1 << 2,
-		CapabilityLossless = 1 << 3
+		CapabilityLossless = 1 << 3,
+		CapabilityAll = CapabilityLayers | CapabilityAlphaChannel | CapabilityLossless
 	};
 	Q_DECLARE_FLAGS(Capabilities, Capability)
 	
 	static bool importFromFile(const QString &filepath, const QList<FormatSupport *> &formatSupports, QList<LayerRef> *layers, QSize *size, QString *name);
 	static bool importFromFileDialog(QWidget *parent, const QList<FormatSupport *> &formatSupports, QList<LayerRef> *layers, QSize *size, QString *name, const QString &dialogTitle);
+	static bool exportToFile(const QString &filepath, FormatSupport *formatSupport, const QList<LayerConstRef> &layers, const QSize &size, const QVariant &option);
 	static bool exportToFileDialog(QWidget *parent, const QList<FormatSupport *> &formatSupports, const QList<LayerConstRef> &layers, const QSize &size, const QString &dialogTitle, bool showOptions);
 	
 	static QList<Capability> allCapabilities()

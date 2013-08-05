@@ -11,62 +11,76 @@ namespace MinizipSupport
 
 static voidpf openFile(voidpf opaque, const void *filename, int mode)
 {
-	Q_UNUSED(opaque);
-	auto file = new QFile(QString::fromUtf8(reinterpret_cast<const char *>(filename)));
-	QIODevice::OpenModeFlag flag;
+	Q_UNUSED(filename);
+	
+	auto ioDevice = static_cast<QIODevice *>(opaque);
+	
+	QIODevice::OpenMode flags;
 	if ((mode & ZLIB_FILEFUNC_MODE_READWRITEFILTER) == ZLIB_FILEFUNC_MODE_READ)
-		flag = QIODevice::ReadOnly;
+		flags = QIODevice::ReadOnly;
 	else if (mode & ZLIB_FILEFUNC_MODE_EXISTING)
-		flag = QIODevice::ReadWrite;
+		flags = QIODevice::ReadWrite;
 	else if (mode & ZLIB_FILEFUNC_MODE_CREATE)
-		flag = QIODevice::WriteOnly;
+		flags = QIODevice::WriteOnly;
 	else
 		return nullptr;
 	
-	if (file->open(flag))
-		return file;
+	PAINTFIELD_DEBUG << ioDevice->openMode() << flags;
+	
+	if (ioDevice->openMode() == QIODevice::NotOpen)
+	{
+		if (!ioDevice->open(flags))
+		{
+			PAINTFIELD_WARNING << "cannot open io device";
+			return nullptr;
+		}
+	}
 	else
-		return nullptr;
+	{
+		if (ioDevice->openMode() != flags)
+		{
+			PAINTFIELD_WARNING << "wrong open mode";
+			return nullptr;
+		}
+	}
+	
+	return ioDevice;
 }
 
 static uLong readFile(voidpf opaque, voidpf stream, void *buf, uLong size)
 {
-	Q_UNUSED(opaque);
-	auto file = reinterpret_cast<QFile *>(stream);
-	Q_ASSERT(file);
-	return file->read(reinterpret_cast<char *>(buf), size);
+	Q_UNUSED(stream);
+	auto ioDevice = static_cast<QIODevice *>(opaque);
+	return ioDevice->read(reinterpret_cast<char *>(buf), size);
 }
 
 static uLong writeFile(voidpf opaque, voidpf stream, const void *buf, uLong size)
 {
-	Q_UNUSED(opaque);
-	auto file = reinterpret_cast<QFile *>(stream);
-	Q_ASSERT(file);
-	return file->write(reinterpret_cast<const char *>(buf), size);
+	Q_UNUSED(stream);
+	auto ioDevice = static_cast<QIODevice *>(opaque);
+	return ioDevice->write(reinterpret_cast<const char *>(buf), size);
 }
 
 static ZPOS64_T tellFile(voidpf opaque, voidpf stream)
 {
-	Q_UNUSED(opaque);
-	auto file = reinterpret_cast<QFile *>(stream);
-	Q_ASSERT(file);
-	return file->pos();
+	Q_UNUSED(stream);
+	auto ioDevice = static_cast<QIODevice *>(opaque);
+	return ioDevice->pos();
 }
 
 static long seekFile(voidpf opaque, voidpf stream, ZPOS64_T offset, int origin)
 {
-	Q_UNUSED(opaque);
-	auto file = reinterpret_cast<QFile *>(stream);
-	Q_ASSERT(file);
+	Q_UNUSED(stream);
+	auto ioDevice = static_cast<QIODevice *>(opaque);
 	
 	uint64_t pos;
 	switch (origin)
 	{
 		case ZLIB_FILEFUNC_SEEK_CUR:
-			pos = file->pos() + offset;
+			pos = ioDevice->pos() + offset;
 			break;
 		case ZLIB_FILEFUNC_SEEK_END:
-			pos = file->size() + offset;
+			pos = ioDevice->size() + offset;
 			break;
 		case ZLIB_FILEFUNC_SEEK_SET:
 			pos = offset;
@@ -75,7 +89,7 @@ static long seekFile(voidpf opaque, voidpf stream, ZPOS64_T offset, int origin)
 			return -1;
 	}
 	
-	if (file->seek(pos))
+	if (ioDevice->seek(pos))
 		return 0;
 	else
 		return -1;
@@ -83,32 +97,30 @@ static long seekFile(voidpf opaque, voidpf stream, ZPOS64_T offset, int origin)
 
 static int closeFile(voidpf opaque, voidpf stream)
 {
-	Q_UNUSED(opaque);
-	auto file = reinterpret_cast<QFile *>(stream);
-	Q_ASSERT(file);
-	file->close();
-	delete file;
+	Q_UNUSED(stream);
+	auto ioDevice = static_cast<QIODevice *>(opaque);
+	ioDevice->close();
 	return 0;
 }
 
 static int errorFile(voidpf opaque, voidpf stream)
 {
 	Q_UNUSED(opaque);
-	auto file = reinterpret_cast<QFile *>(stream);
-	Q_ASSERT(file);
-	return file->error();
+	Q_UNUSED(stream);
+	return 0;
 }
 
-static zlib_filefunc64_def fileFuncDefs = 
+static void setFileFuncs(zlib_filefunc64_def &def, QIODevice *device)
 {
-	.zopen64_file = openFile,
-	.zread_file = readFile,
-	.zwrite_file = writeFile,
-	.ztell64_file = tellFile,
-	.zseek64_file = seekFile,
-	.zclose_file = closeFile,
-	.zerror_file = errorFile
-};
+	def.zopen64_file = openFile;
+	def.zread_file = readFile;
+	def.zwrite_file = writeFile;
+	def.ztell64_file = tellFile;
+	def.zseek64_file = seekFile;
+	def.zclose_file = closeFile;
+	def.zerror_file = errorFile;
+	def.opaque = device;
+}
 
 }
 
@@ -116,20 +128,13 @@ struct ZipArchive::Data
 {
 	zipFile zip = 0;
 	ZipFile *currentZipFile = 0;
-	QString filepath;
+	zlib_filefunc64_def fileFuncs;
 };
 
-ZipArchive::ZipArchive() :
+ZipArchive::ZipArchive(QIODevice *device) :
 	d(new Data)
 {
-	
-}
-
-ZipArchive::ZipArchive(const QString &filepath) :
-	ZipArchive()
-{
-	d->filepath = filepath;
-	open();
+	MinizipSupport::setFileFuncs(d->fileFuncs, device);
 }
 
 ZipArchive::~ZipArchive()
@@ -142,24 +147,12 @@ ZipArchive::~ZipArchive()
 
 bool ZipArchive::open()
 {
-	if (d->filepath.isEmpty())
-	{
-		PAINTFIELD_DEBUG << "file path not specified";
-		return false;
-	}
-	
 	if (isOpen())
 		return true;
 	
-	auto zip = zipOpen2_64(d->filepath.toUtf8(), APPEND_STATUS_CREATE, nullptr, &MinizipSupport::fileFuncDefs);
+	auto zip = zipOpen2_64(nullptr, APPEND_STATUS_CREATE, nullptr, &d->fileFuncs);
 	d->zip = zip;
 	return zip;
-}
-
-bool ZipArchive::open(const QString &filepath)
-{
-	d->filepath = filepath;
-	return open();
 }
 
 void ZipArchive::close()
@@ -263,7 +256,9 @@ qint64 ZipFile::writeData(const char *data, qint64 maxSize)
 	if (openMode() == NotOpen)
 		return 0;
 	
-	return zipWriteInFileInZip(d->archive->d->zip, data, maxSize);
+	if (zipWriteInFileInZip(d->archive->d->zip, data, maxSize) != ZIP_OK)
+		return 0;
+	return maxSize;
 }
 
 bool ZipFile::open(OpenMode mode)
@@ -274,20 +269,15 @@ bool ZipFile::open(OpenMode mode)
 
 struct UnzipArchive::Data
 {
-	QString filepath;
 	unzFile unzip = 0;
 	UnzipFile *currentUnzipFile = 0;
+	zlib_filefunc64_def fileFuncs;
 };
 
-UnzipArchive::UnzipArchive() :
+UnzipArchive::UnzipArchive(QIODevice *device) :
 	d(new Data)
 {
-}
-
-UnzipArchive::UnzipArchive(const QString &filepath) :
-	UnzipArchive()
-{
-	d->filepath = filepath;
+	MinizipSupport::setFileFuncs(d->fileFuncs, device);
 }
 
 UnzipArchive::~UnzipArchive()
@@ -298,24 +288,12 @@ UnzipArchive::~UnzipArchive()
 	delete d;
 }
 
-bool UnzipArchive::open(const QString &filepath)
-{
-	d->filepath = filepath;
-	return open();
-}
-
 bool UnzipArchive::open()
 {
-	if (d->filepath.isEmpty())
-	{
-		PAINTFIELD_WARNING << "file path not specified";
-		return false;
-	}
-	
 	if (isOpen())
 		return true;
 	
-	d->unzip = unzOpen2_64(d->filepath.toUtf8(), &MinizipSupport::fileFuncDefs);
+	d->unzip = unzOpen2_64(nullptr, &d->fileFuncs);
 	return d->unzip;
 }
 
@@ -399,7 +377,7 @@ bool UnzipFile::open()
 	}
 	
 	setOpenMode(ReadOnly);
-	return false;
+	return true;
 }
 
 void UnzipFile::close()
@@ -430,7 +408,10 @@ qint64 UnzipFile::readData(char *data, qint64 maxSize)
 	if (openMode() == NotOpen)
 		return 0;
 	
-	return unzReadCurrentFile(d->archive->d->unzip, data, maxSize);
+	qint64 size = unzReadCurrentFile(d->archive->d->unzip, data, maxSize);
+	if (size < 0)
+		return 0;
+	return size;
 }
 
 qint64 UnzipFile::writeData(const char *data, qint64 maxSize)

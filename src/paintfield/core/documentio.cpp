@@ -167,7 +167,7 @@ struct DocumentWriter::Data
 		
 		for (const auto &layer : parent->children())
 		{
-			auto map = layer->saveProperies();
+			auto map = layer->saveProperties();
 			
 			map["type"] = layerFactoryManager()->nameForTypeInfo(typeid(*layer));
 			
