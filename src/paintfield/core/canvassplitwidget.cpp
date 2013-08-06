@@ -1,6 +1,7 @@
 #include <QDragEnterEvent>
 #include <QDropEvent>
 #include <QUrl>
+#include <QMimeData>
 
 #include "canvastabwidget.h"
 #include "canvasview.h"

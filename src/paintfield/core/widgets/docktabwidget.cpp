@@ -2,6 +2,7 @@
 #include <QMouseEvent>
 #include <QCloseEvent>
 #include <QApplication>
+#include <QMimeData>
 
 #include "appcontroller.h"
 #include "cursorstack.h"

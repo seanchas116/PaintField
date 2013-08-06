@@ -92,7 +92,7 @@ void CanvasToolEventSender::tabletEvent(QTabletEvent *event)
 	if (event->type() == QEvent::TabletRelease)
 		d->mousePressure = 0;
 	
-	TabletInputData data(event->hiResGlobalPos(), event->pressure(), event->rotation(), event->tangentialPressure(), Vec2D(event->xTilt(), event->yTilt()));
+	TabletInputData data(event->globalPosF(), event->pressure(), event->rotation(), event->tangentialPressure(), Vec2D(event->xTilt(), event->yTilt()));
 	WidgetTabletEvent widgetTabletEvent(toNewEventType(event->type()), event->globalPos(), event->pos(), data, event->modifiers());
 	
 	customTabletEvent(&widgetTabletEvent);

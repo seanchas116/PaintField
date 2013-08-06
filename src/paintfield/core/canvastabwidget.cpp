@@ -1,5 +1,6 @@
 #include <QUrl>
 #include <QDragEnterEvent>
+#include <QMimeData>
 #include <QDropEvent>
 
 #include "workspace.h"

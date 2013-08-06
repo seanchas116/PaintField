@@ -4,7 +4,7 @@
 
 TEMPLATE = lib
 TARGET = paintfield-qtsingleapplication
-QT += network
+QT += network widgets
 include(../../src.pri)
 
 # Input

@@ -61,7 +61,7 @@ bool ApplicationEventFilter::sendTabletEventToWindow(QWidget *window, QTabletEve
 	Q_CHECK_PTR(window);
 	Q_CHECK_PTR(event);
 	
-	TabletInputData data(event->hiResGlobalPos(),
+	TabletInputData data(event->globalPosF(),
 						 event->pressure(),
 						 event->rotation(),
 						 event->tangentialPressure(),

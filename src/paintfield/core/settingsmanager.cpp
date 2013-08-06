@@ -47,7 +47,8 @@ SettingsManager::SettingsManager(QObject *parent) :
 {
 	// prepare directiries
 	
-	QDir dir(QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation));
+	auto documentPath = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation).first();
+	QDir dir(documentPath);
 	
 	dir.mkdir("PaintField");
 	dir.cd("PaintField");
@@ -56,7 +57,7 @@ SettingsManager::SettingsManager(QObject *parent) :
 	d->lastFileDialogPath = value({"last-file-dialog-path"}).toString();
 	
 	if (d->lastFileDialogPath.isEmpty())
-		d->lastFileDialogPath = QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation);
+		d->lastFileDialogPath = documentPath;
 }
 
 SettingsManager::~SettingsManager()
@@ -230,7 +231,7 @@ QString SettingsManager::builtinDataDir() const
 
 QString SettingsManager::userDataDir() const
 {
-	return QDir(QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation)).filePath("PaintField");
+	return QDir(QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation).first()).filePath("PaintField");
 }
 
 QString SettingsManager::lastFileDialogPath() const { return d->lastFileDialogPath; }
