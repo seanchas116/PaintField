@@ -183,7 +183,7 @@ CanvasViewController::CanvasViewController(Canvas *canvas) :
 			connect(canvas, SIGNAL(shouldBeDeleted(Canvas*)), vp, SLOT(deleteViewportLater()));
 		}
 		
-		d->graphicsView = new QGraphicsView(view);
+		d->graphicsView = new QGraphicsView(viewport());
 		d->graphicsView->setStyleSheet("QGraphicsView { border-style: none; background: transparent; }");
 		d->graphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 		d->graphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
