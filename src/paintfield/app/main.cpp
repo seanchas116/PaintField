@@ -26,11 +26,23 @@ int main(int argc, char *argv[])
 	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
 	QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
 	
+	auto locale = QLocale::system();
+	
+	{
+		auto arguments = a.arguments();
+		
+		for (int i = 0; i < arguments.size() - 1; ++i)
+		{
+			if (arguments[i] == "-locale")
+				locale = QLocale(arguments[i+1]);
+		}
+	}
+	
 	// load translations
 	for (const auto &module : {"core", "extensions", "qt_help", "qt"})
 	{
 		auto translator = new QTranslator();
-		translator->load(QLocale::system(), module, "_", applicationDir.filePath("Translations"), ".qm");
+		translator->load(locale, module, "_", applicationDir.filePath("Translations"), ".qm");
 		a.installTranslator(translator);
 	}
 	
