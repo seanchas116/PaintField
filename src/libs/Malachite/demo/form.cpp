@@ -41,8 +41,8 @@ Form::Form(QWidget *parent) :
 	d->radialGradientInfo = RadialGradientShape(Vec2D(200, 200), 50, Vec2D(200, 210));
 	
 	{
-		ImageImporter importer;
-		importer.load(":/demo-texture.jpg");
+		ImageReader importer;
+		importer.read(":/demo-texture.jpg");
 		d->image = importer.toImage();
 		d->surface = importer.toSurface();
 	}

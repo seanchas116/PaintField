@@ -111,10 +111,9 @@ static void readLayers(UnzipArchive *archive, QList<LayerRef> &layers, const QDo
 				QBuffer buffer(&data);
 				buffer.open(QIODevice::ReadOnly);
 				
-				Malachite::ImageImporter importer;
-				importer.load(&buffer);
+				Malachite::ImageReader importer;
+				importer.read(&buffer);
 				auto surface = importer.toSurface(QPoint(x, y));
-				surface.squeeze();
 				rasterLayer->setSurface(surface);
 			}
 		}
@@ -231,9 +230,9 @@ static QList<QDomElement> saveLayers(ZipArchive *archive, const QList<LayerConst
 				QBuffer buffer(&data);
 				buffer.open(QIODevice::WriteOnly);
 				
-				Malachite::ImageExporter exporter("png");
+				Malachite::ImageWriter exporter("png");
 				exporter.setSurface(surface, rect);
-				exporter.save(&buffer);
+				exporter.write(&buffer);
 			}
 			
 			{
@@ -317,9 +316,9 @@ bool OpenRasterFormatSupport::write(QIODevice *device, const QList<LayerConstRef
 				QBuffer buffer(&data);
 				buffer.open(QIODevice::WriteOnly);
 				
-				Malachite::ImageExporter writer("png");
+				Malachite::ImageWriter writer("png");
 				writer.setSurface(surface, size);
-				writer.save(&buffer);
+				writer.write(&buffer);
 			}
 			
 			ZipFile file(&archive, "Thumbnails/thumbnail.png");

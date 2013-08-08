@@ -10,12 +10,12 @@ struct FIBITMAP;
 namespace Malachite
 {
 
-class MALACHITESHARED_EXPORT ImageImporter
+class MALACHITESHARED_EXPORT ImageReader
 {
 public:
 	
-	ImageImporter();
-	~ImageImporter();
+	ImageReader();
+	~ImageReader();
 	
 	/**
 	 * Loads from a QIODevice.
@@ -23,9 +23,9 @@ public:
 	 * @param device
 	 * @return 
 	 */
-	bool load(QIODevice *device);
+	bool read(QIODevice *device);
 	
-	bool load(const QString &filepath);
+	bool read(const QString &filepath);
 	
 	bool isValid() const;
 	
@@ -34,7 +34,7 @@ public:
 	Image toImage() const;
 	Surface toSurface(const QPoint &p = QPoint()) const;
 	
-	static QStringList importableExtensions();
+	static QStringList readableExtensions();
 	
 private:
 	
@@ -42,12 +42,12 @@ private:
 	Data *d;
 };
 
-class MALACHITESHARED_EXPORT ImageExporter
+class MALACHITESHARED_EXPORT ImageWriter
 {
 public:
 	
-	ImageExporter(const QString &format);
-	~ImageExporter();
+	ImageWriter(const QString &format);
+	~ImageWriter();
 	
 	/**
 	 * Sets the image quality for JPEG files.
@@ -88,8 +88,8 @@ public:
 	 * @param device
 	 * @return 
 	 */
-	bool save(QIODevice *device);
-	bool save(const QString &filePath);
+	bool write(QIODevice *device);
+	bool write(const QString &filePath);
 	
 private:
 	

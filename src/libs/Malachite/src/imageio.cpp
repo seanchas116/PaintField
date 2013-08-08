@@ -172,7 +172,7 @@ static bool pasteImageToFIBITMAP(const QPoint &pos, FIBITMAP *dst, const T_Image
 }
 
 
-struct ImageImporter::Data
+struct ImageReader::Data
 {
 	FIBITMAP *bitmap = 0;
 	QSize size;
@@ -192,16 +192,16 @@ struct ImageImporter::Data
 	}
 };
 
-ImageImporter::ImageImporter() :
+ImageReader::ImageReader() :
     d(new Data)
 {}
 
-ImageImporter::~ImageImporter()
+ImageReader::~ImageReader()
 {
 	delete d;
 }
 
-bool ImageImporter::load(QIODevice *device)
+bool ImageReader::read(QIODevice *device)
 {
 	d->deleteBitmap();
 	
@@ -240,27 +240,27 @@ bool ImageImporter::load(QIODevice *device)
 	return d->bitmap;
 }
 
-bool ImageImporter::load(const QString &filepath)
+bool ImageReader::read(const QString &filepath)
 {
 	QFile file(filepath);
 	
 	if (!file.open(QIODevice::ReadOnly))
 		return false;
 	
-	return load(&file);
+	return read(&file);
 }
 
-bool ImageImporter::isValid() const
+bool ImageReader::isValid() const
 {
 	return d->bitmap;
 }
 
-QSize ImageImporter::size() const
+QSize ImageReader::size() const
 {
 	return d->size;
 }
 
-Image ImageImporter::toImage() const
+Image ImageReader::toImage() const
 {
 	if (!isValid())
 		return Image();
@@ -271,7 +271,7 @@ Image ImageImporter::toImage() const
 	return image;
 }
 
-Surface ImageImporter::toSurface(const QPoint &p) const
+Surface ImageReader::toSurface(const QPoint &p) const
 {
 	if (!isValid())
 		return Surface();
@@ -282,14 +282,14 @@ Surface ImageImporter::toSurface(const QPoint &p) const
 	return surface;
 }
 
-QStringList ImageImporter::importableExtensions()
+QStringList ImageReader::readableExtensions()
 {
 	return { "bmp", "png", "jpg", "jpeg" };
 }
 
 
 
-struct ImageExporter::Data
+struct ImageWriter::Data
 {
 	~Data()
 	{
@@ -341,38 +341,38 @@ struct ImageExporter::Data
 	bool alphaEnabled = true;
 };
 
-ImageExporter::ImageExporter(const QString &format) :
+ImageWriter::ImageWriter(const QString &format) :
     d(new Data)
 {
 	d->setFormatString(format);
 }
 
-ImageExporter::~ImageExporter()
+ImageWriter::~ImageWriter()
 {
 	delete d;
 }
 
-void ImageExporter::setQuality(int quality)
+void ImageWriter::setQuality(int quality)
 {
 	d->quality = quality;
 }
 
-int ImageExporter::quality() const
+int ImageWriter::quality() const
 {
 	return d->quality;
 }
 
-void ImageExporter::setAlphaEnabled(bool enabled)
+void ImageWriter::setAlphaEnabled(bool enabled)
 {
 	d->alphaEnabled = enabled;
 }
 
-bool ImageExporter::isAlphaEnabled() const
+bool ImageWriter::isAlphaEnabled() const
 {
 	return d->alphaEnabled;
 }
 
-bool ImageExporter::save(QIODevice *device)
+bool ImageWriter::write(QIODevice *device)
 {
 	if (!d->bitmap)
 		return false;
@@ -396,16 +396,16 @@ bool ImageExporter::save(QIODevice *device)
 	return FreeImage_SaveToHandle(d->format, d->bitmap, &io, device, flags);
 }
 
-bool ImageExporter::save(const QString &filePath)
+bool ImageWriter::write(const QString &filePath)
 {
 	QFile file(filePath);
 	if (!file.open(QIODevice::WriteOnly))
 		return false;
 	
-	return save(&file);
+	return write(&file);
 }
 
-bool ImageExporter::setImage(const Image &image)
+bool ImageWriter::setImage(const Image &image)
 {
 	d->allocate(image.size());
 	if (!d->bitmap)
@@ -414,7 +414,7 @@ bool ImageExporter::setImage(const Image &image)
 	return pasteImage(image, QPoint());
 }
 
-bool ImageExporter::setSurface(const Surface &surface, const QRect &rect)
+bool ImageWriter::setSurface(const Surface &surface, const QRect &rect)
 {
 	auto size = rect.size();
 	
@@ -433,7 +433,7 @@ bool ImageExporter::setSurface(const Surface &surface, const QRect &rect)
 	return true;
 }
 
-bool ImageExporter::pasteImage(const Image &image, const QPoint &pos)
+bool ImageWriter::pasteImage(const Image &image, const QPoint &pos)
 {
 	if (!d->bitmap)
 		return false;

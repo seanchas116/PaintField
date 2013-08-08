@@ -14,8 +14,8 @@ MalachiteFormatSupport::MalachiteFormatSupport(QObject *parent) :
 
 bool MalachiteFormatSupport::readSingleLayer(QIODevice *device, Malachite::Surface *surface, QSize *size)
 {
-	Malachite::ImageImporter importer;
-	if (!importer.load(device))
+	Malachite::ImageReader importer;
+	if (!importer.read(device))
 		return false;
 	
 	*surface = importer.toSurface();
@@ -31,13 +31,13 @@ bool MalachiteFormatSupport::writeSingleLayer(QIODevice *device, const Malachite
 	
 	PAINTFIELD_DEBUG << "exporing with alpha = " << hasAlpha << "quality = " << quality;
 	
-	Malachite::ImageExporter exporter(this->malachiteFormat());
+	Malachite::ImageWriter exporter(this->malachiteFormat());
 	exporter.setAlphaEnabled(hasAlpha);
 	exporter.setQuality(quality);
 	
 	exporter.setSurface(surface, size);
 	
-	return exporter.save(device);
+	return exporter.write(device);
 }
 
 JpegFormatSupport::JpegFormatSupport(QObject *parent) :

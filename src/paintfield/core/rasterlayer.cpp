@@ -13,8 +13,8 @@ namespace PaintField {
 
 Ref<RasterLayer> RasterLayer::createFromImageFile(const QString &path, QSize *imageSize)
 {
-	Malachite::ImageImporter importer;
-	if (!importer.load(path))
+	Malachite::ImageReader importer;
+	if (!importer.read(path))
 		return 0;
 	
 	Malachite::Surface surface = importer.toSurface();
