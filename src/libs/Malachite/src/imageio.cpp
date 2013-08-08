@@ -32,6 +32,9 @@ static int seekQIODevice(void *handle, long offset, int origin)
 		case SEEK_CUR:
 			succeeded = ioDevice->seek(offset + ioDevice->pos());
 			break;
+		case SEEK_END:
+			succeeded = ioDevice->seek(offset + ioDevice->size());
+			break;
 		default:
 			Q_ASSERT(0);
 			break;
@@ -228,6 +231,10 @@ bool ImageImporter::load(QIODevice *device)
 		int h = FreeImage_GetHeight(d->bitmap);
 		
 		d->size = QSize(w, h);
+	}
+	else
+	{
+		qWarning() << "Malachite::ImageImporter::load failed";
 	}
 	
 	return d->bitmap;

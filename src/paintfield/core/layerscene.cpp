@@ -802,6 +802,8 @@ void LayerScene::setLayerProperty(const LayerConstRef &layer, const QVariant &da
 	if (layer->property(role) == data)
 		return;
 	
+	PAINTFIELD_DEBUG << "set layer property" << data;
+	
 	QString text = description;
 	
 	if (text.isEmpty())

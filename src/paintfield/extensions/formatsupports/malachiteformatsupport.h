@@ -33,7 +33,7 @@ public:
 	explicit JpegFormatSupport(QObject *parent = 0);
 	
 	QStringList suffixes() const override { return { "jpg", "jpeg" }; }
-	QString name() const override { return "paintfield-format-jpeg"; }
+	QString name() const override { return "paintfield.format.jpeg"; }
 	
 	bool canRead() const override { return true; }
 	bool canWrite() const override { return true; }
@@ -55,7 +55,7 @@ public:
 	explicit PngFormatSupport(QObject *parent = 0);
 	
 	QStringList suffixes() const override { return { "png" }; }
-	QString name() const override { return "paintfield-format-png"; }
+	QString name() const override { return "paintfield.format.png"; }
 	
 	bool canRead() const override { return true; }
 	bool canWrite() const override { return true; }

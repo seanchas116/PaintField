@@ -45,7 +45,8 @@ HEADERS += aboutdialog/aboutdialog.h \
     formatsupports/formatsupportsextension.h \
     formatsupports/malachiteformatsupport.h \
     formatsupports/jpegexportform.h \
-    formatsupports/pngexportform.h
+    formatsupports/pngexportform.h \
+    formatsupports/openrasterformatsupport.h
 FORMS += aboutdialog/aboutdialog.ui \
     formatsupports/jpegexportform.ui \
     formatsupports/pngexportform.ui
@@ -86,6 +87,7 @@ SOURCES += aboutdialog/aboutdialog.cpp \
     formatsupports/formatsupportsextension.cpp \
     formatsupports/malachiteformatsupport.cpp \
     formatsupports/jpegexportform.cpp \
-    formatsupports/pngexportform.cpp
+    formatsupports/pngexportform.cpp \
+    formatsupports/openrasterformatsupport.cpp
 
 TRANSLATIONS += extensions_ja.ts

@@ -1,6 +1,7 @@
 #include "paintfield/core/appcontroller.h"
 #include "paintfield/core/formatsupportmanager.h"
 #include "malachiteformatsupport.h"
+#include "openrasterformatsupport.h"
 
 #include "formatsupportsextension.h"
 
@@ -12,6 +13,7 @@ FormatSupportsExtension::FormatSupportsExtension(AppController *appC, QObject *p
 	auto manager = appC->formatSupportManager();
 	manager->addFormatSupport(new JpegFormatSupport());
 	manager->addFormatSupport(new PngFormatSupport());
+	manager->addFormatSupport(new OpenRasterFormatSupport());
 }
 
 FormatSupportsExtensionFactory::FormatSupportsExtensionFactory(QObject *parent) :
