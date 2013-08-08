@@ -20,8 +20,6 @@ struct SettingsManager::Data
 	QHash<QString, ToolBarInfo> toolbarInfoHash;
 	QHash<QString, MenuInfo> menuDeclarationHash;
 	
-	QString lastFileDialogPath;
-	
 	QKeySequence findKeyBinding(const QString &actionId)
 	{
 		QVariantMap keyBindMap = settings[".key-bindings"].toMap();
@@ -52,11 +50,6 @@ SettingsManager::SettingsManager(QObject *parent) :
 	dir.mkdir("PaintField");
 	dir.cd("PaintField");
 	dir.mkdir("Settings");
-	
-	d->lastFileDialogPath = value({"last-file-dialog-path"}).toString();
-	
-	if (d->lastFileDialogPath.isEmpty())
-		d->lastFileDialogPath = QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation);
 }
 
 SettingsManager::~SettingsManager()
@@ -169,7 +162,7 @@ void SettingsManager::setValue(const QStringList &path, const QVariant &value)
 	setValueToMapTree(d->userSettings, path, value);
 }
 
-QVariant SettingsManager::value(const QStringList &path, const QVariant &defaultValue)
+QVariant SettingsManager::value(const QStringList &path, const QVariant &defaultValue) const
 {
 	return valueFromMapTree(d->settings, path, defaultValue);
 }
@@ -233,11 +226,18 @@ QString SettingsManager::userDataDir() const
 	return QDir(QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation)).filePath("PaintField");
 }
 
-QString SettingsManager::lastFileDialogPath() const { return d->lastFileDialogPath; }
+QString SettingsManager::lastFileDialogPath() const
+{
+	auto path = value({"last-file-dialog-path"}).toString();
+	if (path.isEmpty())
+		return QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation);
+	else
+		return path;
+}
+
 void SettingsManager::setLastFileDialogPath(const QString &path)
 {
 	setValue({"last-file-dialog-path"}, path);
-	d->lastFileDialogPath = path;
 }
 
 } // namespace PaintField
