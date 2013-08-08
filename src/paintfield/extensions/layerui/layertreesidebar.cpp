@@ -12,7 +12,7 @@
 #include "paintfield/core/layeritemmodel.h"
 #include "paintfield/core/layerscene.h"
 #include "paintfield/core/util.h"
-#include "paintfield/core/widgets/doubleslider.h"
+#include "paintfield/core/widgets/looseslider.h"
 #include "paintfield/core/widgets/simplebutton.h"
 #include "paintfield/core/appcontroller.h"
 #include "paintfield/core/workspace.h"

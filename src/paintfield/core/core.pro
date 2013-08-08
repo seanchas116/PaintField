@@ -32,7 +32,6 @@ HEADERS += \
            widgets/colorbutton.h \
            widgets/colorslider.h \
            widgets/colorwheel.h \
-           widgets/doubleslider.h \
            widgets/loosespinbox.h \
            widgets/modulardoublespinbox.h \
            widgets/simplebutton.h \
@@ -99,7 +98,8 @@ HEADERS += \
     formatsupportmanager.h \
     dialogs/formatexportdialog.h \
     zip.h \
-    paintfieldformatsupport.h
+    paintfieldformatsupport.h \
+    widgets/looseslider.h
 
 FORMS +=
 SOURCES += \
@@ -120,7 +120,6 @@ SOURCES += \
            widgets/colorbutton.cpp \
            widgets/colorslider.cpp \
            widgets/colorwheel.cpp \
-           widgets/doubleslider.cpp \
            widgets/loosespinbox.cpp \
            widgets/modulardoublespinbox.cpp \
            widgets/simplebutton.cpp \
@@ -181,7 +180,8 @@ SOURCES += \
     formatsupportmanager.cpp \
     dialogs/formatexportdialog.cpp \
     zip.cpp \
-    paintfieldformatsupport.cpp
+    paintfieldformatsupport.cpp \
+    widgets/looseslider.cpp
 
 RESOURCES += \
     resources/resource-paintfield-core.qrc

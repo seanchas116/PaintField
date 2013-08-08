@@ -66,6 +66,11 @@ void LooseSpinBox::setValue(double value)
 void LooseSpinBox::setText(const QString &text)
 {
 	bool ok;
+	
+	// value is not actually changed
+	if (text == numberWithDecimals(_value, _decimals))
+		return;
+	
 	double x = text.toDouble(&ok);
 	
 	if (ok)

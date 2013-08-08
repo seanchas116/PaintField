@@ -6,6 +6,9 @@
 namespace PaintField
 {
 
+/**
+ * The LooseSpinBox class provides "loose" (internal double values are not aligned to display precision) spin boxes
+ */
 class LooseSpinBox : public QAbstractSpinBox
 {
 	Q_OBJECT

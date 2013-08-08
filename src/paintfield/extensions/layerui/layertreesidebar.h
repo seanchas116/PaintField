@@ -19,7 +19,7 @@ class Workspace;
 class Canvas;
 class LayerUIController;
 
-class DoubleSlider;
+class LooseSlider;
 class SimpleButton;
 
 class LayerTreeSidebar : public QWidget

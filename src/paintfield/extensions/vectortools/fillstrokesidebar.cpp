@@ -17,7 +17,7 @@
 #include "paintfield/core/widgets/simplebutton.h"
 #include "paintfield/core/shapelayer.h"
 #include "paintfield/core/layerscene.h"
-#include "paintfield/core/widgets/doubleslider.h"
+#include "paintfield/core/widgets/looseslider.h"
 #include "paintfield/core/widgets/loosespinbox.h"
 #include "paintfield/core/widgets/colorbutton.h"
 #include "paintfield/core/workspace.h"

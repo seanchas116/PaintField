@@ -17,7 +17,7 @@
 #include "paintfield/core/widgets/simplebutton.h"
 #include "paintfield/core/widgets/loosespinbox.h"
 #include "paintfield/core/widgets/widgetgroup.h"
-#include "paintfield/core/widgets/doubleslider.h"
+#include "paintfield/core/widgets/looseslider.h"
 #include "paintfield/core/signalconverter.h"
 #include "paintfield/core/workspace.h"
 
@@ -321,7 +321,7 @@ ColorSideBar::ColorSideBar(QWidget *parent) :
 		layout->addWidget(new QLabel(tr("Opacity")));
 		
 		{
-			auto slider = new DoubleSlider(Qt::Horizontal);
+			auto slider = new LooseSlider(Qt::Horizontal);
 			slider->setMinimum(0);
 			slider->setMaximum(1000);
 			slider->setDoubleMinimum(0);

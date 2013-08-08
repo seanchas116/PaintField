@@ -8,7 +8,7 @@
 #include "paintfield/core/grouplayer.h"
 #include "paintfield/core/document.h"
 #include "paintfield/core/layerscene.h"
-#include "paintfield/core/widgets/doubleslider.h"
+#include "paintfield/core/widgets/looseslider.h"
 #include "paintfield/core/widgets/loosespinbox.h"
 #include "paintfield/core/blendmodetexts.h"
 #include "paintfield/core/appcontroller.h"
@@ -26,7 +26,7 @@ struct LayerPropertyEditor::Data
 	LayerConstRef current;
 	bool isCurrentGroup = false;
 	
-	DoubleSlider *opacitySlider = 0;
+	LooseSlider *opacitySlider = 0;
 	LooseSpinBox *opacitySpinBox = 0;
 	QComboBox *blendModeComboBox = 0;
 	
@@ -50,7 +50,7 @@ LayerPropertyEditor::LayerPropertyEditor(LayerScene *scene, QWidget *parent) :
 			auto layout = new QHBoxLayout();
 			
 			{
-				auto slider = new DoubleSlider(Qt::Horizontal);
+				auto slider = new LooseSlider(Qt::Horizontal);
 				slider->setMinimum(0);
 				slider->setMaximum(1000);
 				slider->setDoubleMinimum(0.0);

@@ -6,11 +6,11 @@
 namespace PaintField
 {
 
-class DoubleSlider : public QSlider
+class LooseSlider : public QSlider
 {
 	Q_OBJECT
 public:
-	DoubleSlider(Qt::Orientation orientation, QWidget *parent = 0);
+	LooseSlider(Qt::Orientation orientation, QWidget *parent = 0);
 	
 	void setDoubleMaximum(double max);
 	void setDoubleMinimum(double min);
