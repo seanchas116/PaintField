@@ -46,23 +46,54 @@ class MALACHITESHARED_EXPORT ImageExporter
 {
 public:
 	
-	ImageExporter(const QString &format, bool alphaEnabled);
+	ImageExporter(const QString &format);
 	~ImageExporter();
 	
+	/**
+	 * Sets the image quality for JPEG files.
+	 * @param quality 0..100
+	 */
 	void setQuality(int quality);
+	
 	int quality() const;
+	
+	/**
+	 * Sets the alpha channe is enabled when the image is written.
+	 * This function must be called before setImage or setSurface is called.
+	 * @param enabled
+	 */
+	void setAlphaEnabled(bool enabled);
+	
 	bool isAlphaEnabled() const;
 	
+	/**
+	 * Sets the image.
+	 * @param image
+	 * @return 
+	 */
 	bool setImage(const Image &image);
+	
+	/**
+	 * Sets the specified region in surface.
+	 * @param surface
+	 * @param rect
+	 * @return 
+	 */
 	bool setSurface(const Surface &surface, const QRect &rect);
+	
 	bool setSurface(const Surface &surface, const QSize &size) { return setSurface(surface, QRect(QPoint(), size)); }
 	
-	bool pasteImage(const Image &image, const QPoint &pos);
-	
+	/**
+	 * Writes the saved image into device.
+	 * @param device
+	 * @return 
+	 */
 	bool save(QIODevice *device);
 	bool save(const QString &filePath);
 	
 private:
+	
+	bool pasteImage(const Image &image, const QPoint &pos);
 	
 	struct Data;
 	Data *d;

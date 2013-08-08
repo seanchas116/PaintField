@@ -129,14 +129,11 @@ public:
 	
 	BlendOp *op() const { return blendOpDictionary()->blendOp(_index); }
 	
-	BlendMode &operator=(int index)
-	{
-		_index = index;
-		return *this;
-	}
+	bool operator==(int index) const { return _index == index; }
+	bool operator!=(int index) const { return _index != index; }
 	
-	bool operator==(int index) { return _index == index; }
-	bool operator!=(int index) { return _index != index; }
+	bool operator==(const BlendMode &mode) const { return _index == mode._index; }
+	bool operator!=(const BlendMode &mode) const { return _index != mode._index; }
 	
 private:
 	
@@ -161,5 +158,10 @@ private:
 	
 	int _index;
 };
+
+inline uint qHash(const Malachite::BlendMode &mode)
+{
+	return ::qHash(mode.toInt());
+}
 
 }

@@ -2,8 +2,11 @@
 #include <QDomDocument>
 #include <QBuffer>
 #include <Malachite/ImageIO>
+#include <Malachite/SurfacePainter>
 #include "paintfield/core/rasterlayer.h"
+#include "paintfield/core/grouplayer.h"
 #include "paintfield/core/zip.h"
+#include "paintfield/core/layerrenderer.h"
 
 #include "openrasterformatsupport.h"
 
@@ -15,7 +18,7 @@ OpenRasterFormatSupport::OpenRasterFormatSupport(QObject *parent) :
 	setShortDescription(tr("OpenRaster"));
 }
 
-static QHash<QString, Malachite::BlendMode> createBlendModeHash()
+static QHash<QString, Malachite::BlendMode> createBlendModeFromStringHash()
 {
 	using namespace Malachite;
 	QHash<QString, BlendMode> hash;
@@ -38,7 +41,19 @@ static QHash<QString, Malachite::BlendMode> createBlendModeHash()
 	return hash;
 }
 
-static auto blendModeHash = createBlendModeHash();
+static QHash<Malachite::BlendMode, QString> createBlendModeToStringHash()
+{
+	auto fromString = createBlendModeFromStringHash();
+	QHash<Malachite::BlendMode, QString> toString;
+	
+	for (auto i = fromString.begin(); i != fromString.end(); ++i)
+		toString[i.value()] = i.key();
+	
+	return toString;
+}
+
+static auto blendModeFromStringHash = createBlendModeFromStringHash();
+static auto blendModeToStringHash = createBlendModeToStringHash();
 
 static void readLayers(UnzipArchive *archive, QList<LayerRef> &layers, const QDomElement &stackElement)
 {
@@ -46,10 +61,17 @@ static void readLayers(UnzipArchive *archive, QList<LayerRef> &layers, const QDo
 	{
 		auto tagName = layerElement.tagName();
 		
-		if (tagName != "layer" && tagName != "stack")
+		bool isLayer = (tagName == "layer");
+		bool isStack = (tagName == "stack");
+		
+		if (!isLayer && !isStack)
 			continue;
 		
-		auto layer = std::make_shared<RasterLayer>();
+		LayerRef layer;
+		if (isLayer)
+			layer = std::make_shared<RasterLayer>();
+		else
+			layer = std::make_shared<GroupLayer>();
 		
 		// set layer properties
 		
@@ -58,7 +80,7 @@ static void readLayers(UnzipArchive *archive, QList<LayerRef> &layers, const QDo
 		if (layerElement.hasAttribute("composite-op"))
 		{
 			auto blendModeString = layerElement.attribute("composite-op");
-			layer->setBlendMode(blendModeHash.value(blendModeString, Malachite::BlendMode::Normal));
+			layer->setBlendMode(blendModeFromStringHash.value(blendModeString, Malachite::BlendMode::Normal));
 		}
 		
 		if (layerElement.hasAttribute("opacity"))
@@ -77,21 +99,27 @@ static void readLayers(UnzipArchive *archive, QList<LayerRef> &layers, const QDo
 		auto y = layerElement.attribute("y").toInt();
 		auto src = layerElement.attribute("src");
 		
-		UnzipFile srcFile(archive, src);
-		
-		if (srcFile.open())
+		if (isLayer)
 		{
-			auto data = srcFile.readAll();
-			QBuffer buffer(&data);
-			buffer.open(QIODevice::ReadOnly);
+			auto rasterLayer = std::static_pointer_cast<RasterLayer>(layer);
 			
-			Malachite::ImageImporter importer;
-			importer.load(&buffer);
-			auto surface = importer.toSurface(QPoint(x, y));
-			layer->setSurface(surface);
+			UnzipFile srcFile(archive, src);
+			
+			if (srcFile.open())
+			{
+				auto data = srcFile.readAll();
+				QBuffer buffer(&data);
+				buffer.open(QIODevice::ReadOnly);
+				
+				Malachite::ImageImporter importer;
+				importer.load(&buffer);
+				auto surface = importer.toSurface(QPoint(x, y));
+				surface.squeeze();
+				rasterLayer->setSurface(surface);
+			}
 		}
 		
-		if (tagName == "stack")
+		if (isStack)
 		{
 			QList<LayerRef> children;
 			readLayers(archive, children, layerElement);
@@ -150,9 +178,164 @@ bool OpenRasterFormatSupport::read(QIODevice *device, QList<LayerRef> *pLayers, 
 	return true;
 }
 
+static QList<QDomElement> saveLayers(ZipArchive *archive, const QList<LayerConstRef> &layers, int &sourceFileCount, QDomDocument &document)
+{
+	QList<QDomElement> layerElements;
+	
+	for (const auto &layer : layers)
+	{
+		bool isGroup = layer->isType<GroupLayer>();
+		QString tagName = isGroup ? "stack" : "layer";
+		
+		auto layerElement = document.createElement(tagName);
+		
+		layerElement.setAttribute("name", layer->name());
+		layerElement.setAttribute("opacity", layer->opacity());
+		layerElement.setAttribute("composite-op", blendModeToStringHash[layer->blendMode()]);
+		layerElement.setAttribute("visibility", layer->isVisible() ? "visible" : "hidden");
+		
+		if (isGroup)
+		{
+			// save children recursive
+			
+			layerElement.setAttribute("x", 0);
+			layerElement.setAttribute("y", 0);
+			
+			auto childElements = saveLayers(archive, layer->children(), sourceFileCount, document);
+			for (auto child : childElements)
+				layerElement.appendChild(child);
+		}
+		else
+		{
+			// save surface into png file
+			
+			Malachite::Surface surface;
+			
+			if (layer->isType<RasterLayer>())
+			{
+				surface = std::static_pointer_cast<const RasterLayer>(layer)->surface();
+			}
+			else
+			{
+				Malachite::Painter painter(&surface);
+				layer->render(&painter);
+			}
+			
+			auto rect = surface.boundingRect();
+			layerElement.setAttribute("x", rect.left());
+			layerElement.setAttribute("y", rect.top());
+			
+			QByteArray data;
+			
+			{
+				QBuffer buffer(&data);
+				buffer.open(QIODevice::WriteOnly);
+				
+				Malachite::ImageExporter exporter("png");
+				exporter.setSurface(surface, rect);
+				exporter.save(&buffer);
+			}
+			
+			{
+				QString path = "data/" + QString::number(sourceFileCount) + ".png";
+				
+				ZipFile file(archive, path);
+				if (!file.open())
+					throw std::runtime_error("cannot open file in zip");
+				
+				file.write(data);
+				
+				layerElement.setAttribute("src", path);
+				sourceFileCount++;
+			}
+		}
+		
+		layerElements << layerElement;
+	}
+	
+	return layerElements;
+}
+
 bool OpenRasterFormatSupport::write(QIODevice *device, const QList<LayerConstRef> &layers, const QSize &size, const QVariant &option)
 {
-	return false;
+	Q_UNUSED(option);
+	
+	try
+	{
+		ZipArchive archive(device);
+		
+		if (!archive.open())
+			throw std::runtime_error("cannot open archive");
+		
+		// mimetype
+		{
+			ZipFile file(&archive, "mimetype");
+			file.setNoCompression(true);
+			if (!file.open())
+				throw std::runtime_error("cannot open mimetype");
+			file.write("image/openraster");
+		}
+		
+		// stack.xml and data files
+		{
+			QDomDocument stackDocument;
+			auto header = stackDocument.createProcessingInstruction("xml", "version=\"1.0\" encoding=\"utf-8\"");
+			stackDocument.appendChild(header);
+			
+			auto imageElement = stackDocument.createElement("image");
+			imageElement.setAttribute("w", size.width());
+			imageElement.setAttribute("h", size.height());
+			
+			stackDocument.appendChild(imageElement);
+			
+			auto stackElement = stackDocument.createElement("stack");
+			
+			int sourceFileCount = 0;
+			auto layerElements = saveLayers(&archive, layers, sourceFileCount, stackDocument);
+			for (const auto &layerElement : layerElements)
+				stackElement.appendChild(layerElement);
+			
+			imageElement.appendChild(stackElement);
+			
+			{
+				ZipFile file(&archive, "stack.xml");
+				if (!file.open())
+					throw std::runtime_error("cannot open stack.xml");
+				
+				file.write(stackDocument.toByteArray());
+			}
+		}
+		
+		// thumbnail
+		{
+			LayerRenderer renderer;
+			auto surface = renderer.renderToSurface(layers);
+			
+			QByteArray data;
+			
+			{
+				QBuffer buffer(&data);
+				buffer.open(QIODevice::WriteOnly);
+				
+				Malachite::ImageExporter writer("png");
+				writer.setSurface(surface, size);
+				writer.save(&buffer);
+			}
+			
+			ZipFile file(&archive, "Thumbnails/thumbnail.png");
+			if (!file.open())
+				throw std::runtime_error("cannot open thumbnail.png");
+			
+			file.write(data);
+		}
+	}
+	catch (const std::runtime_error &error)
+	{
+		PAINTFIELD_WARNING << error.what();
+		return false;
+	}
+	
+	return true;
 }
 
 }

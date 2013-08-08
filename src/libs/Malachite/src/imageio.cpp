@@ -278,6 +278,7 @@ Surface ImageImporter::toSurface(const QPoint &p) const
 	
 	Surface surface;
 	pasteFIBITMAPToImage(p, &surface, d->bitmap);
+	surface.squeeze();
 	return surface;
 }
 
@@ -340,10 +341,9 @@ struct ImageExporter::Data
 	bool alphaEnabled = true;
 };
 
-ImageExporter::ImageExporter(const QString &format, bool alphaEnabled) :
+ImageExporter::ImageExporter(const QString &format) :
     d(new Data)
 {
-	d->alphaEnabled = alphaEnabled;
 	d->setFormatString(format);
 }
 
@@ -360,6 +360,11 @@ void ImageExporter::setQuality(int quality)
 int ImageExporter::quality() const
 {
 	return d->quality;
+}
+
+void ImageExporter::setAlphaEnabled(bool enabled)
+{
+	d->alphaEnabled = enabled;
 }
 
 bool ImageExporter::isAlphaEnabled() const
@@ -421,7 +426,7 @@ bool ImageExporter::setSurface(const Surface &surface, const QRect &rect)
 	
 	for (const QPoint &key : Surface::rectToKeys(QRect(pos, size)))
 	{
-		if (pasteImage(surface.tile(key), key * Surface::tileWidth() + pos) == false)
+		if (pasteImage(surface.tile(key), key * Surface::tileWidth() - pos) == false)
 			return false;
 	}
 	

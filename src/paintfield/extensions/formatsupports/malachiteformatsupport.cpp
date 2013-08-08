@@ -31,9 +31,11 @@ bool MalachiteFormatSupport::writeSingleLayer(QIODevice *device, const Malachite
 	
 	PAINTFIELD_DEBUG << "exporing with alpha = " << hasAlpha << "quality = " << quality;
 	
-	Malachite::ImageExporter exporter(this->malachiteFormat(), hasAlpha);
-	exporter.setSurface(surface, size);
+	Malachite::ImageExporter exporter(this->malachiteFormat());
+	exporter.setAlphaEnabled(hasAlpha);
 	exporter.setQuality(quality);
+	
+	exporter.setSurface(surface, size);
 	
 	return exporter.save(device);
 }
