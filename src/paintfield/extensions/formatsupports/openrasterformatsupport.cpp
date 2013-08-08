@@ -190,7 +190,10 @@ static QList<QDomElement> saveLayers(ZipArchive *archive, const QList<LayerConst
 		
 		layerElement.setAttribute("name", layer->name());
 		layerElement.setAttribute("opacity", layer->opacity());
-		layerElement.setAttribute("composite-op", blendModeToStringHash[layer->blendMode()]);
+		
+		if (layer->blendMode() != Malachite::BlendMode::PassThrough)
+			layerElement.setAttribute("composite-op", blendModeToStringHash[layer->blendMode()]);
+		
 		layerElement.setAttribute("visibility", layer->isVisible() ? "visible" : "hidden");
 		
 		if (isGroup)
@@ -309,16 +312,15 @@ bool OpenRasterFormatSupport::write(QIODevice *device, const QList<LayerConstRef
 		{
 			LayerRenderer renderer;
 			auto surface = renderer.renderToSurface(layers);
+			auto image = surface.crop(QRect(QPoint(), size)).toImageU8().wrapInQImage();
+			auto scaledImage = image.scaled(256, 256, Qt::KeepAspectRatio);
 			
 			QByteArray data;
 			
 			{
 				QBuffer buffer(&data);
 				buffer.open(QIODevice::WriteOnly);
-				
-				Malachite::ImageWriter writer("png");
-				writer.setSurface(surface, size);
-				writer.write(&buffer);
+				scaledImage.save(&buffer, "PNG");
 			}
 			
 			ZipFile file(&archive, "Thumbnails/thumbnail.png");
