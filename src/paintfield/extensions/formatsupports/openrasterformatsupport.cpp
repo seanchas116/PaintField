@@ -144,6 +144,15 @@ bool OpenRasterFormatSupport::read(QIODevice *device, QList<LayerRef> *pLayers, 
 		QDomDocument document;
 		
 		{
+			UnzipFile file(&archive, "mimetype");
+			if (!file.open())
+				throw std::runtime_error("cannot open mimetype");
+			auto data = file.readAll();
+			if (data != "image/openraster")
+				throw std::runtime_error("wrong mimetype");
+		}
+		
+		{
 			UnzipFile file(&archive, "stack.xml");
 			if (!file.open())
 				throw std::runtime_error("cannot open stack.xml");
@@ -272,7 +281,7 @@ bool OpenRasterFormatSupport::write(QIODevice *device, const QList<LayerConstRef
 		// mimetype
 		{
 			ZipFile file(&archive, "mimetype");
-			file.setNoCompression(true);
+			file.setMethod(ZipFile::MethodStored);
 			if (!file.open())
 				throw std::runtime_error("cannot open mimetype");
 			file.write("image/openraster");
@@ -313,7 +322,7 @@ bool OpenRasterFormatSupport::write(QIODevice *device, const QList<LayerConstRef
 			LayerRenderer renderer;
 			auto surface = renderer.renderToSurface(layers);
 			auto image = surface.crop(QRect(QPoint(), size)).toImageU8().wrapInQImage();
-			auto scaledImage = image.scaled(256, 256, Qt::KeepAspectRatio);
+			auto scaledImage = image.scaled(256, 256, Qt::KeepAspectRatio, Qt::SmoothTransformation);
 			
 			QByteArray data;
 			

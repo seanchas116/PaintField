@@ -30,6 +30,12 @@ private:
 class ZipFile : public QIODevice
 {
 public:
+
+	enum Method
+	{
+		MethodStored,
+		MethodDeflated
+	};
 	
 	ZipFile(ZipArchive *archive);
 	ZipFile(ZipArchive *archive, const QString &filepath);
@@ -39,8 +45,12 @@ public:
 	bool open();
 	bool open(const QString &filepath);
 	void close() override;
-	
-	void setNoCompression(bool noCompression);
+
+	/**
+	 * Default is MethodDeflated
+	 * @param method
+	 */
+	void setMethod(Method method);
 	
 protected:
 	

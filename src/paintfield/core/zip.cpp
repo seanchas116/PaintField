@@ -173,8 +173,7 @@ struct ZipFile::Data
 {
 	ZipArchive *archive;
 	QString filepath;
-	
-	bool noCompression = false;
+	Method method = MethodDeflated;
 };
 
 ZipFile::ZipFile(ZipArchive *archive) :
@@ -197,11 +196,6 @@ ZipFile::~ZipFile()
 	delete d;
 }
 
-void ZipFile::setNoCompression(bool noCompression)
-{
-	d->noCompression = noCompression;
-}
-
 bool ZipFile::open()
 {
 	if (d->filepath.isEmpty())
@@ -216,7 +210,7 @@ bool ZipFile::open()
 		return false;
 	}
 	
-	if (zipOpenNewFileInZip64(d->archive->d->zip, d->filepath.toLocal8Bit(), 0, 0, 0, 0, 0, 0, Z_DEFLATED, d->noCompression ? Z_NO_COMPRESSION : Z_DEFAULT_COMPRESSION, 1) != ZIP_OK)
+	if (zipOpenNewFileInZip64(d->archive->d->zip, d->filepath.toLocal8Bit(), 0, 0, 0, 0, 0, 0, (d->method == MethodStored) ? 0 : Z_DEFLATED, Z_DEFAULT_COMPRESSION, 1) != ZIP_OK)
 	{
 		PAINTFIELD_WARNING << "cannot open file in archive";
 		return false;
@@ -240,6 +234,11 @@ void ZipFile::close()
 	zipCloseFileInZip(d->archive->d->zip);
 	d->archive->d->currentZipFile = 0;
 	setOpenMode(NotOpen);
+}
+
+void ZipFile::setMethod(Method method)
+{
+	d->method = method;
 }
 
 qint64 ZipFile::readData(char *data, qint64 maxSize)

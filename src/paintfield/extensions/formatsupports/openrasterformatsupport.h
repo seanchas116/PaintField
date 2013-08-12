@@ -13,7 +13,7 @@ public:
 	QStringList suffixes() const override { return  { "ora" }; }
 	QString name() const override { return "paintfield.format.openRaster"; }
 	bool canRead() const override { return true; }
-	bool canWrite() const override { return false; }
+	bool canWrite() const override { return true; }
 	
 	Capabilities capabilities() const override { return CapabilityAll; }
 	
