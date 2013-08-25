@@ -50,7 +50,7 @@ void LayerRenderer::renderLayer(SurfacePainter *painter, const LayerConstRef &la
 void LayerRenderer::drawLayer(SurfacePainter *painter, const LayerConstRef &layer)
 {
 	if (layer->count())
-		painter->drawPreTransformedSurface(QPoint(), renderToSurface({layer}, painter->keyClip()));
+		painter->drawPreTransformedSurface(QPoint(), renderToSurface(layer->children(), painter->keyClip()));
 	
 	layer->render(painter);
 }
