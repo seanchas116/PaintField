@@ -47,7 +47,16 @@ HEADERS += aboutdialog/aboutdialog.h \
     formatsupports/jpegexportform.h \
     formatsupports/pngexportform.h \
     formatsupports/openrasterformatsupport.h \
-    formatsupports/psdformatsupport.h
+    formatsupports/psdformatsupport.h \
+    formatsupports/psd/psdfileheadersection.h \
+    formatsupports/psd/psdbinarystream.h \
+    formatsupports/psd/psdcolormodedatasection.h \
+    formatsupports/psd/psdimageresourcesection.h \
+    formatsupports/psd/psdlayerandmaskinformationsection.h \
+    formatsupports/psd/psdimagesection.h \
+    formatsupports/psd/psdutils.h \
+    formatsupports/psd/psdimageload.h \
+    formatsupports/psd/psdimagesave.h
 FORMS += aboutdialog/aboutdialog.ui \
     formatsupports/jpegexportform.ui \
     formatsupports/pngexportform.ui
@@ -90,6 +99,15 @@ SOURCES += aboutdialog/aboutdialog.cpp \
     formatsupports/jpegexportform.cpp \
     formatsupports/pngexportform.cpp \
     formatsupports/openrasterformatsupport.cpp \
-    formatsupports/psdformatsupport.cpp
+    formatsupports/psdformatsupport.cpp \
+    formatsupports/psd/psdfileheadersection.cpp \
+    formatsupports/psd/psdbinarystream.cpp \
+    formatsupports/psd/psdcolormodedatasection.cpp \
+    formatsupports/psd/psdimageresourcesection.cpp \
+    formatsupports/psd/psdlayerandmaskinformationsection.cpp \
+    formatsupports/psd/psdimagesection.cpp \
+    formatsupports/psd/psdutils.cpp \
+    formatsupports/psd/psdimageload.cpp \
+    formatsupports/psd/psdimagesave.cpp
 
 TRANSLATIONS += extensions_ja.ts
