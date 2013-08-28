@@ -41,7 +41,7 @@ static void loadDataForChannel(Malachite::Image &image, const QByteArray &data, 
 		case 2:
 			return loadData<bpp, Malachite::Pixel::Index::B>(image, data);
 		default:
-			throw std::runtime_error("unsupported channel");
+			return;
 	}
 }
 
