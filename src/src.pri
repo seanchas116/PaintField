@@ -5,6 +5,9 @@ CONFIG(debug, debug|release) {
 	DEFINES += QT_DEBUG
 } else {
 	DEFINES += QT_NO_DEBUG
+	!contains(DEFINES, PF_DEBUG_OUTPUT) {
+		DEFINES += QT_NO_DEBUG_OUTPUT
+	}
 }
 
 contains(QMAKE_CXX, clang++) {
