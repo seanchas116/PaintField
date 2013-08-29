@@ -15,7 +15,7 @@ static void loadData(Malachite::Image &image, const QByteArray &data)
 	auto dataP = reinterpret_cast<const uint8_t *>(data.data());
 	int count = image.area();
 
-	if (count != data.size())
+	if (count * (bpp / 8) != data.size())
 		throw std::runtime_error("data size wrong");
 
 	while (count--)

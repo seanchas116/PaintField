@@ -7,7 +7,7 @@ namespace PaintField {
 
 class PsdBinaryStream;
 
-class PsdImageSection
+class PsdImageDataSection
 {
 public:
 

@@ -77,8 +77,8 @@ public:
 	template <typename T>
 	void markOffset()
 	{
-		m_offsetMarkPos.push(this->pos());
 		*this << T(0);
+		m_offsetMarkPos.push(this->pos());
 	}
 
 	template <typename T>
@@ -87,7 +87,7 @@ public:
 		auto markPos = m_offsetMarkPos.pop();
 		auto offset = this->pos() - markPos;
 		this->pushPos();
-		this->seek(markPos);
+		this->seek(markPos - sizeof(T));
 		*this << T(offset);
 		this->popPos();
 	}

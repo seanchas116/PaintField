@@ -1,10 +1,10 @@
 #include "psdbinarystream.h"
 
-#include "psdimagesection.h"
+#include "psdimagedatasection.h"
 
 namespace PaintField {
 
-void PsdImageSection::save(PsdBinaryStream &stream)
+void PsdImageDataSection::save(PsdBinaryStream &stream)
 {
 	stream << uint16_t(0);
 	stream.write(data);

@@ -53,10 +53,10 @@ HEADERS += aboutdialog/aboutdialog.h \
     formatsupports/psd/psdcolormodedatasection.h \
     formatsupports/psd/psdimageresourcesection.h \
     formatsupports/psd/psdlayerandmaskinformationsection.h \
-    formatsupports/psd/psdimagesection.h \
     formatsupports/psd/psdutils.h \
     formatsupports/psd/psdimageload.h \
-    formatsupports/psd/psdimagesave.h
+    formatsupports/psd/psdimagesave.h \
+    formatsupports/psd/psdimagedatasection.h
 FORMS += aboutdialog/aboutdialog.ui \
     formatsupports/jpegexportform.ui \
     formatsupports/pngexportform.ui
@@ -105,9 +105,9 @@ SOURCES += aboutdialog/aboutdialog.cpp \
     formatsupports/psd/psdcolormodedatasection.cpp \
     formatsupports/psd/psdimageresourcesection.cpp \
     formatsupports/psd/psdlayerandmaskinformationsection.cpp \
-    formatsupports/psd/psdimagesection.cpp \
     formatsupports/psd/psdutils.cpp \
     formatsupports/psd/psdimageload.cpp \
-    formatsupports/psd/psdimagesave.cpp
+    formatsupports/psd/psdimagesave.cpp \
+    formatsupports/psd/psdimagedatasection.cpp
 
 TRANSLATIONS += extensions_ja.ts

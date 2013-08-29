@@ -6,8 +6,17 @@ namespace PaintField {
 
 void PsdFileHeaderSection::load(PsdBinaryStream &stream)
 {
-	signature = stream.read(4);
+	auto signature = stream.read(4);
+
+	if (signature != "8BPS")
+		throw std::runtime_error("not a PSD file");
+
+	int16_t version;
 	stream >> version;
+
+	if (version != 1)
+		throw std::runtime_error("version error");
+
 	stream.move(6);
 	stream >> channelCount;
 	stream >> height;
@@ -15,7 +24,6 @@ void PsdFileHeaderSection::load(PsdBinaryStream &stream)
 	stream >> depth;
 	stream >> colorMode;
 
-	PAINTFIELD_DEBUG << "signature" << QString(signature);
 	PAINTFIELD_DEBUG << "channel count" << channelCount;
 	PAINTFIELD_DEBUG << "height" << height;
 	PAINTFIELD_DEBUG << "width" << width;
@@ -25,8 +33,8 @@ void PsdFileHeaderSection::load(PsdBinaryStream &stream)
 
 void PsdFileHeaderSection::save(PsdBinaryStream &stream) const
 {
-	stream.write(signature);
-	stream << version;
+	stream.write("8BPS");
+	stream << int16_t(1);
 	stream.write(QByteArray(6, 0));
 	stream << channelCount;
 	stream << height;

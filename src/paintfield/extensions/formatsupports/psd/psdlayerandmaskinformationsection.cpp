@@ -18,6 +18,8 @@ void PsdChannelData::load(PsdBinaryStream &stream, const QRect &rect, int depth,
 	uint16_t compression;
 	stream >> compression;
 
+	PAINTFIELD_DEBUG << "channel data size" << dataSize;
+
 	switch (compression)
 	{
 		case 0: // no compression
@@ -67,7 +69,7 @@ void PsdChannelData::load(PsdBinaryStream &stream, const QRect &rect, int depth,
 void PsdChannelData::save(PsdBinaryStream &stream) const
 {
 	// no compression
-	stream << 1;
+	stream << uint16_t(0);
 	stream.write(rawData);
 }
 
@@ -109,6 +111,9 @@ void PsdChannelInfo::load(PsdBinaryStream &stream)
 	PAINTFIELD_DEBUG << "id" << id;
 	stream >> length;
 	PAINTFIELD_DEBUG << "length" << length;
+
+	if (id < -3 || 3 < id)
+		throw std::runtime_error("invalid channel id");
 }
 
 void PsdChannelInfo::save(PsdBinaryStream &stream) const
@@ -135,7 +140,6 @@ void PsdLayerRecord::load(PsdBinaryStream &stream)
 		PsdChannelInfo info;
 		info.load(stream);
 		channelInfos << info;
-		PAINTFIELD_DEBUG << "channel id" << info.id << "length" << info.length;
 	}
 
 	auto blendModeSignature = stream.read(4);
@@ -260,9 +264,10 @@ void PsdLayerInfo::load(PsdBinaryStream &stream, int depth)
 {
 	uint32_t length;
 	stream >> length;
+	PAINTFIELD_DEBUG << length;
+
 	int16_t signedLayerCount;
 	stream >> signedLayerCount;
-
 	PAINTFIELD_DEBUG << signedLayerCount;
 
 	int layerCount = abs(signedLayerCount);
@@ -304,6 +309,7 @@ void PsdLayerInfo::save(PsdBinaryStream &stream) const
 
 	for (const auto &layerRecord : layerRecords)
 	{
+		Q_ASSERT(layerRecord->channelDatas.size() == layerRecord->channelInfos.size());
 		for (const auto &channelData : layerRecord->channelDatas)
 		{
 			channelData->save(stream);
@@ -315,6 +321,13 @@ void PsdLayerInfo::save(PsdBinaryStream &stream) const
 
 struct PsdGlobalLayerMaskInfo
 {
+	void load(PsdBinaryStream &stream)
+	{
+		uint32_t length;
+		stream >> length;
+		PAINTFIELD_DEBUG << "length" << length;
+	}
+
 	void save(PsdBinaryStream &stream)
 	{
 		stream << uint32_t(0);
@@ -329,6 +342,9 @@ void PsdLayerAndMaskInformationSection::load(PsdBinaryStream &stream, int depth)
 	PAINTFIELD_DEBUG << "length" << length;
 
 	layerInfo.load(stream, depth);
+
+	PsdGlobalLayerMaskInfo globalLayerMaskInfo;
+	globalLayerMaskInfo.load(stream);
 }
 
 void PsdLayerAndMaskInformationSection::save(PsdBinaryStream &stream) const

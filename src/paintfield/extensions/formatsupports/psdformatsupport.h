@@ -13,7 +13,7 @@ public:
 	QStringList suffixes() const override { return { "psd" }; }
 	QString name() const override { return "paintfield.format.psd"; }
 	bool canRead() const override { return true; }
-	bool canWrite() const override { return false; }
+	bool canWrite() const override { return true; }
 	
 	Capabilities capabilities() const override { return CapabilityAll; }
 	

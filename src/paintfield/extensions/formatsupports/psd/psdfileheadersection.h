@@ -14,8 +14,6 @@ public:
 	void load(PsdBinaryStream &stream);
 	void save(PsdBinaryStream &stream) const;
 
-	QByteArray signature = "8BPS";
-	int16_t version = 1;
 	int16_t channelCount = 4;
 	int32_t height = 1;
 	int32_t width = 1;

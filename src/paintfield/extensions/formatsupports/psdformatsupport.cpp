@@ -7,13 +7,14 @@
 #include <boost/range/adaptor/reversed.hpp>
 #include "paintfield/core/rasterlayer.h"
 #include "paintfield/core/grouplayer.h"
+#include "paintfield/core/layerrenderer.h"
 
 #include "psd/psdbinarystream.h"
 #include "psd/psdfileheadersection.h"
 #include "psd/psdcolormodedatasection.h"
 #include "psd/psdimageresourcesection.h"
 #include "psd/psdlayerandmaskinformationsection.h"
-#include "psd/psdimagesection.h"
+#include "psd/psdimagedatasection.h"
 #include "psd/psdimageload.h"
 #include "psd/psdimagesave.h"
 #include "psd/psdutils.h"
@@ -107,7 +108,7 @@ bool PsdFormatSupport::read(QIODevice *device, QList<LayerRef> *layers, QSize *s
 				case (int)PsdLayerRecord::SectionType::BoundingSectionDivider:
 				{
 					if (parentStack.size() <= 1)
-						throw std::runtime_error("too many close folder");
+						throw std::runtime_error("too many end of folder");
 					auto group = parentStack.pop();
 					parentStack.top()->append(group);
 					break;
@@ -128,10 +129,12 @@ bool PsdFormatSupport::read(QIODevice *device, QList<LayerRef> *layers, QSize *s
 	}
 }
 
-static void writeLayers(QList<Ref<PsdLayerRecord>> &layerRecords, const QList<LayerConstRef> &layers)
+static void writeLayers(QList<Ref<PsdLayerRecord>> &layerRecords, const QList<LayerConstRef> &layers, int bpp)
 {
+
+
 	// does not set section type
-	auto writeLayer = [](const LayerConstRef &layer)
+	auto writeLayer = [bpp](const LayerConstRef &layer)
 	{
 		auto record = std::make_shared<PsdLayerRecord>();
 
@@ -141,11 +144,15 @@ static void writeLayers(QList<Ref<PsdLayerRecord>> &layerRecords, const QList<La
 			auto surface = rasterLayer->surface();
 			QRect rect = surface.boundingRect();
 
-			PsdImageSave::save(surface.crop(rect), record->channelDatas, record->channelInfos);
+			PsdImageSave::save(surface.crop(rect), record->channelDatas, record->channelInfos, bpp);
 			record->rectTop = rect.top();
 			record->rectBottom = rect.top() + rect.height();
 			record->rectLeft = rect.left();
 			record->rectRight = rect.left() + rect.width();
+		}
+		else
+		{
+			PsdImageSave::saveEmpty(record->channelDatas, record->channelInfos);
 		}
 
 		record->blendModeKey = PsdUtils::encodeBlendMode(layer->blendMode());
@@ -170,24 +177,25 @@ static void writeLayers(QList<Ref<PsdLayerRecord>> &layerRecords, const QList<La
 		if (layer->isType<GroupLayer>())
 		{
 			record->sectionType = (int)PsdLayerRecord::SectionType::OpenFolder;
-			layerRecords << record;
+			layerRecords.prepend(record);
 
-			writeLayers(layerRecords, layer->children());
+			writeLayers(layerRecords, layer->children(), bpp);
 
 			auto endGroup = std::make_shared<PsdLayerRecord>();
 			endGroup->sectionType = (int)PsdLayerRecord::SectionType::BoundingSectionDivider;
-			layerRecords << endGroup;
+			PsdImageSave::saveEmpty(endGroup->channelDatas, endGroup->channelInfos);
+
+			layerRecords.prepend(endGroup);
 		}
 		else
 		{
-			layerRecords << record;
+			layerRecords.prepend(record);
 		}
 	}
 }
 
 bool PsdFormatSupport::write(QIODevice *device, const QList<LayerConstRef> &layers, const QSize &size, const QVariant &option)
 {
-	/*
 	try
 	{
 		PsdBinaryStream stream(device);
@@ -195,6 +203,7 @@ bool PsdFormatSupport::write(QIODevice *device, const QList<LayerConstRef> &laye
 		PsdFileHeaderSection header;
 		header.width = size.width();
 		header.height = size.height();
+		header.depth = 8;
 		header.save(stream);
 		
 		PsdColorModeDataSection colorData;
@@ -204,8 +213,16 @@ bool PsdFormatSupport::write(QIODevice *device, const QList<LayerConstRef> &laye
 		resource.save(stream);
 		
 		PsdLayerAndMaskInformationSection layerSection;
-		writeLayers(layerSection.layerInfo.layerRecords, layers);
+		writeLayers(layerSection.layerInfo.layerRecords, layers, header.depth);
 		layerSection.save(stream);
+
+		PsdImageDataSection imageDataSection;
+		LayerRenderer renderer;
+		QRect rect(QPoint(), size);
+		auto merged = renderer.renderToSurface(layers, Malachite::Surface::rectToKeys(rect));
+		imageDataSection.data = PsdImageSave::saveAsImageData(merged.crop(rect), header.depth);
+
+		imageDataSection.save(stream);
 		
 		return true;
 	}
@@ -213,7 +230,7 @@ bool PsdFormatSupport::write(QIODevice *device, const QList<LayerConstRef> &laye
 	{
 		PAINTFIELD_WARNING << error.what();
 		return false;
-	}*/
+	}
 	return false;
 }
 
