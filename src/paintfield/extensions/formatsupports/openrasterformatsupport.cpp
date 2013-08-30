@@ -317,26 +317,51 @@ bool OpenRasterFormatSupport::write(QIODevice *device, const QList<LayerConstRef
 			}
 		}
 		
-		// thumbnail
+		// thumbnail and merged image
 		{
 			LayerRenderer renderer;
 			auto surface = renderer.renderToSurface(layers);
-			auto image = surface.crop(QRect(QPoint(), size)).toImageU8().wrapInQImage();
-			auto scaledImage = image.scaled(256, 256, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-			
-			QByteArray data;
-			
+
+			auto image = surface.crop(QRect(QPoint(), size));
+
+			// merged image
 			{
-				QBuffer buffer(&data);
-				buffer.open(QIODevice::WriteOnly);
-				scaledImage.save(&buffer, "PNG");
+				QByteArray data;
+				Malachite::ImageWriter writer("png");
+				writer.setImage(image);
+
+				{
+					QBuffer buffer(&data);
+					buffer.open(QIODevice::WriteOnly);
+					writer.write(&buffer);
+				}
+
+				ZipFile file(&archive, "mergedimage.png");
+				if (!file.open())
+					throw std::runtime_error("cannot open mergedimage.png");
+
+				file.write(data);
 			}
-			
-			ZipFile file(&archive, "Thumbnails/thumbnail.png");
-			if (!file.open())
-				throw std::runtime_error("cannot open thumbnail.png");
-			
-			file.write(data);
+
+			// thumbnail
+			{
+				auto qimage = surface.crop(QRect(QPoint(), size)).toImageU8().wrapInQImage();
+				auto scaledImage = qimage.scaled(256, 256, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+
+				QByteArray data;
+
+				{
+					QBuffer buffer(&data);
+					buffer.open(QIODevice::WriteOnly);
+					scaledImage.save(&buffer, "PNG");
+				}
+
+				ZipFile file(&archive, "Thumbnails/thumbnail.png");
+				if (!file.open())
+					throw std::runtime_error("cannot open thumbnail.png");
+
+				file.write(data);
+			}
 		}
 	}
 	catch (const std::runtime_error &error)
