@@ -77,10 +77,11 @@ template <int channel, int bpp>
 static void addChannel(const Malachite::Image &image, QVector<Ref<PsdChannelData>> &channelDatas, QVector<PsdChannelInfo> &channelInfos)
 {
 	auto data = writeChannel<channel, bpp>(image);
+	channelDatas << data;
+
 	PsdChannelInfo info;
 	info.id = psdChannel(channel);
 	info.length = data->rawData.size() + 2;
-	channelDatas << data;
 	channelInfos << info;
 }
 
@@ -97,10 +98,6 @@ static void addChannels(const Malachite::Image &image, QVector<Ref<PsdChannelDat
 void save(Malachite::Image &&image, QVector<Ref<PsdChannelData>> &channelDatas, QVector<PsdChannelInfo> &channelInfos, int bpp)
 {
 	int pixelCount = image.area();
-	int dataSize = pixelCount * 4 * 2;
-
-	QByteArray data;
-	data.reserve(dataSize);
 
 	{
 		auto p = image.bits();
@@ -150,6 +147,7 @@ QByteArray saveAsImageData(Malachite::Image &&image, int bpp)
 	save(std::move(image), channelDatas, channelInfos, bpp);
 
 	QByteArray data;
+	data.reserve(channelDatas[0]->rawData.size() * 4);
 	data += channelDatas[1]->rawData;
 	data += channelDatas[2]->rawData;
 	data += channelDatas[3]->rawData;

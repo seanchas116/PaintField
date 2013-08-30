@@ -131,8 +131,6 @@ bool PsdFormatSupport::read(QIODevice *device, QList<LayerRef> *layers, QSize *s
 
 static void writeLayers(QList<Ref<PsdLayerRecord>> &layerRecords, const QList<LayerConstRef> &layers, int bpp)
 {
-
-
 	// does not set section type
 	auto writeLayer = [bpp](const LayerConstRef &layer)
 	{
@@ -196,6 +194,8 @@ static void writeLayers(QList<Ref<PsdLayerRecord>> &layerRecords, const QList<La
 
 bool PsdFormatSupport::write(QIODevice *device, const QList<LayerConstRef> &layers, const QSize &size, const QVariant &option)
 {
+	Q_UNUSED(option);
+
 	try
 	{
 		PsdBinaryStream stream(device);
@@ -217,10 +217,12 @@ bool PsdFormatSupport::write(QIODevice *device, const QList<LayerConstRef> &laye
 		layerSection.save(stream);
 
 		PsdImageDataSection imageDataSection;
-		LayerRenderer renderer;
-		QRect rect(QPoint(), size);
-		auto merged = renderer.renderToSurface(layers, Malachite::Surface::rectToKeys(rect));
-		imageDataSection.data = PsdImageSave::saveAsImageData(merged.crop(rect), header.depth);
+		{
+			LayerRenderer renderer;
+			QRect rect(QPoint(), size);
+			auto merged = renderer.renderToSurface(layers, Malachite::Surface::rectToKeys(rect));
+			imageDataSection.data = PsdImageSave::saveAsImageData(merged.crop(rect), header.depth);
+		}
 
 		imageDataSection.save(stream);
 		
