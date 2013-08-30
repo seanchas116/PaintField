@@ -59,9 +59,9 @@ v	Shapes
 v	Save & load documents
 v	Image file import
 v	Image file export
-	PSD file import
-	PSD file export
-	ORA file import
-	ORA file export
+v	PSD file import
+v	PSD file export
+v	ORA file import
+v	ORA file export
 	Print documents
 	Scan images
