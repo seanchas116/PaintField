@@ -114,6 +114,11 @@ void CanvasViewportController::moveViewport(const QRect &rect, bool visible)
 	d->viewportWrapper.moveViewport(rect, visible);
 }
 
+CanvasViewportSurface CanvasViewportController::mergedSurface() const
+{
+	return d->state.mipmap.topLevelSurface();
+}
+
 void CanvasViewportController::setTransforms(const Ref<const CanvasTransforms> &transforms)
 {
 	d->state.mipmap.setCurrentLevel(transforms->mipmapLevel);

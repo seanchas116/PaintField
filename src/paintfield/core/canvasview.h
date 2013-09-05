@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <Malachite/Surface>
 #include <Malachite/Affine2D>
+#include "canvasviewportsurface.h"
 
 namespace PaintField {
 
@@ -64,6 +65,8 @@ public:
 	QSize viewSize();
 	
 	QWidget *viewport();
+
+	CanvasViewportSurface mergedSurface() const;
 	
 signals:
 	

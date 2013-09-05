@@ -279,6 +279,11 @@ QWidget *CanvasViewController::viewport()
 	return d->viewportController->viewport();
 }
 
+CanvasViewportSurface CanvasViewController::mergedSurface() const
+{
+	return d->viewportController->mergedSurface();
+}
+
 void CanvasViewController::setUpdateTilesEnabled(bool enable)
 {
 	d->updateEnabled = enable;

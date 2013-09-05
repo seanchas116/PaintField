@@ -33,7 +33,6 @@ HEADERS += aboutdialog/aboutdialog.h \
            layerui/layeruiextension.h \
            movetool/layermovetool.h \
            movetool/layermovetoolextension.h \
-           navigator/navigatorcontroller.h \
            navigator/navigatorextension.h \
            navigator/navigatorview.h \
            toolui/tooluiextension.h \
@@ -56,7 +55,8 @@ HEADERS += aboutdialog/aboutdialog.h \
     formatsupports/psd/psdutils.h \
     formatsupports/psd/psdimageload.h \
     formatsupports/psd/psdimagesave.h \
-    formatsupports/psd/psdimagedatasection.h
+    formatsupports/psd/psdimagedatasection.h \
+    navigator/minimapview.h
 FORMS += aboutdialog/aboutdialog.ui \
     formatsupports/jpegexportform.ui \
     formatsupports/pngexportform.ui
@@ -85,7 +85,6 @@ SOURCES += aboutdialog/aboutdialog.cpp \
            layerui/layeruiextension.cpp \
            movetool/layermovetool.cpp \
            movetool/layermovetoolextension.cpp \
-           navigator/navigatorcontroller.cpp \
            navigator/navigatorextension.cpp \
            navigator/navigatorview.cpp \
            toolui/tooluiextension.cpp \
@@ -108,6 +107,7 @@ SOURCES += aboutdialog/aboutdialog.cpp \
     formatsupports/psd/psdutils.cpp \
     formatsupports/psd/psdimageload.cpp \
     formatsupports/psd/psdimagesave.cpp \
-    formatsupports/psd/psdimagedatasection.cpp
+    formatsupports/psd/psdimagedatasection.cpp \
+    navigator/minimapview.cpp
 
 TRANSLATIONS += extensions_ja.ts

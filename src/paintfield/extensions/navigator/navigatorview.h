@@ -5,12 +5,14 @@
 
 namespace PaintField {
 
+class Canvas;
+
 class NavigatorView : public QWidget
 {
 	Q_OBJECT
 	
 public:
-	explicit NavigatorView(QWidget *parent = 0);
+	explicit NavigatorView(Canvas *canvas, QWidget *parent = 0);
 	
 	/**
 	 * @return Scale
@@ -85,18 +87,18 @@ private slots:
 	
 private:
 	
-	double scaleMin() const { return ::exp2(_scaleLogMin); }
-	double scaleMax() const { return ::exp2(_scaleLogMax); }
+	double scaleMin() const { return std::exp2(_scaleLogMin); }
+	double scaleMax() const { return std::exp2(_scaleLogMax); }
 	
-	int zoomLevel() const { return qRound(::log2(_scale) / _scaleLogStep); }
-	void setZoomLevel(int x) { setViewScale(::exp2(x * _scaleLogStep)); }
+	int zoomLevel() const { return qRound(std::log2(_scale) / _scaleLogStep); }
+	void setZoomLevel(int x) { setViewScale(std::exp2(x * _scaleLogStep)); }
 	
 	int rotationLevel() const { return qRound(_rotationD / _rotationDStep); }
 	void setRotationLevel(int x) { setViewRotation(x * _rotationDStep); }
 	
 	QLayout *createScaleRotationUILayout();
 	QLayout *createMiscUILayout();
-	void createWidgets();
+	void createWidgets(Canvas *canvas);
 	
 	void setOriginalValues();
 	

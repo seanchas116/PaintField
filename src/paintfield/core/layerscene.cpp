@@ -550,6 +550,7 @@ struct LayerScene::Data
 	Ref<GroupLayer> rootLayer;
 	Document *document = 0;
 	QPointSet updatedKeys;
+	QPointSet thumbnailDirtyKeys;
 	
 	QTimer *thumbnailUpdateTimer = 0;
 	
@@ -894,6 +895,7 @@ void LayerScene::update()
 {
 	PAINTFIELD_DEBUG << d->updatedKeys;
 	emit tilesUpdated(d->updatedKeys);
+	d->thumbnailDirtyKeys = d->updatedKeys;
 	d->thumbnailUpdateTimer->start();
 	d->updatedKeys.clear();
 }
@@ -919,7 +921,7 @@ void LayerScene::enqueueTileUpdate(const QPointSet &keys)
 void LayerScene::updateDirtyThumbnails()
 {
 	d->rootLayer->updateDirtyThumbnailRecursive(d->document->size());
-	emit thumbnailsUpdated();
+	emit thumbnailsUpdated(d->thumbnailDirtyKeys);
 }
 
 LayerRef LayerScene::mutableRootLayer()

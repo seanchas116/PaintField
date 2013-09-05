@@ -16,7 +16,8 @@ public:
 	
 	void replace(const Malachite::ImageU8 &image, const QPoint &key, const QRect &rect);
 	
-	CanvasViewportSurface surface();
+	CanvasViewportSurface surface() const;
+	CanvasViewportSurface topLevelSurface() const;
 	
 private:
 	

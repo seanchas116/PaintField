@@ -142,11 +142,16 @@ void CanvasViewportMipmap::update(int maxLevel)
 	}
 }
 
-CanvasViewportSurface CanvasViewportMipmap::surface()
+CanvasViewportSurface CanvasViewportMipmap::surface() const
 {
 	Q_ASSERT(_surfaces.size() > _currentLevel);
 	
 	return _surfaces.at(_currentLevel);
+}
+
+CanvasViewportSurface CanvasViewportMipmap::topLevelSurface() const
+{
+	return _surfaces.at(0);
 }
 
 void CanvasViewportMipmap::extendSurfaceVector(int max)

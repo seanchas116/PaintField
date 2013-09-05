@@ -12,6 +12,9 @@
 #include "paintfield/core/widgets/looseslider.h"
 #include "paintfield/core/widgets/loosespinbox.h"
 #include "paintfield/core/signalconverter.h"
+#include "paintfield/core/canvas.h"
+
+#include "minimapview.h"
 
 #include "navigatorview.h"
 
@@ -19,11 +22,38 @@ using namespace Malachite;
 
 namespace PaintField {
 
-NavigatorView::NavigatorView(QWidget *parent) :
+NavigatorView::NavigatorView(Canvas *canvas, QWidget *parent) :
     QWidget(parent)
 {
 	connect(this, SIGNAL(translationChanged(QPoint)), this, SLOT(onTranslationChanged(QPoint)));
-	createWidgets();
+	this->createWidgets(canvas);
+
+	if (canvas)
+	{
+		connect(this, SIGNAL(scaleChanged(double)), canvas, SLOT(setScale(double)));
+		connect(canvas, SIGNAL(scaleChanged(double)), this, SLOT(setScale(double)));
+
+		connect(this, SIGNAL(rotationChanged(double)), canvas, SLOT(setRotation(double)));
+		connect(canvas, SIGNAL(rotationChanged(double)), this, SLOT(setRotation(double)));
+
+		connect(this, SIGNAL(translationChanged(QPoint)), canvas, SLOT(setTranslation(QPoint)));
+		connect(canvas, SIGNAL(translationChanged(QPoint)), this, SLOT(setTranslation(QPoint)));
+
+		connect(this, SIGNAL(mirroringEnabledChanged(bool)), canvas, SLOT(setMirrored(bool)));
+		connect(canvas, SIGNAL(mirroredChanged(bool)), this, SLOT(setMirroringEnabled(bool)));
+
+		connect(this, SIGNAL(retinaModeChanged(bool)), canvas, SLOT(setRetinaMode(bool)));
+		connect(canvas, SIGNAL(retinaModeChanged(bool)), this, SLOT(setRetinaMode(bool)));
+
+		this->setTranslation(canvas->translation());
+		this->setScale(canvas->scale());
+		this->setRotation(canvas->rotation());
+		this->setMirroringEnabled(canvas->isMirrored());
+	}
+	else
+	{
+		this->setEnabled(false);
+	}
 }
 
 void NavigatorView::setScale(double scale)
@@ -124,9 +154,10 @@ void NavigatorView::onTranslationChanged(const QPoint &translation)
 	emit translationYChanged(translation.y());
 }
 
-void NavigatorView::createWidgets()
+void NavigatorView::createWidgets(Canvas *canvas)
 {
 	auto mainLayout = new QVBoxLayout;
+	mainLayout->addWidget(new MinimapView(canvas));
 	mainLayout->addLayout(createScaleRotationUILayout());
 	mainLayout->addLayout(createMiscUILayout());
 	

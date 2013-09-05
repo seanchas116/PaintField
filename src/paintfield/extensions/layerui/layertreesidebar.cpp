@@ -126,7 +126,7 @@ void LayerTreeSidebar::createForms()
 		{
 			view->setModel(d->document->layerScene()->itemModel());
 			view->setSelectionModel(d->document->layerScene()->itemSelectionModel());
-			connect(d->document->layerScene(), SIGNAL(thumbnailsUpdated()), view, SLOT(update()));
+			connect(d->document->layerScene(), SIGNAL(thumbnailsUpdated(QPointSet)), view, SLOT(update()));
 		}
 		
 		view->setContextMenuPolicy(Qt::CustomContextMenu);

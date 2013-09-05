@@ -2,6 +2,7 @@
 
 #include <QObject>
 #include "canvas.h"
+#include "canvasviewportsurface.h"
 
 /*
 #if defined(Q_OS_MAC) && !defined(PF_FORCE_RASTER_ENGINE)
@@ -36,6 +37,8 @@ public:
 	
 	void placeViewport(QWidget *window);
 	void moveViewport(const QRect &rect, bool visible);
+
+	CanvasViewportSurface mergedSurface() const;
 	
 signals:
 	

@@ -3,7 +3,7 @@
 #include "paintfield/core/appcontroller.h"
 #include "paintfield/core/canvas.h"
 #include "paintfield/core/settingsmanager.h"
-#include "navigatorcontroller.h"
+#include "navigatorview.h"
 
 #include "navigatorextension.h"
 
@@ -15,8 +15,8 @@ static const QString _navigatorSidebarName = "paintfield.sidebar.navigator";
 NavigatorExtension::NavigatorExtension(Canvas *canvas, QObject *parent) :
     CanvasExtension(canvas, parent)
 {
-	auto controller = new NavigatorController(canvas, this);
-	addSideBar(_navigatorSidebarName, controller->view());
+	auto view = new NavigatorView(canvas);
+	addSideBar(_navigatorSidebarName, view);
 }
 
 void NavigatorExtensionFactory::initialize(AppController *app)

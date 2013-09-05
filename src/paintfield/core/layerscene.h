@@ -63,7 +63,7 @@ signals:
 	void layerChanged(const LayerConstRef &layer);
 	
 	void tilesUpdated(const QPointSet &tileKeys);
-	void thumbnailsUpdated();
+	void thumbnailsUpdated(const QPointSet &updatedKeys);
 	
 	void currentChanged(const LayerConstRef &now, const LayerConstRef &old);
 	void selectionChanged(const QList<LayerConstRef> &selected, const QList<LayerConstRef> &deselected);
