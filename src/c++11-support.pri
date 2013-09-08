@@ -10,7 +10,7 @@ cxx_clang = $$find(QMAKE_CXX, "clang")
 
 !isEmpty(cxx_clang) {
 	
-	message("using clang")
+	#message("using clang")
 	
 	mac {
 		QMAKE_CXXFLAGS += -stdlib=libc++
