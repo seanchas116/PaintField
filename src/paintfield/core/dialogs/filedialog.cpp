@@ -7,27 +7,27 @@
 
 namespace PaintField {
 
-QString FileDialog::getFilePath(QWidget *parent, const QString &title, Mode mode, const QHash<QString, QStringList> &filterTextToSuffixes)
+QString FileDialog::getFilePath(QWidget *parent, const QString &title, Mode mode, const QList<QPair<QString, QStringList>> &filterTextAndSuffixesList)
 {
 	QString lastDialogPath = appController()->settingsManager()->lastFileDialogPath();
 	
 	QStringList filters;
-	
-	for (auto iter = filterTextToSuffixes.begin(); iter != filterTextToSuffixes.end(); ++iter)
+
+	for (const auto &textAndSuffixes : filterTextAndSuffixesList)
 	{
-		QString filter = iter.key();
-		
-		if (iter.value().size())
+		QString filter = textAndSuffixes.first;
+
+		if (textAndSuffixes.second.size())
 		{
 			filter += " (";
-			for (auto suffix : iter.value())
+			for (auto suffix : textAndSuffixes.second)
 			{
 				filter = filter + "*." + suffix + " ";
 			}
 			filter.chop(1);
 			filter += ")";
 		}
-		
+
 		filters << filter;
 	}
 	
@@ -49,7 +49,7 @@ QString FileDialog::getFilePath(QWidget *parent, const QString &title, Mode mode
 			fileDialog.setAcceptMode(QFileDialog::AcceptSave);
 			fileDialog.setConfirmOverwrite(true);
 			fileDialog.setFileMode(QFileDialog::AnyFile);
-			fileDialog.setDefaultSuffix(filterTextToSuffixes.constBegin()->first());
+			fileDialog.setDefaultSuffix(filterTextAndSuffixesList.first().second.first());
 			break;
 	}
 	
@@ -65,10 +65,7 @@ QString FileDialog::getFilePath(QWidget *parent, const QString &title, Mode mode
 
 QString FileDialog::getFilePath(QWidget *parent, const QString &title, Mode mode, const QString &filterText, const QStringList &filterSuffixes)
 {
-	QHash<QString, QStringList> filterHash;
-	filterHash[filterText] = filterSuffixes;
-	
-	return getFilePath(parent, title, mode, filterHash);
+	return getFilePath(parent, title, mode, { QPair<QString, QStringList>(filterText, filterSuffixes) });
 }
 
 QString FileDialog::getOpenFilePath(QWidget *parent, const QString &title, const QString &filterText, const QStringList &filterSuffixes)

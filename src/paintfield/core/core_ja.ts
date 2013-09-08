@@ -14,9 +14,14 @@
         <translation>新規作成...</translation>
     </message>
     <message>
-        <location filename="appcontroller.cpp" line="201"/>
         <source>New from Image File...</source>
-        <translation>画像ファイルから新規作成...</translation>
+        <translation type="obsolete">画像ファイルから新規作成...</translation>
+    </message>
+    <message>
+        <location filename="appcontroller.cpp" line="201"/>
+        <source>Import and New...</source>
+        <oldsource>Import and new...</oldsource>
+        <translation>読み込んで新規作成...</translation>
     </message>
     <message>
         <location filename="appcontroller.cpp" line="204"/>
@@ -258,78 +263,80 @@
 <context>
     <name>PaintField::DocumentController</name>
     <message>
-        <location filename="documentcontroller.cpp" line="40"/>
+        <location filename="documentcontroller.cpp" line="35"/>
         <source>New Layer</source>
         <oldsource>Untitled Layer</oldsource>
         <translation>新規レイヤー</translation>
     </message>
     <message>
-        <location filename="documentcontroller.cpp" line="41"/>
+        <location filename="documentcontroller.cpp" line="36"/>
         <source>Untitled</source>
         <translation>名称未設定</translation>
     </message>
     <message>
         <location filename="documentcontroller.cpp" line="26"/>
-        <location filename="documentcontroller.cpp" line="31"/>
         <source>Open</source>
         <translation>開く</translation>
     </message>
     <message>
-        <location filename="documentcontroller.cpp" line="31"/>
-        <location filename="documentcontroller.cpp" line="126"/>
+        <location filename="documentcontroller.cpp" line="26"/>
         <source>PaintField Document</source>
         <translation>PaintField 書類</translation>
     </message>
     <message>
-        <location filename="documentcontroller.cpp" line="51"/>
-        <location filename="documentcontroller.cpp" line="52"/>
+        <location filename="documentcontroller.cpp" line="46"/>
+        <location filename="documentcontroller.cpp" line="47"/>
         <source>Clipboard</source>
         <translation>クリップボード</translation>
     </message>
     <message>
-        <location filename="documentcontroller.cpp" line="26"/>
+        <location filename="documentcontroller.cpp" line="58"/>
+        <source>Import</source>
+        <translation>読み込み</translation>
+    </message>
+    <message>
+        <location filename="documentcontroller.cpp" line="59"/>
+        <source>Any files</source>
+        <translation>全てのファイル</translation>
+    </message>
+    <message>
         <source>Image File</source>
-        <translation>画像ファイル</translation>
+        <translation type="obsolete">画像ファイル</translation>
     </message>
     <message>
-        <location filename="documentcontroller.cpp" line="73"/>
-        <location filename="documentcontroller.cpp" line="92"/>
         <source>Failed to open file.</source>
-        <translation>ファイルを開くのに失敗しました。</translation>
+        <translation type="obsolete">ファイルを開くのに失敗しました。</translation>
     </message>
     <message>
-        <location filename="documentcontroller.cpp" line="106"/>
+        <location filename="documentcontroller.cpp" line="134"/>
         <source>Do you want to save your changes on &quot;%1&quot;?</source>
         <translation>&quot;%1&quot; に加えられた変更を保存しますか？</translation>
     </message>
     <message>
-        <location filename="documentcontroller.cpp" line="107"/>
+        <location filename="documentcontroller.cpp" line="135"/>
         <source>The changes will be lost if you don&apos;t save them.</source>
         <translation>保存しないと変更は失われます。</translation>
     </message>
     <message>
-        <location filename="documentcontroller.cpp" line="126"/>
+        <location filename="documentcontroller.cpp" line="156"/>
         <source>Save As</source>
         <translation>別名で保存</translation>
     </message>
     <message>
-        <location filename="documentcontroller.cpp" line="136"/>
         <source>The specified folder is not writable.</source>
-        <translation>指定されたフォルダは書き込み不可です。</translation>
+        <translation type="obsolete">指定されたフォルダは書き込み不可です。</translation>
     </message>
     <message>
-        <location filename="documentcontroller.cpp" line="136"/>
         <source>Save in another folder.</source>
-        <translation>別のフォルダに保存して下さい。</translation>
+        <translation type="obsolete">別のフォルダに保存して下さい。</translation>
     </message>
     <message>
-        <location filename="documentcontroller.cpp" line="144"/>
-        <location filename="documentcontroller.cpp" line="161"/>
+        <location filename="documentcontroller.cpp" line="181"/>
         <source>Failed to save file.</source>
         <translation>保存に失敗しました。</translation>
     </message>
     <message>
-        <location filename="documentcontroller.cpp" line="202"/>
+        <location filename="documentcontroller.cpp" line="194"/>
         <source>Export</source>
         <translation>書き出す</translation>
     </message>
@@ -392,22 +399,28 @@
 <context>
     <name>PaintField::FormatSupport</name>
     <message>
-        <location filename="formatsupport.cpp" line="120"/>
+        <location filename="formatsupport.cpp" line="69"/>
+        <source>[None]</source>
+        <translatorcomment>[なし]</translatorcomment>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="formatsupport.cpp" line="122"/>
         <source>Failed to read file.</source>
         <translation>ファイルの読み込みに失敗しました。</translation>
     </message>
     <message>
-        <location filename="formatsupport.cpp" line="161"/>
+        <location filename="formatsupport.cpp" line="166"/>
         <source>The specified folder is not writable.</source>
         <translation>指定されたフォルダは書き込み不可です。</translation>
     </message>
     <message>
-        <location filename="formatsupport.cpp" line="161"/>
+        <location filename="formatsupport.cpp" line="166"/>
         <source>Save in another folder.</source>
         <translation>別のフォルダに保存して下さい。</translation>
     </message>
     <message>
-        <location filename="formatsupport.cpp" line="170"/>
+        <location filename="formatsupport.cpp" line="175"/>
         <source>Failed to write file.</source>
         <translation>ファイルの書き込みに失敗しました。</translation>
     </message>
@@ -423,38 +436,38 @@
 <context>
     <name>PaintField::LayerScene</name>
     <message>
-        <location filename="layerscene.cpp" line="693"/>
+        <location filename="layerscene.cpp" line="694"/>
         <source>Remove Layers</source>
         <translation>レイヤーを削除</translation>
     </message>
     <message>
-        <location filename="layerscene.cpp" line="711"/>
-        <location filename="layerscene.cpp" line="737"/>
+        <location filename="layerscene.cpp" line="712"/>
+        <location filename="layerscene.cpp" line="738"/>
         <source>Move Layers</source>
         <translation>レイヤーを移動</translation>
     </message>
     <message>
-        <location filename="layerscene.cpp" line="766"/>
+        <location filename="layerscene.cpp" line="767"/>
         <source>Merge Layers</source>
         <translation>レイヤーを統合</translation>
     </message>
     <message>
-        <location filename="layerscene.cpp" line="813"/>
+        <location filename="layerscene.cpp" line="816"/>
         <source>Rename Layer</source>
         <translation>レイヤーの名前を変更</translation>
     </message>
     <message>
-        <location filename="layerscene.cpp" line="816"/>
+        <location filename="layerscene.cpp" line="819"/>
         <source>Change visibility</source>
         <translation>表示・非表示を変更</translation>
     </message>
     <message>
-        <location filename="layerscene.cpp" line="819"/>
+        <location filename="layerscene.cpp" line="822"/>
         <source>Change Blend Mode</source>
         <translation>ブレンドモードを変更</translation>
     </message>
     <message>
-        <location filename="layerscene.cpp" line="822"/>
+        <location filename="layerscene.cpp" line="825"/>
         <source>Change Opacity</source>
         <translation>不透明度を変更</translation>
     </message>
@@ -480,6 +493,14 @@
         <location filename="dialogs/newdocumentdialog.cpp" line="48"/>
         <source>Keep Aspect Ratio</source>
         <translation>縦横比を保持</translation>
+    </message>
+</context>
+<context>
+    <name>PaintField::PaintFieldFormatSupport</name>
+    <message>
+        <location filename="paintfieldformatsupport.cpp" line="14"/>
+        <source>PaintField Document</source>
+        <translation>PaintField 書類</translation>
     </message>
 </context>
 <context>

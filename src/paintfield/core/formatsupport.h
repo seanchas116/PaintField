@@ -22,7 +22,7 @@ public:
 	Q_DECLARE_FLAGS(Capabilities, Capability)
 	
 	static bool importFromFile(const QString &filepath, const QList<FormatSupport *> &formatSupports, QList<LayerRef> *layers, QSize *size, QString *name = 0);
-	static bool importFromFileDialog(QWidget *parent, const QString &dialogTitle, const QList<FormatSupport *> &formatSupports, QList<LayerRef> *layers, QSize *size, QString *name = 0, QString *path = 0);
+	static bool importFromFileDialog(QWidget *parent, const QString &dialogTitle, const QString &anyNameFilterText, const QList<FormatSupport *> &formatSupports, QList<LayerRef> *layers, QSize *size, QString *name = 0, QString *path = 0);
 	static bool exportToFile(const QString &filepath, FormatSupport *formatSupport, const QList<LayerConstRef> &layers, const QSize &size, const QVariant &option = QVariant());
 	static bool exportToFileDialog(QWidget *parent, const QString &dialogTitle, bool showOptions, const QList<FormatSupport *> &formatSupports, const QList<LayerConstRef> &layers, const QSize &size);
 	

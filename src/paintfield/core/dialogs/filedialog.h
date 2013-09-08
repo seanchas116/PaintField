@@ -21,10 +21,10 @@ public:
 	 * @param parent
 	 * @param title The window title
 	 * @param mode Open or save
-	 * @param filterTextToSuffixes Example: { {"Image Files", { "png", "xpm", "jpg" } }, { "Text files", { "txt" } } }
+	 * @param filterTextAndSuffixesList Example: { {"Image Files", { "png", "xpm", "jpg" } }, { "Text files", { "txt" } } }
 	 * @return The file path the user chose
 	 */
-	static QString getFilePath(QWidget *parent, const QString &title, Mode mode, const QHash<QString, QStringList> &filterTextToSuffixes);
+	static QString getFilePath(QWidget *parent, const QString &title, Mode mode, const QList<QPair<QString, QStringList>> &filterTextAndSuffixesList);
 	
 	/**
 	 * Displays a dialog and gets a file path.

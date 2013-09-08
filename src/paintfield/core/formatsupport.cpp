@@ -126,19 +126,28 @@ bool FormatSupport::importFromFile(const QString &filepath, const QList<FormatSu
 	return true;
 }
 
-bool FormatSupport::importFromFileDialog(QWidget *parent, const QString &dialogTitle, const QList<FormatSupport *> &formatSupports, QList<LayerRef> *layers, QSize *size, QString *name, QString *path)
+bool FormatSupport::importFromFileDialog(QWidget *parent, const QString &dialogTitle, const QString &anyNameFilterText, const QList<FormatSupport *> &formatSupports, QList<LayerRef> *layers, QSize *size, QString *name, QString *path)
 {
 	if (formatSupports.size() < 1)
 		return false;
 	
-	QHash<QString, QStringList> filter;
+	QList<QPair<QString, QStringList>> filters;
+
+	if (!anyNameFilterText.isEmpty())
+	{
+		QStringList allSuffixes;
+		for (auto format : formatSupports)
+			allSuffixes << format->suffixes();
+
+		filters << QPair<QString, QStringList>(anyNameFilterText, allSuffixes);
+	}
 	
 	for (auto format : formatSupports)
-		filter[format->shortDescription()] = format->suffixes();
+		filters << QPair<QString, QStringList>(format->shortDescription(), format->suffixes());
 	
-	auto filepath = FileDialog::getFilePath(parent, dialogTitle, FileDialog::OpenFile, filter);
+	auto filepath = FileDialog::getFilePath(parent, dialogTitle, FileDialog::OpenFile, filters);
 	if (filepath.isEmpty())
-		return true;
+		return false;
 	
 	if (path)
 		*path = filepath;
@@ -196,10 +205,7 @@ bool FormatSupport::exportToFileDialog(QWidget *parent, const QString &dialogTit
 		exportingFormat = formatSupports.first();
 	}
 	
-	QHash<QString, QStringList> filter;
-	filter[exportingFormat->shortDescription()] = exportingFormat->suffixes();
-	
-	auto filepath = FileDialog::getFilePath(parent, dialogTitle, FileDialog::SaveFile, filter);
+	auto filepath = FileDialog::getSaveFilePath(parent, dialogTitle, exportingFormat->shortDescription(), exportingFormat->suffixes().first());
 	
 	// cancelled
 	if (filepath.isEmpty())

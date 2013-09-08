@@ -56,6 +56,7 @@ Document *DocumentController::createFromImportDialog()
 	bool result = FormatSupport::importFromFileDialog(
 			0,
 			tr("Import"),
+			tr("Any files"),
 			appController()->formatSupportManager()->formatSupports(),
 			&layers,
 			&size,
@@ -95,7 +96,7 @@ Document *DocumentController::createFromSavedFile(const QString &path)
 	);
 	
 	if (!result)
-		MessageBox::show(QMessageBox::Warning, tr("Failed to open file."), QString());
+		return nullptr;
 	
 	auto document = new Document(name, size, layers, 0);
 	document->setFilePath(path);
