@@ -157,7 +157,7 @@ void NavigatorView::onTranslationChanged(const QPoint &translation)
 void NavigatorView::createWidgets(Canvas *canvas)
 {
 	auto mainLayout = new QVBoxLayout;
-	mainLayout->addWidget(new MinimapView(canvas));
+	//mainLayout->addWidget(new MinimapView(canvas));
 	mainLayout->addLayout(createScaleRotationUILayout());
 	mainLayout->addLayout(createMiscUILayout());
 	
