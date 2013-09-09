@@ -3,6 +3,7 @@
 #include "paintfield/core/global.h"
 #include <stdexcept>
 #include <array>
+#include <cstring>
 #include <QIODevice>
 #include <QByteArray>
 #include <QStack>
