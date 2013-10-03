@@ -340,7 +340,7 @@ void RectTool::tabletPressEvent(CanvasTabletEvent *event)
 	
 	// pass event to the graphics item
 	
-	auto item = graphicsItem()->scene()->itemAt(event->viewPos);
+	auto item = graphicsItem()->scene()->itemAt(event->viewPos, QTransform());
 	if (item && item != d->frameItem)
 	{
 		event->ignore();

@@ -22,10 +22,6 @@ int main(int argc, char *argv[])
 	
 	QDir applicationDir(qApp->applicationDirPath());
 	
-	// Default codec of PaintField source is UTF-8
-	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
-	QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
-	
 	auto locale = QLocale::system();
 	
 	{

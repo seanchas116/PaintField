@@ -5,6 +5,9 @@
 #include "tabletevent.h"
 #include "tool.h"
 #include "canvas.h"
+#include "application.h"
+#include "appcontroller.h"
+#include "util.h"
 
 #include "canvastooleventsender.h"
 
@@ -21,6 +24,7 @@ struct CanvasToolEventSender::Data
 	
 	bool retinaMode = false;
 	double mousePressure = 0;
+	bool tabletOnProximity = false;
 };
 
 CanvasToolEventSender::CanvasToolEventSender(CanvasViewController *controller) :
@@ -32,6 +36,14 @@ CanvasToolEventSender::CanvasToolEventSender(CanvasViewController *controller) :
 	d->controller = controller;
 	connect(d->canvas, SIGNAL(retinaModeChanged(bool)), this, SLOT(onRetinaModeChanged(bool)));
 	onRetinaModeChanged(d->canvas->isRetinaMode());
+
+	connect(appController()->app(), &Application::tabletActivated, this, [this](){
+		d->tabletOnProximity = true;
+	});
+
+	connect(appController()->app(), &Application::tabletDeactivated, this, [this](){
+		d->tabletOnProximity = false;
+	});
 }
 
 CanvasToolEventSender::~CanvasToolEventSender()
@@ -59,13 +71,13 @@ void CanvasToolEventSender::mouseEvent(QMouseEvent *event)
 {
 	switch (event->type())
 	{
-		case QEvent::MouseButtonDblClick:
-			event->setAccepted(sendCanvasMouseEvent(event));
-			break;
+		//case QEvent::MouseButtonDblClick:
+			//event->setAccepted(sendCanvasMouseEvent(event));
+			//break;
 		case QEvent::MouseButtonPress:
 		case QEvent::MouseButtonRelease:
 		case QEvent::MouseMove:
-			event->setAccepted(sendCanvasTabletEvent(event) || sendCanvasMouseEvent(event));
+			event->setAccepted(sendCanvasTabletEvent(event));
 			break;
 		default:
 			event->ignore();
@@ -75,28 +87,8 @@ void CanvasToolEventSender::mouseEvent(QMouseEvent *event)
 
 void CanvasToolEventSender::tabletEvent(QTabletEvent *event)
 {
-	auto toNewEventType = [](QEvent::Type type)
-	{
-		switch (type)
-		{
-			default:
-			case QEvent::TabletMove:
-				return PaintField::EventWidgetTabletMove;
-			case QEvent::TabletPress:
-				return PaintField::EventWidgetTabletPress;
-			case QEvent::TabletRelease:
-				return PaintField::EventWidgetTabletRelease;
-		}
-	};
-
-	if (event->type() == QEvent::TabletRelease)
-		d->mousePressure = 0;
-	
-	TabletInputData data(event->hiResGlobalPos(), event->pressure(), event->rotation(), event->tangentialPressure(), Vec2D(event->xTilt(), event->yTilt()));
-	WidgetTabletEvent widgetTabletEvent(toNewEventType(event->type()), event->globalPos(), event->pos(), data, event->modifiers());
-	
-	customTabletEvent(&widgetTabletEvent);
-	event->setAccepted(widgetTabletEvent.isAccepted());
+	qDebug() << event->posF();
+	event->setAccepted(sendCanvasTabletEvent(event));
 }
 
 void CanvasToolEventSender::customTabletEvent(WidgetTabletEvent *event)
@@ -104,32 +96,30 @@ void CanvasToolEventSender::customTabletEvent(WidgetTabletEvent *event)
 	event->setAccepted(sendCanvasTabletEvent(event));
 }
 
-bool CanvasToolEventSender::sendCanvasMouseEvent(QMouseEvent *event)
+bool CanvasToolEventSender::sendCanvasTabletEvent(QTabletEvent *event)
 {
 	if (!d->tool)
 		return false;
-	
+
 	auto toCanvasEventType = [](QEvent::Type type)
 	{
 		switch (type)
 		{
 			default:
-			case QEvent::MouseMove:
-				return EventCanvasMouseMove;
-			case QEvent::MouseButtonPress:
-				return EventCanvasMousePress;
-			case QEvent::MouseButtonRelease:
-				return EventCanvasMouseRelease;
-			case QEvent::MouseButtonDblClick:
-				return EventCanvasMouseDoubleClick;
+			case QEvent::TabletMove:
+				return EventCanvasTabletMove;
+			case QEvent::TabletPress:
+				return EventCanvasTabletPress;
+			case QEvent::TabletRelease:
+				return EventCanvasTabletRelease;
 		}
 	};
-	
-	auto pos = event->pos();
-	
-	CanvasMouseEvent canvasEvent(toCanvasEventType(event->type()), event->globalPos(), pos, Vec2D(pos) *  d->transforms->windowToScene, event->modifiers());
+
+	TabletInputData data(event->posF() * d->transforms->windowToScene, event->pressure(), event->rotation(), event->tangentialPressure(), Vec2D(event->xTilt(), event->yTilt()));
+	CanvasTabletEvent canvasEvent(toCanvasEventType(event->type()), event->globalPosF(), event->globalPos(), event->posF(), event->pos(), data, event->modifiers());
+
 	d->tool->toolEvent(&canvasEvent);
-	
+
 	return canvasEvent.isAccepted();
 }
 
@@ -169,7 +159,10 @@ bool CanvasToolEventSender::sendCanvasTabletEvent(QMouseEvent *mouseEvent)
 {
 	if (!d->tool)
 		return false;
-	
+
+	if (d->tabletOnProximity)
+		return true;
+
 	auto toCanvasEventType = [](QEvent::Type type)
 	{
 		switch (type)

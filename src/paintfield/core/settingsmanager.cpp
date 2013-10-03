@@ -1,5 +1,6 @@
 #include <QtCore>
 #include <QDesktopServices>
+#include <QStandardPaths>
 #include "util.h"
 #include "json.h"
 
@@ -45,7 +46,7 @@ SettingsManager::SettingsManager(QObject *parent) :
 {
 	// prepare directiries
 	
-	QDir dir(QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation));
+	QDir dir(QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation).first());
 	
 	dir.mkdir("PaintField");
 	dir.cd("PaintField");
@@ -223,14 +224,14 @@ QString SettingsManager::builtinDataDir() const
 
 QString SettingsManager::userDataDir() const
 {
-	return QDir(QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation)).filePath("PaintField");
+	return QDir(QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation).first()).filePath("PaintField");
 }
 
 QString SettingsManager::lastFileDialogPath() const
 {
 	auto path = value({"last-file-dialog-path"}).toString();
 	if (path.isEmpty())
-		return QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation);
+		return QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation).first();
 	else
 		return path;
 }

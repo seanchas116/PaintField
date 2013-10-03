@@ -42,7 +42,6 @@ HEADERS += \
     interface.h \
     appcontroller.h \
     application.h \
-    internal/applicationeventfilter.h \
     widgets/vanishingscrollbar.h \
     widgets/docktabmotherwidget.h \
     signalconverter.h \
@@ -99,7 +98,8 @@ HEADERS += \
     dialogs/formatexportdialog.h \
     zip.h \
     paintfieldformatsupport.h \
-    widgets/looseslider.h
+    widgets/looseslider.h \
+    internal/applicationeventfilter.h
 
 FORMS +=
 SOURCES += \
@@ -131,7 +131,6 @@ SOURCES += \
     tool.cpp \
     appcontroller.cpp \
     application.cpp \
-    internal/applicationeventfilter.cpp \
     widgets/vanishingscrollbar.cpp \
     signalconverter.cpp \
     callbackanimation.cpp \
@@ -181,7 +180,8 @@ SOURCES += \
     dialogs/formatexportdialog.cpp \
     zip.cpp \
     paintfieldformatsupport.cpp \
-    widgets/looseslider.cpp
+    widgets/looseslider.cpp \
+    internal/applicationeventfilter.cpp
 
 RESOURCES += \
     resources/resource-paintfield-core.qrc

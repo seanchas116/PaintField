@@ -36,7 +36,7 @@ QString FileDialog::getFilePath(QWidget *parent, const QString &title, Mode mode
 	fileDialog.setDirectory(lastDialogPath);
 	//fileDialog.setOption(QFileDialog::DontUseNativeDialog, true);
 	fileDialog.setWindowTitle(title);
-	fileDialog.setFilters(filters);
+	fileDialog.setNameFilters(filters);
 	
 	switch (mode)
 	{

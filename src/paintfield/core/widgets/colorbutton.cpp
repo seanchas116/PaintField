@@ -5,6 +5,7 @@
 #include <QMenu>
 #include <QContextMenuEvent>
 #include <QStack>
+#include <QDrag>
 #include <stdexcept>
 
 #include "colorbutton.h"

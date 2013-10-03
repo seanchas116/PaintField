@@ -32,8 +32,8 @@ private slots:
 	
 private:
 	
-	bool sendCanvasMouseEvent(QMouseEvent *event);
 	bool sendCanvasTabletEvent(QMouseEvent *mouseEvent);
+	bool sendCanvasTabletEvent(QTabletEvent *event);
 	bool sendCanvasTabletEvent(WidgetTabletEvent *event);
 	
 	struct Data;

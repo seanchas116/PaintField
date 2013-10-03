@@ -1,6 +1,7 @@
 #include <QUrl>
 #include <QDragEnterEvent>
 #include <QDropEvent>
+#include <QMimeData>
 
 #include "workspace.h"
 #include "appcontroller.h"

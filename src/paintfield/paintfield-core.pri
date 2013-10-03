@@ -1,7 +1,6 @@
 
 include(../src.pri)
 include(../sse2-support.pri)
-include(../c++11-support.pri)
 
 macx {
 	PF_PLATFORM = "mac"
@@ -15,16 +14,10 @@ windows {
 	PF_PLATFORM = "windows"
 }
 
-QT += core gui network xml svg
-
-mac {
-	CONFIG += objective_c
-	QMAKE_LFLAGS += -lobjc -framework Cocoa
-}
+QT += core gui network xml svg widgets
+CONFIG += c++11
 
 INCLUDEPATH += $$PWD/.. $$PWD/../libs $$PWD/../libs/Malachite/include
-
-#DEFINES += PF_FORCE_RASTER_ENGINE
 
 # defining a function that returns the relative path from 2 paths
 # note that the head of a result is always '/'

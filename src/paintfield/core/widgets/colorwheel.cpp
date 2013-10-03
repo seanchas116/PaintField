@@ -99,7 +99,7 @@ void ColorWheel::updateHsv()
 
 void ColorWheel::mousePressEvent(QMouseEvent *event)
 {
-	if (wheel().contains(event->posF()))
+	if (wheel().contains(event->pos()))
 		_wheelBeingDragged = true;
 	if (square().contains(event->pos()))
 		_squareBeingDragged = true;
@@ -110,7 +110,7 @@ void ColorWheel::mousePressEvent(QMouseEvent *event)
 void ColorWheel::mouseMoveEvent(QMouseEvent *event)
 {
 	if (_wheelBeingDragged)
-		calculateH(event->posF());
+		calculateH(event->pos());
 	if (_squareBeingDragged)
 		calculateSV(event->pos());
 }
