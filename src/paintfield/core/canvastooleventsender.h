@@ -26,10 +26,6 @@ public:
 	void tabletEvent(QTabletEvent *event);
 	void customTabletEvent(WidgetTabletEvent *event);
 	
-private slots:
-	
-	void onRetinaModeChanged(bool mode);
-	
 private:
 	
 	bool sendCanvasTabletEvent(QMouseEvent *mouseEvent);

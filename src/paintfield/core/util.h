@@ -13,15 +13,6 @@ typedef QList<QAction *> QActionList;
 namespace PaintField
 {
 
-template <typename PointerToMemberFunction, typename Functor>
-void connect(const QObject *sender, PointerToMemberFunction signal, const QObject *receiver, Functor functor)
-{
-	auto connection = QObject::connect(sender, signal, functor);
-	QObject::connect(receiver, &QObject::destroyed, [connection](){
-		QObject::disconnect(connection);
-	});
-}
-
 namespace Util
 {
 

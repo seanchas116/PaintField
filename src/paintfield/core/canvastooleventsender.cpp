@@ -34,8 +34,11 @@ CanvasToolEventSender::CanvasToolEventSender(CanvasViewController *controller) :
 	d->canvas = controller->canvas();
 	d->transforms = d->canvas->transforms();
 	d->controller = controller;
-	connect(d->canvas, SIGNAL(retinaModeChanged(bool)), this, SLOT(onRetinaModeChanged(bool)));
-	onRetinaModeChanged(d->canvas->isRetinaMode());
+
+	connect(d->canvas, &Canvas::retinaModeChanged, this, [this](bool x){
+		d->retinaMode = x;
+	});
+	d->retinaMode = d->canvas->isRetinaMode();
 
 	connect(appController()->app(), &Application::tabletActivated, this, [this](){
 		d->tabletOnProximity = true;
@@ -49,11 +52,6 @@ CanvasToolEventSender::CanvasToolEventSender(CanvasViewController *controller) :
 CanvasToolEventSender::~CanvasToolEventSender()
 {
 	delete d;
-}
-
-void CanvasToolEventSender::onRetinaModeChanged(bool mode)
-{
-	d->retinaMode = mode;
 }
 
 void CanvasToolEventSender::setTool(Tool *tool)
