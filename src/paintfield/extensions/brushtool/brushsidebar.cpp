@@ -1,3 +1,8 @@
+#include "brushsidebar.h"
+
+#include "brushpreferencesmanager.h"
+#include "brushpresetmanager.h"
+
 #include <QVBoxLayout>
 #include <QGridLayout>
 #include <QLabel>
@@ -6,20 +11,15 @@
 #include <QFormLayout>
 #include <QCheckBox>
 
-#include "brushsidebar.h"
-
 namespace PaintField {
 
-BrushSideBar::BrushSideBar(QWidget *parent) :
+BrushSideBar::BrushSideBar(BrushPresetManager *presetManager, BrushPreferencesManager *prefManager, QWidget *parent) :
     QWidget(parent)
 {
 	auto formLayout = new QFormLayout();
 	
-	{
-		auto label = new QLabel();
-		formLayout->addRow(tr("Preset"), label);
-		_presetLabel = label;
-	}
+	auto presetLabel = new QLabel();
+	formLayout->addRow(tr("Preset"), presetLabel);
 	
 	{
 		auto hlayout = new QHBoxLayout();
@@ -29,9 +29,9 @@ BrushSideBar::BrushSideBar(QWidget *parent) :
 			slider->setMaximum(200);
 			slider->setMinimum(1);
 			
-			slider->setValue(brushSize());
-			connect(slider, SIGNAL(valueChanged(int)), this, SLOT(setBrushSize(int)));
-			connect(this, SIGNAL(brushSizeChanged(int)), slider, SLOT(setValue(int)));
+			slider->setValue(prefManager->brushSize());
+			connect(slider, SIGNAL(valueChanged(int)), prefManager, SLOT(setBrushSize(int)));
+			connect(prefManager, SIGNAL(brushSizeChanged(int)), slider, SLOT(setValue(int)));
 			
 			hlayout->addWidget(slider, 0);
 		}
@@ -41,9 +41,9 @@ BrushSideBar::BrushSideBar(QWidget *parent) :
 			spinBox->setMaximum(200);
 			spinBox->setMinimum(1);
 			
-			spinBox->setValue(brushSize());
-			connect(spinBox, SIGNAL(valueChanged(int)), this, SLOT(setBrushSize(int)));
-			connect(this, SIGNAL(brushSizeChanged(int)), spinBox, SLOT(setValue(int)));
+			spinBox->setValue(prefManager->brushSize());
+			connect(spinBox, SIGNAL(valueChanged(int)), prefManager, SLOT(setBrushSize(int)));
+			connect(prefManager, SIGNAL(brushSizeChanged(int)), spinBox, SLOT(setValue(int)));
 			
 			hlayout->addWidget(spinBox, 0);
 		}
@@ -54,43 +54,27 @@ BrushSideBar::BrushSideBar(QWidget *parent) :
 	{
 		auto checkBox = new QCheckBox(tr("Smooth"));
 		checkBox->setToolTip(tr("Check to paint beautifully, uncheck to paint faster"));
-		checkBox->setChecked(isSmoothEnabled());
-		connect(checkBox, SIGNAL(toggled(bool)), this, SLOT(setSmoothEnabled(bool)));
-		connect(this, SIGNAL(smoothEnabledChanged(bool)), checkBox, SLOT(setChecked(bool)));
+		checkBox->setChecked(prefManager->isSmoothEnabled());
+		connect(checkBox, SIGNAL(toggled(bool)), prefManager, SLOT(setSmoothEnabled(bool)));
+		connect(prefManager, SIGNAL(smoothEnabledChanged(bool)), checkBox, SLOT(setChecked(bool)));
 		formLayout->addRow(checkBox);
 	}
 	
 	setLayout(formLayout);
-}
 
-void BrushSideBar::setPresetMetadata(const BrushPresetMetadata &metadata)
-{
-	QString presetText;
-	
-	if (metadata.title().isEmpty())
-		presetText = "<b>[Not Selected]</b>";
-	else
-		presetText = "<b>" + metadata.title() + "</b>";
-	
-	_presetLabel->setText(presetText);
-}
+	auto setPresetMetadata = [this, presetLabel](const BrushPresetMetadata &metadata) {
 
-void BrushSideBar::setBrushSize(int size)
-{
-	if (_brushSize != size)
-	{
-		_brushSize = size;
-		emit brushSizeChanged(size);
-	}
-}
+		QString title;
+		if (metadata.title().isEmpty())
+			title = QString("[%1]").arg(tr("Not Selected"));
+		else
+			title = metadata.title();
 
-void BrushSideBar::setSmoothEnabled(bool enabled)
-{
-	if (_isSmoothEnabled != enabled)
-	{
-		_isSmoothEnabled = enabled;
-		emit smoothEnabledChanged(enabled);
-	}
+		presetLabel->setText(QString("<b>%1</b>").arg(title));
+	};
+
+	connect(presetManager, &BrushPresetManager::metadataChanged, this, setPresetMetadata);
+	setPresetMetadata(presetManager->metadata());
 }
 
 } // namespace PaintField

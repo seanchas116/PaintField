@@ -10,7 +10,8 @@
 #include "brushsidebar.h"
 #include "brushstrokerfactorymanager.h"
 #include "brushpresetmanager.h"
-#include "brushlibrarycontroller.h"
+#include "brushlibrarymodel.h"
+#include "brushlibraryview.h"
 #include "brushtool.h"
 #include "brushstrokerpen.h"
 #include "brushstrokersimplebrush.h"
@@ -35,27 +36,15 @@ BrushToolExtension::BrushToolExtension(Workspace *workspace, QObject *parent) :
 	connect(_presetManager, SIGNAL(strokerChanged(QString)), this, SLOT(onStrokerChanged(QString)));
 	connect(_presetManager, SIGNAL(presetChanged(QVariantMap,QString)), _preferencesManager, SLOT(onPresetChanged(QVariantMap,QString)));
 	
-	auto libraryController = new BrushLibraryController(this);
+	auto libraryModel = new BrushLibraryModel(this);
 	
-	connect(libraryController, SIGNAL(currentPathChanged(QString,QString)), _presetManager, SLOT(setPreset(QString)));
-	_presetManager->setPreset(libraryController->currentPath());
+	connect(libraryModel, SIGNAL(currentPathChanged(QString,QString)), _presetManager, SLOT(setPreset(QString)));
+	_presetManager->setPreset(libraryModel->currentPath());
 	
-	addSideBar(_brushLibrarySidebarName, libraryController->view());
+	addSideBar(_brushLibrarySidebarName, new BrushLibraryView(libraryModel));
 	
 	{
-		auto brushSideBar = new BrushSideBar;
-		
-		connect(brushSideBar, SIGNAL(brushSizeChanged(int)), _preferencesManager, SLOT(setBrushSize(int)));
-		connect(_preferencesManager, SIGNAL(brushSizeChanged(int)), brushSideBar, SLOT(setBrushSize(int)));
-		brushSideBar->setBrushSize(_preferencesManager->brushSize());
-		
-		connect(brushSideBar, SIGNAL(smoothEnabledChanged(bool)), _preferencesManager, SLOT(setSmoothEnabled(bool)));
-		connect(_preferencesManager, SIGNAL(smoothEnabledChanged(bool)), brushSideBar, SLOT(setSmoothEnabled(bool)));
-		brushSideBar->setSmoothEnabled(_preferencesManager->isSmoothEnabled());
-		
-		connect(_presetManager, SIGNAL(metadataChanged(BrushPresetMetadata)), brushSideBar, SLOT(setPresetMetadata(BrushPresetMetadata)));
-		brushSideBar->setPresetMetadata(_presetManager->metadata());
-		
+		auto brushSideBar = new BrushSideBar(_presetManager, _preferencesManager);
 		addSideBar(_brushSideBarName, brushSideBar);
 	}
 }

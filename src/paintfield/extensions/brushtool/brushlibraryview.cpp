@@ -11,7 +11,7 @@
 
 namespace PaintField {
 
-BrushLibraryView::BrushLibraryView(BrushLibraryModel *model, QItemSelectionModel *selectionModel, QWidget *parent) :
+BrushLibraryView::BrushLibraryView(BrushLibraryModel *model, QWidget *parent) :
     QWidget(parent)
 {
 	auto layout = new QVBoxLayout;
@@ -22,7 +22,7 @@ BrushLibraryView::BrushLibraryView(BrushLibraryModel *model, QItemSelectionModel
 		auto treeView = new QTreeView;
 		treeView->setHeaderHidden(true);
 		treeView->setModel(model);
-		treeView->setSelectionModel(selectionModel);
+		treeView->setSelectionModel(model->selectionModel());
 		treeView->setSelectionMode(QAbstractItemView::SingleSelection);
 		
 		Util::setExpandTreeViewRecursive(treeView, QModelIndex(), true);
@@ -54,6 +54,8 @@ BrushLibraryView::BrushLibraryView(BrushLibraryModel *model, QItemSelectionModel
 	}
 	
 	setLayout(layout);
+
+	connect(this, SIGNAL(reloadRequested()), model, SLOT(reload()));
 }
 
 } // namespace PaintField

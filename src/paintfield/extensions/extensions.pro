@@ -10,7 +10,6 @@ include(../paintfield.pri)
 # Input
 HEADERS += aboutdialog/aboutdialog.h \
            aboutdialog/aboutdialogextension.h \
-           brushtool/brushlibrarycontroller.h \
            brushtool/brushlibrarymodel.h \
            brushtool/brushlibraryview.h \
            brushtool/brushpreferencesmanager.h \
@@ -62,7 +61,6 @@ FORMS += aboutdialog/aboutdialog.ui \
     formatsupports/pngexportform.ui
 SOURCES += aboutdialog/aboutdialog.cpp \
            aboutdialog/aboutdialogextension.cpp \
-           brushtool/brushlibrarycontroller.cpp \
            brushtool/brushlibrarymodel.cpp \
            brushtool/brushlibraryview.cpp \
            brushtool/brushpreferencesmanager.cpp \

@@ -13,7 +13,7 @@ class BrushLibraryView : public QWidget
 {
 	Q_OBJECT
 public:
-	BrushLibraryView(BrushLibraryModel *model, QItemSelectionModel *selectionModel, QWidget *parent = 0);
+	BrushLibraryView(BrushLibraryModel *model, QWidget *parent = 0);
 	
 signals:
 	

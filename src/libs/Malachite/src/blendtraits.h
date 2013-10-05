@@ -12,6 +12,7 @@ struct BlendTraitsClear
 {
 	static Pixel blend(const Pixel &dst, const Pixel &src)
 	{
+		Q_UNUSED(dst);
 		Q_UNUSED(src);
 		return Pixel(0);
 	}
