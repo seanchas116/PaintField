@@ -16,6 +16,9 @@ namespace PaintField
 namespace Util
 {
 
+QVariant valueFromMapTree(const QVariantMap &original, const QStringList &path, const QVariant &defaultValue = QVariant());
+void setValueToMapTree(QVariantMap &original, const QStringList &path, const QVariant &value);
+
 QString platformName();
 
 /**

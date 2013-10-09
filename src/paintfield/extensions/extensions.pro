@@ -55,7 +55,9 @@ HEADERS += aboutdialog/aboutdialog.h \
     formatsupports/psd/psdimageload.h \
     formatsupports/psd/psdimagesave.h \
     formatsupports/psd/psdimagedatasection.h \
-	navigator/minimapview.h
+	navigator/minimapview.h \
+    brushtool/brusheditorview.h \
+    brushtool/custombrusheditor.h
 FORMS += aboutdialog/aboutdialog.ui \
     formatsupports/jpegexportform.ui \
     formatsupports/pngexportform.ui
@@ -106,6 +108,8 @@ SOURCES += aboutdialog/aboutdialog.cpp \
     formatsupports/psd/psdimageload.cpp \
     formatsupports/psd/psdimagesave.cpp \
     formatsupports/psd/psdimagedatasection.cpp \
-	navigator/minimapview.cpp
+	navigator/minimapview.cpp \
+    brushtool/brusheditorview.cpp \
+    brushtool/custombrusheditor.cpp
 
 TRANSLATIONS += extensions_ja.ts

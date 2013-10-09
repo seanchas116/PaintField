@@ -14,6 +14,41 @@ namespace PaintField
 namespace Util
 {
 
+QVariant valueFromMapTree(const QVariantMap &original, const QStringList &path, const QVariant &defaultValue)
+{
+	auto map = original;
+	QVariant data;
+
+	for (auto key : path)
+	{
+		if (!map.contains(key))
+			return defaultValue;
+
+		data = map[key];
+		map = data.toMap();
+	}
+
+	return data;
+}
+
+void setValueToMapTree(QVariantMap &original, const QStringList &path, const QVariant &value)
+{
+	auto last = path.last();
+	auto init = path;
+	init.removeLast();
+
+	if (init.size() == 0)
+	{
+		original[last] = value;
+	}
+	else
+	{
+		auto map = valueFromMapTree(original, init).toMap();
+		map[last] = value;
+		setValueToMapTree(original, init, map);
+	}
+}
+
 QString platformName()
 {
 #if defined(Q_OS_WIN32)

@@ -1,5 +1,7 @@
 #include "brushstrokercustombrush.h"
 
+#include "custombrusheditor.h"
+
 using namespace Malachite;
 
 namespace PaintField {
@@ -173,16 +175,23 @@ void BrushStrokerCustomBrush::loadSettings(const QVariantMap &settings)
 	Q_UNUSED(settings)
 }
 
-QVariantMap BrushSourceBrushFactory::defaultSettings() const
+QVariantMap BrushStrokerCustomBrushFactory::defaultSettings() const
 {
 	QVariantMap settings;
 	
 	return settings;
 }
 
-BrushStroker *BrushSourceBrushFactory::createStroker(Surface *surface)
+BrushStroker *BrushStrokerCustomBrushFactory::createStroker(Surface *surface)
 {
 	return new BrushStrokerCustomBrush(surface);
+}
+
+BrushEditor *BrushStrokerCustomBrushFactory::createEditor(const QVariantMap &settings)
+{
+	auto editor = new CustomBrushEditor();
+	editor->setSettings(settings);
+	return editor;
 }
 
 }

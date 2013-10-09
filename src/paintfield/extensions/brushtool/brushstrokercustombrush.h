@@ -8,8 +8,11 @@ class BrushStrokerCustomBrush : public BrushStroker
 {
 public:
 	
-	struct Setting
+	struct Settings
 	{
+		static Settings fromVariantMap(const QVariantMap &map);
+		QVariantMap toVariantMap() const;
+
 		double flattening = 0; // 扁平率
 		double rotation = 0;
 		double tableWidth = 0, tableHeight = 1;
@@ -34,24 +37,25 @@ private:
 	void drawDab(const TabletInputData &data);
 	Malachite::Image drawDabImage(const TabletInputData &data, QRect *resultRect);
 	
-	Setting _setting;
+	Settings _setting;
 	double _carryOver;
 	double _lastMinorRadius;
 };
 
-class BrushSourceBrushFactory : public BrushStrokerFactory
+class BrushStrokerCustomBrushFactory : public BrushStrokerFactory
 {
 	Q_OBJECT
 	
 public:
 	
-	explicit BrushSourceBrushFactory(QObject *parent = 0);
+	explicit BrushStrokerCustomBrushFactory(QObject *parent = 0) : BrushStrokerFactory(parent) {}
 	
 	QString name() const override { return "paintfield.brush.custom"; }
 	
 	QVariantMap defaultSettings() const override;
 	BrushStroker *createStroker(Malachite::Surface *surface) override;
-	
+
+	BrushEditor *createEditor(const QVariantMap &settings) override;
 };
 
 }

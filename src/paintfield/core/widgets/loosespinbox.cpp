@@ -34,6 +34,7 @@ LooseSpinBox::LooseSpinBox(QWidget *parent) :
 {
 	connect(this, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
 	setValue(0);
+	setMinimumWidth(60);
 	updateText();
 }
 

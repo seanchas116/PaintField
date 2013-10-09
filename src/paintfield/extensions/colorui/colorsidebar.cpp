@@ -322,10 +322,8 @@ ColorSideBar::ColorSideBar(QWidget *parent) :
 		
 		{
 			auto slider = new LooseSlider(Qt::Horizontal);
-			slider->setMinimum(0);
-			slider->setMaximum(1000);
-			slider->setDoubleMinimum(0);
-			slider->setDoubleMaximum(100);
+			slider->setDecimals(1);
+			slider->setDoubleRange(0, 100);
 			
 			auto spinBox = new LooseSpinBox;
 			spinBox->setDecimals(1);

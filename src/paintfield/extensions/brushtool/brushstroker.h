@@ -5,6 +5,8 @@
 
 namespace PaintField {
 
+class BrushEditor;
+
 class BrushStroker
 {
 public:
@@ -75,6 +77,7 @@ public:
 	
 	virtual QVariantMap defaultSettings() const = 0;
 	virtual BrushStroker *createStroker(Malachite::Surface *surface) = 0;
+	virtual BrushEditor *createEditor(const QVariantMap &settings);
 	
 signals:
 	

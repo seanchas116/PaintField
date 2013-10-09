@@ -129,5 +129,11 @@ QVector<double> BrushStroker::calcLength(const Polygon &polygon, double *totalLe
 	return lengths;
 }
 
+BrushEditor *BrushStrokerFactory::createEditor(const QVariantMap &settings)
+{
+	Q_UNUSED(settings);
+	return nullptr;
+}
+
 }
 

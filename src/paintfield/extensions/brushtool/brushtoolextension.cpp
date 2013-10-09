@@ -15,6 +15,8 @@
 #include "brushtool.h"
 #include "brushstrokerpen.h"
 #include "brushstrokersimplebrush.h"
+#include "brushstrokercustombrush.h"
+#include "brusheditorview.h"
 
 #include "brushtoolextension.h"
 
@@ -23,6 +25,7 @@ namespace PaintField {
 const QString _brushToolName("paintfield.tool.brush");
 const QString _brushLibrarySidebarName("paintfield.sidebar.brushLibrary");
 const QString _brushSideBarName("paintfield.sidebar.brush");
+const QString _brushEditorSideBarName("paintfield.sidebar.brushEditor");
 
 BrushToolExtension::BrushToolExtension(Workspace *workspace, QObject *parent) :
     WorkspaceExtension(workspace, parent),
@@ -32,20 +35,32 @@ BrushToolExtension::BrushToolExtension(Workspace *workspace, QObject *parent) :
 {
 	_strokerFactoryManager->addFactory(new BrushStrokerPenFactory);
 	_strokerFactoryManager->addFactory(new BrushStrokerSimpleBrushFactory);
+	_strokerFactoryManager->addFactory(new BrushStrokerCustomBrushFactory);
 	
 	connect(_presetManager, SIGNAL(strokerChanged(QString)), this, SLOT(onStrokerChanged(QString)));
 	connect(_presetManager, SIGNAL(presetChanged(QVariantMap,QString)), _preferencesManager, SLOT(onPresetChanged(QVariantMap,QString)));
-	
-	auto libraryModel = new BrushLibraryModel(this);
-	
-	connect(libraryModel, SIGNAL(currentPathChanged(QString,QString)), _presetManager, SLOT(setPreset(QString)));
-	_presetManager->setPreset(libraryModel->currentPath());
-	
-	addSideBar(_brushLibrarySidebarName, new BrushLibraryView(libraryModel));
+
+	{
+		// library
+
+		auto libraryModel = new BrushLibraryModel(this);
+
+		connect(libraryModel, SIGNAL(currentPathChanged(QString,QString)), _presetManager, SLOT(setPreset(QString)));
+		_presetManager->setPreset(libraryModel->currentPath());
+
+		addSideBar(_brushLibrarySidebarName, new BrushLibraryView(libraryModel));
+	}
 	
 	{
+		// brush sidebar
 		auto brushSideBar = new BrushSideBar(_presetManager, _preferencesManager);
 		addSideBar(_brushSideBarName, brushSideBar);
+	}
+
+	{
+		// brush editor
+		auto editorView = new BrushEditorView(_strokerFactoryManager, _presetManager);
+		addSideBar(_brushEditorSideBarName, editorView);
 	}
 }
 
@@ -92,6 +107,7 @@ void BrushToolExtensionFactory::initialize(AppController *app)
 	{
 		app->settingsManager()->declareSideBar(_brushLibrarySidebarName, SideBarInfo(tr("Brush Library")));
 		app->settingsManager()->declareSideBar(_brushSideBarName, SideBarInfo(tr("Brush")));
+		app->settingsManager()->declareSideBar(_brushEditorSideBarName, SideBarInfo(tr("Brush Editor")));
 	}
 }
 

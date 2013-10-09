@@ -4,75 +4,96 @@
 namespace PaintField
 {
 
+struct LooseSlider::Data
+{
+	double mValue = 0.0;
+	double mMax = 1.0;
+	double mMin = 0.0;
+	double mIntFactor = 10;
+	int mDecimals = 2;
+
+	void setDecimals(int x)
+	{
+		mDecimals = x;
+		mIntFactor = std::pow(10, x);
+	}
+
+	void updateIntRange(LooseSlider *self)
+	{
+		PAINTFIELD_DEBUG << mMin << mMax << mIntFactor;
+		self->setRange(std::round(mMin * mIntFactor), std::round(mMax * mIntFactor));
+	}
+
+	void updateIntValue(LooseSlider *self)
+	{
+		PAINTFIELD_DEBUG << mValue << mIntFactor;
+		self->setValue(std::round(mValue * mIntFactor));
+	}
+};
+
 LooseSlider::LooseSlider(Qt::Orientation orientation, QWidget *parent) :
 	QSlider(orientation, parent),
-	_doubleValue(0.0),
-	_doubleMax(1.0),
-	_doubleMin(0.0)
+	d(new Data)
 {
 	connect(this, SIGNAL(valueChanged(int)), this, SLOT(onIntValueChanged(int)));
-	connect(this, SIGNAL(rangeChanged(int,int)), this, SLOT(onRangeChanged()));
-	setDoubleValue(_doubleValue);
+	d->updateIntRange(this);
+	d->updateIntValue(this);
 }
 
-void LooseSlider::setDoubleMaximum(double max)
+LooseSlider::~LooseSlider()
 {
-	if (_doubleMin >= max)
-		return;
-	
-	_doubleMax = max;
-	setDoubleValue(_doubleValue);
-	emit doubleRangeChanged(_doubleMin, _doubleMax);
 }
 
-void LooseSlider::setDoubleMinimum(double min)
+void LooseSlider::setDecimals(int decimals)
 {
-	if (_doubleMax <= min)
-		return;
-	
-	_doubleMin = min;
-	setDoubleValue(_doubleValue);
-	emit doubleRangeChanged(_doubleMin, _doubleMax);
+	d->setDecimals(decimals);
+	d->updateIntRange(this);
+	d->updateIntValue(this);
 }
 
-static int toIntValue(double doubleMin, double doubleMax, double value, int intMin, int intMax)
+void LooseSlider::setDoubleRange(double min, double max)
 {
-	return intMin + std::round( ( value - doubleMin ) * (intMax - intMin) / (doubleMax - doubleMin) );
-}
-
-static double toDoubleValue(int intMin, int intMax, int value, double doubleMin, double doubleMax)
-{
-	return doubleMin + (value - intMin) * (doubleMax - doubleMin) / (intMax - intMin);
+	d->mMin = min;
+	d->mMax = max;
+	d->updateIntRange(this);
+	setDoubleValue(d->mValue);
 }
 
 void LooseSlider::setDoubleValue(double x)
 {
-	if (_doubleValue != x)
+	if (d->mValue != x)
 	{
-		_doubleValue = x;
-		
-		x = qBound(_doubleMin, x, _doubleMax);
-		
-		int i = toIntValue(_doubleMin, _doubleMax, x, minimum(), maximum());
-		setValue(i);
-		
+		x = qBound(d->mMin, x, d->mMax);
+		d->mValue = x;
+		d->updateIntValue(this);
 		emit doubleValueChanged(x);
 	}
 }
 
-void LooseSlider::onRangeChanged()
+int LooseSlider::decimals() const
 {
-	setDoubleValue(_doubleValue);
+	return d->mDecimals;
+}
+
+double LooseSlider::doubleMinimum() const
+{
+	return d->mMin;
+}
+
+double LooseSlider::doubleMaximum() const
+{
+	return d->mMax;
+}
+
+double LooseSlider::doubleValue() const
+{
+	return d->mValue;
 }
 
 void LooseSlider::onIntValueChanged(int x)
 {
-	if (x == toIntValue(_doubleValue, _doubleMin, _doubleValue, minimum(), maximum()))
-		return;
-	
-	_doubleValue = toDoubleValue(minimum(), maximum(), x, _doubleMin, _doubleMax);
-	
-	emit doubleValueChanged(_doubleValue);
+	if (x != std::round(d->mValue * d->mIntFactor))
+		setDoubleValue(std::round(x / d->mIntFactor));
 }
 
 }

@@ -51,10 +51,8 @@ LayerPropertyEditor::LayerPropertyEditor(LayerScene *scene, QWidget *parent) :
 			
 			{
 				auto slider = new LooseSlider(Qt::Horizontal);
-				slider->setMinimum(0);
-				slider->setMaximum(1000);
-				slider->setDoubleMinimum(0.0);
-				slider->setDoubleMaximum(100.0);
+				slider->setDecimals(1);
+				slider->setDoubleRange(0, 100);
 				d->opacitySlider = slider;
 				
 				auto spin = new LooseSpinBox();

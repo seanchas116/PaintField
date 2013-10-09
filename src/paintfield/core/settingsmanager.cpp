@@ -122,50 +122,15 @@ void SettingsManager::saveUserSettings()
 	Json::writeIntoFile(dir.filePath("settings.json"), d->userSettings);
 }
 
-static QVariant valueFromMapTree(const QVariantMap &original, const QStringList &path, const QVariant &defaultValue = QVariant())
-{
-	auto map = original;
-	QVariant data;
-	
-	for (auto key : path)
-	{
-		if (!map.contains(key))
-			return defaultValue;
-		
-		data = map[key];
-		map = data.toMap();
-	}
-	
-	return data;
-}
-
-static void setValueToMapTree(QVariantMap &original, const QStringList &path, const QVariant &value)
-{
-	auto last = path.last();
-	auto init = path;
-	init.removeLast();
-	
-	if (init.size() == 0)
-	{
-		original[last] = value;
-	}
-	else
-	{
-		auto map = valueFromMapTree(original, init).toMap();
-		map[last] = value;
-		setValueToMapTree(original, init, map);
-	}
-}
-
 void SettingsManager::setValue(const QStringList &path, const QVariant &value)
 {
-	setValueToMapTree(d->settings, path, value);
-	setValueToMapTree(d->userSettings, path, value);
+	Util::setValueToMapTree(d->settings, path, value);
+	Util::setValueToMapTree(d->userSettings, path, value);
 }
 
 QVariant SettingsManager::value(const QStringList &path, const QVariant &defaultValue) const
 {
-	return valueFromMapTree(d->settings, path, defaultValue);
+	return Util::valueFromMapTree(d->settings, path, defaultValue);
 }
 
 void SettingsManager::declareTool(const QString &name, const ToolInfo &info)

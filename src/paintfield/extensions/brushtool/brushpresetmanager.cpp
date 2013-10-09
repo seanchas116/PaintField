@@ -1,47 +1,30 @@
-#include "paintfield/core/json.h"
-
 #include "brushpresetmanager.h"
 
+#include "paintfield/core/json.h"
+#include <boost/range/adaptors.hpp>
+
 namespace PaintField {
-
-BrushPresetMetadata::BrushPresetMetadata(const QVariantMap &variantMap)
-{
-	_title = variantMap["title"].toString();
-	_description = variantMap["description"].toString();
-	_tags = variantMap["tags"].toStringList();
-}
-
-QVariantMap BrushPresetMetadata::toVariantMap() const
-{
-	QVariantMap variantMap;
-	
-	variantMap["title"] = _title;
-	variantMap["description"] = _description;
-	variantMap["tags"] = _tags;
-	
-	return variantMap;
-}
 
 BrushPresetManager::BrushPresetManager(QObject *parent) :
     QObject(parent)
 {
 }
 
-void BrushPresetManager::setMetadata(const BrushPresetMetadata &metadata)
+void BrushPresetManager::setMetadata(const QVariantMap &metadata)
 {
-	_preset["metadata"] = metadata.toVariantMap();
+	m_metadata = metadata;
 	emit metadataChanged(metadata);
 }
 
-void BrushPresetManager::setStroker(const QString &source)
+void BrushPresetManager::setStroker(const QString &stroker)
 {
-	_preset["stroker"] = source;
-	emit strokerChanged(source);
+	m_stroker = stroker;
+	emit strokerChanged(stroker);
 }
 
 void BrushPresetManager::setSettings(const QVariantMap &settings)
 {
-	_preset["settings"] = settings;
+	m_settings = settings;
 	emit settingsChanged(settings);
 }
 
@@ -55,7 +38,9 @@ void BrushPresetManager::setPreset(const QString &path)
 	if (preset.isEmpty())
 		return;
 	
-	_preset = preset;
+	m_metadata = preset["metadata"].toMap();
+	m_stroker = preset["stroker"].toString();
+	m_settings = preset["settings"].toMap();
 	emit presetChanged(preset, path);
 	emit metadataChanged(metadata());
 	emit strokerChanged(stroker());

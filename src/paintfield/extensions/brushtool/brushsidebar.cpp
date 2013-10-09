@@ -62,13 +62,14 @@ BrushSideBar::BrushSideBar(BrushPresetManager *presetManager, BrushPreferencesMa
 	
 	setLayout(formLayout);
 
-	auto setPresetMetadata = [this, presetLabel](const BrushPresetMetadata &metadata) {
+	auto setPresetMetadata = [this, presetLabel](const QVariantMap &metadata) {
 
+		auto rawTitle = metadata["title"].toString();
 		QString title;
-		if (metadata.title().isEmpty())
+		if (rawTitle.isEmpty())
 			title = QString("[%1]").arg(tr("Not Selected"));
 		else
-			title = metadata.title();
+			title = rawTitle;
 
 		presetLabel->setText(QString("<b>%1</b>").arg(title));
 	};
