@@ -136,7 +136,8 @@ public:
 		mPos = pos;
 		mRect = QRectF(pos.x() - radius, pos.y() - radius, radius * 2.0, radius * 2.0).toAlignedRect();
 
-		constexpr float aaWidth = 1.f;
+		float aaWidth = radius;
+		//constexpr float aaWidth = 5.f;
 		float max, cutoffSlope;
 
 		if (radius <= 1.f)
@@ -207,8 +208,15 @@ public:
 					{
 						auto rrs = xs * xs + yys;
 						auto rs = rrs.rsqrt() * rrs;
-						auto covers = ((rs - mRadiuses) * mCutoffSlopes).bound(0.f, mMaxs);
-						covers = PixelVec::choose( PixelVec::equal(covers, covers) , covers, mMaxs);
+
+						auto fastroot = [](const PixelVec &v) {
+							return v.rsqrt() * v;
+						};
+
+						auto covers = (1.f - rs / mRadiuses).bound(0.f, 1.f);
+						//auto covers = rrs / (mRadiuses * mRadiuses);
+						//auto covers = ((rs - mRadiuses) * mCutoffSlopes).bound(0.f, mMaxs);
+						//covers = PixelVec::choose( PixelVec::equal(covers, covers) , covers, mMaxs);
 
 						if (!rem--) break;
 						func(*sl, covers[0]);
@@ -254,8 +262,9 @@ static QRect drawDabToSurface(BrushStrokerSimpleBrush *stroker, Surface *surface
 	auto rect = QRectF(pos.x() - radius, pos.y() - radius, radius * 2.0, radius * 2.0).toAlignedRect();
 	
 	float max, cutoffSlope;
-	constexpr float aaWidth = 1.f;
-	
+	//constexpr float aaWidth = 1.f;
+	float aaWidth = radius;
+
 	if (radius <= 1.f)
 	{
 		max = radius;
@@ -350,34 +359,43 @@ static QRect drawDabToSurface(BrushStrokerSimpleBrush *stroker, Surface *surface
 	return rect;
 }
 
-QRect BrushStrokerSimpleBrush::drawDab(const Vec2D &pos, double pressure)
+QRect BrushStrokerSimpleBrush::drawDab(const Vec2D &pos, float pressure)
 {
 	if (pressure <= 0)
 		return QRect();
-	
-	auto radius = radiusBase() * pressure;
-	auto color = pixel();
+
+	//auto radius = radiusBase() * pressure;
+	auto radius = radiusBase();
+	auto color = pixel() * pressure * (1.f - mSmudge);
+	auto smudge = mSmudge * pressure;
 
 	BrushDab dab(pos, radius);
 
-	if (mSmudge) {
+	if (smudge) {
 
 		PixelVec smudgeColor(0);
 		float smudgeDivisor = 0.f;
 		dab.eachPixelInDab(this, surface(), [&](const Pixel &p, float cover) {
-			smudgeColor += p;
+			smudgeColor += p * cover;
 			smudgeDivisor += cover;
 		});
 		smudgeColor /= smudgeDivisor;
 
 		PAINTFIELD_DEBUG << smudgeColor.at(0) << smudgeColor.at(1) << smudgeColor.at(2) << smudgeColor.at(3);
 
-		color = mSmudge * smudgeColor + color * (1.f - mSmudge);
+		dab.eachPixelInDab(this, surface(), [=](Pixel &p, float cover) {
+			auto r = cover * smudge;
+			p = r * smudgeColor + (1.f - r) * BlendTraitsSourceOver::blend(p, color * cover);
+		});
+		//dab.eachPixelInDab(this, surface(), [=](Pixel &p, float cover) {
+		//	p = BlendTraitsDestinationOut::blend(p, Pixel(cover * smudge));
+		//});
 	}
-
-	dab.eachPixelInDab(this, surface(), [=](Pixel &p, float cover) {
-		p = BlendTraitsSourceOver::blend(p, color * cover);
-	});
+	else {
+		dab.eachPixelInDab(this, surface(), [=](Pixel &p, float cover) {
+			p = BlendTraitsSourceOver::blend(p, color * cover);
+		});
+	}
 
 	return dab.rect();
 }

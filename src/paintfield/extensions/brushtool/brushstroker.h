@@ -49,7 +49,9 @@ protected:
 	void addEditedRect(const QRect &rect);
 	
 private:
-	
+
+	void filterData(TabletInputData &data);
+
 	Malachite::Surface *_surface = 0;
 	Malachite::Surface _originalSurface;
 	

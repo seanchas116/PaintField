@@ -15,8 +15,11 @@ BrushStroker::BrushStroker(Surface *surface) :
 	//_smoothed = true;
 }
 
-void BrushStroker::moveTo(const TabletInputData &data)
+void BrushStroker::moveTo(const TabletInputData &originalData)
 {
+	auto data = originalData;
+	filterData(data);
+
 	clearLastEditedKeys();
 	
 	_count = 0;
@@ -33,8 +36,11 @@ void BrushStroker::moveTo(const TabletInputData &data)
 	}
 }
 
-void BrushStroker::lineTo(const TabletInputData &data)
+void BrushStroker::lineTo(const TabletInputData &originalData)
 {
+	auto data = originalData;
+	filterData(data);
+
 	_count += 1;
 	
 	if (_smoothed)
@@ -127,6 +133,11 @@ QVector<double> BrushStroker::calcLength(const Polygon &polygon, double *totalLe
 	
 	*totalLength = total;
 	return lengths;
+}
+
+void BrushStroker::filterData(TabletInputData &data)
+{
+	data.pressure *= data.pressure;
 }
 
 BrushEditor *BrushStrokerFactory::createEditor(const QVariantMap &settings)

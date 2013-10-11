@@ -17,7 +17,6 @@ HEADERS += aboutdialog/aboutdialog.h \
            brushtool/brushrasterizer.h \
            brushtool/brushsidebar.h \
            brushtool/brushstroker.h \
-           brushtool/brushstrokercustombrush.h \
            brushtool/brushstrokerfactorymanager.h \
            brushtool/brushstrokerpen.h \
            brushtool/brushstrokersimplebrush.h \
@@ -70,7 +69,6 @@ SOURCES += aboutdialog/aboutdialog.cpp \
            brushtool/brushrasterizer.cpp \
            brushtool/brushsidebar.cpp \
            brushtool/brushstroker.cpp \
-           brushtool/brushstrokercustombrush.cpp \
            brushtool/brushstrokerfactorymanager.cpp \
            brushtool/brushstrokerpen.cpp \
            brushtool/brushstrokersimplebrush.cpp \

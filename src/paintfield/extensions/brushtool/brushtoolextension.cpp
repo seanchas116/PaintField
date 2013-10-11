@@ -15,7 +15,6 @@
 #include "brushtool.h"
 #include "brushstrokerpen.h"
 #include "brushstrokersimplebrush.h"
-#include "brushstrokercustombrush.h"
 #include "brusheditorview.h"
 
 #include "brushtoolextension.h"
@@ -35,7 +34,6 @@ BrushToolExtension::BrushToolExtension(Workspace *workspace, QObject *parent) :
 {
 	_strokerFactoryManager->addFactory(new BrushStrokerPenFactory);
 	_strokerFactoryManager->addFactory(new BrushStrokerSimpleBrushFactory);
-	_strokerFactoryManager->addFactory(new BrushStrokerCustomBrushFactory);
 	
 	connect(_presetManager, SIGNAL(strokerChanged(QString)), this, SLOT(onStrokerChanged(QString)));
 	connect(_presetManager, SIGNAL(presetChanged(QVariantMap,QString)), _preferencesManager, SLOT(onPresetChanged(QVariantMap,QString)));
