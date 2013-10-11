@@ -7,7 +7,7 @@
 #include <QFormLayout>
 #include <QSlider>
 #include <QDoubleSpinBox>
-
+#include <QLabel>
 
 #include <boost/signals2.hpp>
 
@@ -16,7 +16,7 @@ namespace PaintField {
 struct CustomBrushEditor::Data
 {
 	QVariantMap mSettings;
-	boost::signals2::signal<void(const QString &, double)> settingChanged;
+	boost::signals2::signal<void(const QVariantMap &)> settingsChanged;
 };
 
 CustomBrushEditor::CustomBrushEditor(QWidget *parent) :
@@ -47,10 +47,8 @@ CustomBrushEditor::CustomBrushEditor(QWidget *parent) :
 				d->mSettings[key] = value;
 				emit settingsChanged(d->mSettings);
 			});
-			d->settingChanged.connect([=](const QString &k, double v) {
-				if (k == key) {
-					spinBox->setValue(v);
-				}
+			d->settingsChanged.connect([=](const QVariantMap &settings) {
+				spinBox->setValue(settings[key].toDouble());
 			});
 			hlayout->addWidget(spinBox);
 
@@ -59,6 +57,8 @@ CustomBrushEditor::CustomBrushEditor(QWidget *parent) :
 
 		addSliderItem("erasing", tr("Erasing"), 0, 1, 2);
 		addSliderItem("smudge", tr("Smudge"), 0, 1, 2);
+
+		setLayout(layout);
 	}
 }
 
@@ -69,8 +69,7 @@ CustomBrushEditor::~CustomBrushEditor()
 void CustomBrushEditor::setSettings(const QVariantMap &settings)
 {
 	d->mSettings = settings;
-	d->settingChanged("erasing", settings.value("erasing", 0.0).toDouble());
-	d->settingChanged("smudge", settings.value("smudge", 0.0).toDouble());
+	d->settingsChanged(settings);
 }
 
 } // namespace PaintField

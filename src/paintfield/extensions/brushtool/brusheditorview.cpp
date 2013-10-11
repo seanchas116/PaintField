@@ -30,9 +30,10 @@ struct BrushEditorView::Data
 
 		if (m_oldEditor)
 			(m_oldEditor)->deleteLater();
-		if (editor)
+		if (editor) {
 			m_layout->addWidget(editor);
-
+			connect(editor, &BrushEditor::settingsChanged, m_presetManager, &BrushPresetManager::setSettings);
+		}
 		(m_oldEditor) = editor;
 	}
 
@@ -53,6 +54,7 @@ BrushEditorView::BrushEditorView(BrushStrokerFactoryManager *strokerFactoryManag
 	d->m_strokerFactoryManager = strokerFactoryManager;
 	d->m_presetManager = presetManager;
 	d->m_layout = new QVBoxLayout();
+	setLayout(d->m_layout);
 
 	connect(presetManager, &BrushPresetManager::strokerChanged, this, std::bind(&Data::onStrokerChanged, d.data()));
 	connect(presetManager, &BrushPresetManager::settingsChanged, this, std::bind(&Data::onSettingsChanged, d.data(), _1));

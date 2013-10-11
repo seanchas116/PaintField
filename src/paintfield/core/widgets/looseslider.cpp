@@ -10,7 +10,7 @@ struct LooseSlider::Data
 	double mMax = 1.0;
 	double mMin = 0.0;
 	double mIntFactor = 10;
-	int mDecimals = 2;
+	int mDecimals = 1;
 
 	void setDecimals(int x)
 	{
@@ -20,13 +20,11 @@ struct LooseSlider::Data
 
 	void updateIntRange(LooseSlider *self)
 	{
-		PAINTFIELD_DEBUG << mMin << mMax << mIntFactor;
 		self->setRange(std::round(mMin * mIntFactor), std::round(mMax * mIntFactor));
 	}
 
 	void updateIntValue(LooseSlider *self)
 	{
-		PAINTFIELD_DEBUG << mValue << mIntFactor;
 		self->setValue(std::round(mValue * mIntFactor));
 	}
 };
@@ -93,7 +91,7 @@ double LooseSlider::doubleValue() const
 void LooseSlider::onIntValueChanged(int x)
 {
 	if (x != std::round(d->mValue * d->mIntFactor))
-		setDoubleValue(std::round(x / d->mIntFactor));
+		setDoubleValue(x / d->mIntFactor);
 }
 
 }
