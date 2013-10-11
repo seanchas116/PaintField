@@ -27,10 +27,11 @@ private:
 	
 	void drawScanline(const BrushScanline &scanline, Malachite::Surface *surface);
 	
-	double _carryOver = 1.0;
-	Malachite::Image *_lastTile = 0;
-	QPoint _lastKey;
-	QScopedArrayPointer<Malachite::PixelVec> _covers;
+	double mCarryOver = 1.0;
+	Malachite::Image *mLastTile = 0;
+	QPoint mLastKey;
+	QScopedArrayPointer<Malachite::PixelVec> mCovers;
+	float mSmudge = 0.f;
 };
 
 class BrushStrokerSimpleBrushFactory : public BrushStrokerFactory
@@ -44,6 +45,7 @@ public:
 	QString name() const override;
 	QVariantMap defaultSettings() const override;
 	BrushStroker *createStroker(Malachite::Surface *surface) override;
+	BrushEditor *createEditor(const QVariantMap &settings) override;
 	
 };
 

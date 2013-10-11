@@ -1,8 +1,11 @@
-#include <Malachite/Interval>
-#include "brushrasterizer.h"
-#include <Malachite/BlendTraits>
-
 #include "brushstrokersimplebrush.h"
+
+#include "brushrasterizer.h"
+#include "custombrusheditor.h"
+
+#include <Malachite/BlendTraits>
+#include <Malachite/Interval>
+
 
 namespace PaintField {
 
@@ -16,8 +19,8 @@ BrushStrokerSimpleBrush::BrushStrokerSimpleBrush(Surface *surface) :
 void BrushStrokerSimpleBrush::drawFirst(const TabletInputData &data)
 {
 	int maxDabWidth = std::ceil(2 * radiusBase()) + 1;
-	_covers.reset(new PixelVec[maxDabWidth % 4 ? maxDabWidth / 4 + 1 : maxDabWidth / 4]);
-	_carryOver = 1;
+	mCovers.reset(new PixelVec[maxDabWidth % 4 ? maxDabWidth / 4 + 1 : maxDabWidth / 4]);
+	mCarryOver = 1;
 	drawDab(data.pos, data.pressure);
 }
 
@@ -35,7 +38,7 @@ void BrushStrokerSimpleBrush::drawInterval(const Malachite::Polygon &polygon, co
 		auto len = (p1 - p0).length();
 		auto pressure = dataStart.pressure;
 		auto pressureNormalized = (dataEnd.pressure - dataStart.pressure) / len;
-		_carryOver = drawSegment(p0, p1, len, pressure, pressureNormalized, _carryOver);
+		mCarryOver = drawSegment(p0, p1, len, pressure, pressureNormalized, mCarryOver);
 		return;
 	}
 	
@@ -45,12 +48,12 @@ void BrushStrokerSimpleBrush::drawInterval(const Malachite::Polygon &polygon, co
 	double pressureNormalized = (dataEnd.pressure - dataStart.pressure) / totalLen;
 	
 	double pressure = dataStart.pressure;
-	double carryOver = _carryOver;
+	double carryOver = mCarryOver;
 	
 	for (int i = 0; i < count; ++i)
 		carryOver = drawSegment(polygon[i], polygon[i+1], lengths[i], pressure, pressureNormalized, carryOver);
 	
-	_carryOver = carryOver;
+	mCarryOver = carryOver;
 }
 
 double BrushStrokerSimpleBrush::drawSegment(const Malachite::Vec2D &p1, const Malachite::Vec2D &p2, double len, double &pressure, double pressureNormalized, double carryOver)
@@ -124,6 +127,125 @@ inline static PixelVec sseVec4FromInt(int32_t i)
 	u.m = _mm_unpacklo_epi32(u.m, u.m);
 	return _mm_cvtepi32_ps(u.m);
 }
+
+class BrushDab
+{
+public:
+	BrushDab(const Vec2D &pos, double radius)
+	{
+		mPos = pos;
+		mRect = QRectF(pos.x() - radius, pos.y() - radius, radius * 2.0, radius * 2.0).toAlignedRect();
+
+		constexpr float aaWidth = 1.f;
+		float max, cutoffSlope;
+
+		if (radius <= 1.f)
+		{
+			max = radius;
+			//cutoff = 0.f;
+			radius = 1.f;
+			cutoffSlope = -max;
+		}
+		else if (radius <= 1.f + aaWidth)
+		{
+			max = 1.f;
+			//cutoff = 0.f;
+			cutoffSlope = -max / radius;
+		}
+		else
+		{
+			max = 1.f;
+			//cutoff = radius - aaWidth;
+			cutoffSlope = -max / aaWidth;
+		}
+
+		mMaxs = PixelVec(max);
+		mRadiuses = PixelVec(radius);
+		mCutoffSlopes = PixelVec(cutoffSlope);
+	}
+
+	template <typename TOperation>
+	void eachPixelInDab(BrushStrokerSimpleBrush *stroker, Surface *surface, TOperation func) const
+	{
+		constexpr auto tileWidth = Surface::tileWidth();
+		auto tileTopLeft = QPoint( mRect.left() / tileWidth, mRect.top() / tileWidth );
+		auto tileBottomRight = QPoint( mRect.right() / tileWidth, mRect.bottom() / tileWidth);
+
+		for (int tileY = tileTopLeft.y(); tileY <= tileBottomRight.y(); ++tileY)
+		{
+			for (int tileX = tileTopLeft.x(); tileX <= tileBottomRight.x(); ++tileX)
+			{
+				QPoint key(tileX, tileY);
+
+				auto image = stroker->getTile(key, surface);
+
+				auto subRect = QRect(0, 0, tileWidth, tileWidth) & mRect.translated(-tileX * tileWidth, -tileY * tileWidth);
+
+				auto x0 = subRect.left();
+				auto y0 = subRect.top();
+
+				auto offsetCenter = mPos - key * tileWidth - 0.5;
+
+				PixelVec offsetCenterXs(offsetCenter.x());
+				PixelVec offsetCenterYs(offsetCenter.y());
+
+				auto xs0 = sseVec4FromInt(x0, x0+1, x0+2, x0+3) - offsetCenterXs;
+				auto ys = sseVec4FromInt(y0) - offsetCenterYs;
+
+				int w = subRect.width();
+
+				for (int y = subRect.top(); y <= subRect.bottom(); ++y)
+				{
+					auto xs = xs0;
+					auto yys = ys * ys;
+
+					auto sl = image->pixelPointer(x0, y);
+
+					int rem = w;
+
+					while (rem)
+					{
+						auto rrs = xs * xs + yys;
+						auto rs = rrs.rsqrt() * rrs;
+						auto covers = ((rs - mRadiuses) * mCutoffSlopes).bound(0.f, mMaxs);
+						covers = PixelVec::choose( PixelVec::equal(covers, covers) , covers, mMaxs);
+
+						if (!rem--) break;
+						func(*sl, covers[0]);
+						++sl;
+
+						if (!rem--) break;
+						func(*sl, covers[1]);
+						++sl;
+
+						if (!rem--) break;
+						func(*sl, covers[2]);
+						++sl;
+
+						if (!rem--) break;
+						func(*sl, covers[3]);
+						++sl;
+
+						xs += 4.f;
+					}
+
+					ys += 1.f;
+				}
+			}
+		}
+	}
+
+	QRect rect() const
+	{
+		return mRect;
+	}
+
+private:
+
+	Vec2D mPos;
+	QRect mRect;
+	PixelVec mMaxs, mRadiuses, mCutoffSlopes;
+};
 
 
 template <typename TBlendTraits>
@@ -234,8 +356,30 @@ QRect BrushStrokerSimpleBrush::drawDab(const Vec2D &pos, double pressure)
 		return QRect();
 	
 	auto radius = radiusBase() * pressure;
-	
-	return drawDabToSurface<BlendTraitsSourceOver>(this, surface(), pixel(), pos, radius);
+	auto color = pixel();
+
+	BrushDab dab(pos, radius);
+
+	if (mSmudge) {
+
+		PixelVec smudgeColor(0);
+		float smudgeDivisor = 0.f;
+		dab.eachPixelInDab(this, surface(), [&](const Pixel &p, float cover) {
+			smudgeColor += p;
+			smudgeDivisor += cover;
+		});
+		smudgeColor /= smudgeDivisor;
+
+		PAINTFIELD_DEBUG << smudgeColor.at(0) << smudgeColor.at(1) << smudgeColor.at(2) << smudgeColor.at(3);
+
+		color = mSmudge * smudgeColor + color * (1.f - mSmudge);
+	}
+
+	dab.eachPixelInDab(this, surface(), [=](Pixel &p, float cover) {
+		p = BlendTraitsSourceOver::blend(p, color * cover);
+	});
+
+	return dab.rect();
 }
 
 static void drawScanlineInTile(Image *tileImage, const QPoint &offset, const BrushScanline &scanline, const Pixel &argb, BlendOp *blendOp)
@@ -287,21 +431,21 @@ void BrushStrokerSimpleBrush::drawScanline(const BrushScanline &scanline, Surfac
 
 Image *BrushStrokerSimpleBrush::getTile(const QPoint &key, Surface *surface)
 {
-	if (_lastTile && _lastKey == key)
+	if (mLastTile && mLastKey == key)
 	{
-		return _lastTile;
+		return mLastTile;
 	}
 	else
 	{
-		_lastKey = key;
-		_lastTile = &surface->tileRef(key);
-		return _lastTile;
+		mLastKey = key;
+		mLastTile = &surface->tileRef(key);
+		return mLastTile;
 	}
 }
 
 void BrushStrokerSimpleBrush::loadSettings(const QVariantMap &settings)
 {
-	Q_UNUSED(settings)
+	mSmudge = settings.value("smudge", 0.0).toDouble();
 }
 
 BrushStrokerSimpleBrushFactory::BrushStrokerSimpleBrushFactory(QObject *parent) :
@@ -317,12 +461,21 @@ QString BrushStrokerSimpleBrushFactory::name() const
 
 QVariantMap BrushStrokerSimpleBrushFactory::defaultSettings() const
 {
-	return QVariantMap();
+	return {
+		{"smudge", 0.0}
+	};
 }
 
 BrushStroker *BrushStrokerSimpleBrushFactory::createStroker(Surface *surface)
 {
 	return new BrushStrokerSimpleBrush(surface);
+}
+
+BrushEditor *BrushStrokerSimpleBrushFactory::createEditor(const QVariantMap &settings)
+{
+	auto editor = new CustomBrushEditor();
+	editor->setSettings(settings);
+	return editor;
 }
 
 } // namespace PaintField

@@ -2,6 +2,7 @@
 
 #include <Malachite/Vec2D>
 #include <QTransform>
+#include "paintfield/core/global.h"
 
 namespace PaintField {
 
