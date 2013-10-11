@@ -4,6 +4,8 @@
 #include "brushpresetmanager.h"
 #include "brushstroker.h"
 
+#include "paintfield/core/util.h"
+
 #include <QVBoxLayout>
 
 namespace PaintField {
@@ -32,9 +34,10 @@ struct BrushEditorView::Data
 			(m_oldEditor)->deleteLater();
 		if (editor) {
 			m_layout->addWidget(editor);
+			Util::applyMacSmallSize(editor);
 			connect(editor, &BrushEditor::settingsChanged, m_presetManager, &BrushPresetManager::setSettings);
 		}
-		(m_oldEditor) = editor;
+		m_oldEditor = editor;
 	}
 
 	void onSettingsChanged(const QVariantMap &settings)
@@ -58,6 +61,7 @@ BrushEditorView::BrushEditorView(BrushStrokerFactoryManager *strokerFactoryManag
 
 	connect(presetManager, &BrushPresetManager::strokerChanged, this, std::bind(&Data::onStrokerChanged, d.data()));
 	connect(presetManager, &BrushPresetManager::settingsChanged, this, std::bind(&Data::onSettingsChanged, d.data(), _1));
+	d->onStrokerChanged();
 }
 
 BrushEditorView::~BrushEditorView()
