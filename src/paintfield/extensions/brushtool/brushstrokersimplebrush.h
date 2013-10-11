@@ -25,8 +25,6 @@ private:
 	double drawSegment(const Malachite::Vec2D &p1, const Malachite::Vec2D &p2, double len, double &pressure, double pressureNormalized, double carryOver);
 	QRect drawDab(const Malachite::Vec2D &pos, float pressure);
 	
-	void drawScanline(const BrushScanline &scanline, Malachite::Surface *surface);
-	
 	double mCarryOver = 1.0;
 	Malachite::Image *mLastTile = 0;
 	QPoint mLastKey;

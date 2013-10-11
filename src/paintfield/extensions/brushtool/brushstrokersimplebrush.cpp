@@ -31,8 +31,7 @@ void BrushStrokerSimpleBrush::drawInterval(const Malachite::Polygon &polygon, co
 	if (count < 1)
 		return;
 	
-	if (count == 1)
-	{
+	if (count == 1) {
 		auto p0 = polygon[0];
 		auto p1 = polygon[1];
 		auto len = (p1 - p0).length();
@@ -75,8 +74,7 @@ double BrushStrokerSimpleBrush::drawSegment(const Malachite::Vec2D &p1, const Ma
 	
 	QRect lastRect;
 	
-	forever
-	{
+	forever {
 		len -= 1;
 		if (len < 0)
 			break;
@@ -106,7 +104,7 @@ inline static PixelVec sseVec4FromInt(int x1, int x2, int x3, int x4)
 		std::array<int32_t, 4> a;
 		__m128i m;
 	} u;
-	
+
 	u.a[0] = x1;
 	u.a[1] = x2;
 	u.a[2] = x3;
@@ -128,33 +126,25 @@ inline static PixelVec sseVec4FromInt(int32_t i)
 	return _mm_cvtepi32_ps(u.m);
 }
 
-class BrushDab
+class BrushDabSharpSmoother
 {
 public:
-	BrushDab(const Vec2D &pos, double radius)
-	{
-		mPos = pos;
-		mRect = QRectF(pos.x() - radius, pos.y() - radius, radius * 2.0, radius * 2.0).toAlignedRect();
 
-		float aaWidth = radius;
-		//constexpr float aaWidth = 5.f;
+	BrushDabSharpSmoother(float radius)
+	{
+		constexpr float aaWidth = 5.f;
 		float max, cutoffSlope;
 
-		if (radius <= 1.f)
-		{
+		if (radius <= 1.f) {
 			max = radius;
 			//cutoff = 0.f;
 			radius = 1.f;
 			cutoffSlope = -max;
-		}
-		else if (radius <= 1.f + aaWidth)
-		{
+		} else if (radius <= 1.f + aaWidth) {
 			max = 1.f;
 			//cutoff = 0.f;
 			cutoffSlope = -max / radius;
-		}
-		else
-		{
+		} else {
 			max = 1.f;
 			//cutoff = radius - aaWidth;
 			cutoffSlope = -max / aaWidth;
@@ -165,6 +155,47 @@ public:
 		mCutoffSlopes = PixelVec(cutoffSlope);
 	}
 
+	PixelVec smooth(const PixelVec &rs) const
+	{
+		auto covers = ((rs - mRadiuses) * mCutoffSlopes).bound(0.f, mMaxs);
+		covers = PixelVec::choose( PixelVec::equal(covers, covers) , covers, mMaxs);
+		return covers;
+	}
+
+private:
+	PixelVec mMaxs, mRadiuses, mCutoffSlopes;
+};
+
+class BrushDabSoftSmoother
+{
+public:
+
+	BrushDabSoftSmoother(float radius)
+	{
+		mRRadiuses = PixelVec(1.f / radius);
+	}
+
+	PixelVec smooth(const PixelVec &rs) const
+	{
+		return (1.f - rs * mRRadiuses).bound(0.f, 1.f);
+	}
+
+private:
+
+	PixelVec mRRadiuses;
+};
+
+template <typename TBrushDabSmoother>
+class BrushDab
+{
+public:
+	BrushDab(const Vec2D &pos, float radius) :
+		mSmoother(radius)
+	{
+		mPos = pos;
+		mRect = QRectF(pos.x() - radius, pos.y() - radius, radius * 2.0, radius * 2.0).toAlignedRect();
+	}
+
 	template <typename TOperation>
 	void eachPixelInDab(BrushStrokerSimpleBrush *stroker, Surface *surface, TOperation func) const
 	{
@@ -172,10 +203,10 @@ public:
 		auto tileTopLeft = QPoint( mRect.left() / tileWidth, mRect.top() / tileWidth );
 		auto tileBottomRight = QPoint( mRect.right() / tileWidth, mRect.bottom() / tileWidth);
 
-		for (int tileY = tileTopLeft.y(); tileY <= tileBottomRight.y(); ++tileY)
-		{
-			for (int tileX = tileTopLeft.x(); tileX <= tileBottomRight.x(); ++tileX)
-			{
+		for (int tileY = tileTopLeft.y(); tileY <= tileBottomRight.y(); ++tileY) {
+
+			for (int tileX = tileTopLeft.x(); tileX <= tileBottomRight.x(); ++tileX) {
+
 				QPoint key(tileX, tileY);
 
 				auto image = stroker->getTile(key, surface);
@@ -195,8 +226,8 @@ public:
 
 				int w = subRect.width();
 
-				for (int y = subRect.top(); y <= subRect.bottom(); ++y)
-				{
+				for (int y = subRect.top(); y <= subRect.bottom(); ++y) {
+
 					auto xs = xs0;
 					auto yys = ys * ys;
 
@@ -204,19 +235,12 @@ public:
 
 					int rem = w;
 
-					while (rem)
-					{
+					while (rem) {
+
 						auto rrs = xs * xs + yys;
 						auto rs = rrs.rsqrt() * rrs;
 
-						auto fastroot = [](const PixelVec &v) {
-							return v.rsqrt() * v;
-						};
-
-						auto covers = (1.f - rs / mRadiuses).bound(0.f, 1.f);
-						//auto covers = rrs / (mRadiuses * mRadiuses);
-						//auto covers = ((rs - mRadiuses) * mCutoffSlopes).bound(0.f, mMaxs);
-						//covers = PixelVec::choose( PixelVec::equal(covers, covers) , covers, mMaxs);
+						auto covers = mSmoother.smooth(rs);
 
 						if (!rem--) break;
 						func(*sl, covers[0]);
@@ -252,124 +276,20 @@ private:
 
 	Vec2D mPos;
 	QRect mRect;
-	PixelVec mMaxs, mRadiuses, mCutoffSlopes;
+
+	TBrushDabSmoother mSmoother;
 };
-
-
-template <typename TBlendTraits>
-static QRect drawDabToSurface(BrushStrokerSimpleBrush *stroker, Surface *surface, const Pixel &color, const Vec2D &pos, double radius)
-{
-	auto rect = QRectF(pos.x() - radius, pos.y() - radius, radius * 2.0, radius * 2.0).toAlignedRect();
-	
-	float max, cutoffSlope;
-	//constexpr float aaWidth = 1.f;
-	float aaWidth = radius;
-
-	if (radius <= 1.f)
-	{
-		max = radius;
-		//cutoff = 0.f;
-		radius = 1.f;
-		cutoffSlope = -max;
-	}
-	else if (radius <= 1.f + aaWidth)
-	{
-		max = 1.f;
-		//cutoff = 0.f;
-		cutoffSlope = -max / radius;
-	}
-	else
-	{
-		max = 1.f;
-		//cutoff = radius - aaWidth;
-		cutoffSlope = -max / aaWidth;
-	}
-	
-	auto maxs = PixelVec(max);
-	auto radiuses = PixelVec(radius);
-	auto cutoffSlopes = PixelVec(cutoffSlope);
-	
-	constexpr auto tileWidth = Surface::tileWidth();
-	auto tileTopLeft = QPoint( rect.left() / tileWidth, rect.top() / tileWidth );
-	auto tileBottomRight = QPoint( rect.right() / tileWidth, rect.bottom() / tileWidth);
-	
-	for (int tileY = tileTopLeft.y(); tileY <= tileBottomRight.y(); ++tileY)
-	{
-		for (int tileX = tileTopLeft.x(); tileX <= tileBottomRight.x(); ++tileX)
-		{
-			QPoint key(tileX, tileY);
-			
-			auto image = stroker->getTile(key, surface);
-			
-			auto subRect = QRect(0, 0, tileWidth, tileWidth) & rect.translated(-tileX * tileWidth, -tileY * tileWidth);
-			
-			auto x0 = subRect.left();
-			auto y0 = subRect.top();
-			
-			auto offsetCenter = pos - key * tileWidth - 0.5;
-			
-			PixelVec offsetCenterXs(offsetCenter.x());
-			PixelVec offsetCenterYs(offsetCenter.y());
-			
-			auto xs0 = sseVec4FromInt(x0, x0+1, x0+2, x0+3) - offsetCenterXs;
-			auto ys = sseVec4FromInt(y0) - offsetCenterYs;
-			
-			int w = subRect.width();
-			
-			for (int y = subRect.top(); y <= subRect.bottom(); ++y)
-			{
-				auto xs = xs0;
-				auto yys = ys * ys;
-				
-				auto sl = image->pixelPointer(x0, y);
-				
-				int rem = w;
-				
-				while (rem)
-				{
-					auto rrs = xs * xs + yys;
-					auto rs = rrs.rsqrt() * rrs;
-					auto covers = ((rs - radiuses) * cutoffSlopes).bound(0.f, maxs);
-					covers = PixelVec::choose( PixelVec::equal(covers, covers) , covers, maxs);
-					
-					if (!rem--) break;
-					*sl = TBlendTraits::blend(*sl, color * covers[0]);
-					++sl;
-					
-					if (!rem--) break;
-					*sl = TBlendTraits::blend(*sl, color * covers[1]);
-					++sl;
-					
-					if (!rem--) break;
-					*sl = TBlendTraits::blend(*sl, color * covers[2]);
-					++sl;
-					
-					if (!rem--) break;
-					*sl = TBlendTraits::blend(*sl, color * covers[3]);
-					++sl;
-					
-					xs += 4.f;
-				}
-				
-				ys += 1.f;
-			}
-		}
-	}
-	
-	return rect;
-}
 
 QRect BrushStrokerSimpleBrush::drawDab(const Vec2D &pos, float pressure)
 {
 	if (pressure <= 0)
 		return QRect();
 
-	//auto radius = radiusBase() * pressure;
 	auto radius = radiusBase();
 	auto color = pixel() * pressure * (1.f - mSmudge);
 	auto smudge = mSmudge * pressure;
 
-	BrushDab dab(pos, radius);
+	BrushDab<BrushDabSoftSmoother> dab(pos, radius);
 
 	if (smudge) {
 
@@ -381,17 +301,12 @@ QRect BrushStrokerSimpleBrush::drawDab(const Vec2D &pos, float pressure)
 		});
 		smudgeColor /= smudgeDivisor;
 
-		PAINTFIELD_DEBUG << smudgeColor.at(0) << smudgeColor.at(1) << smudgeColor.at(2) << smudgeColor.at(3);
-
 		dab.eachPixelInDab(this, surface(), [=](Pixel &p, float cover) {
 			auto r = cover * smudge;
 			p = r * smudgeColor + (1.f - r) * BlendTraitsSourceOver::blend(p, color * cover);
 		});
-		//dab.eachPixelInDab(this, surface(), [=](Pixel &p, float cover) {
-		//	p = BlendTraitsDestinationOut::blend(p, Pixel(cover * smudge));
-		//});
-	}
-	else {
+
+	} else {
 		dab.eachPixelInDab(this, surface(), [=](Pixel &p, float cover) {
 			p = BlendTraitsSourceOver::blend(p, color * cover);
 		});
@@ -400,61 +315,11 @@ QRect BrushStrokerSimpleBrush::drawDab(const Vec2D &pos, float pressure)
 	return dab.rect();
 }
 
-static void drawScanlineInTile(Image *tileImage, const QPoint &offset, const BrushScanline &scanline, const Pixel &argb, BlendOp *blendOp)
-{
-	QPoint pos = scanline.pos - offset;
-	
-	Q_ASSERT(0 <= pos.y() && pos.y() < Surface::tileWidth());
-	
-	int count = scanline.count;
-	bool isSolid = count < 0;
-	if (isSolid)
-		count = -count;
-	
-	Interval interval = Interval(0, Surface::tileWidth()) & Interval(pos.x(), count);
-	
-	if (interval.isValid())
-	{
-		auto p = tileImage->pixelPointer(interval.start(), pos.y());
-		
-		if (isSolid)
-		{
-			blendOp->blend(count, p, argb);
-		}
-		else
-		{
-			auto pcover = scanline.covers + (interval.start() - pos.x());
-			blendOp->blend(interval.length(), p, argb, wrapPointer(scanline.covers, count * sizeof(pcover), pcover));
-		}
-	}
-}
-
-
-void BrushStrokerSimpleBrush::drawScanline(const BrushScanline &scanline, Surface *surface)
-{
-	int tileY = IntDivision(scanline.pos.y(), Surface::tileWidth()).quot();
-	int tileStart = IntDivision(scanline.pos.x(), Surface::tileWidth()).quot();
-	int tileEnd = IntDivision(scanline.pos.x() + scanline.count - 1, Surface::tileWidth()).quot();
-	
-	auto blendOp = BlendMode(BlendMode::SourceOver).op();
-	
-	for (int tileX = tileStart; tileX <= tileEnd; ++tileX)
-	{
-		QPoint key(tileX, tileY);
-		
-		auto tile = getTile(key, surface);
-		drawScanlineInTile(tile, key * Surface::tileWidth(), scanline, pixel(), blendOp);
-	}
-}
-
 Image *BrushStrokerSimpleBrush::getTile(const QPoint &key, Surface *surface)
 {
-	if (mLastTile && mLastKey == key)
-	{
+	if (mLastTile && mLastKey == key) {
 		return mLastTile;
-	}
-	else
-	{
+	} else {
 		mLastKey = key;
 		mLastTile = &surface->tileRef(key);
 		return mLastTile;
