@@ -24,37 +24,37 @@ You can also build PaintField in command line like this example:
 ## Planned Features
 
 ### System:
-- [*] Multi-tab editing
-- [*] Hierarchical layer structure
-- [*] Customizable key config
-- [*] Plugin system
-- [*] Infinite undo/redo
-- [*] Movable tabs
-- [*] Multiple views for one document
-- [*] Multiple workspaces
+- [x] Multi-tab editing
+- [x] Hierarchical layer structure
+- [x] Customizable key config
+- [x] Plugin system
+- [x] Infinite undo/redo
+- [x] Movable tabs
+- [x] Multiple views for one document
+- [x] Multiple workspaces
 - [ ] Scripting
 
 ### GUI:
-- [*] Tool selection panel
-- [*] Color picker panel
-- [*] Navigator
-- [*] Grid
-- [*] Gradient editor
-- [*] Tool editor
+- [x] Tool selection panel
+- [x] Color picker panel
+- [x] Navigator
+- [x] Grid
+- [x] Gradient editor
+- [x] Tool editor
 - [ ] Content library
 
 ### Tools:
-- [*] Layer move
+- [x] Layer move
 - [ ] Rectangular selection
 - [ ] Polygonal selection
 - [ ] Elliptic selection
 - [ ] Freehand selection
 - [ ] Painting selection
 - [ ] Selection move
-- [*] Simple brush
+- [x] Simple brush
 - [ ] Customizable brush
 - [ ] Gradient
-- [*] Shapes
+- [x] Shapes
 
 ### General Features:
 - [ ] Filters
@@ -65,12 +65,12 @@ You can also build PaintField in command line like this example:
 - [ ] Post to Twitter
 
 ### Input & Output:
-- [*] Save & load documents
-- [*] Image file import
-- [*] Image file export
-- [*] PSD file import
-- [*] PSD file export
-- [*] ORA file import
-- [*] ORA file export
+- [x] Save & load documents
+- [x] Image file import
+- [x] Image file export
+- [x] PSD file import
+- [x] PSD file export
+- [x] ORA file import
+- [x] ORA file export
 - [ ] Print documents
 - [ ] Scan images
