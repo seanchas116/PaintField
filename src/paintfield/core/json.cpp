@@ -1,6 +1,5 @@
 #include <QFile>
 #include <QJsonDocument>
-#include "cpplinq-paintfield.h"
 
 #include "json.h"
 

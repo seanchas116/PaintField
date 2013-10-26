@@ -4,12 +4,15 @@ PaintField - A Cross-platform Digital Painting Tool
 [Website](http://iofg2100.github.io/PaintField/)
 
 This app is currently under development. The source files are licensed under LGPL (see copying file).
+
 The project name and the license might be changed in the future.
 
 ## To Build
 
 PaintField depends on the following libraries: Qt 5.2, libfreeimage, boost.
+
 PaintField requires GCC 4.8+ or Clang 3.2+ (Clang is recommended). MSVC is not supported.
+
 PaintField supports Mac, Linux 32/64bit and Windows 64bit.
 
 Opening PaintField.pro in Qt Creator is the easiest way to build PaintField.

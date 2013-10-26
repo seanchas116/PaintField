@@ -17,7 +17,7 @@ windows {
 QT += core gui network xml svg widgets
 CONFIG += c++11
 
-INCLUDEPATH += $$PWD/.. $$PWD/../libs $$PWD/../libs/Malachite/include
+INCLUDEPATH += $$PWD/.. $$PWD/../libs $$PWD/../libs/Malachite/include $$PWD/../libs/amulet/include
 
 # defining a function that returns the relative path from 2 paths
 # note that the head of a result is always '/'

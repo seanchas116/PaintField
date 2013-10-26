@@ -7,10 +7,7 @@
 #include <QApplication>
 #include <QClipboard>
 #include <tuple>
-#include <boost/range/algorithm.hpp>
-#include <boost/range/adaptors.hpp>
-
-#include "paintfield/core/cpplinq.hpp"
+#include <amulet/range_extension.hh>
 
 #include "paintfield/core/shapelayer.h"
 #include "paintfield/core/layeritemmodel.h"
@@ -169,7 +166,7 @@ static std::tuple<LayerConstRef, int , int> layerRangeFromLayers(const QList<Lay
 		return defaultValue;
 	
 	LayerConstRef parent = layers.at(0)->parent();
-	QList<int> indexes;
+	Amulet::RangeExtension<QList<int>> indexes;
 	
 	for (auto &layer : layers)
 	{
@@ -180,12 +177,12 @@ static std::tuple<LayerConstRef, int , int> layerRangeFromLayers(const QList<Lay
 		indexes << layer->index();
 	}
 	
-	int min = cpplinq::from(indexes) >> cpplinq::min();
-	int max = cpplinq::from(indexes) >> cpplinq::max();
+	int max = indexes.max();
+	int min = indexes.min();
 	int count = max - min + 1;
 	
 	// success if indexes are continuous
-	if (cpplinq::from(indexes) >> cpplinq::distinct() >> cpplinq::count() == count)
+	if (indexes.unique().size() == count)
 		return std::make_tuple(parent, min, count);
 	else
 		return defaultValue;
@@ -213,7 +210,9 @@ void LayerUIController::rasterizeLayers()
 	auto scene = d->document->layerScene();
 	auto layers = scene->selection();
 	auto current = scene->current();
-	auto filtered = cpplinq::from(layers) >> cpplinq::where( []( const LayerConstRef &layer ){ return layer->isType<ShapeLayer>(); }) >> cpplinq::to_vector();
+	auto filtered = Amulet::extend(layers).filter([]( const LayerConstRef &layer ){
+		return layer->isType<ShapeLayer>();
+	});
 	
 	QList<LayerConstRef> newLayers = layers;
 	

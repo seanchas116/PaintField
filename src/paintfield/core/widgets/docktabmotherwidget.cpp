@@ -1,9 +1,10 @@
+#include "docktabmotherwidget.h"
+
 #include <QSplitter>
 #include <QHBoxLayout>
-#include "cpplinq-paintfield.h"
+#include <amulet/range_extension.hh>
+#include <amulet/int_range.hh>
 #include "docktabwidget.h"
-
-#include "docktabmotherwidget.h"
 
 namespace PaintField
 {
@@ -138,18 +139,14 @@ void DockTabMotherWidget::setCentralWidget(QWidget *widget)
 
 static QList<int> intListFromVariant(const QVariant &x)
 {
-	using namespace cpplinq;
-	return from(x.toList())
-	>> select( []( const QVariant &x ){ return x.toInt(); } )
-	>> to_any_container<QList<int>>();
+	return Amulet::extend(x.toList()).map([](const QVariant &x){
+		return x.toInt();
+	}).to<QList>();
 }
 
 static QVariant variantFromIntList(const QList<int> list)
 {
-	using namespace cpplinq;
-	return from(list)
-	>> select([](int x){return QVariant(x);})
-	>> to_any_container<QVariantList>();
+	return Amulet::extend(list).map(&QVariant::fromValue<int>).to<QList>();
 }
 
 QString DockTabMotherWidget::stringFromDirection(Direction dir)
@@ -170,8 +167,6 @@ QString DockTabMotherWidget::stringFromDirection(Direction dir)
 
 void DockTabMotherWidget::setSizesState(const QVariantMap &data)
 {
-	using namespace cpplinq;
-	
 	// set vertical / horizontal sizes
 	{
 		auto verticalSizes = intListFromVariant(data["vertical"]);
@@ -185,9 +180,7 @@ void DockTabMotherWidget::setSizesState(const QVariantMap &data)
 	{
 		auto getSizesList = [data]( const QString &str )
 		{
-			return from(data[str].toList())
-			>> select(intListFromVariant)
-			>> to_any_container<QList<QList<int>>>();
+			return Amulet::extend(data[str].toList()).map(&intListFromVariant).to<QList>();
 		};
 		
 		for (auto dir : {Left, Right, Top, Bottom})
@@ -208,17 +201,15 @@ void DockTabMotherWidget::setSizesState(const QVariantMap &data)
 
 QVariantMap DockTabMotherWidget::sizesState()
 {
-	using namespace cpplinq;
-	
 	QVariantMap data;
 	data["vertical"] = variantFromIntList(_mainVerticalSplitter->sizes());
 	data["horizontal"] = variantFromIntList(_mainHorizontalSplitter->sizes());
 	
 	for (auto dir : {Left, Right, Top, Bottom})
 	{
-		data[stringFromDirection(dir)] = from(_splitterLists[dir])
-		>> select([](QSplitter *splitter){return variantFromIntList(splitter->sizes());})
-		>> to_any_container<QVariantList>();
+		data[stringFromDirection(dir)] = Amulet::extend(_splitterLists[dir]).map([](QSplitter *splitter){
+			return variantFromIntList(splitter->sizes());
+		}).to<QList>();
 	}
 	
 	return data;
@@ -258,23 +249,20 @@ void DockTabMotherWidget::setTabIndexState(const QVariantMap &data)
 template <typename TUnaryOperator>
 QVariantMap DockTabMotherWidget::packDataForEachTabWidget(TUnaryOperator op)
 {
-	using namespace cpplinq;
-	
 	auto getIndexList = [op](QSplitter *splitter)
 	{
-		return range(0, splitter->count())
-		>> select([splitter](int x){return splitter->widget(x);})
-		>> select([op](QWidget *w)->QVariant{return op(w);})
-		>> to_any_container<QVariantList>();
+		return Amulet::intRange(0, splitter->count()).map([splitter](int x){
+			return splitter->widget(x);}
+		).map([op](QWidget *w)->QVariant{
+			return op(w);
+		}).template to<QVariantList>();
 	};
 	
 	QVariantMap data;
 	
 	for (auto dir : {Left, Right, Top, Bottom})
 	{
-		data[stringFromDirection(dir)] = from(_splitterLists[dir])
-		>> select(getIndexList)
-		>> to_any_container<QVariantList>();
+		data[stringFromDirection(dir)] = Amulet::extend(_splitterLists[dir]).map(getIndexList).template to<QVariantList>();
 	}
 	
 	return data;
@@ -293,19 +281,16 @@ QVariantMap DockTabMotherWidget::tabIndexState()
 
 QVariantMap DockTabMotherWidget::tabObjectNameState()
 {
-	using namespace cpplinq;
-	
-	auto getObjectNames = [](QWidget *w)
-	{
+	auto getObjectNames = [](QWidget *w) {
+
 		auto tabWidget = dynamic_cast<DockTabWidget *>(w);
-		if (tabWidget)
-		{
-			return range(0, tabWidget->count())
-			>> select([tabWidget](int x)->QVariant{return tabWidget->widget(x)->objectName();})
-			>> to_any_container<QVariantList>();
-		}
-		else
+		if (tabWidget) {
+			return Amulet::intRange(0, tabWidget->count()).map([tabWidget](int x)->QVariant{
+				return tabWidget->widget(x)->objectName();
+			}).to<QVariantList>();
+		} else {
 			return QVariantList();
+		}
 	};
 	
 	return packDataForEachTabWidget(getObjectNames);

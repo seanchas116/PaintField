@@ -5,7 +5,7 @@
 #include "settingsmanager.h"
 #include "util.h"
 #include "workspaceview.h"
-#include "cpplinq-paintfield.h"
+#include <amulet/range_extension.hh>
 
 #include "workspacemanager.h"
 
@@ -25,8 +25,9 @@ static QVariantMap defaultWorkspaceState()
 
 void WorkspaceManager::closeAllAndQuit()
 {
-	using namespace cpplinq;
-	QVariantList states = from(_workspaces) >> select([](Workspace *w)->QVariant{return w->saveState();}) >> to_any_container<QVariantList>();
+	auto states = Amulet::extend(_workspaces).map([](Workspace *w)->QVariant{
+		return w->saveState();
+	}).to<QList>();
 	
 	for (Workspace *controller : _workspaces)
 	{

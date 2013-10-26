@@ -82,8 +82,6 @@ HEADERS += \
     abstractrectlayer.h \
     serializationutil.h \
     widgets/abstractlayerpropertyeditor.h \
-    cpplinq.hpp \
-    cpplinq-paintfield.h \
     json.h \
     canvasviewportcontroller.h \
     canvasviewportnormal.h \
