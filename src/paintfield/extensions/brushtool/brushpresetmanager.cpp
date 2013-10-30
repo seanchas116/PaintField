@@ -1,7 +1,6 @@
 #include "brushpresetmanager.h"
 
 #include "paintfield/core/json.h"
-#include <boost/range/adaptors.hpp>
 
 namespace PaintField {
 

@@ -4,7 +4,7 @@
 #include <memory>
 #include <QStack>
 #include <QHash>
-#include <boost/range/adaptor/reversed.hpp>
+#include <amulet/range_extension.hh>
 #include "paintfield/core/rasterlayer.h"
 #include "paintfield/core/grouplayer.h"
 #include "paintfield/core/layerrenderer.h"
@@ -88,7 +88,7 @@ bool PsdFormatSupport::read(QIODevice *device, QList<LayerRef> *layers, QSize *s
 			return layer;
 		};
 
-		for (const auto &layerRecord : layerRecords | boost::adaptors::reversed)
+		for (const auto &layerRecord : Amulet::extend(layerRecords).reverse())
 		{
 			switch (layerRecord->sectionType)
 			{

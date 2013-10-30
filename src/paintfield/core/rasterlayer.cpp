@@ -1,4 +1,3 @@
-#include <boost/range/irange.hpp>
 #include <Malachite/ImageIO>
 #include <Malachite/Painter>
 #include <QFileInfo>

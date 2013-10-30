@@ -3,8 +3,6 @@
 #include <QUndoCommand>
 #include <QTimer>
 #include <QItemSelectionModel>
-#include <boost/range/adaptors.hpp>
-#include <boost/range/algorithm.hpp>
 
 #include "document.h"
 #include "rasterlayer.h"

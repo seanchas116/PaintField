@@ -1,10 +1,9 @@
-#include <Malachite/Container>
 #include "layerrenderer.h"
 
-#include <boost/range/adaptor/reversed.hpp>
+#include <amulet/range_extension.hh>
+#include <Malachite/Container>
 
 using namespace Malachite;
-using namespace boost;
 
 namespace PaintField
 {
@@ -62,7 +61,7 @@ void LayerRenderer::renderChildren(SurfacePainter *painter, const LayerConstRef 
 
 void LayerRenderer::renderLayers(SurfacePainter *painter, const QList<LayerConstRef> &layers)
 {
-	for (auto layer : layers | adaptors::reversed)
+	for (auto layer : Amulet::extend(layers).reverse())
 		renderLayer(painter, layer);
 }
 
