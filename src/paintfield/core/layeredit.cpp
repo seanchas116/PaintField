@@ -63,7 +63,7 @@ LayerSurfaceEdit::LayerSurfaceEdit(const Surface &surface, const QPointSet &tile
 
 void LayerSurfaceEdit::redo(const LayerRef &layer)
 {
-	auto rasterLayer = std::dynamic_pointer_cast<RasterLayer>(layer);
+	auto rasterLayer = dynamicSPCast<RasterLayer>(layer);
 	Q_ASSERT(rasterLayer);
 	
 	Surface surface = rasterLayer->surface();
@@ -73,7 +73,7 @@ void LayerSurfaceEdit::redo(const LayerRef &layer)
 
 void LayerSurfaceEdit::undo(const LayerRef &layer)
 {
-	auto rasterLayer = std::dynamic_pointer_cast<RasterLayer>(layer);
+	auto rasterLayer = dynamicSPCast<RasterLayer>(layer);
 	Q_ASSERT(rasterLayer);
 	
 	Surface surface = rasterLayer->surface();
@@ -83,7 +83,7 @@ void LayerSurfaceEdit::undo(const LayerRef &layer)
 
 void LayerMoveEdit::redo(const LayerRef &layer)
 {
-	auto rasterLayer = std::dynamic_pointer_cast<RasterLayer>(layer);
+	auto rasterLayer = dynamicSPCast<RasterLayer>(layer);
 	Q_ASSERT(rasterLayer);
 	Surface surface;
 	
@@ -99,7 +99,7 @@ void LayerMoveEdit::redo(const LayerRef &layer)
 
 void LayerMoveEdit::undo(const LayerRef &layer)
 {
-	auto rasterLayer = std::dynamic_pointer_cast<RasterLayer>(layer);
+	auto rasterLayer = dynamicSPCast<RasterLayer>(layer);
 	Q_ASSERT(rasterLayer);
 	Surface surface;
 	

@@ -187,7 +187,7 @@ struct RectTool::Data
 	{
 		LayerConstRef original; // original layer
 		
-		Ref<AbstractRectLayer> rectLayer; // editable rect layer (only if original layer is rect)
+		SP<AbstractRectLayer> rectLayer; // editable rect layer (only if original layer is rect)
 		Vec2D originalRectPos;
 		
 		QRect rasterBoundingRect;
@@ -197,14 +197,14 @@ struct RectTool::Data
 		{
 			original = layer;
 			
-			auto originalRectLayer = std::dynamic_pointer_cast<const AbstractRectLayer>(layer);
+			auto originalRectLayer = dynamicSPCast<const AbstractRectLayer>(layer);
 			if (originalRectLayer)
 			{
-				rectLayer = std::static_pointer_cast<AbstractRectLayer>(layer->clone());
+				rectLayer = staticSPCast<AbstractRectLayer>(layer->clone());
 				originalRectPos = rectLayer->rect().topLeft();
 			}
 			
-			auto rasterLayer = std::dynamic_pointer_cast<const RasterLayer>(layer);
+			auto rasterLayer = dynamicSPCast<const RasterLayer>(layer);
 			if (rasterLayer)
 			{
 				rasterBoundingRect = rasterLayer->surface().boundingRect();
@@ -227,7 +227,7 @@ struct RectTool::Data
 	}
 	
 	AddingType addingType = NoAdding;
-	Ref<AbstractRectLayer> layerToAdd;
+	SP<AbstractRectLayer> layerToAdd;
 	LayerConstRef layerToAddParent;
 	int layerToAddIndex;
 	
@@ -279,7 +279,7 @@ RectTool::RectTool(AddingType type, Canvas *canvas) :
 	
 	connect(layerScene(), SIGNAL(selectionChanged(QList<LayerConstRef>,QList<LayerConstRef>)), this, SLOT(updateSelected()));
 	connect(layerScene(), SIGNAL(layerChanged(LayerConstRef)), this, SLOT(updateLayer(LayerConstRef)));
-	connect(canvas, SIGNAL(transformsChanged(Ref<const CanvasTransforms>)), this, SLOT(updateGraphicsItems()));
+	connect(canvas, SIGNAL(transformsChanged(SP<const CanvasTransforms>)), this, SLOT(updateGraphicsItems()));
 	updateSelected();
 }
 
@@ -300,7 +300,7 @@ void RectTool::drawLayer(SurfacePainter *painter, const LayerConstRef &layer)
 			}
 			else
 			{
-				auto rasterLayer = std::dynamic_pointer_cast<const RasterLayer>(layer);
+				auto rasterLayer = dynamicSPCast<const RasterLayer>(layer);
 				if (rasterLayer)
 				{
 					painter->drawSurface(info.rasterOffset, rasterLayer->surface());
@@ -729,11 +729,11 @@ void RectTool::startAdding()
 {
 	auto createNew = [this]()
 	{
-		Ref<AbstractRectLayer> layer;
+		SP<AbstractRectLayer> layer;
 		
 		if (d->addingType == RectTool::AddText)
 		{
-			auto textLayer = std::make_shared<TextLayer>();
+			auto textLayer = makeSP<TextLayer>();
 			textLayer->setText(tr("Text"));
 			textLayer->setName(tr("Text"));
 			
@@ -749,7 +749,7 @@ void RectTool::startAdding()
 		}
 		else
 		{
-			layer = std::make_shared<RectLayer>();
+			layer = makeSP<RectLayer>();
 			
 			if (d->addingType == RectTool::AddEllipse)
 			{

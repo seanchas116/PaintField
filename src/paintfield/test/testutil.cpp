@@ -40,12 +40,12 @@ Document *createTestDocument(QObject *parent)
 	
 	for (int i = 0; i < 3; ++i)
 	{
-		auto l = std::make_shared<RasterLayer>("layer" + QString::number(i));
+		auto l = makeSP<RasterLayer>("layer" + QString::number(i));
 		l->setSurface(createTestSurface(i));
 		layer[i] = l;
 	}
 	
-	auto group = std::make_shared<GroupLayer>("group");
+	auto group = makeSP<GroupLayer>("group");
 	group->append(layer[1]);
 	group->append(layer[2]);
 	

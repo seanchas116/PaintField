@@ -75,7 +75,7 @@ template <> float loadComponent<32>(const uint8_t *data)
 	return (data[0] << 24U | data[1] << 16U | data[2] << 8U | data[3]) / float(0xFFFFFFFFU);
 }
 
-Malachite::Image load(const QVector<Ref<PsdChannelData> > &channeldDataList, const QVector<PsdChannelInfo> &channelInfos, const QRect &rect, int bpp)
+Malachite::Image load(const QVector<SP<PsdChannelData> > &channeldDataList, const QVector<PsdChannelInfo> &channelInfos, const QRect &rect, int bpp)
 {
 	Q_ASSERT(channeldDataList.size() == channelInfos.size());
 

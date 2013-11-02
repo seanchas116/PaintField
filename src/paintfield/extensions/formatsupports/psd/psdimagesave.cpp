@@ -4,7 +4,7 @@ namespace PaintField {
 namespace PsdImageSave {
 
 template <int channel, int bpp>
-static Ref<PsdChannelData> writeChannel(const Malachite::Image &image)
+static SP<PsdChannelData> writeChannel(const Malachite::Image &image)
 {
 	int pixelCount = image.area();
 	QByteArray data;
@@ -52,7 +52,7 @@ static Ref<PsdChannelData> writeChannel(const Malachite::Image &image)
 		++p;
 	}
 
-	auto channelData = std::make_shared<PsdChannelData>();
+	auto channelData = makeSP<PsdChannelData>();
 	channelData->rawData = data;
 	return channelData;
 }
@@ -74,7 +74,7 @@ static int psdChannel(int channel)
 }
 
 template <int channel, int bpp>
-static void addChannel(const Malachite::Image &image, QVector<Ref<PsdChannelData>> &channelDatas, QVector<PsdChannelInfo> &channelInfos)
+static void addChannel(const Malachite::Image &image, QVector<SP<PsdChannelData>> &channelDatas, QVector<PsdChannelInfo> &channelInfos)
 {
 	auto data = writeChannel<channel, bpp>(image);
 	channelDatas << data;
@@ -86,7 +86,7 @@ static void addChannel(const Malachite::Image &image, QVector<Ref<PsdChannelData
 }
 
 template <int bpp>
-static void addChannels(const Malachite::Image &image, QVector<Ref<PsdChannelData>> &channelDatas, QVector<PsdChannelInfo> &channelInfos)
+static void addChannels(const Malachite::Image &image, QVector<SP<PsdChannelData>> &channelDatas, QVector<PsdChannelInfo> &channelInfos)
 {
 	addChannel<Malachite::Pixel::Index::A, bpp>(image, channelDatas, channelInfos);
 	addChannel<Malachite::Pixel::Index::R, bpp>(image, channelDatas, channelInfos);
@@ -95,7 +95,7 @@ static void addChannels(const Malachite::Image &image, QVector<Ref<PsdChannelDat
 }
 
 
-void save(Malachite::Image &&image, QVector<Ref<PsdChannelData>> &channelDatas, QVector<PsdChannelInfo> &channelInfos, int bpp)
+void save(Malachite::Image &&image, QVector<SP<PsdChannelData>> &channelDatas, QVector<PsdChannelInfo> &channelInfos, int bpp)
 {
 	int pixelCount = image.area();
 
@@ -125,7 +125,7 @@ void save(Malachite::Image &&image, QVector<Ref<PsdChannelData>> &channelDatas, 
 	}
 }
 
-void saveEmpty(QVector<Ref<PsdChannelData> > &channelDatas, QVector<PsdChannelInfo> &channelInfos)
+void saveEmpty(QVector<SP<PsdChannelData> > &channelDatas, QVector<PsdChannelInfo> &channelInfos)
 {
 	for (int channel : {-1, 0, 1, 2})
 	{
@@ -134,14 +134,14 @@ void saveEmpty(QVector<Ref<PsdChannelData> > &channelDatas, QVector<PsdChannelIn
 		info.length = 2;
 		channelInfos << info;
 
-		auto data = std::make_shared<PsdChannelData>();
+		auto data = makeSP<PsdChannelData>();
 		channelDatas << data;
 	}
 }
 
 QByteArray saveAsImageData(Malachite::Image &&image, int bpp)
 {
-	QVector<Ref<PsdChannelData>> channelDatas;
+	QVector<SP<PsdChannelData>> channelDatas;
 	QVector<PsdChannelInfo> channelInfos;
 
 	save(std::move(image), channelDatas, channelInfos, bpp);

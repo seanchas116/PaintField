@@ -22,7 +22,7 @@ void Test_LayerScene::test_addLayers()
 	QList<LayerRef> layers;
 	
 	for (int i = 0; i < 4; ++i)
-		layers << std::make_shared<RasterLayer>("layer" + QString::number(i));
+		layers << makeSP<RasterLayer>("layer" + QString::number(i));
 	
 	auto doc = new Document("temp", QSize(400, 300), { layers[0], layers[1] });
 	
@@ -49,7 +49,7 @@ void Test_LayerScene::test_removeLayers()
 	QList<LayerRef> layers;
 	
 	for (int i = 0; i < 4; ++i)
-		layers << std::make_shared<RasterLayer>("layer" + QString::number(i));
+		layers << makeSP<RasterLayer>("layer" + QString::number(i));
 	
 	auto doc = new Document("temp", QSize(400, 300), layers);
 	
@@ -73,9 +73,9 @@ void Test_LayerScene::test_removeLayers()
 
 void Test_LayerScene::test_moveLayers()
 {
-	auto group = std::make_shared<GroupLayer>("group");
-	auto layer0 = std::make_shared<RasterLayer>("layer0");
-	auto layer1 = std::make_shared<RasterLayer>("layer1");
+	auto group = makeSP<GroupLayer>("group");
+	auto layer0 = makeSP<RasterLayer>("layer0");
+	auto layer1 = makeSP<RasterLayer>("layer1");
 	
 	auto doc = new Document("temp", QSize(400, 300), { layer0, group, layer1 });
 	auto dir = doc->layerScene()->rootLayer();
@@ -102,7 +102,7 @@ void Test_LayerScene::test_moveLayers_sibling()
 	QList<LayerRef> layers;
 	
 	for (int i = 0; i < 4; ++i)
-		layers << std::make_shared<RasterLayer>("layer" + QString::number(i));
+		layers << makeSP<RasterLayer>("layer" + QString::number(i));
 	
 	auto doc = new Document("temp", QSize(400, 300), layers);
 	auto dir = doc->layerScene()->rootLayer();
@@ -129,7 +129,7 @@ void Test_LayerScene::test_copyLayers()
 	QList<LayerRef> layers;
 	
 	for (int i = 0; i < 4; ++i)
-		layers << std::make_shared<RasterLayer>("layer" + QString::number(i));
+		layers << makeSP<RasterLayer>("layer" + QString::number(i));
 	
 	auto doc = new Document("temp", QSize(400, 300), layers);
 	auto dir = doc->layerScene()->rootLayer();
@@ -155,7 +155,7 @@ void Test_LayerScene::test_copyLayers()
 
 void Test_LayerScene::test_setLayerProperty()
 {
-	auto doc = new Document("temp", QSize(400, 300), {std::make_shared<RasterLayer>("layer")});
+	auto doc = new Document("temp", QSize(400, 300), {makeSP<RasterLayer>("layer")});
 	
 	auto dir = doc->layerScene()->rootLayer();
 	auto layer = dir->child(0);

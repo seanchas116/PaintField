@@ -23,7 +23,7 @@ MinimapView::MinimapView(Canvas *canvas, QWidget *parent) :
 	{
 		d->canvas = canvas;
 		connect(canvas->document()->layerScene(), SIGNAL(thumbnailsUpdated(QPointSet)), this, SLOT(onThumbnailUpdated(QPointSet)));
-		connect(canvas, SIGNAL(transformsChanged(Ref<const CanvasTransforms>)), this, SLOT(onTransformChanged()));
+		connect(canvas, SIGNAL(transformsChanged(SP<const CanvasTransforms>)), this, SLOT(onTransformChanged()));
 		d->thumbnailPixmap = QPixmap(canvas->document()->size());
 		d->thumbnailPixmap.fill(Qt::white);
 		d->keys = canvas->document()->tileKeys();

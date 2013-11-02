@@ -175,7 +175,7 @@ CanvasViewController::CanvasViewController(Canvas *canvas) :
 			d->viewportController = vp;
 			vp->viewport()->setFocusPolicy(Qt::ClickFocus);
 			connect(vp, SIGNAL(viewSizeChanged(QSize)), canvas, SLOT(setViewSize(QSize)));
-			connect(canvas, SIGNAL(transformsChanged(Ref<const CanvasTransforms>)), vp, SLOT(setTransforms(Ref<const CanvasTransforms>)));
+			connect(canvas, SIGNAL(transformsChanged(SP<const CanvasTransforms>)), vp, SLOT(setTransforms(SP<const CanvasTransforms>)));
 			connect(canvas, SIGNAL(retinaModeChanged(bool)), vp, SLOT(setRetinaMode(bool)));
 			vp->setTransforms(canvas->transforms());
 			vp->setRetinaMode(canvas->isRetinaMode());
@@ -223,7 +223,7 @@ CanvasViewController::CanvasViewController(Canvas *canvas) :
 	
 	// connect to canvas
 	{
-		connect(canvas, SIGNAL(transformsChanged(Ref<const CanvasTransforms>)), this, SLOT(onTransformUpdated()));
+		connect(canvas, SIGNAL(transformsChanged(SP<const CanvasTransforms>)), this, SLOT(onTransformUpdated()));
 		onTransformUpdated();
 		
 		connect(canvas, SIGNAL(toolChanged(Tool*)), this, SLOT(setTool(Tool*)));

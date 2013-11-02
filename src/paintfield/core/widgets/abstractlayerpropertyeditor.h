@@ -24,9 +24,9 @@ public:
 	void setCurrentProperty(const QVariant &data, int role, const QString &description);
 	
 	template <class T>
-	Ref<const T> currentWithType()
+	SP<const T> currentWithType()
 	{
-		return std::dynamic_pointer_cast<const T>(current());
+		return dynamicSPCast<const T>(current());
 	}
 	
 signals:

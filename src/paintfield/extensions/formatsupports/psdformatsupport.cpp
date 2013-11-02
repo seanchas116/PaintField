@@ -48,21 +48,21 @@ bool PsdFormatSupport::read(QIODevice *device, QList<LayerRef> *layers, QSize *s
 		layerSection.load(stream, header.depth);
 
 		QStack<LayerRef> parentStack;
-		parentStack.push(std::make_shared<GroupLayer>());
+		parentStack.push(makeSP<GroupLayer>());
 
 		auto layerRecords = layerSection.layerInfo.layerRecords;
 
-		auto makeLayer = [&](const Ref<PsdLayerRecord> &layerRecord, bool isGroup)
+		auto makeLayer = [&](const SP<PsdLayerRecord> &layerRecord, bool isGroup)
 		{
 			LayerRef layer;
 
 			if (isGroup)
 			{
-				layer = std::make_shared<GroupLayer>();
+				layer = makeSP<GroupLayer>();
 			}
 			else
 			{
-				layer = std::make_shared<RasterLayer>();
+				layer = makeSP<RasterLayer>();
 			}
 
 			layer->setName(layerRecord->layerName);
@@ -75,7 +75,7 @@ bool PsdFormatSupport::read(QIODevice *device, QList<LayerRef> *layers, QSize *s
 
 			if (!isGroup)
 			{
-				auto rasterLayer = std::static_pointer_cast<RasterLayer>(layer);
+				auto rasterLayer = staticSPCast<RasterLayer>(layer);
 				auto rect = layerRecord->getRect();
 				auto image = PsdImageLoad::load(layerRecord->channelDatas, layerRecord->channelInfos , rect, header.depth);
 
@@ -129,16 +129,16 @@ bool PsdFormatSupport::read(QIODevice *device, QList<LayerRef> *layers, QSize *s
 	}
 }
 
-static void writeLayers(QList<Ref<PsdLayerRecord>> &layerRecords, const QList<LayerConstRef> &layers, int bpp)
+static void writeLayers(QList<SP<PsdLayerRecord>> &layerRecords, const QList<LayerConstRef> &layers, int bpp)
 {
 	// does not set section type
 	auto writeLayer = [bpp](const LayerConstRef &layer)
 	{
-		auto record = std::make_shared<PsdLayerRecord>();
+		auto record = makeSP<PsdLayerRecord>();
 
 		if (layer->isType<RasterLayer>())
 		{
-			auto rasterLayer = std::dynamic_pointer_cast<const RasterLayer>(layer);
+			auto rasterLayer = dynamicSPCast<const RasterLayer>(layer);
 			auto surface = rasterLayer->surface();
 			QRect rect = surface.boundingRect();
 
@@ -179,7 +179,7 @@ static void writeLayers(QList<Ref<PsdLayerRecord>> &layerRecords, const QList<La
 
 			writeLayers(layerRecords, layer->children(), bpp);
 
-			auto endGroup = std::make_shared<PsdLayerRecord>();
+			auto endGroup = makeSP<PsdLayerRecord>();
 			endGroup->sectionType = (int)PsdLayerRecord::SectionType::BoundingSectionDivider;
 			PsdImageSave::saveEmpty(endGroup->channelDatas, endGroup->channelInfos);
 

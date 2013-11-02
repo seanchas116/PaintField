@@ -124,7 +124,7 @@ public:
 	 */
 	bool isRetinaMode() const;
 	
-	Ref<const CanvasTransforms> transforms() const;
+	SP<const CanvasTransforms> transforms() const;
 	
 	QPoint maxAbsoluteTranslation() const;
 	
@@ -171,7 +171,7 @@ signals:
 	 * Emitted when the transform is changed, before scale, rotation ... changed signals are emitted.
 	 * @param transforms
 	 */
-	void transformsChanged(const Ref<const CanvasTransforms> &transforms);
+	void transformsChanged(const SP<const CanvasTransforms> &transforms);
 	
 	void toolChanged(Tool *tool);
 	

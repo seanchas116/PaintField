@@ -19,17 +19,38 @@
 namespace PaintField
 {
 
-template <typename T>
-using Ref = std::shared_ptr<T>;
+// convenient aliases for shared_ptr and weak_ptr
 
-template <typename T>
-using WeakRef = std::weak_ptr<T>;
+template <class T>
+using SP = std::shared_ptr<T>;
 
-template< class T, class... Args >
-inline Ref<T> makeSharedRef(Args&&... args)
+template <class T>
+using WP = std::weak_ptr<T>;
+
+template <class T, class... Args>
+inline SP<T> makeSP(Args&&... args)
 {
-	return std::make_shared(args...);
+	return std::make_shared<T>(std::forward<Args>(args)...);
 }
+
+template <class T, class U>
+inline SP<T> staticSPCast(const SP<U> &r)
+{
+	return std::static_pointer_cast<T>(r);
+}
+
+template <class T, class U>
+inline SP<T> dynamicSPCast(const SP<U> &r)
+{
+	return std::dynamic_pointer_cast<T>(r);
+}
+
+template <class T, class U>
+inline SP<T> constSPCast(const SP<U> &r)
+{
+	return std::const_pointer_cast<T>(r);
+}
+
 
 enum LayerPropertyRole
 {

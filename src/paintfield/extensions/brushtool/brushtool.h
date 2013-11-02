@@ -64,7 +64,7 @@ private:
 	
 	bool _isStroking = false;
 	
-	Ref<const RasterLayer> _layer = 0;
+	SP<const RasterLayer> _layer = 0;
 	Malachite::Surface _surface;
 	
 	boost::optional<TabletInputData> _lastEndData;

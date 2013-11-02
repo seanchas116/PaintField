@@ -132,7 +132,7 @@ QString TextLayerFactory::name() const
 
 LayerRef TextLayerFactory::create() const
 {
-	return std::make_shared<TextLayer>();
+	return makeSP<TextLayer>();
 }
 
 const std::type_info &TextLayerFactory::typeInfo() const

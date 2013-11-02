@@ -69,9 +69,9 @@ static void readLayers(UnzipArchive *archive, QList<LayerRef> &layers, const QDo
 		
 		LayerRef layer;
 		if (isLayer)
-			layer = std::make_shared<RasterLayer>();
+			layer = makeSP<RasterLayer>();
 		else
-			layer = std::make_shared<GroupLayer>();
+			layer = makeSP<GroupLayer>();
 		
 		// set layer properties
 		
@@ -101,7 +101,7 @@ static void readLayers(UnzipArchive *archive, QList<LayerRef> &layers, const QDo
 		
 		if (isLayer)
 		{
-			auto rasterLayer = std::static_pointer_cast<RasterLayer>(layer);
+			auto rasterLayer = staticSPCast<RasterLayer>(layer);
 			
 			UnzipFile srcFile(archive, src);
 			
@@ -224,7 +224,7 @@ static QList<QDomElement> saveLayers(ZipArchive *archive, const QList<LayerConst
 			
 			if (layer->isType<RasterLayer>())
 			{
-				surface = std::static_pointer_cast<const RasterLayer>(layer)->surface();
+				surface = staticSPCast<const RasterLayer>(layer)->surface();
 			}
 			else
 			{

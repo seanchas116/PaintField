@@ -17,7 +17,7 @@ bool SingleLayerFormatSupport::read(QIODevice *device, QList<LayerRef> *layers, 
 	if (!readSingleLayer(device, &surface, size))
 		return false;
 	
-	auto layer = std::make_shared<RasterLayer>();
+	auto layer = makeSP<RasterLayer>();
 	layer->setSurface(surface);
 	
 	*layers = {layer};

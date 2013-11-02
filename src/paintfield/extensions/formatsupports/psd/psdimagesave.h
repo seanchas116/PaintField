@@ -7,8 +7,8 @@ namespace PaintField {
 namespace PsdImageSave {
 
 // data is RGBA order
-void save(Malachite::Image &&image, QVector<Ref<PsdChannelData>> &channelDatas, QVector<PsdChannelInfo> &channelInfos, int bpp);
-void saveEmpty(QVector<Ref<PsdChannelData>> &channelDatas, QVector<PsdChannelInfo> &channelInfos);
+void save(Malachite::Image &&image, QVector<SP<PsdChannelData>> &channelDatas, QVector<PsdChannelInfo> &channelInfos, int bpp);
+void saveEmpty(QVector<SP<PsdChannelData>> &channelDatas, QVector<PsdChannelInfo> &channelInfos);
 
 QByteArray saveAsImageData(Malachite::Image &&image, int bpp);
 

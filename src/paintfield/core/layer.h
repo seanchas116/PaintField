@@ -23,8 +23,8 @@ namespace PaintField
 {
 
 class Layer;
-typedef Ref<Layer> LayerRef;
-typedef Ref<const Layer> LayerConstRef;
+typedef SP<Layer> LayerRef;
+typedef SP<const Layer> LayerConstRef;
 
 class Layer : public std::enable_shared_from_this<Layer>
 {
@@ -43,7 +43,7 @@ public:
 	
 	LayerConstRef constChild(int index) const;
 	LayerConstRef child(int index) const { return constChild(index); }
-	LayerRef child(int index) { return std::const_pointer_cast<Layer>(constChild(index)); }
+	LayerRef child(int index) { return constSPCast<Layer>(constChild(index)); }
 	
 	LayerConstRef sibling(int index) const { return parent()->child(index); }
 	LayerRef sibling(int index) { return parent()->child(index); }
@@ -61,7 +61,7 @@ public:
 	/**
 	 * @return The root layer of this layer
 	 */
-	LayerRef root() { return std::const_pointer_cast<Layer>(constRoot()); }
+	LayerRef root() { return constSPCast<Layer>(constRoot()); }
 	
 	/**
 	 * This function is faster than isAncestorOfSafe().
@@ -109,7 +109,7 @@ public:
 	 * @param child
 	 * @return The index of a child layer
 	 */
-	int indexOf(const LayerConstRef &child) const { return _children.indexOf(std::const_pointer_cast<Layer>(child)); }
+	int indexOf(const LayerConstRef &child) const { return _children.indexOf(constSPCast<Layer>(child)); }
 	
 	/**
 	 * @return The index of this layer in its parent.

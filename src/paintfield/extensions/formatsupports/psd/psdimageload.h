@@ -9,7 +9,7 @@ namespace PaintField {
 namespace PsdImageLoad
 {
 
-Malachite::Image load(const QVector<Ref<PsdChannelData>> &channeldDataList, const QVector<PsdChannelInfo> &channelInfos, const QRect &rect, int bpp);
+Malachite::Image load(const QVector<SP<PsdChannelData>> &channeldDataList, const QVector<PsdChannelInfo> &channelInfos, const QRect &rect, int bpp);
 
 }
 

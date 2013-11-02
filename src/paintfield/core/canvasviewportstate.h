@@ -17,7 +17,7 @@ struct CanvasViewportState
 	//CanvasViewportSurface surface;
 	CanvasViewportMipmap mipmap;
 	
-	Ref<const CanvasTransforms> transforms;
+	SP<const CanvasTransforms> transforms;
 	
 	bool translationOnly = false;
 	QPoint translationToScene;

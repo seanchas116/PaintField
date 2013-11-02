@@ -119,7 +119,7 @@ CanvasViewportSurface CanvasViewportController::mergedSurface() const
 	return d->state.mipmap.topLevelSurface();
 }
 
-void CanvasViewportController::setTransforms(const Ref<const CanvasTransforms> &transforms)
+void CanvasViewportController::setTransforms(const SP<const CanvasTransforms> &transforms)
 {
 	d->state.mipmap.setCurrentLevel(transforms->mipmapLevel);
 	d->state.transforms = transforms;

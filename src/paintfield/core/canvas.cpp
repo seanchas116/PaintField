@@ -47,7 +47,7 @@ struct Canvas::Data
 	double memorizedScale = 1, memorizedRotation = 0;
 	QPoint memorizedTranslation;
 	
-	Ref<CanvasTransforms> transforms;
+	SP<CanvasTransforms> transforms;
 	
 	QScopedPointer<Tool> tool;
 	
@@ -64,7 +64,7 @@ Canvas::Canvas(Document *document, Workspace *parent) :
 	d->documentRefCount = new int;
 	*d->documentRefCount = 0;
 	
-	d->transforms = std::make_shared<CanvasTransforms>();
+	d->transforms = makeSP<CanvasTransforms>();
 	
 	document->setParent(0);
 	
@@ -79,7 +79,7 @@ Canvas::Canvas(Canvas *other, Workspace *parent) :
 	d->document = other->document();
 	d->documentRefCount = other->d->documentRefCount;
 	
-	d->transforms = std::make_shared<CanvasTransforms>();
+	d->transforms = makeSP<CanvasTransforms>();
 	d->transforms->translation = other->d->transforms->translation;
 	d->transforms->scale = other->d->transforms->scale;
 	d->transforms->rotation = other->d->transforms->rotation;
@@ -179,7 +179,7 @@ bool Canvas::isRetinaMode() const
 	return d->transforms->retinaMode;
 }
 
-Ref<const CanvasTransforms> Canvas::transforms() const
+SP<const CanvasTransforms> Canvas::transforms() const
 {
 	return d->transforms;
 }
@@ -341,7 +341,7 @@ void Canvas::newCanvasIntoDocument()
 	workspace()->addAndShowCanvas(new Canvas(this, d->workspace));
 }
 
-static void updateCanvasTransforms(const Ref<CanvasTransforms> &transforms)
+static void updateCanvasTransforms(const SP<CanvasTransforms> &transforms)
 {
 	auto sceneSize = transforms->sceneSize;
 	auto viewSize = transforms->viewSize;

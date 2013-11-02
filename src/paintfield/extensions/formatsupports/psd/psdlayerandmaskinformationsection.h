@@ -73,7 +73,7 @@ public:
 	uint32_t sectionType = 0;
 	QByteArray sectionBlendModeKey = "norm";
 
-	QVector<Ref<PsdChannelData>> channelDatas;
+	QVector<SP<PsdChannelData>> channelDatas;
 };
 
 class PsdLayerInfo
@@ -83,7 +83,7 @@ public:
 	void load(PsdBinaryStream &stream, int depth);
 	void save(PsdBinaryStream &stream) const;
 
-	QList<Ref<PsdLayerRecord>> layerRecords;
+	QList<SP<PsdLayerRecord>> layerRecords;
 };
 
 class PsdLayerAndMaskInformationSection

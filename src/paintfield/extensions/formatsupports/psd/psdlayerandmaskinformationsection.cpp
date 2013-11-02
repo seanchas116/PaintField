@@ -277,7 +277,7 @@ void PsdLayerInfo::load(PsdBinaryStream &stream, int depth)
 	// read layer records
 	for (int i = 0; i < layerCount; ++i)
 	{
-		auto record = std::make_shared<PsdLayerRecord>();
+		auto record = makeSP<PsdLayerRecord>();
 		record->load(stream);
 		layerRecords << record;
 	}
@@ -289,7 +289,7 @@ void PsdLayerInfo::load(PsdBinaryStream &stream, int depth)
 
 		for (const auto &channelInfo : layerRecord->channelInfos)
 		{
-			auto channelData = std::make_shared<PsdChannelData>();
+			auto channelData = makeSP<PsdChannelData>();
 			channelData->load(stream, rect, depth, channelInfo.length);
 
 			layerRecord->channelDatas << channelData;

@@ -26,8 +26,8 @@ namespace PaintField {
 
 struct ShapeSideBar::Data
 {
-	Ref<const AbstractRectLayer> rectLayer;
-	Ref<const TextLayer> textLayer;
+	SP<const AbstractRectLayer> rectLayer;
+	SP<const TextLayer> textLayer;
 	
 	QTextEdit *textEdit = 0;
 	QToolButton *fontButton = 0;
@@ -191,8 +191,8 @@ ShapeSideBar::ShapeSideBar(LayerScene *scene, QWidget *parent) :
 
 void ShapeSideBar::updateForCurrentChange(const LayerConstRef &current)
 {
-	d->rectLayer = std::dynamic_pointer_cast<const AbstractRectLayer>(current);
-	d->textLayer = std::dynamic_pointer_cast<const TextLayer>(current);
+	d->rectLayer = dynamicSPCast<const AbstractRectLayer>(current);
+	d->textLayer = dynamicSPCast<const TextLayer>(current);
 	
 	updateForCurrentPropertyChange();
 }

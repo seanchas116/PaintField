@@ -116,7 +116,7 @@ void BrushTool::beginStroke(const TabletInputData &data)
 		
 		setEditing(true);
 		
-		_layer = std::dynamic_pointer_cast<const RasterLayer>(currentLayer());
+		_layer = dynamicSPCast<const RasterLayer>(currentLayer());
 		
 		if (!_layer || _layer->isLocked())
 			return;

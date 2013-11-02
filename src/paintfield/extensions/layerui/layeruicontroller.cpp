@@ -144,12 +144,12 @@ void LayerUIController::importLayer()
 
 void LayerUIController::newRasterLayer()
 {
-	addLayers( { std::make_shared<RasterLayer>(tr("New Layer") ) }, tr("Add Layer") );
+	addLayers( { makeSP<RasterLayer>(tr("New Layer") ) }, tr("Add Layer") );
 }
 
 void LayerUIController::newGroupLayer()
 {
-	addLayers( { std::make_shared<GroupLayer>(tr("New Group") ) }, tr("Add Group") );
+	addLayers( { makeSP<GroupLayer>(tr("New Group") ) }, tr("Add Group") );
 }
 
 void LayerUIController::removeLayers()

@@ -78,7 +78,7 @@ public:
 	
 	LayerRef layerForPath(const Path &path)
 	{
-		return std::const_pointer_cast<Layer>(_scene->layerForPath(path));
+		return constSPCast<Layer>(_scene->layerForPath(path));
 	}
 	
 	static Path pathForLayer(const LayerConstRef &layer)
@@ -447,7 +447,7 @@ public:
 		auto layers = layersForPaths(_pathList);
 		
 		// make result layer
-		auto merged = std::make_shared<RasterLayer>(_newName);
+		auto merged = makeSP<RasterLayer>(_newName);
 		{
 			LayerRenderer renderer;
 			merged->setSurface(renderer.renderToSurface(Malachite::constList(layers)));
@@ -517,7 +517,7 @@ public:
 		
 		LayerRenderer renderer;
 		
-		auto newLayer = std::make_shared<RasterLayer>(_newName);
+		auto newLayer = makeSP<RasterLayer>(_newName);
 		newLayer->setSurface(renderer.renderToSurface(Malachite::constList(_layers)));
 		newLayer->updateThumbnail(scene()->document()->size());
 		
@@ -545,7 +545,7 @@ private:
 
 struct LayerScene::Data
 {
-	Ref<GroupLayer> rootLayer;
+	SP<GroupLayer> rootLayer;
 	Document *document = 0;
 	QPointSet updatedKeys;
 	QPointSet thumbnailDirtyKeys;
@@ -597,7 +597,7 @@ LayerScene::LayerScene(const QList<LayerRef> &layers, Document *document) :
 	connect(d->document, SIGNAL(modified()), this, SLOT(update()));
 	
 	{
-		auto root = std::make_shared<GroupLayer>();
+		auto root = makeSP<GroupLayer>();
 		root->insert(0, layers);
 		root->updateThumbnailRecursive(document->size());
 		d->rootLayer = root;
