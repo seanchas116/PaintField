@@ -23,11 +23,7 @@ public:
 	
 signals:
 	
-	void strokerFactoryChanged(BrushStrokerFactory *factory);
-	
 private slots:
-	
-	void onStrokerChanged(const QString &name);
 	
 private:
 	

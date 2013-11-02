@@ -35,7 +35,6 @@ BrushToolExtension::BrushToolExtension(Workspace *workspace, QObject *parent) :
 	_strokerFactoryManager->addFactory(new BrushStrokerPenFactory);
 	_strokerFactoryManager->addFactory(new BrushStrokerSimpleBrushFactory);
 	
-	connect(_presetManager, SIGNAL(strokerChanged(QString)), this, SLOT(onStrokerChanged(QString)));
 	connect(_presetManager, SIGNAL(presetChanged(QVariantMap,QString)), _preferencesManager, SLOT(onPresetChanged(QVariantMap,QString)));
 
 	{
@@ -70,8 +69,11 @@ Tool *BrushToolExtension::createTool(const QString &name, Canvas *parent)
 		
 		connect(workspace()->paletteManager(), SIGNAL(currentColorChanged(Malachite::Color)), tool, SLOT(setColor(Malachite::Color)));
 		tool->setColor(workspace()->paletteManager()->currentColor());
+
+		connect(_presetManager, &BrushPresetManager::strokerChanged, tool, [this, tool](const QString &name) {
+			tool->setStrokerFactory(_strokerFactoryManager->factory(name));
+		});
 		
-		connect(this, SIGNAL(strokerFactoryChanged(BrushStrokerFactory*)), tool, SLOT(setStrokerFactory(BrushStrokerFactory*)));
 		connect(_presetManager, SIGNAL(settingsChanged(QVariantMap)), tool, SLOT(setBrushSettings(QVariantMap)));
 		
 		tool->setStrokerFactory(_strokerFactoryManager->factory(_presetManager->stroker()));
@@ -85,12 +87,6 @@ Tool *BrushToolExtension::createTool(const QString &name, Canvas *parent)
 		return tool;
 	}
 	return 0;
-}
-
-void BrushToolExtension::onStrokerChanged(const QString &name)
-{
-	PAINTFIELD_DEBUG << "stroker changed";
-	emit strokerFactoryChanged(_strokerFactoryManager->factory(name));
 }
 
 void BrushToolExtensionFactory::initialize(AppController *app)
