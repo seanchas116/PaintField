@@ -166,7 +166,7 @@ static std::tuple<LayerConstRef, int , int> layerRangeFromLayers(const QList<Lay
 		return defaultValue;
 	
 	LayerConstRef parent = layers.at(0)->parent();
-	Amulet::RangeExtension<QList<int>> indexes;
+	QList<int> indexes;
 	
 	for (auto &layer : layers)
 	{
@@ -177,12 +177,12 @@ static std::tuple<LayerConstRef, int , int> layerRangeFromLayers(const QList<Lay
 		indexes << layer->index();
 	}
 	
-	int max = indexes.max();
-	int min = indexes.min();
+	int max = indexes++.max();
+	int min = indexes++.min();
 	int count = max - min + 1;
 	
 	// success if indexes are continuous
-	if (indexes.unique().size() == count)
+	if (indexes++.unique().size() == (size_t)count)
 		return std::make_tuple(parent, min, count);
 	else
 		return defaultValue;
@@ -210,7 +210,7 @@ void LayerUIController::rasterizeLayers()
 	auto scene = d->document->layerScene();
 	auto layers = scene->selection();
 	auto current = scene->current();
-	auto filtered = Amulet::extend(layers).filter([]( const LayerConstRef &layer ){
+	auto filtered = layers++.filter([]( const LayerConstRef &layer ){
 		return layer->isType<ShapeLayer>();
 	});
 	

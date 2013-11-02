@@ -139,14 +139,14 @@ void DockTabMotherWidget::setCentralWidget(QWidget *widget)
 
 static QList<int> intListFromVariant(const QVariant &x)
 {
-	return Amulet::extend(x.toList()).map([](const QVariant &x){
+	return x.toList()++.map([](const QVariant &x){
 		return x.toInt();
 	}).to<QList>();
 }
 
 static QVariant variantFromIntList(const QList<int> list)
 {
-	return Amulet::extend(list).map(&QVariant::fromValue<int>).to<QList>();
+	return list++.map(&QVariant::fromValue<int>).to<QList>();
 }
 
 QString DockTabMotherWidget::stringFromDirection(Direction dir)
@@ -180,7 +180,7 @@ void DockTabMotherWidget::setSizesState(const QVariantMap &data)
 	{
 		auto getSizesList = [data]( const QString &str )
 		{
-			return Amulet::extend(data[str].toList()).map(&intListFromVariant).to<QList>();
+			return data[str].toList()++.map(&intListFromVariant).to<QList>();
 		};
 		
 		for (auto dir : {Left, Right, Top, Bottom})
@@ -207,7 +207,7 @@ QVariantMap DockTabMotherWidget::sizesState()
 	
 	for (auto dir : {Left, Right, Top, Bottom})
 	{
-		data[stringFromDirection(dir)] = Amulet::extend(_splitterLists[dir]).map([](QSplitter *splitter){
+		data[stringFromDirection(dir)] = _splitterLists[dir]++.map([](QSplitter *splitter){
 			return variantFromIntList(splitter->sizes());
 		}).to<QList>();
 	}
@@ -262,7 +262,7 @@ QVariantMap DockTabMotherWidget::packDataForEachTabWidget(TUnaryOperator op)
 	
 	for (auto dir : {Left, Right, Top, Bottom})
 	{
-		data[stringFromDirection(dir)] = Amulet::extend(_splitterLists[dir]).map(getIndexList).template to<QVariantList>();
+		data[stringFromDirection(dir)] = _splitterLists[dir]++.map(getIndexList).template to<QVariantList>();
 	}
 	
 	return data;

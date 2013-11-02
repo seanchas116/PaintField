@@ -61,7 +61,7 @@ void LayerRenderer::renderChildren(SurfacePainter *painter, const LayerConstRef 
 
 void LayerRenderer::renderLayers(SurfacePainter *painter, const QList<LayerConstRef> &layers)
 {
-	for (auto layer : Amulet::extend(layers).reverse())
+	for (auto layer : layers++.reverse())
 		renderLayer(painter, layer);
 }
 

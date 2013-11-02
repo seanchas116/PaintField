@@ -88,7 +88,7 @@ bool PsdFormatSupport::read(QIODevice *device, QList<LayerRef> *layers, QSize *s
 			return layer;
 		};
 
-		for (const auto &layerRecord : Amulet::extend(layerRecords).reverse())
+		for (const auto &layerRecord : layerRecords++.reverse())
 		{
 			switch (layerRecord->sectionType)
 			{

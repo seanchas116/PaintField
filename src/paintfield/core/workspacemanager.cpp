@@ -25,7 +25,7 @@ static QVariantMap defaultWorkspaceState()
 
 void WorkspaceManager::closeAllAndQuit()
 {
-	auto states = Amulet::extend(_workspaces).map([](Workspace *w)->QVariant{
+	auto states = _workspaces++.map([](Workspace *w)->QVariant{
 		return w->saveState();
 	}).to<QList>();
 	
