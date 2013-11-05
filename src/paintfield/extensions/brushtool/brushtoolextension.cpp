@@ -5,12 +5,13 @@
 #include "paintfield/core/settingsmanager.h"
 #include "paintfield/core/widgets/simplebutton.h"
 #include "paintfield/core/palettemanager.h"
+#include "paintfield/core/observablevariantmap.h"
 
-#include "brushpreferencesmanager.h"
+#include "brushpresetitem.h"
+#include "brushpresetdatabase.h"
 #include "brushsidebar.h"
 #include "brushstrokerfactorymanager.h"
 #include "brushpresetmanager.h"
-#include "brushlibrarymodel.h"
 #include "brushlibraryview.h"
 #include "brushtool.h"
 #include "brushstrokerpen.h"
@@ -21,68 +22,61 @@
 
 namespace PaintField {
 
-const QString _brushToolName("paintfield.tool.brush");
-const QString _brushLibrarySidebarName("paintfield.sidebar.brushLibrary");
-const QString _brushSideBarName("paintfield.sidebar.brush");
-const QString _brushEditorSideBarName("paintfield.sidebar.brushEditor");
+const QString brushToolName("paintfield.tool.brush");
+const QString brushLibrarySidebarName("paintfield.sidebar.brushLibrary");
+const QString brushSideBarName("paintfield.sidebar.brush");
+const QString brushEditorSideBarName("paintfield.sidebar.brushEditor");
 
-BrushToolExtension::BrushToolExtension(Workspace *workspace, QObject *parent) :
+BrushToolExtension::BrushToolExtension(BrushPresetDatabase *presetDatabase, Workspace *workspace, QObject *parent) :
     WorkspaceExtension(workspace, parent),
-    _presetManager(new BrushPresetManager(this)),
-    _strokerFactoryManager(new BrushStrokerFactoryManager(this)),
-    _preferencesManager(new BrushPreferencesManager(this))
+	mPresetManager(new BrushPresetManager(this)),
+	mStrokerFactoryManager(new BrushStrokerFactoryManager(this))
 {
-	_strokerFactoryManager->addFactory(new BrushStrokerPenFactory);
-	_strokerFactoryManager->addFactory(new BrushStrokerSimpleBrushFactory);
-	
-	connect(_presetManager, SIGNAL(presetChanged(QVariantMap,QString)), _preferencesManager, SLOT(onPresetChanged(QVariantMap,QString)));
+	mStrokerFactoryManager->addFactory(new BrushStrokerPenFactory);
+	mStrokerFactoryManager->addFactory(new BrushStrokerSimpleBrushFactory);
 
 	{
-		// library
+		connect(presetDatabase, &BrushPresetDatabase::currentPresetChanged, mPresetManager, &BrushPresetManager::setPreset);
+		mPresetManager->setPreset(presetDatabase->currentPreset());
 
-		auto libraryModel = new BrushLibraryModel(this);
-
-		connect(libraryModel, SIGNAL(currentPathChanged(QString,QString)), _presetManager, SLOT(setPreset(QString)));
-		_presetManager->setPreset(libraryModel->currentPath());
-
-		addSideBar(_brushLibrarySidebarName, new BrushLibraryView(libraryModel));
+		addSideBar(brushLibrarySidebarName, new BrushLibraryView(presetDatabase));
 	}
-	
 	{
 		// brush sidebar
-		auto brushSideBar = new BrushSideBar(_presetManager, _preferencesManager);
-		addSideBar(_brushSideBarName, brushSideBar);
+		auto brushSideBar = new BrushSideBar(mPresetManager);
+		addSideBar(brushSideBarName, brushSideBar);
 	}
 
 	{
 		// brush editor
-		auto editorView = new BrushEditorView(_strokerFactoryManager, _presetManager);
-		addSideBar(_brushEditorSideBarName, editorView);
+		auto editorView = new BrushEditorView(mStrokerFactoryManager, mPresetManager);
+		addSideBar(brushEditorSideBarName, editorView);
 	}
 }
 
 Tool *BrushToolExtension::createTool(const QString &name, Canvas *parent)
 {
-	if (name == _brushToolName)
+	if (name == brushToolName)
 	{
 		auto tool = new BrushTool(parent);
 		
 		connect(workspace()->paletteManager(), SIGNAL(currentColorChanged(Malachite::Color)), tool, SLOT(setColor(Malachite::Color)));
 		tool->setColor(workspace()->paletteManager()->currentColor());
 
-		connect(_presetManager, &BrushPresetManager::strokerChanged, tool, [this, tool](const QString &name) {
-			tool->setStrokerFactory(_strokerFactoryManager->factory(name));
+		connect(mPresetManager, &BrushPresetManager::strokerChanged, tool, [this, tool](const QString &name) {
+			tool->setStrokerFactory(mStrokerFactoryManager->factory(name));
 		});
+
+		connect(mPresetManager->parameters(), SIGNAL(mapChanged(QVariantMap)), tool, SLOT(setBrushSettings(QVariantMap)));
 		
-		connect(_presetManager, SIGNAL(settingsChanged(QVariantMap)), tool, SLOT(setBrushSettings(QVariantMap)));
-		
-		tool->setStrokerFactory(_strokerFactoryManager->factory(_presetManager->stroker()));
-		tool->setBrushSettings(_presetManager->settings());
-		
-		connect(_preferencesManager, SIGNAL(brushSizeChanged(int)), tool, SLOT(setBrushSize(int)));
-		connect(_preferencesManager, SIGNAL(smoothEnabledChanged(bool)), tool, SLOT(setSmoothEnabled(bool)));
-		tool->setBrushSize(_preferencesManager->brushSize());
-		tool->setSmoothEnabled(_preferencesManager->isSmoothEnabled());
+		tool->setStrokerFactory(mStrokerFactoryManager->factory(mPresetManager->stroker()));
+		tool->setBrushSettings(mPresetManager->parameters()->map());
+
+		using namespace std::placeholders;
+		mPresetManager->parameters()->onValueChanged<int>("size", tool, std::bind(&BrushTool::setBrushSize, tool, _1));
+		mPresetManager->commonParameters()->onValueChanged<bool>("smooth", tool, std::bind(&BrushTool::setSmoothEnabled, tool, _1));
+		tool->setBrushSize(mPresetManager->parameters()->value("size").toInt());
+		tool->setSmoothEnabled(mPresetManager->commonParameters()->value("smooth").toBool());
 		
 		return tool;
 	}
@@ -94,15 +88,44 @@ void BrushToolExtensionFactory::initialize(AppController *app)
 	{
 		QString text = QObject::tr("Brush");
 		QIcon icon = SimpleButton::createIcon(":/icons/24x24/brush.svg");
-		QStringList supportedTypes = { "raster" };
-		app->settingsManager()->declareTool(_brushToolName, ToolInfo(text, icon, QStringList()));
+		//QStringList supportedTypes = { "raster" };
+		app->settingsManager()->declareTool(brushToolName, ToolInfo(text, icon, QStringList()));
 	}
 	
 	{
-		app->settingsManager()->declareSideBar(_brushLibrarySidebarName, SideBarInfo(tr("Brush Library")));
-		app->settingsManager()->declareSideBar(_brushSideBarName, SideBarInfo(tr("Brush")));
-		app->settingsManager()->declareSideBar(_brushEditorSideBarName, SideBarInfo(tr("Brush Editor")));
+		app->settingsManager()->declareSideBar(brushLibrarySidebarName, SideBarInfo(tr("Brush Library")));
+		app->settingsManager()->declareSideBar(brushSideBarName, SideBarInfo(tr("Brush")));
+		app->settingsManager()->declareSideBar(brushEditorSideBarName, SideBarInfo(tr("Brush Editor")));
 	}
+
+	{
+		auto presetDatabase = new BrushPresetDatabase(this);
+
+		QDir userSettingsDir = appController()->settingsManager()->userDataDir();
+		userSettingsDir.cd("Settings");
+		QFileInfo fileInfo(userSettingsDir.filePath("brush-presets.json"));
+		mPresetFilePath = fileInfo.filePath();
+		if (fileInfo.exists()) {
+			presetDatabase->load(fileInfo.filePath());
+		} else {
+			QDir builtinSettingsDir = appController()->settingsManager()->builtinDataDir();
+
+			if (builtinSettingsDir.cd("Settings")) {
+				presetDatabase->load(builtinSettingsDir.filePath("brush-presets.json"));
+			}
+		}
+		mPresetDatabase = presetDatabase;
+	}
+}
+
+BrushToolExtensionFactory::~BrushToolExtensionFactory()
+{
+	mPresetDatabase->save(mPresetFilePath);
+}
+
+WorkspaceExtensionList BrushToolExtensionFactory::createWorkspaceExtensions(Workspace *workspace, QObject *parent)
+{
+	return { new BrushToolExtension(mPresetDatabase, workspace, parent) };
 }
 
 }

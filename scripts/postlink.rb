@@ -56,7 +56,7 @@ end
 
 # copy contents, settings, extensions
 
-FileUtils.rm_rf(destination + "Contents")
+#FileUtils.rm_rf(destination + "Contents")
 FileUtils.rm_rf(destination + "Settings")
 FileUtils.rm_rf(destination + "Translations")
 

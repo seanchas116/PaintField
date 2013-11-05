@@ -15,6 +15,7 @@ ExtensionManager::ExtensionManager(QObject *parent) :
 
 void ExtensionManager::addExtensionFactory(ExtensionFactory *factory)
 {
+	factory->setParent(this);
 	_factories << factory;
 	
 	for (auto subFactory : factory->subExtensionFactories())

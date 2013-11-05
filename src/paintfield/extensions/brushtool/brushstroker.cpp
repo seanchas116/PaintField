@@ -140,9 +140,9 @@ void BrushStroker::filterData(TabletInputData &data)
 	data.pressure *= data.pressure;
 }
 
-BrushEditor *BrushStrokerFactory::createEditor(const QVariantMap &settings)
+QWidget *BrushStrokerFactory::createEditor(ObservableVariantMap *parameters)
 {
-	Q_UNUSED(settings);
+	Q_UNUSED(parameters);
 	return nullptr;
 }
 

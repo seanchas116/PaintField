@@ -17,17 +17,17 @@ BrushStrokerFactoryManager::BrushStrokerFactoryManager(QObject *parent) :
 void BrushStrokerFactoryManager::addFactory(BrushStrokerFactory *factory)
 {
 	factory->setParent(this);
-	_factories << factory;
+	mFactories << factory;
 }
 
 bool BrushStrokerFactoryManager::contains(const QString &name) const
 {
-	return _factories.find([&](BrushStrokerFactory *f){return f->name() == name;}, 0);
+	return mFactories++.find([&](BrushStrokerFactory *f){return f->name() == name;}).hasValue();
 }
 
 BrushStrokerFactory *BrushStrokerFactoryManager::factory(const QString &name)
 {
-	return _factories.find([&](BrushStrokerFactory *f){return f->name() == name;}, 0);
+	return mFactories++.find([&](BrushStrokerFactory *f){return f->name() == name;}).getOr(nullptr);
 }
 
 } // namespace PaintField

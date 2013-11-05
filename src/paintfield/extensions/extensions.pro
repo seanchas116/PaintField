@@ -10,9 +10,7 @@ include(../paintfield.pri)
 # Input
 HEADERS += aboutdialog/aboutdialog.h \
            aboutdialog/aboutdialogextension.h \
-           brushtool/brushlibrarymodel.h \
            brushtool/brushlibraryview.h \
-           brushtool/brushpreferencesmanager.h \
            brushtool/brushpresetmanager.h \
            brushtool/brushrasterizer.h \
            brushtool/brushsidebar.h \
@@ -56,15 +54,15 @@ HEADERS += aboutdialog/aboutdialog.h \
     formatsupports/psd/psdimagedatasection.h \
 	navigator/minimapview.h \
     brushtool/brusheditorview.h \
-    brushtool/custombrusheditor.h
+    brushtool/custombrusheditor.h \
+    brushtool/brushpresetdatabase.h \
+    brushtool/brushpresetitem.h
 FORMS += aboutdialog/aboutdialog.ui \
     formatsupports/jpegexportform.ui \
     formatsupports/pngexportform.ui
 SOURCES += aboutdialog/aboutdialog.cpp \
            aboutdialog/aboutdialogextension.cpp \
-           brushtool/brushlibrarymodel.cpp \
            brushtool/brushlibraryview.cpp \
-           brushtool/brushpreferencesmanager.cpp \
            brushtool/brushpresetmanager.cpp \
            brushtool/brushrasterizer.cpp \
            brushtool/brushsidebar.cpp \
@@ -108,6 +106,8 @@ SOURCES += aboutdialog/aboutdialog.cpp \
     formatsupports/psd/psdimagedatasection.cpp \
 	navigator/minimapview.cpp \
     brushtool/brusheditorview.cpp \
-    brushtool/custombrusheditor.cpp
+    brushtool/custombrusheditor.cpp \
+    brushtool/brushpresetdatabase.cpp \
+    brushtool/brushpresetitem.cpp
 
 TRANSLATIONS += extensions_ja.ts

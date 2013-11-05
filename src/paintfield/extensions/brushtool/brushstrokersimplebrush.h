@@ -41,9 +41,10 @@ public:
 	explicit BrushStrokerSimpleBrushFactory(QObject *parent = 0);
 	
 	QString name() const override;
+	QString title() const override;
 	QVariantMap defaultSettings() const override;
 	BrushStroker *createStroker(Malachite::Surface *surface) override;
-	BrushEditor *createEditor(const QVariantMap &settings) override;
+	QWidget *createEditor(ObservableVariantMap *parameters) override;
 	
 };
 

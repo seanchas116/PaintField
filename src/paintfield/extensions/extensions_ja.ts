@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="ja_JP">
+<TS version="2.1" language="ja_JP">
 <context>
     <name>PaintField::AboutDialog</name>
     <message>
@@ -30,9 +30,9 @@
     </message>
     <message>
         <location filename="aboutdialog/aboutdialog.ui" line="57"/>
-        <source>&lt;a href=&quot;http://qt-project.org/&quot;&gt;Qt&lt;/a&gt;, &lt;a href=&quot;http://www.antigrain.com/&quot;&gt;Anti-Grain Geometry&lt;/a&gt;, &lt;a href=&quot;http://www.angusj.com/delphi/clipper.php&quot;&gt;Clipper&lt;/a&gt;, &lt;a href=&quot;http://www.winimage.com/zLibDll/minizip.html&quot;&gt;Minizip&lt;/a&gt;, &lt;a href=&quot;http://freeimage.sourceforge.net/&quot;&gt;FreeImage&lt;/a&gt;, &lt;a href=&quot;http://www.codeproject.com/Articles/20027/JSON-Spirit-A-C-JSON-Parser-Generator-Implemented&quot;&gt;JSON Spirit&lt;/a&gt;, &lt;a href=&quot;http://cpplinq.codeplex.com/&quot;&gt;LINQ for C++&lt;/a&gt;, &lt;a href=&quot;http://www.boost.org/&quot;&gt;Boost&lt;/a&gt;.</source>
-        <oldsource>&lt;a href=&quot;http://qt-project.org/&quot;&gt;Qt&lt;/a&gt;, &lt;a href=&quot;http://www.antigrain.com/&quot;&gt;Anti-Grain Geometry&lt;/a&gt;, &lt;a href=&quot;http://www.angusj.com/delphi/clipper.php&quot;&gt;Clipper&lt;/a&gt;, &lt;a href=&quot;http://www.winimage.com/zLibDll/minizip.html&quot;&gt;Minizip&lt;/a&gt;, &lt;a href=&quot;http://freeimage.sourceforge.net/&quot;&gt;FreeImage&lt;/a&gt;, &lt;a href=&quot;http://www.codeproject.com/Articles/20027/JSON-Spirit-A-C-JSON-Parser-Generator-Implemented&quot;&gt;JSON Spirit&lt;/a&gt;, &lt;a href=&quot;http://cpplinq.codeplex.com/&quot;&gt;LINQ for C++&lt;/a&gt;.</oldsource>
-        <translation type="unfinished"></translation>
+        <source>&lt;a href=&quot;http://qt-project.org/&quot;&gt;Qt&lt;/a&gt;, &lt;a href=&quot;http://www.antigrain.com/&quot;&gt;Anti-Grain Geometry&lt;/a&gt;, &lt;a href=&quot;http://www.angusj.com/delphi/clipper.php&quot;&gt;Clipper&lt;/a&gt;, &lt;a href=&quot;http://www.winimage.com/zLibDll/minizip.html&quot;&gt;Minizip&lt;/a&gt;, &lt;a href=&quot;http://freeimage.sourceforge.net/&quot;&gt;FreeImage&lt;/a&gt;, &lt;a href=&quot;http://www.codeproject.com/Articles/20027/JSON-Spirit-A-C-JSON-Parser-Generator-Implemented&quot;&gt;JSON Spirit&lt;/a&gt;, &lt;a href=&quot;http://www.boost.org/&quot;&gt;Boost&lt;/a&gt;.</source>
+        <oldsource>&lt;a href=&quot;http://qt-project.org/&quot;&gt;Qt&lt;/a&gt;, &lt;a href=&quot;http://www.antigrain.com/&quot;&gt;Anti-Grain Geometry&lt;/a&gt;, &lt;a href=&quot;http://www.angusj.com/delphi/clipper.php&quot;&gt;Clipper&lt;/a&gt;, &lt;a href=&quot;http://www.winimage.com/zLibDll/minizip.html&quot;&gt;Minizip&lt;/a&gt;, &lt;a href=&quot;http://freeimage.sourceforge.net/&quot;&gt;FreeImage&lt;/a&gt;, &lt;a href=&quot;http://www.codeproject.com/Articles/20027/JSON-Spirit-A-C-JSON-Parser-Generator-Implemented&quot;&gt;JSON Spirit&lt;/a&gt;, &lt;a href=&quot;http://cpplinq.codeplex.com/&quot;&gt;LINQ for C++&lt;/a&gt;, &lt;a href=&quot;http://www.boost.org/&quot;&gt;Boost&lt;/a&gt;.</oldsource>
+        <translation></translation>
     </message>
     <message>
         <location filename="aboutdialog/aboutdialog.ui" line="67"/>
@@ -69,7 +69,7 @@ Licensed under the BSD 3-Clause License.
 JSON Spirit
 Copyright (c) 2007 - 2013 John W. Wilkinson
 Licensed under the MIT License.</oldsource>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -86,6 +86,14 @@ Licensed under the MIT License.</oldsource>
     </message>
 </context>
 <context>
+    <name>PaintField::BrushEditorView</name>
+    <message>
+        <location filename="brushtool/brusheditorview.cpp" line="46"/>
+        <source>Type</source>
+        <translation>タイプ</translation>
+    </message>
+</context>
+<context>
     <name>PaintField::BrushLibraryController</name>
     <message>
         <source>Save Preset</source>
@@ -97,26 +105,92 @@ Licensed under the MIT License.</oldsource>
     </message>
 </context>
 <context>
+    <name>PaintField::BrushLibraryView</name>
+    <message>
+        <location filename="brushtool/brushlibraryview.cpp" line="174"/>
+        <source>Cut</source>
+        <translation>切り取り</translation>
+    </message>
+    <message>
+        <location filename="brushtool/brushlibraryview.cpp" line="175"/>
+        <source>Copy</source>
+        <translation>コピー</translation>
+    </message>
+    <message>
+        <location filename="brushtool/brushlibraryview.cpp" line="176"/>
+        <source>Paste</source>
+        <translation>貼り付け</translation>
+    </message>
+    <message>
+        <location filename="brushtool/brushlibraryview.cpp" line="177"/>
+        <source>Delete</source>
+        <translation>削除</translation>
+    </message>
+    <message>
+        <location filename="brushtool/brushlibraryview.cpp" line="178"/>
+        <source>Add Folder</source>
+        <translation>フォルダを追加</translation>
+    </message>
+    <message>
+        <location filename="brushtool/brushlibraryview.cpp" line="180"/>
+        <source>Re-add Built-in Presets</source>
+        <translation>組み込みのプリセットを再追加</translation>
+    </message>
+    <message>
+        <location filename="brushtool/brushlibraryview.cpp" line="188"/>
+        <source>Import...</source>
+        <oldsource>Import</oldsource>
+        <translation>読み込み...</translation>
+    </message>
+    <message>
+        <location filename="brushtool/brushlibraryview.cpp" line="189"/>
+        <source>Export...</source>
+        <oldsource>Export</oldsource>
+        <translation>書き出し...</translation>
+    </message>
+</context>
+<context>
     <name>PaintField::BrushSideBar</name>
     <message>
-        <location filename="brushtool/brushsidebar.cpp" line="20"/>
+        <location filename="brushtool/brushsidebar.cpp" line="22"/>
         <source>Preset</source>
         <translation>プリセット</translation>
     </message>
     <message>
-        <location filename="brushtool/brushsidebar.cpp" line="51"/>
+        <location filename="brushtool/brushsidebar.cpp" line="55"/>
         <source>Size</source>
         <translation>サイズ</translation>
     </message>
     <message>
-        <location filename="brushtool/brushsidebar.cpp" line="55"/>
+        <location filename="brushtool/brushsidebar.cpp" line="59"/>
         <source>Smooth</source>
         <translation>滑らかにする</translation>
     </message>
     <message>
-        <location filename="brushtool/brushsidebar.cpp" line="56"/>
+        <location filename="brushtool/brushsidebar.cpp" line="60"/>
         <source>Check to paint beautifully, uncheck to paint faster</source>
         <translation>チェックして綺麗にペイント、チェックを外して速くペイント</translation>
+    </message>
+    <message>
+        <location filename="brushtool/brushsidebar.cpp" line="79"/>
+        <source>Not Selected</source>
+        <translation>未選択</translation>
+    </message>
+</context>
+<context>
+    <name>PaintField::BrushStrokerPenFactory</name>
+    <message>
+        <location filename="brushtool/brushstrokerpen.cpp" line="141"/>
+        <source>Pen</source>
+        <translation>ペン</translation>
+    </message>
+</context>
+<context>
+    <name>PaintField::BrushStrokerSimpleBrushFactory</name>
+    <message>
+        <location filename="brushtool/brushstrokersimplebrush.cpp" line="347"/>
+        <source>Brush</source>
+        <translation>ブラシ</translation>
     </message>
 </context>
 <context>
@@ -130,14 +204,19 @@ Licensed under the MIT License.</oldsource>
 <context>
     <name>PaintField::BrushToolExtensionFactory</name>
     <message>
-        <location filename="brushtool/brushtoolextension.cpp" line="104"/>
+        <location filename="brushtool/brushtoolextension.cpp" line="96"/>
         <source>Brush Library</source>
         <translation>ブラシライブラリ</translation>
     </message>
     <message>
-        <location filename="brushtool/brushtoolextension.cpp" line="105"/>
+        <location filename="brushtool/brushtoolextension.cpp" line="97"/>
         <source>Brush</source>
         <translation>ブラシ</translation>
+    </message>
+    <message>
+        <location filename="brushtool/brushtoolextension.cpp" line="98"/>
+        <source>Brush Editor</source>
+        <translation>ブラシエディタ</translation>
     </message>
 </context>
 <context>
@@ -148,7 +227,7 @@ Licensed under the MIT License.</oldsource>
         <translation>不透明度</translation>
     </message>
     <message>
-        <location filename="colorui/colorsidebar.cpp" line="348"/>
+        <location filename="colorui/colorsidebar.cpp" line="346"/>
         <source>%</source>
         <translation></translation>
     </message>
@@ -177,6 +256,18 @@ Licensed under the MIT License.</oldsource>
         <location filename="colorui/coloruiextension.cpp" line="47"/>
         <source>Color</source>
         <translation>カラー</translation>
+    </message>
+</context>
+<context>
+    <name>PaintField::CustomBrushEditor</name>
+    <message>
+        <source>Erasing</source>
+        <translation type="vanished">消しゴム</translation>
+    </message>
+    <message>
+        <location filename="brushtool/custombrusheditor.cpp" line="54"/>
+        <source>Smudge</source>
+        <translation>にじみ</translation>
     </message>
 </context>
 <context>
@@ -294,7 +385,7 @@ Licensed under the MIT License.</oldsource>
     <message>
         <location filename="formatsupports/jpegexportform.ui" line="14"/>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="formatsupports/jpegexportform.ui" line="20"/>
@@ -304,15 +395,15 @@ Licensed under the MIT License.</oldsource>
     <message>
         <location filename="formatsupports/jpegexportform.ui" line="52"/>
         <source>%</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
     <name>PaintField::JpegFormatSupport</name>
     <message>
-        <location filename="formatsupports/malachiteformatsupport.cpp" line="42"/>
+        <location filename="formatsupports/malachiteformatsupport.cpp" line="46"/>
         <source>JPEG</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -326,7 +417,7 @@ Licensed under the MIT License.</oldsource>
 <context>
     <name>PaintField::LayerPropertyEditor</name>
     <message>
-        <location filename="layerui/layerpropertyeditor.cpp" line="76"/>
+        <location filename="layerui/layerpropertyeditor.cpp" line="74"/>
         <source>Opacity</source>
         <translation>不透明度</translation>
     </message>
@@ -335,92 +426,92 @@ Licensed under the MIT License.</oldsource>
         <translation type="obsolete">未実装</translation>
     </message>
     <message>
-        <location filename="layerui/layerpropertyeditor.cpp" line="114"/>
+        <location filename="layerui/layerpropertyeditor.cpp" line="112"/>
         <source>Blend</source>
         <translation>ブレンド</translation>
     </message>
     <message>
-        <location filename="layerui/layerpropertyeditor.cpp" line="166"/>
+        <location filename="layerui/layerpropertyeditor.cpp" line="164"/>
         <source>Set Layer Opacity</source>
         <translation>レイヤー不透明度を設定</translation>
     </message>
     <message>
-        <location filename="layerui/layerpropertyeditor.cpp" line="172"/>
+        <location filename="layerui/layerpropertyeditor.cpp" line="170"/>
         <source>Set Blend Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>ブレンドモードを設定</translation>
     </message>
 </context>
 <context>
     <name>PaintField::LayerUIController</name>
     <message>
-        <location filename="layerui/layeruicontroller.cpp" line="46"/>
+        <location filename="layerui/layeruicontroller.cpp" line="43"/>
         <source>Import...</source>
         <translation>読み込み...</translation>
     </message>
     <message>
-        <location filename="layerui/layeruicontroller.cpp" line="52"/>
-        <location filename="layerui/layeruicontroller.cpp" line="150"/>
+        <location filename="layerui/layeruicontroller.cpp" line="49"/>
+        <location filename="layerui/layeruicontroller.cpp" line="147"/>
         <source>New Layer</source>
         <translation>新規レイヤー</translation>
     </message>
     <message>
-        <location filename="layerui/layeruicontroller.cpp" line="59"/>
-        <location filename="layerui/layeruicontroller.cpp" line="155"/>
+        <location filename="layerui/layeruicontroller.cpp" line="56"/>
+        <location filename="layerui/layeruicontroller.cpp" line="152"/>
         <source>New Group</source>
         <translation>新規グループ</translation>
     </message>
     <message>
-        <location filename="layerui/layeruicontroller.cpp" line="66"/>
+        <location filename="layerui/layeruicontroller.cpp" line="63"/>
         <source>Delete</source>
         <translation>削除</translation>
     </message>
     <message>
-        <location filename="layerui/layeruicontroller.cpp" line="74"/>
+        <location filename="layerui/layeruicontroller.cpp" line="71"/>
         <source>Merge</source>
         <translation>統合</translation>
     </message>
     <message>
-        <location filename="layerui/layeruicontroller.cpp" line="81"/>
+        <location filename="layerui/layeruicontroller.cpp" line="78"/>
         <source>Copy</source>
         <translation>コピー</translation>
     </message>
     <message>
-        <location filename="layerui/layeruicontroller.cpp" line="89"/>
+        <location filename="layerui/layeruicontroller.cpp" line="86"/>
         <source>Cut</source>
         <translation>切り取り</translation>
     </message>
     <message>
-        <location filename="layerui/layeruicontroller.cpp" line="97"/>
+        <location filename="layerui/layeruicontroller.cpp" line="94"/>
         <source>Paste</source>
         <translation>貼り付け</translation>
     </message>
     <message>
-        <location filename="layerui/layeruicontroller.cpp" line="104"/>
+        <location filename="layerui/layeruicontroller.cpp" line="101"/>
         <source>Rasterize</source>
         <translation>ラスターにする</translation>
     </message>
     <message>
-        <location filename="layerui/layeruicontroller.cpp" line="145"/>
+        <location filename="layerui/layeruicontroller.cpp" line="142"/>
         <source>Add From Image File</source>
         <translation>画像ファイルから追加</translation>
     </message>
     <message>
-        <location filename="layerui/layeruicontroller.cpp" line="150"/>
+        <location filename="layerui/layeruicontroller.cpp" line="147"/>
         <source>Add Layer</source>
         <translation>レイヤーを追加</translation>
     </message>
     <message>
-        <location filename="layerui/layeruicontroller.cpp" line="155"/>
+        <location filename="layerui/layeruicontroller.cpp" line="152"/>
         <source>Add Group</source>
         <translation>グループを追加</translation>
     </message>
     <message>
-        <location filename="layerui/layeruicontroller.cpp" line="275"/>
+        <location filename="layerui/layeruicontroller.cpp" line="274"/>
         <source>Cut Layers</source>
         <translation>レイヤーを切り取り</translation>
     </message>
     <message>
-        <location filename="layerui/layeruicontroller.cpp" line="303"/>
+        <location filename="layerui/layeruicontroller.cpp" line="302"/>
         <source>Paste Layers</source>
         <translation>レイヤーを貼り付け</translation>
     </message>
@@ -474,42 +565,42 @@ Licensed under the MIT License.</oldsource>
 <context>
     <name>PaintField::NavigatorView</name>
     <message>
-        <location filename="navigator/navigatorview.cpp" line="138"/>
+        <location filename="navigator/navigatorview.cpp" line="169"/>
         <source>Mirror</source>
         <translation>反転</translation>
     </message>
     <message>
-        <location filename="navigator/navigatorview.cpp" line="139"/>
+        <location filename="navigator/navigatorview.cpp" line="170"/>
         <source>Mirror horizontally</source>
         <translation>水平に反転</translation>
     </message>
     <message>
-        <location filename="navigator/navigatorview.cpp" line="147"/>
+        <location filename="navigator/navigatorview.cpp" line="178"/>
         <source>Retina Mode</source>
         <translation>Retina モード</translation>
     </message>
     <message>
-        <location filename="navigator/navigatorview.cpp" line="148"/>
+        <location filename="navigator/navigatorview.cpp" line="179"/>
         <source>Display canvas suitablly for Retina display Macs (not suitable for non-Retina displays)</source>
         <translation>Retina ディスプレイの Mac に最適な形で表示 (Retinaでないディスプレイには適しません)</translation>
     </message>
     <message>
-        <location filename="navigator/navigatorview.cpp" line="166"/>
+        <location filename="navigator/navigatorview.cpp" line="197"/>
         <source>Drag</source>
         <translation>ドラッグ</translation>
     </message>
     <message>
-        <location filename="navigator/navigatorview.cpp" line="169"/>
+        <location filename="navigator/navigatorview.cpp" line="200"/>
         <source>to translate</source>
         <translation>で平行移動</translation>
     </message>
     <message>
-        <location filename="navigator/navigatorview.cpp" line="174"/>
+        <location filename="navigator/navigatorview.cpp" line="205"/>
         <source>to scale</source>
         <translation>で拡大縮小</translation>
     </message>
     <message>
-        <location filename="navigator/navigatorview.cpp" line="179"/>
+        <location filename="navigator/navigatorview.cpp" line="210"/>
         <source>to rotate</source>
         <translation>で回転</translation>
     </message>
@@ -530,13 +621,21 @@ Licensed under the MIT License.</oldsource>
         <translation type="obsolete">&lt;b&gt;Shift + ドラッグ&lt;/b&gt; で回転</translation>
     </message>
     <message>
-        <location filename="navigator/navigatorview.cpp" line="338"/>
+        <location filename="navigator/navigatorview.cpp" line="369"/>
         <source>x:</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="navigator/navigatorview.cpp" line="357"/>
+        <location filename="navigator/navigatorview.cpp" line="388"/>
         <source>y:</source>
+        <translation></translation>
+    </message>
+</context>
+<context>
+    <name>PaintField::OpenRasterFormatSupport</name>
+    <message>
+        <location filename="formatsupports/openrasterformatsupport.cpp" line="18"/>
+        <source>OpenRaster</source>
         <translation></translation>
     </message>
 </context>
@@ -545,7 +644,7 @@ Licensed under the MIT License.</oldsource>
     <message>
         <location filename="formatsupports/pngexportform.ui" line="14"/>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="formatsupports/pngexportform.ui" line="20"/>
@@ -556,9 +655,9 @@ Licensed under the MIT License.</oldsource>
 <context>
     <name>PaintField::PngFormatSupport</name>
     <message>
-        <location filename="formatsupports/malachiteformatsupport.cpp" line="65"/>
+        <location filename="formatsupports/malachiteformatsupport.cpp" line="68"/>
         <source>PNG</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -727,17 +826,17 @@ Licensed under the MIT License.</oldsource>
 <context>
     <name>QObject</name>
     <message>
-        <location filename="brushtool/brushtoolextension.cpp" line="97"/>
+        <location filename="brushtool/brushtoolextension.cpp" line="89"/>
         <source>Brush</source>
         <translation>ブラシ</translation>
     </message>
     <message>
-        <location filename="layerui/layeruicontroller.cpp" line="136"/>
+        <location filename="layerui/layeruicontroller.cpp" line="133"/>
         <source>Add Layer From Image File</source>
         <translation>画像ファイルからレイヤーを追加</translation>
     </message>
     <message>
-        <location filename="layerui/layeruicontroller.cpp" line="138"/>
+        <location filename="layerui/layeruicontroller.cpp" line="135"/>
         <source>Image Files (*.bmp *.png *.jpg *.jpeg)</source>
         <translation>画像ファイル (*.bmp *.png *.jpg *.jpeg)</translation>
     </message>
@@ -750,6 +849,32 @@ Licensed under the MIT License.</oldsource>
         <location filename="toolui/tooluiextension.cpp" line="60"/>
         <source>Tools</source>
         <translation>ツール</translation>
+    </message>
+    <message>
+        <location filename="brushtool/brushlibraryview.cpp" line="65"/>
+        <source>New Folder</source>
+        <translation>新しいフォルダ</translation>
+    </message>
+    <message>
+        <location filename="brushtool/brushlibraryview.cpp" line="115"/>
+        <source>Export</source>
+        <translation>書き出し</translation>
+    </message>
+    <message>
+        <location filename="brushtool/brushlibraryview.cpp" line="115"/>
+        <location filename="brushtool/brushlibraryview.cpp" line="126"/>
+        <source>Brush Presets</source>
+        <translation>ブラシプリセット</translation>
+    </message>
+    <message>
+        <location filename="brushtool/brushlibraryview.cpp" line="119"/>
+        <source>Failed to save file.</source>
+        <translation>ファイルの保存に失敗しました。</translation>
+    </message>
+    <message>
+        <location filename="brushtool/brushlibraryview.cpp" line="126"/>
+        <source>Import</source>
+        <translation>読み込み</translation>
     </message>
 </context>
 </TS>

@@ -31,8 +31,6 @@ public:
 	explicit LayerTreeSidebar(LayerUIController *layerUIController, QWidget *parent = 0);
 	~LayerTreeSidebar();
 	
-	bool eventFilter(QObject *object, QEvent *event);
-	
 public slots:
 	
 signals:

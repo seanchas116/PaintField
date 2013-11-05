@@ -6,37 +6,38 @@
 
 namespace PaintField {
 
+class BrushPresetItem;
+class ObservableVariantMap;
+
 class BrushPresetManager : public QObject
 {
 	Q_OBJECT
 public:
 	explicit BrushPresetManager(QObject *parent = 0);
+	~BrushPresetManager();
 
-	QVariantMap metadata() const { return m_metadata; }
-	void setMetadata(const QVariantMap &metadata);
-	
-	QString stroker() const { return m_stroker; }
+	QString title() const;
+	void setTitle(const QString &title);
+
+	QString stroker() const;
 	void setStroker(const QString &stroker);
-	
-	QVariantMap settings() const { return m_settings; }
-	void setSettings(const QVariantMap &settings);
+
+	ObservableVariantMap *parameters();
+	ObservableVariantMap *commonParameters();
 
 public slots:
 	
-	void setPreset(const QString &path);
+	void setPreset(BrushPresetItem *item);
 	
 signals:
 	
-	void presetChanged(const QVariantMap &preset, const QString &filePath);
-	void metadataChanged(const QVariantMap &metadata);
+	void titleChanged(const QString &title);
 	void strokerChanged(const QString &stroker);
-	void settingsChanged(const QVariantMap &settings);
 	
 private:
-	
-	QVariantMap m_metadata;
-	QString m_stroker;
-	QVariantMap m_settings;
+
+	struct Data;
+	QScopedPointer<Data> d;
 };
 
 } // namespace PaintField

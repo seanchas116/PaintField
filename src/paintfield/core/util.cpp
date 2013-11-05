@@ -5,6 +5,8 @@
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QMenu>
+#include <QStandardItem>
+#include "amulet/int_range.hh"
 
 #include "util.h"
 
@@ -188,6 +190,11 @@ while (!widgetIsTopLevel())
 	}
 	
 	return result;
+}
+
+QList<QStandardItem *> itemChildren(QStandardItem *item)
+{
+	return Amulet::times(item->rowCount()).map([=](int i){return item->child(i);}).to<QList>();
 }
 
 }

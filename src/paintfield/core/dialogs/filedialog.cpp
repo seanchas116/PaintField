@@ -10,6 +10,7 @@ namespace PaintField {
 QString FileDialog::getFilePath(QWidget *parent, const QString &title, Mode mode, const QList<QPair<QString, QStringList>> &filterTextAndSuffixesList)
 {
 	QString lastDialogPath = appController()->settingsManager()->lastFileDialogPath();
+	PAINTFIELD_DEBUG << lastDialogPath;
 	
 	QStringList filters;
 

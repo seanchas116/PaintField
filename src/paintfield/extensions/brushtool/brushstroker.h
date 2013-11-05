@@ -5,7 +5,7 @@
 
 namespace PaintField {
 
-class BrushEditor;
+class ObservableVariantMap;
 
 class BrushStroker
 {
@@ -75,19 +75,19 @@ class BrushStrokerFactory : public QObject
 public:
 	explicit BrushStrokerFactory(QObject *parent = 0) : QObject(parent) {}
 	
+	/**
+	 * @return Brusn name for identification
+	 */
 	virtual QString name() const = 0;
+
+	/**
+	 * @return Human-readable brush name
+	 */
+	virtual QString title() const = 0;
 	
 	virtual QVariantMap defaultSettings() const = 0;
 	virtual BrushStroker *createStroker(Malachite::Surface *surface) = 0;
-	virtual BrushEditor *createEditor(const QVariantMap &settings);
-	
-signals:
-	
-public slots:
-	
-protected:
-	
-private:
+	virtual QWidget *createEditor(ObservableVariantMap *parameters);
 };
 
 }

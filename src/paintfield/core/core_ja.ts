@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="ja_JP">
+<TS version="2.1" language="ja_JP">
 <context>
     <name>PaintField::AppController</name>
     <message>
@@ -250,12 +250,12 @@
 <context>
     <name>PaintField::ColorButton</name>
     <message>
-        <location filename="widgets/colorbutton.cpp" line="33"/>
+        <location filename="widgets/colorbutton.cpp" line="34"/>
         <source>Copy</source>
         <translation>コピー</translation>
     </message>
     <message>
-        <location filename="widgets/colorbutton.cpp" line="42"/>
+        <location filename="widgets/colorbutton.cpp" line="43"/>
         <source>Paste</source>
         <translation>貼り付け</translation>
     </message>
@@ -352,6 +352,21 @@
         <source>Export</source>
         <translation>書き出す</translation>
     </message>
+    <message>
+        <location filename="dialogs/exportdialog.cpp" line="72"/>
+        <source>PNG</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="dialogs/exportdialog.cpp" line="73"/>
+        <source>JPEG</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="dialogs/exportdialog.cpp" line="74"/>
+        <source>Windows Bitmap</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PaintField::FormatExportDialog</name>
@@ -436,38 +451,38 @@
 <context>
     <name>PaintField::LayerScene</name>
     <message>
-        <location filename="layerscene.cpp" line="694"/>
+        <location filename="layerscene.cpp" line="692"/>
         <source>Remove Layers</source>
         <translation>レイヤーを削除</translation>
     </message>
     <message>
-        <location filename="layerscene.cpp" line="712"/>
-        <location filename="layerscene.cpp" line="738"/>
+        <location filename="layerscene.cpp" line="710"/>
+        <location filename="layerscene.cpp" line="736"/>
         <source>Move Layers</source>
         <translation>レイヤーを移動</translation>
     </message>
     <message>
-        <location filename="layerscene.cpp" line="767"/>
+        <location filename="layerscene.cpp" line="765"/>
         <source>Merge Layers</source>
         <translation>レイヤーを統合</translation>
     </message>
     <message>
-        <location filename="layerscene.cpp" line="816"/>
+        <location filename="layerscene.cpp" line="814"/>
         <source>Rename Layer</source>
         <translation>レイヤーの名前を変更</translation>
     </message>
     <message>
-        <location filename="layerscene.cpp" line="819"/>
+        <location filename="layerscene.cpp" line="817"/>
         <source>Change visibility</source>
         <translation>表示・非表示を変更</translation>
     </message>
     <message>
-        <location filename="layerscene.cpp" line="822"/>
+        <location filename="layerscene.cpp" line="820"/>
         <source>Change Blend Mode</source>
         <translation>ブレンドモードを変更</translation>
     </message>
     <message>
-        <location filename="layerscene.cpp" line="825"/>
+        <location filename="layerscene.cpp" line="823"/>
         <source>Change Opacity</source>
         <translation>不透明度を変更</translation>
     </message>

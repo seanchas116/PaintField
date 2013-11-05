@@ -342,6 +342,11 @@ QString BrushStrokerSimpleBrushFactory::name() const
 	return "paintfield.brush.simpleBrush";
 }
 
+QString BrushStrokerSimpleBrushFactory::title() const
+{
+	return tr("Brush");
+}
+
 QVariantMap BrushStrokerSimpleBrushFactory::defaultSettings() const
 {
 	return {
@@ -354,11 +359,9 @@ BrushStroker *BrushStrokerSimpleBrushFactory::createStroker(Surface *surface)
 	return new BrushStrokerSimpleBrush(surface);
 }
 
-BrushEditor *BrushStrokerSimpleBrushFactory::createEditor(const QVariantMap &settings)
+QWidget *BrushStrokerSimpleBrushFactory::createEditor(ObservableVariantMap *parameters)
 {
-	auto editor = new CustomBrushEditor();
-	editor->setSettings(settings);
-	return editor;
+	return new CustomBrushEditor(parameters);
 }
 
 } // namespace PaintField

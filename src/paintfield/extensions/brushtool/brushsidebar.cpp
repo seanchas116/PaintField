@@ -1,7 +1,7 @@
 #include "brushsidebar.h"
 
-#include "brushpreferencesmanager.h"
 #include "brushpresetmanager.h"
+#include "paintfield/core/observablevariantmap.h"
 
 #include <QVBoxLayout>
 #include <QGridLayout>
@@ -13,40 +13,44 @@
 
 namespace PaintField {
 
-BrushSideBar::BrushSideBar(BrushPresetManager *presetManager, BrushPreferencesManager *prefManager, QWidget *parent) :
+BrushSideBar::BrushSideBar(BrushPresetManager *presetManager, QWidget *parent) :
     QWidget(parent)
 {
 	auto formLayout = new QFormLayout();
 	
 	auto presetLabel = new QLabel();
 	formLayout->addRow(tr("Preset"), presetLabel);
-	
+
+	auto brushSize = presetManager->parameters()->value("size").toInt();
 	{
 		auto hlayout = new QHBoxLayout();
 		
-		{
-			auto slider = new QSlider(Qt::Horizontal);
-			slider->setMaximum(200);
-			slider->setMinimum(1);
-			
-			slider->setValue(prefManager->brushSize());
-			connect(slider, SIGNAL(valueChanged(int)), prefManager, SLOT(setBrushSize(int)));
-			connect(prefManager, SIGNAL(brushSizeChanged(int)), slider, SLOT(setValue(int)));
-			
-			hlayout->addWidget(slider, 0);
-		}
-		
-		{
-			auto spinBox = new QSpinBox;
-			spinBox->setMaximum(200);
-			spinBox->setMinimum(1);
-			
-			spinBox->setValue(prefManager->brushSize());
-			connect(spinBox, SIGNAL(valueChanged(int)), prefManager, SLOT(setBrushSize(int)));
-			connect(prefManager, SIGNAL(brushSizeChanged(int)), spinBox, SLOT(setValue(int)));
-			
-			hlayout->addWidget(spinBox, 0);
-		}
+		auto slider = new QSlider(Qt::Horizontal);
+		slider->setMaximum(200);
+		slider->setMinimum(1);
+
+		slider->setValue(brushSize);
+		slider->setValue(brushSize);
+
+		connect(slider, &QSlider::valueChanged, presetManager, [presetManager](int size){
+			presetManager->parameters()->setValue("size", size);
+		});
+		connect(presetManager->parameters(), &ObservableVariantMap::valueChanged, slider, [slider](const QString &key, const QVariant &value){
+			if (key == "size")
+				slider->setValue(value.toInt());
+		});
+
+		hlayout->addWidget(slider, 0);
+
+		auto spinBox = new QSpinBox;
+		spinBox->setMaximum(200);
+		spinBox->setMinimum(1);
+
+		spinBox->setValue(brushSize);
+		connect(spinBox, SIGNAL(valueChanged(int)), slider, SLOT(setValue(int)));
+		connect(slider, &QSlider::valueChanged, spinBox, &QSpinBox::setValue);
+
+		hlayout->addWidget(spinBox, 0);
 		
 		formLayout->addRow(tr("Size"), hlayout);
 	}
@@ -54,17 +58,22 @@ BrushSideBar::BrushSideBar(BrushPresetManager *presetManager, BrushPreferencesMa
 	{
 		auto checkBox = new QCheckBox(tr("Smooth"));
 		checkBox->setToolTip(tr("Check to paint beautifully, uncheck to paint faster"));
-		checkBox->setChecked(prefManager->isSmoothEnabled());
-		connect(checkBox, SIGNAL(toggled(bool)), prefManager, SLOT(setSmoothEnabled(bool)));
-		connect(prefManager, SIGNAL(smoothEnabledChanged(bool)), checkBox, SLOT(setChecked(bool)));
+		checkBox->setChecked(presetManager->commonParameters()->value("smooth").toBool());
+
+		connect(checkBox, &QCheckBox::toggled, presetManager, [presetManager](bool check){
+			presetManager->commonParameters()->setValue("smooth", check);
+		});
+		connect(presetManager->commonParameters(), &ObservableVariantMap::valueChanged, checkBox, [checkBox](const QString &key, const QVariant &value){
+			if (key == "smooth")
+				checkBox->setChecked(value.toBool());
+		});
 		formLayout->addRow(checkBox);
 	}
 	
 	setLayout(formLayout);
 
-	auto setPresetMetadata = [this, presetLabel](const QVariantMap &metadata) {
+	auto setTitle = [this, presetLabel](const QString &rawTitle) {
 
-		auto rawTitle = metadata["title"].toString();
 		QString title;
 		if (rawTitle.isEmpty())
 			title = QString("[%1]").arg(tr("Not Selected"));
@@ -74,8 +83,8 @@ BrushSideBar::BrushSideBar(BrushPresetManager *presetManager, BrushPreferencesMa
 		presetLabel->setText(QString("<b>%1</b>").arg(title));
 	};
 
-	connect(presetManager, &BrushPresetManager::metadataChanged, this, setPresetMetadata);
-	setPresetMetadata(presetManager->metadata());
+	connect(presetManager, &BrushPresetManager::titleChanged, this, setTitle);
+	setTitle(presetManager->title());
 }
 
 } // namespace PaintField

@@ -139,7 +139,7 @@ public:
 	virtual CanvasExtensionList createCanvasExtensions(Canvas *canvas, QObject *parent);
 	
 	QList<ExtensionFactory *> subExtensionFactories() { return _subExtensionFactories; }
-	void addSubExtensionFactory(ExtensionFactory *factory) { _subExtensionFactories << factory; }
+	void addSubExtensionFactory(ExtensionFactory *factory);
 	
 private:
 	

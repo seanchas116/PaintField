@@ -97,7 +97,8 @@ HEADERS += \
     zip.h \
     paintfieldformatsupport.h \
     widgets/looseslider.h \
-    internal/applicationeventfilter.h
+    internal/applicationeventfilter.h \
+    observablevariantmap.h
 
 FORMS +=
 SOURCES += \
@@ -179,7 +180,8 @@ SOURCES += \
     zip.cpp \
     paintfieldformatsupport.cpp \
     widgets/looseslider.cpp \
-    internal/applicationeventfilter.cpp
+    internal/applicationeventfilter.cpp \
+    observablevariantmap.cpp
 
 RESOURCES += \
     resources/resource-paintfield-core.qrc

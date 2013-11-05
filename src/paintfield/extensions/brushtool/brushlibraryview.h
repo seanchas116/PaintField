@@ -7,13 +7,13 @@ class QModelIndex;
 
 namespace PaintField {
 
-class BrushLibraryModel;
+class BrushPresetDatabase;
 
 class BrushLibraryView : public QWidget
 {
 	Q_OBJECT
 public:
-	BrushLibraryView(BrushLibraryModel *model, QWidget *parent = 0);
+	BrushLibraryView(BrushPresetDatabase *database, QWidget *parent = 0);
 	
 signals:
 	

@@ -9,6 +9,7 @@
 class QAction;
 class QTreeView;
 typedef QList<QAction *> QActionList;
+class QStandardItem;
 
 namespace PaintField
 {
@@ -105,6 +106,8 @@ void maximizeWindowSize(QWidget *widget);
 void setExpandTreeViewRecursive(QTreeView *view, const QModelIndex &index, bool expanded);
 
 QPoint mapToWindow(QWidget *widget, const QPoint &pos);
+
+QList<QStandardItem *> itemChildren(QStandardItem *item);
 
 }
 }

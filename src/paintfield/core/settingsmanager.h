@@ -60,6 +60,8 @@ public:
 	
 	void setValue(const QStringList &path, const QVariant &value);
 	QVariant value(const QStringList &path, const QVariant &defaultValue = QVariant()) const;
+
+	QKeySequence keyBinding(const QString &name) const;
 	
 	void declareTool(const QString &name, const ToolInfo &info);
 	void declareAction(const QString &name, const ActionInfo &info);

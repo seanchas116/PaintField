@@ -136,6 +136,11 @@ void BrushStrokerPen::loadSettings(const QVariantMap &settings)
 	_settings.eraser = settings["eraser"].toBool();
 }
 
+QString BrushStrokerPenFactory::title() const
+{
+	return tr("Pen");
+}
+
 QVariantMap BrushStrokerPenFactory::defaultSettings() const
 {
 	QVariantMap settings;

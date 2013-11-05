@@ -1,50 +1,90 @@
 #include "brushpresetmanager.h"
 
+#include "brushpresetitem.h"
 #include "paintfield/core/json.h"
+#include "paintfield/core/observablevariantmap.h"
 
 namespace PaintField {
 
-BrushPresetManager::BrushPresetManager(QObject *parent) :
-    QObject(parent)
+struct BrushPresetManager::Data
 {
+	ObservableVariantMap *mParameters;
+	ObservableVariantMap *mCommonParameters;
+	BrushPresetItem *mPresetItem = nullptr;
+};
+
+BrushPresetManager::BrushPresetManager(QObject *parent) :
+	QObject(parent),
+	d(new Data)
+{
+	d->mParameters = new ObservableVariantMap(this);
+	d->mCommonParameters = new ObservableVariantMap(this);
+	connect(d->mParameters, &ObservableVariantMap::mapChanged, [this](const QVariantMap &map) {
+		if (d->mPresetItem)
+			d->mPresetItem->parametersRef() = map;
+	});
 }
 
-void BrushPresetManager::setMetadata(const QVariantMap &metadata)
+BrushPresetManager::~BrushPresetManager()
 {
-	m_metadata = metadata;
-	emit metadataChanged(metadata);
+
+}
+
+QString BrushPresetManager::title() const
+{
+	if (d->mPresetItem)
+		return d->mPresetItem->text();
+	else
+		return QString();
+}
+
+void BrushPresetManager::setTitle(const QString &title)
+{
+	if (d->mPresetItem && title != d->mPresetItem->text()) {
+		d->mPresetItem->setText(title);
+		emit titleChanged(title);
+	}
+}
+
+QString BrushPresetManager::stroker() const
+{
+	if (d->mPresetItem)
+		return d->mPresetItem->stroker();
+	else
+		return QString();
 }
 
 void BrushPresetManager::setStroker(const QString &stroker)
 {
-	m_stroker = stroker;
-	emit strokerChanged(stroker);
+	if (d->mPresetItem && stroker != d->mPresetItem->stroker()) {
+		d->mPresetItem->setStroker(stroker);
+		emit strokerChanged(stroker);
+	}
 }
 
-void BrushPresetManager::setSettings(const QVariantMap &settings)
+ObservableVariantMap *BrushPresetManager::parameters()
 {
-	m_settings = settings;
-	emit settingsChanged(settings);
+	return d->mParameters;
 }
 
-void BrushPresetManager::setPreset(const QString &path)
+ObservableVariantMap *BrushPresetManager::commonParameters()
 {
-	if (path.isEmpty())
-		return;
-	
-	auto preset = Json::readFromFile(path).toMap();
-	
-	if (preset.isEmpty())
-		return;
-	
-	m_metadata = preset["metadata"].toMap();
-	m_stroker = preset["stroker"].toString();
-	m_settings = preset["settings"].toMap();
-	emit presetChanged(preset, path);
-	emit metadataChanged(metadata());
-	emit strokerChanged(stroker());
-	emit settingsChanged(settings());
+	return d->mCommonParameters;
 }
 
+void BrushPresetManager::setPreset(BrushPresetItem *item)
+{
+	d->mPresetItem = item;
+	if (item) {
+		emit titleChanged(item->text());
+		emit strokerChanged(item->stroker());
+		d->mParameters->setMap(item->parameters());
+	} else {
+		emit titleChanged(QString());
+		emit strokerChanged(QString());
+		d->mParameters->setMap(QVariantMap());
+	}
+
+}
 
 } // namespace PaintField

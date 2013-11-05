@@ -2,7 +2,7 @@
 
 #include <QObject>
 #include <QVariant>
-#include <Malachite/List>
+#include "paintfield/core/global.h"
 
 namespace Malachite
 {
@@ -26,14 +26,10 @@ public:
 	bool contains(const QString &name) const;
 	QVariantMap defaultSettings(const QString &name) const;
 	BrushStrokerFactory *factory(const QString &name);
-	
-signals:
-	
-public slots:
+	QList<BrushStrokerFactory *> factories() { return mFactories; }
 	
 private:
-	
-	Malachite::List<BrushStrokerFactory *> _factories;
+	QList<BrushStrokerFactory *> mFactories;
 };
 
 } // namespace PaintField

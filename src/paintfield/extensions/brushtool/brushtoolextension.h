@@ -4,20 +4,18 @@
 
 namespace PaintField {
 
-class BrushSettingSidebar;
 class BrushPresetManager;
-class BrushStrokerFactory;
 class BrushStrokerFactoryManager;
-class BrushPreferencesManager;
+class BrushPresetDatabase;
 
 class BrushToolExtension : public WorkspaceExtension
 {
 	Q_OBJECT
 public:
-	BrushToolExtension(Workspace *workspace, QObject *parent);
+	BrushToolExtension(BrushPresetDatabase *presetDatabase, Workspace *workspace, QObject *parent);
 	
-	BrushPresetManager *presetManager() { return _presetManager; }
-	BrushStrokerFactoryManager *sourceFactoryManager() { return _strokerFactoryManager; }
+	BrushPresetManager *presetManager() { return mPresetManager; }
+	BrushStrokerFactoryManager *sourceFactoryManager() { return mStrokerFactoryManager; }
 	
 	Tool *createTool(const QString &name, Canvas *parent) override;
 	
@@ -27,9 +25,8 @@ private slots:
 	
 private:
 	
-	BrushPresetManager *_presetManager = 0;
-	BrushStrokerFactoryManager *_strokerFactoryManager = 0;
-	BrushPreferencesManager *_preferencesManager = 0;
+	BrushPresetManager *mPresetManager = 0;
+	BrushStrokerFactoryManager *mStrokerFactoryManager = 0;
 };
 
 class BrushToolExtensionFactory : public ExtensionFactory
@@ -39,13 +36,16 @@ class BrushToolExtensionFactory : public ExtensionFactory
 public:
 	
 	explicit BrushToolExtensionFactory(QObject *parent = 0) : ExtensionFactory(parent) {}
+	~BrushToolExtensionFactory();
 	
 	void initialize(AppController *app) override;
 	
-	WorkspaceExtensionList createWorkspaceExtensions(Workspace *workspace, QObject *parent) override
-	{
-		return { new BrushToolExtension(workspace, parent) };
-	}
+	WorkspaceExtensionList createWorkspaceExtensions(Workspace *workspace, QObject *parent) override;
+
+private:
+
+	BrushPresetDatabase *mPresetDatabase = 0;
+	QString mPresetFilePath;
 };
 
 }

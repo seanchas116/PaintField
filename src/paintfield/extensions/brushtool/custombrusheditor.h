@@ -5,14 +5,14 @@
 
 namespace PaintField {
 
-class CustomBrushEditor : public BrushEditor
+class ObservableVariantMap;
+
+class CustomBrushEditor : public QWidget
 {
 	Q_OBJECT
 public:
-	explicit CustomBrushEditor(QWidget *parent = 0);
+	explicit CustomBrushEditor(ObservableVariantMap *parameters, QWidget *parent = 0);
 	~CustomBrushEditor();
-
-	void setSettings(const QVariantMap &settings) override;
 
 signals:
 

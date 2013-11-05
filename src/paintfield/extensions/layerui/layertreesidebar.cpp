@@ -82,28 +82,6 @@ void LayerTreeSidebar::showViewContextMenu(const QPoint &pos)
 	menu.exec(d->view->mapToGlobal(pos));
 }
 
-bool LayerTreeSidebar::eventFilter(QObject *object, QEvent *event)
-{
-	if (object == d->view)
-	{
-		switch (event->type())
-		{
-			case QEvent::KeyPress:
-			{
-				auto keyEvent = static_cast<QKeyEvent *>(event);
-				if (keyEvent->key() == Qt::Key_Backspace)
-				{
-					d->uiController->action(LayerUIController::ActionRemove)->trigger();
-				}
-				break;
-			}
-			default:
-				break;
-		}
-	}
-	return false;
-}
-
 void LayerTreeSidebar::createForms()
 {
 	QVBoxLayout *mainLayout = new QVBoxLayout();

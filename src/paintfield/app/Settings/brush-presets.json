@@ -1,0 +1,46 @@
+[
+  {
+    "current": true,
+    "preset": {
+      "parameters": {
+        "eraser": false,
+        "size": 5
+      },
+      "stroker": "paintfield.brush.pen"
+    },
+    "title": {
+      "en": "Pen",
+      "ja": "ペン"
+    },
+    "type": "preset"
+  },
+  {
+    "preset": {
+      "parameters": {
+        "eraser": true,
+        "size": 20
+      },
+      "stroker": "paintfield.brush.pen"
+    },
+    "title": {
+      "en": "Eraser",
+      "ja": "消しゴム"
+    },
+    "type": "preset"
+  },
+  {
+    "current": true,
+    "preset": {
+      "parameters": {
+        "eraser": false,
+        "size": 20
+      },
+      "stroker": "paintfield.brush.simpleBrush"
+    },
+    "title": {
+      "en": "Brush",
+      "ja": "ブラシ"
+    },
+    "type": "preset"
+  }
+]

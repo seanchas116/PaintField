@@ -133,6 +133,11 @@ QVariant SettingsManager::value(const QStringList &path, const QVariant &default
 	return Util::valueFromMapTree(d->settings, path, defaultValue);
 }
 
+QKeySequence SettingsManager::keyBinding(const QString &name) const
+{
+	return value({".key-bindings", name}).toString();
+}
+
 void SettingsManager::declareTool(const QString &name, const ToolInfo &info)
 {
 	d->toolDeclarationHash[name] = info;

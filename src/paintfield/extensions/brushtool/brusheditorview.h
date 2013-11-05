@@ -8,19 +8,6 @@ namespace PaintField {
 class BrushPresetManager;
 class BrushStrokerFactoryManager;
 
-class BrushEditor : public QWidget
-{
-	Q_OBJECT
-public:
-
-	BrushEditor(QWidget *parent);
-	virtual void setSettings(const QVariantMap &settings) = 0;
-
-signals:
-
-	void settingsChanged(const QVariantMap &settings);
-};
-
 class BrushEditorView : public QWidget
 {
 	Q_OBJECT

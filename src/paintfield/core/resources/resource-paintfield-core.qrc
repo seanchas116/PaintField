@@ -47,5 +47,6 @@
         <file>icons/16x16/strokeCenter.svg</file>
         <file>icons/16x16/strokeInside.svg</file>
         <file>icons/16x16/strokeOutside.svg</file>
+        <file>icons/24x24/folder.png</file>
     </qresource>
 </RCC>

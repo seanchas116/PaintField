@@ -44,6 +44,7 @@ public:
 	explicit BrushStrokerPenFactory(QObject *parent = 0) : BrushStrokerFactory(parent) {}
 	
 	QString name() const override { return "paintfield.brush.pen"; }
+	QString title() const override;
 	QVariantMap defaultSettings() const override;
 	BrushStroker *createStroker(Malachite::Surface *surface) override;
 };

@@ -4,47 +4,81 @@
 #include "brushpresetmanager.h"
 #include "brushstroker.h"
 
+#include "paintfield/core/observablevariantmap.h"
 #include "paintfield/core/util.h"
 
-#include <QVBoxLayout>
+#include <QComboBox>
+#include <QFormLayout>
+#include <QStackedWidget>
 
 namespace PaintField {
 
-BrushEditor::BrushEditor(QWidget *parent) :
-	QWidget(parent)
-{}
-
 struct BrushEditorView::Data
 {
-	QLayout *m_layout;
-	BrushEditor *m_oldEditor = nullptr;
-	BrushStrokerFactoryManager *m_strokerFactoryManager = nullptr;
-	BrushPresetManager *m_presetManager = nullptr;
+	BrushEditorView *mSelf = nullptr;
 
-	void onStrokerChanged()
+	QStackedWidget *mEditorStack = nullptr;
+	QWidget *mEditor = nullptr;
+	BrushStrokerFactoryManager *mStrokerFactoryManager = nullptr;
+	BrushPresetManager *mPresetManager = nullptr;
+
+	QComboBox *mStrokerComboBox = nullptr;
+	QHash<QString, int> mStrokerNameToComboIndex;
+
+	void createWidgets()
 	{
-		auto stroker = m_presetManager->stroker();
-		auto factory = m_strokerFactoryManager->factory(stroker);
+		auto mainLayout = new QVBoxLayout();
+		{
+			auto layout = new QFormLayout();
 
-		BrushEditor *editor = nullptr;
-		if (factory)
-			editor = factory->createEditor(m_presetManager->settings());
+			{
+				auto strokerCombo = new QComboBox();
 
-		if (m_oldEditor)
-			(m_oldEditor)->deleteLater();
-		if (editor) {
-			m_layout->addWidget(editor);
-			Util::applyMacSmallSize(editor);
-			connect(editor, &BrushEditor::settingsChanged, m_presetManager, &BrushPresetManager::setSettings);
+				mStrokerFactoryManager->factories()++.eachWithIndex([&](int index, BrushStrokerFactory *factory) {
+					strokerCombo->addItem(factory->title());
+					mStrokerNameToComboIndex[factory->name()] = index;
+				});
+
+				connect(strokerCombo, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), [=](int index) {
+					mPresetManager->setStroker(mStrokerNameToComboIndex.key(index));
+				});
+
+				layout->addRow(tr("Type"), strokerCombo);
+				mStrokerComboBox = strokerCombo;
+			}
+
+			mainLayout->addLayout(layout);
 		}
-		m_oldEditor = editor;
+
+		mEditorStack = new QStackedWidget();
+		mainLayout->addWidget(mEditorStack);
+
+		mSelf->setLayout(mainLayout);
 	}
 
-	void onSettingsChanged(const QVariantMap &settings)
+	void onStrokerChanged(const QString &strokerName)
 	{
-		if (m_oldEditor) {
-			m_oldEditor->setSettings(settings);
+		PAINTFIELD_DEBUG;
+		// set current combo box index
+		mStrokerComboBox->setCurrentIndex(mStrokerNameToComboIndex.value(strokerName, 0));
+
+		// set editor widget
+
+		auto factory = mStrokerFactoryManager->factory(strokerName);
+
+		QWidget *editor = nullptr;
+		if (factory)
+			editor = factory->createEditor(mPresetManager->parameters());
+
+		if (mEditor) {
+			mEditorStack->removeWidget(mEditor);
+			mEditor->deleteLater();
 		}
+		if (editor) {
+			Util::applyMacSmallSize(editor);
+			mEditorStack->addWidget(editor);
+		}
+		mEditor = editor;
 	}
 };
 
@@ -54,14 +88,13 @@ BrushEditorView::BrushEditorView(BrushStrokerFactoryManager *strokerFactoryManag
 {
 	using namespace std::placeholders;
 
-	d->m_strokerFactoryManager = strokerFactoryManager;
-	d->m_presetManager = presetManager;
-	d->m_layout = new QVBoxLayout();
-	setLayout(d->m_layout);
+	d->mSelf = this;
+	d->mStrokerFactoryManager = strokerFactoryManager;
+	d->mPresetManager = presetManager;
+	d->createWidgets();
 
-	connect(presetManager, &BrushPresetManager::strokerChanged, this, std::bind(&Data::onStrokerChanged, d.data()));
-	connect(presetManager, &BrushPresetManager::settingsChanged, this, std::bind(&Data::onSettingsChanged, d.data(), _1));
-	d->onStrokerChanged();
+	connect(presetManager, &BrushPresetManager::strokerChanged, this, std::bind(&Data::onStrokerChanged, d.data(), _1));
+	d->onStrokerChanged(presetManager->stroker());
 }
 
 BrushEditorView::~BrushEditorView()

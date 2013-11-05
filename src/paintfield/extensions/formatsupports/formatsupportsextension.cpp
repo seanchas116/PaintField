@@ -25,7 +25,7 @@ FormatSupportsExtensionFactory::FormatSupportsExtensionFactory(QObject *parent) 
 
 void FormatSupportsExtensionFactory::initialize(AppController *app)
 {
-	
+	Q_UNUSED(app);
 }
 
 AppExtensionList FormatSupportsExtensionFactory::createAppExtensions(AppController *app, QObject *parent)

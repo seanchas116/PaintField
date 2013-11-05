@@ -82,6 +82,12 @@ CanvasExtensionList ExtensionFactory::createCanvasExtensions(Canvas *, QObject *
 	return CanvasExtensionList();
 }
 
+void ExtensionFactory::addSubExtensionFactory(ExtensionFactory *factory)
+{
+	factory->setParent(this);
+	_subExtensionFactories << factory;
+}
+
 namespace ExtensionUtil
 {
 
