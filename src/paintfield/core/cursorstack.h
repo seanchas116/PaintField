@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QObject>
+#include "global.h"
 
 class QCursor;
 

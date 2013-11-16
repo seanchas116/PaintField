@@ -62,7 +62,6 @@ HEADERS += bitmap.h \
     mat2d.h \
     affine2d.h \
     genericsurface.h \
-    list.h \
     blendtraits.h
 SOURCES += blendmode.cpp \
            blendop.cpp \

@@ -7,21 +7,6 @@
 
 namespace PaintField {
 
-class WidgetTabletEvent : public QInputEvent
-{
-public:
-	
-	WidgetTabletEvent(int type, const QPoint &globalPosInt, const QPoint &posInt, const TabletInputData &globalData, Qt::KeyboardModifiers keyState) :
-		QInputEvent(static_cast<QEvent::Type>(type), keyState),
-		posInt(posInt),
-		globalPosInt(globalPosInt),
-		globalData(globalData)
-	{}
-	
-	QPoint posInt, globalPosInt;
-	TabletInputData globalData;
-};
-
 class CanvasTabletEvent : public QInputEvent
 {
 public:

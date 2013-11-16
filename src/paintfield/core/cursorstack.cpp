@@ -1,11 +1,8 @@
 #include <QApplication>
 #include <QCursor>
 #include <QPair>
-#include <Malachite/List>
 
 #include "cursorstack.h"
-
-using namespace Malachite;
 
 namespace PaintField {
 
@@ -16,7 +13,7 @@ struct CursorStack::Data
 	bool enabled;
 	QCursor cursor;
 	
-	List<IdAndCursor> cursorStack;
+	QList<IdAndCursor> cursorStack;
 };
 
 CursorStack::CursorStack(QObject *parent) :
@@ -50,7 +47,12 @@ bool CursorStack::isEnabled() const
 
 void CursorStack::add(const QString &id, const QCursor &cursor)
 {
-	int index = d->cursorStack.foundIndex([id](const IdAndCursor &x){return x.first == id;});
+	int index = -1;
+	d->cursorStack++.eachWithIndex([&](int i, const IdAndCursor &x) {
+		if (x.first == id)
+			index = i;
+	});
+
 	if (index >= 0)
 		d->cursorStack[index] = IdAndCursor(id, cursor);
 	else
@@ -61,7 +63,10 @@ void CursorStack::add(const QString &id, const QCursor &cursor)
 
 void CursorStack::remove(const QString &id)
 {
-	d->cursorStack.removeIf([id](const IdAndCursor &x){return x.first == id;});
+	d->cursorStack = d->cursorStack++.filter([id](const IdAndCursor &x){
+		return x.first != id;
+	}).to<QList>();
+
 	updateCursor();
 }
 

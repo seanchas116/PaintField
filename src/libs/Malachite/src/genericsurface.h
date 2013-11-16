@@ -7,7 +7,6 @@
 #include <QRect>
 #include "genericimage.h"
 #include "division.h"
-#include "list.h"
 
 namespace Malachite
 {
@@ -243,7 +242,7 @@ public:
 	
 	void squeeze()
 	{
-		List<QPoint> keyToRemove;
+		QList<QPoint> keyToRemove;
 		
 		for (auto iter = _hash.begin(); iter != _hash.end(); ++iter)
 		{
