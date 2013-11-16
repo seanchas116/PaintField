@@ -38,7 +38,7 @@ struct Canvas::Data
 	Document *document = 0;
 	int *documentRefCount = 0;
 	
-	CanvasViewController *viewController = 0;
+	CanvasView *view = 0;
 	QActionList actions;
 	CanvasExtensionList extensions;
 	
@@ -280,19 +280,14 @@ CanvasExtensionList Canvas::extensions()
 	return d->extensions;
 }
 
-void Canvas::setViewController(CanvasViewController *controller)
+void Canvas::setView(CanvasView *view)
 {
-	d->viewController = controller;
-}
-
-CanvasViewController *Canvas::viewController()
-{
-	return d->viewController;
+	d->view = view;
 }
 
 CanvasView *Canvas::view()
 {
-	return d->viewController->view();
+	return d->view;
 }
 
 void Canvas::addExtensions(const CanvasExtensionList &extensions)

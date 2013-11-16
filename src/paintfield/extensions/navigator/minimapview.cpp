@@ -2,6 +2,7 @@
 
 #include "paintfield/core/canvas.h"
 #include "paintfield/core/canvasview.h"
+#include "paintfield/core/canvasviewport.h"
 #include "paintfield/core/layerscene.h"
 
 #include "minimapview.h"
@@ -42,7 +43,7 @@ void MinimapView::onThumbnailUpdated(const QPointSet &keys)
 {
 	PAINTFIELD_DEBUG << keys;
 
-	auto surface = d->canvas->viewController()->mergedSurface();
+	auto surface = d->canvas->view()->viewport()->mergedSurface();
 
 	{
 		QPainter painter(&d->thumbnailPixmap);

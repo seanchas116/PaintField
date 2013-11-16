@@ -7,12 +7,6 @@
 
 namespace PaintField {
 
-struct KeyTracker::Data
-{
-	QSet<int> keys;
-	Qt::KeyboardModifiers modifiers;
-};
-
 static Qt::KeyboardModifier keyToModifier(int key)
 {
 	switch (key)
@@ -30,95 +24,92 @@ static Qt::KeyboardModifier keyToModifier(int key)
 	}
 }
 
+struct KeyTracker::Data
+{
+	KeyTracker *mSelf;
+
+	QSet<int> mKeys;
+	Qt::KeyboardModifiers mModifiers;
+
+	void pressKey(int key)
+	{
+		auto modifier = keyToModifier(key);
+		if (modifier != Qt::NoModifier)
+		{
+			if (mModifiers & modifier)
+				return;
+			mModifiers |= modifier;
+		}
+		else
+		{
+			if (mKeys.contains(key))
+				return;
+			mKeys << key;
+		}
+
+		emit mSelf->pressedKeysChanged(mSelf->pressedKeys());
+	}
+
+	void releaseKey(int key)
+	{
+		auto modifier = keyToModifier(key);
+		if (modifier != Qt::NoModifier)
+			mModifiers &= ~modifier;
+		else
+			mKeys.remove(key);
+
+		emit mSelf->pressedKeysChanged(mSelf->pressedKeys());
+	}
+
+	void keyEvent(QKeyEvent *event)
+	{
+		switch (event->type()) {
+			case QEvent::KeyPress:
+				pressKey(event->key());
+				mModifiers = event->modifiers();
+				break;
+			case QEvent::KeyRelease:
+				releaseKey(event->key());
+				break;
+			default:
+				break;
+		}
+	}
+};
+
 KeyTracker::KeyTracker(QObject *parent) :
 	QObject(parent),
 	d(new Data)
 {
+	d->mSelf = this;
 }
 
 KeyTracker::~KeyTracker()
 {
-	delete d;
-}
-
-void KeyTracker::keyEvent(QKeyEvent *event)
-{
-	switch (event->type())
-	{
-		case QEvent::KeyPress:
-			
-			pressKey(event->key());
-			setModifiers(event->modifiers());
-			break;
-			
-		case QEvent::KeyRelease:
-			
-			releaseKey(event->key());
-			break;
-			
-		default:
-			
-			break;
-	}
-}
-
-void KeyTracker::pressKey(int key)
-{
-	auto modifier = keyToModifier(key);
-	if (modifier != Qt::NoModifier)
-	{
-		if (d->modifiers & modifier)
-			return;
-		d->modifiers |= modifier;
-	}
-	else
-	{
-		if (d->keys.contains(key))
-			return;
-		d->keys << key;
-	}
-	
-	emit pressedKeysChanged(pressedKeys());
-}
-
-void KeyTracker::releaseKey(int key)
-{
-	auto modifier = keyToModifier(key);
-	if (modifier != Qt::NoModifier)
-		d->modifiers &= ~modifier;
-	else
-		d->keys.remove(key);
-	
-	emit pressedKeysChanged(pressedKeys());
-}
-
-void KeyTracker::setModifiers(Qt::KeyboardModifiers modifiers)
-{
-	d->modifiers = modifiers;
 }
 
 QSet<int> KeyTracker::unmodifiedPressedKeys() const
 {
-	return d->keys;
+	return d->mKeys;
 }
 
 QSet<int> KeyTracker::pressedKeys() const
 {
 	QSet<int> keys;
-	keys.reserve(d->keys.size());
+	keys.reserve(d->mKeys.size());
 	
-	for (int key : d->keys)
-		keys << (key + d->modifiers);
+	for (int key : d->mKeys)
+		keys << (key + d->mModifiers);
 	
 	return keys;
 }
 
 Qt::KeyboardModifiers KeyTracker::modifiers() const
 {
-	return d->modifiers;
+	return d->mModifiers;
 }
 
-bool KeyTracker::match(const QKeySequence &sequence) const
+bool KeyTracker::matches(const QKeySequence &sequence) const
 {
 	auto keys = pressedKeys();
 	
@@ -127,8 +118,21 @@ bool KeyTracker::match(const QKeySequence &sequence) const
 
 void KeyTracker::clear()
 {
-	d->keys.clear();
-	d->modifiers = Qt::NoModifier;
+	d->mKeys.clear();
+	d->mModifiers = Qt::NoModifier;
+}
+
+bool KeyTracker::eventFilter(QObject *, QEvent *event)
+{
+	switch (event->type()) {
+		case QEvent::KeyPress:
+		case QEvent::KeyRelease:
+			d->keyEvent(static_cast<QKeyEvent *>(event));
+			break;
+		default:
+			break;
+	}
+	return false;
 }
 
 } // namespace PaintField

@@ -153,6 +153,7 @@ static QVariantList saveLayers(ZipArchive *archive, const QList<LayerConstRef> &
 
 bool PaintFieldFormatSupport::write(QIODevice *device, const QList<LayerConstRef> &layers, const QSize &size, const QVariant &option)
 {
+	Q_UNUSED(option);
 	try
 	{
 		ZipArchive archive(device);

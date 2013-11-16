@@ -149,7 +149,7 @@ CanvasViewportSurface CanvasViewportMipmap::surface() const
 	return _surfaces.at(_currentLevel);
 }
 
-CanvasViewportSurface CanvasViewportMipmap::topLevelSurface() const
+CanvasViewportSurface CanvasViewportMipmap::baseSurface() const
 {
 	return _surfaces.at(0);
 }

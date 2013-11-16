@@ -22,7 +22,7 @@ RootExtensionFactory::RootExtensionFactory(QObject *parent) :
 	addSubExtensionFactory(new LayerMoveToolExtensionFactory(this));
 	addSubExtensionFactory(new NavigatorExtensionFactory(this));
 	addSubExtensionFactory(new ToolUIExtensionFactory(this));
-	addSubExtensionFactory(new VectorToolsExtensionFactory(this));
+	//addSubExtensionFactory(new VectorToolsExtensionFactory(this));
 	addSubExtensionFactory(new FormatSupportsExtensionFactory(this));
 }
 

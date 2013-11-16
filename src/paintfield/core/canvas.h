@@ -12,7 +12,6 @@ class QItemSelectionModel;
 namespace PaintField
 {
 
-class CanvasViewController;
 class CanvasExtension;
 class Workspace;
 
@@ -87,14 +86,7 @@ public:
 	
 	// view & controller
 	
-	/**
-	 * This function must be used only by CanvasView.
-	 * @param controller
-	 */
-	void setViewController(CanvasViewController *controller);
-	
-	CanvasViewController *viewController();
-	
+	void setView(CanvasView *view);
 	CanvasView *view();
 	
 	// transform

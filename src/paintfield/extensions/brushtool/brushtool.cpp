@@ -10,6 +10,7 @@
 #include "paintfield/core/tabletevent.h"
 #include "paintfield/core/widgets/simplebutton.h"
 #include "paintfield/core/rasterlayer.h"
+#include "paintfield/core/canvasviewport.h"
 
 #include "brushstroker.h"
 
@@ -170,10 +171,10 @@ void BrushTool::commitStroke()
 	
 	_surface.squeeze(_stroker->totalEditedKeys());
 	
-	canvas()->viewController()->setUpdateTilesEnabled(false);
+	canvas()->view()->viewport()->setUpdateEnabled(false);
 	canvas()->document()->layerScene()->editLayer(_layer, new LayerSurfaceEdit(_surface, _stroker->totalEditedKeys()), tr("Brush"));
-	canvas()->viewController()->setUpdateTilesEnabled(true);
-	
+	canvas()->view()->viewport()->setUpdateEnabled(true);
+
 	_stroker.reset();
 	clearLayerDelegation();
 	PAINTFIELD_DEBUG << "commit editing";

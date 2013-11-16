@@ -38,7 +38,6 @@ HEADERS += \
            widgets/widgetgroup.h \
     dialogs/messagebox.h \
     widgets/docktabwidget.h \
-    canvasview.h \
     interface.h \
     appcontroller.h \
     application.h \
@@ -75,17 +74,12 @@ HEADERS += \
     layerscene.h \
     layeritemmodel.h \
     colorbuttongroup.h \
-    canvasnavigator.h \
-    canvastooleventsender.h \
     textlayer.h \
     pathrecorder.h \
     abstractrectlayer.h \
     serializationutil.h \
     widgets/abstractlayerpropertyeditor.h \
     json.h \
-    canvasviewportcontroller.h \
-    canvasviewportnormal.h \
-    canvasupdatemanager.h \
     canvasviewportmipmap.h \
     canvasviewportsurface.h \
     canvasviewportstate.h \
@@ -98,7 +92,12 @@ HEADERS += \
     paintfieldformatsupport.h \
     widgets/looseslider.h \
     internal/applicationeventfilter.h \
-    observablevariantmap.h
+    observablevariantmap.h \
+    canvasviewport.h \
+    canvastooleventfilter.h \
+    canvasnavigatoreventfilter.h \
+    canvasview.h \
+    canvasupdatemanager.h
 
 FORMS +=
 SOURCES += \
@@ -126,7 +125,6 @@ SOURCES += \
     dialogs/messagebox.cpp \
     widgets/docktabwidget.cpp \
     widgets/docktabmotherwidget.cpp \
-    canvasview.cpp \
     tool.cpp \
     appcontroller.cpp \
     application.cpp \
@@ -160,17 +158,12 @@ SOURCES += \
     layerscene.cpp \
     layeritemmodel.cpp \
     colorbuttongroup.cpp \
-    canvasnavigator.cpp \
-    canvastooleventsender.cpp \
     textlayer.cpp \
     pathrecorder.cpp \
     abstractrectlayer.cpp \
     serializationutil.cpp \
     widgets/abstractlayerpropertyeditor.cpp \
     json.cpp \
-    canvasviewportnormal.cpp \
-	canvasviewportcontroller.cpp \
-    canvasupdatemanager.cpp \
     canvasviewportmipmap.cpp \
     blendmodetexts.cpp \
     formatsupport.cpp \
@@ -181,17 +174,15 @@ SOURCES += \
     paintfieldformatsupport.cpp \
     widgets/looseslider.cpp \
     internal/applicationeventfilter.cpp \
-    observablevariantmap.cpp
+    observablevariantmap.cpp \
+    canvasviewport.cpp \
+    canvasnavigatoreventfilter.cpp \
+    canvastooleventfilter.cpp \
+    canvasview.cpp \
+    canvasupdatemanager.cpp
 
 RESOURCES += \
     resources/resource-paintfield-core.qrc
 
 TRANSLATIONS += core_ja.ts
-
-mac {
-	HEADERS += \
-		canvasviewportcocoa.h
-	#OBJECTIVE_SOURCES += \
-	#	canvasviewportcocoa.mm
-}
 
