@@ -84,7 +84,7 @@ void drawWithSpreadType(T_Rasterizer *ras, Bitmap<Pixel> *bitmap, BlendOp *blend
 	
 	if (brush.type() == Malachite::BrushTypeImage)
 	{
-		if (transformIsIntegerTranslating(fillShapeTransform))
+		if (isTransformIntegerTranslating(fillShapeTransform))
 		{
 			QPoint offset(fillShapeTransform.dx(), fillShapeTransform.dy());
 			

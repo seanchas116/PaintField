@@ -33,6 +33,7 @@ public:
 	
 	typedef ConstIterator const_iterator;
 	typedef Iterator iterator;
+	typedef ImageType value_type;
 	
 	GenericSurface() {}
 	GenericSurface(const GenericSurface<ImageType, TileTraitsType> &other) : _hash(other._hash) {}

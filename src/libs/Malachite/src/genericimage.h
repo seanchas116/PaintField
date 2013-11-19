@@ -2,9 +2,11 @@
 
 //ExportName: GenericImage
 
+#include "bitmap.h"
 #include <QRect>
 #include <QSharedDataPointer>
-#include "bitmap.h"
+#include <boost/operators.hpp>
+
 
 namespace Malachite
 {
@@ -49,30 +51,25 @@ public:
 	const bool ownsData;
 };
 
-enum ImagePasteInversionMode
-{
-	ImagePasteNotInverted = 0,
-	ImagePasteDestinationInverted = 1,
-	ImagePasteSourceInverted = 2,
-	ImagePasteBothInverted = ImagePasteDestinationInverted | ImagePasteSourceInverted
-};
-
-template <class T_Pixel>
-class MALACHITESHARED_EXPORT GenericImage
+template <class TPixel>
+class MALACHITESHARED_EXPORT GenericImage :
+	public ImageSizeAccessible<GenericImage<TPixel>>,
+	public BitsAccessible<GenericImage<TPixel>, TPixel>,
+	private boost::equality_comparable<GenericImage<TPixel>>
 {
 public:
 	
 	/**
 	 * Pixel type
 	 */
-	typedef T_Pixel PixelType;
+	typedef TPixel PixelType;
 	
 	typedef GenericImage<PixelType> SelfType;
 	
 	/**
 	 * Constructs an empty image.
 	 */
-	GenericImage() {}
+	GenericImage() = default;
 	
 	/**
 	 * Constructs an image with a size and byte count per line.
@@ -136,73 +133,20 @@ public:
 	void detach() { p.detach(); }
 	bool isValid() const { return p; }
 	
-	QSize size() const
-		{ return p ? p->bitmap.size() : QSize(); }
-	QRect rect() const
-		{ return QRect(QPoint(), size()); }
-	int width() const
-		{ return p ? p->bitmap.width() : 0; }
-	int height() const
-		{ return p ? p->bitmap.height() : 0; }
-	int bytesPerLine() const
-		{ return p ? p->bitmap.bytesPerLine() : 0; }
-	int area() const
-		{ return p ? p->bitmap.area() : 0; }
-	
+	QSize size() const { return p ? p->bitmap.size() : QSize(); }
+
 	Bitmap<PixelType> bitmap() { return p ? p->bitmap : Bitmap<PixelType>(); }
 	const Bitmap<PixelType> constBitmap() const { return p ? p->bitmap : Bitmap<PixelType>(); }
+	int bytesPerLine() const { Q_ASSERT(p); return p->bitmap.bytesPerLine(); }
 	
 	Pointer<PixelType> bits()
 		{ Q_ASSERT(p); return p->bitmap.bits(); }
 	Pointer<const PixelType> constBits() const
 		{ Q_ASSERT(p); return p->bitmap.constBits(); }
-	
-	Pointer<PixelType> scanline(int y)
-		{ Q_ASSERT(p); return p->bitmap.scanline(y); }
-	Pointer<const PixelType> constScanline(int y) const
-		{ Q_ASSERT(p); return p->bitmap.constScanline(y); }
-	
-	Pointer<PixelType> invertedScanline(int invertedY)
-		{ Q_ASSERT(p); return p->bitmap.invertedScanline(invertedY); }
-	Pointer<const PixelType> invertedConstScanline(int invertedY) const
-		{ Q_ASSERT(p); return p->bitmap.invertedConstScanline(invertedY); }
-	
-	Pointer<PixelType> pixelPointer(int x, int y)
-		{ Q_ASSERT(p); return p->bitmap.pixelPointer(x, y); }
-	Pointer<PixelType> pixelPointer(const QPoint &point)
-		{ return pixelPointer(point.x(), point.y()); }
-	
-	Pointer<const PixelType> constPixelPointer(int x, int y) const
-		{ Q_ASSERT(p); return p->bitmap.constPixelPointer(x, y); }
-	Pointer<const PixelType> constPixelPointer(const QPoint &point) const
-		{ return constPixelPointer(point.x(), point.y()); }
-	
-	PixelType pixel(int x, int y) const { return *constPixelPointer(x, y); }
-	PixelType pixel(const QPoint &point) const { return pixel(point.x(), point.y()); }
-	
-	void setPixel(int x, int y, const PixelType &color)
-	{
-		auto p = pixelPointer(x, y);
-		Q_ASSERT(p);
-		*p = color;
-	}
-	
-	void setPixel(const QPoint &p, const PixelType &color) { setPixel(p.x(), p.y(), color); }
-	
-	void fill(const PixelType &c)
-	{
-		Q_ASSERT(p);
-		
-		QSize s = size();
-		for (int y = 0; y < s.height(); ++y)
-		{
-			scanline(y).fill(c, s.width());
-		}
-	}
-	
+
 	void clear()
 	{
-		fill(0);
+		this->fill(0);
 	}
 	
 	template <class NewPixel>
@@ -211,47 +155,8 @@ public:
 		if (!p)
 			return GenericImage<NewPixel>();
 		
-		QSize s = size();
-		GenericImage<NewPixel> newImage(s);
-		
-		for (int y = 0; y < s.height(); ++y)
-		{
-			NewPixel *dp = newImage.scanline(y);
-			PixelType *sp = constScanline(y);
-			
-			for (int x = 0; x < s.width(); ++x)
-				*dp++ = *sp++;
-		}
-	}
-	
-	template <ImagePasteInversionMode InversionMode = ImagePasteNotInverted, class SrcImage>
-	void paste(const SrcImage &image, const QPoint &point = QPoint())
-	{
-		QRect r = rect() & QRect(point, image.size());
-		
-		for (int y = r.top(); y <= r.bottom(); ++y)
-		{
-			PixelType *dp;
-			
-			if (InversionMode & ImagePasteDestinationInverted)
-				dp = invertedScanline(y);
-			else
-				dp = scanline(y);
-			
-			dp += r.left();
-			
-			const typename SrcImage::PixelType *sp;
-			
-			if (InversionMode & ImagePasteSourceInverted)
-				sp = image.invertedConstScanline(y - point.y());
-			else
-				sp = image.constScanline(y - point.y());
-			
-			sp += (r.left() - point.x());
-			
-			for (int x = 0; x < r.width(); ++x)
-				*dp++ = *sp++;
-		}
+		GenericImage<NewPixel> newImage(size());
+		return newImage.paste(*this);
 	}
 	
 	bool operator==(const GenericImage &other) const
@@ -276,11 +181,6 @@ public:
 		}
 		
 		return true;
-	}
-	
-	bool operator!=(const GenericImage &other) const
-	{
-		return !(*this == other);
 	}
 	
 	bool referenceIsEqualTo(const GenericImage &other) const
