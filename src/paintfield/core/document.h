@@ -12,8 +12,13 @@ class Selection;
 class Document : public QObject
 {
 	Q_OBJECT
-	
+	Q_PROPERTY(QSize size READ size NOTIFY sizeChanged)
+	Q_PROPERTY(bool modified READ isModified WRITE setModified NOTIFY modifiedChanged)
+	Q_PROPERTY(QString filePath READ filePath WRITE setFilePath NOTIFY filePathChanged)
+	Q_PROPERTY(QString fileName READ fileName NOTIFY fileNameChanged)
+
 public:
+
 	
 	/**
 	 * Constructs a document.
@@ -84,6 +89,7 @@ signals:
 	void modifiedChanged(bool modified);
 	void filePathChanged(const QString &filePath);
 	void fileNameChanged(const QString &fileName);
+	void sizeChanged(const QSize &size);
 	
 public slots:
 	

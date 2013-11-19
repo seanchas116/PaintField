@@ -171,9 +171,9 @@ void BrushTool::commitStroke()
 	
 	_surface.squeeze(_stroker->totalEditedKeys());
 	
-	canvas()->view()->viewport()->setUpdateEnabled(false);
+	canvas()->view()->viewport()->setCanvasUpdatesEnabled(false);
 	canvas()->document()->layerScene()->editLayer(_layer, new LayerSurfaceEdit(_surface, _stroker->totalEditedKeys()), tr("Brush"));
-	canvas()->view()->viewport()->setUpdateEnabled(true);
+	canvas()->view()->viewport()->setCanvasUpdatesEnabled(true);
 
 	_stroker.reset();
 	clearLayerDelegation();

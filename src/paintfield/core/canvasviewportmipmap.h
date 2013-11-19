@@ -12,7 +12,7 @@ public:
 	void setSceneSize(const QSize &size);
 	
 	void setCurrentLevel(int level);
-	int currentLevel() const { return _currentLevel; }
+	int currentLevel() const { return mCurrentLevel; }
 	
 	void replace(const Malachite::ImageU8 &image, const QPoint &key, const QRect &rect);
 	
@@ -24,15 +24,15 @@ private:
 	void replace(const Malachite::ImageU8 &image, const QPoint &key, const QRect &rect, int maxLevel);
 	void update(int maxLevel);
 	
-	int indexFromKey(const QPoint &key) { return key.y() * _tileCountX + key.x(); }
+	int indexFromKey(const QPoint &key) { return key.y() * mTileCountX + key.x(); }
 	void extendSurfaceVector(int max);
 	
-	int _currentLevel = 0;
+	int mCurrentLevel = 0;
 	
-	int _tileCountX = 0, _tileCountY = 0;
+	int mTileCountX = 0, mTileCountY = 0;
 	
-	QVector<uint8_t> _maxUpToDateLevels;
-	QVector<CanvasViewportSurface> _surfaces;
+	QVector<uint8_t> mMaxUpToDateLevels;
+	QVector<CanvasViewportSurface> mSurfaces;
 };
 
 } // namespace PaintField

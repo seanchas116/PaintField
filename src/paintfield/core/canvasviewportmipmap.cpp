@@ -71,16 +71,16 @@ static QRect rectForLevel(const QRect &originalRect, int level)
 }
 
 CanvasViewportMipmap::CanvasViewportMipmap() :
-    _surfaces(8)
+	mSurfaces(8)
 {
 }
 
 void CanvasViewportMipmap::setCurrentLevel(int level)
 {
-	if (_currentLevel != level)
+	if (mCurrentLevel != level)
 	{
 		extendSurfaceVector(level);
-		_currentLevel = level;
+		mCurrentLevel = level;
 		update(level);
 	}
 }
@@ -88,76 +88,77 @@ void CanvasViewportMipmap::setCurrentLevel(int level)
 void CanvasViewportMipmap::setSceneSize(const QSize &size)
 {
 	constexpr auto tileWidth = CanvasViewportSurface::tileWidth();
-	_tileCountX = (size.width() - 1) / tileWidth + 1;
-	_tileCountY = (size.height() - 1) / tileWidth + 1;
-	_maxUpToDateLevels.resize(_tileCountX * _tileCountY);
-	_maxUpToDateLevels.fill(0);
+	mTileCountX = (size.width() - 1) / tileWidth + 1;
+	mTileCountY = (size.height() - 1) / tileWidth + 1;
+	mMaxUpToDateLevels.resize(mTileCountX * mTileCountY);
+	mMaxUpToDateLevels.fill(0);
+	update(mCurrentLevel);
 }
 
 void CanvasViewportMipmap::replace(const Malachite::ImageU8 &image, const QPoint &key, const QRect &rect)
 {
-	replace(image, key, rect, _currentLevel);
+	replace(image, key, rect, mCurrentLevel);
 }
 
 void CanvasViewportMipmap::replace(const Malachite::ImageU8 &image, const QPoint &key, const QRect &rect, int maxLevel)
 {
-	Q_ASSERT(_surfaces.size() > maxLevel);
+	Q_ASSERT(mSurfaces.size() > maxLevel);
 	
 	// paste image to base surface
-	_surfaces[0].tileRef(key).paste(image, rect.topLeft());
+	mSurfaces[0].tileRef(key).paste(image, rect.topLeft());
 	
 	auto globalRect = rect.translated(key * CanvasViewportSurface::tileWidth());
 	
 	// update mipmaps until level reaches given maxLevel
 	for (int level = 1; level <= maxLevel; ++level)
-		updateMipmap(_surfaces[level], rectForLevel(globalRect, level), _surfaces[level - 1]);
+		updateMipmap(mSurfaces[level], rectForLevel(globalRect, level), mSurfaces[level - 1]);
 	
-	_maxUpToDateLevels[indexFromKey(key)] = maxLevel;
+	mMaxUpToDateLevels[indexFromKey(key)] = maxLevel;
 }
 
 void CanvasViewportMipmap::update(int maxLevel)
 {
-	Q_ASSERT(_surfaces.size() > maxLevel);
+	Q_ASSERT(mSurfaces.size() > maxLevel);
 	
 	constexpr auto tileWidth = CanvasViewportSurface::tileWidth();
 	
-	for (auto tileY = 0; tileY < _tileCountY; ++tileY)
+	for (auto tileY = 0; tileY < mTileCountY; ++tileY)
 	{
-		for (auto tileX = 0; tileX < _tileCountX; ++tileX)
+		for (auto tileX = 0; tileX < mTileCountX; ++tileX)
 		{
 			auto key = QPoint(tileX, tileY);
-			auto alreadyUpToDateLevel = _maxUpToDateLevels[indexFromKey(key)];
+			auto alreadyUpToDateLevel = mMaxUpToDateLevels[indexFromKey(key)];
 			
 			// update mipmap for each level if needed
 			for (int level = alreadyUpToDateLevel + 1; level <= maxLevel; ++level)
 			{
 				auto rect = QRect(key * tileWidth, QSize(tileWidth, tileWidth));
-				updateMipmap(_surfaces[level], rectForLevel(rect, level), _surfaces[level - 1]);
+				updateMipmap(mSurfaces[level], rectForLevel(rect, level), mSurfaces[level - 1]);
 			}
 			
 			// set max up-to-date level if needed
 			if (alreadyUpToDateLevel < maxLevel)
-				_maxUpToDateLevels[indexFromKey(key)] = maxLevel;
+				mMaxUpToDateLevels[indexFromKey(key)] = maxLevel;
 		}
 	}
 }
 
 CanvasViewportSurface CanvasViewportMipmap::surface() const
 {
-	Q_ASSERT(_surfaces.size() > _currentLevel);
+	Q_ASSERT(mSurfaces.size() > mCurrentLevel);
 	
-	return _surfaces.at(_currentLevel);
+	return mSurfaces.at(mCurrentLevel);
 }
 
 CanvasViewportSurface CanvasViewportMipmap::baseSurface() const
 {
-	return _surfaces.at(0);
+	return mSurfaces.at(0);
 }
 
 void CanvasViewportMipmap::extendSurfaceVector(int max)
 {
-	if (_surfaces.size() <= max)
-		_surfaces.resize(max + 1);
+	if (mSurfaces.size() <= max)
+		mSurfaces.resize(max + 1);
 }
 
 } // namespace PaintField

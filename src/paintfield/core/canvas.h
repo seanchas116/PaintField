@@ -43,6 +43,7 @@ class Canvas : public QObject
 	Q_PROPERTY(double rotation READ rotation WRITE setRotation NOTIFY rotationChanged)
 	Q_PROPERTY(QPoint translation READ translation WRITE setTranslation NOTIFY translationChanged)
 	Q_PROPERTY(bool mirrored READ isMirrored WRITE setMirrored NOTIFY mirroredChanged)
+	Q_PROPERTY(bool retinaMode READ isRetinaMode WRITE setRetinaMode NOTIFY retinaModeChanged)
 	
 public:
 	

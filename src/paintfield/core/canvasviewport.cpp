@@ -23,29 +23,27 @@ namespace PaintField {
 class CanvasRenderer : public LayerRenderer
 {
 public:
-	CanvasRenderer() : LayerRenderer() {}
-
-	void setTool(Tool *tool) { _tool = tool; }
+	CanvasRenderer(Tool *tool) : mTool(tool) {}
 
 protected:
 
 	void drawLayer(Malachite::SurfacePainter *painter, const LayerConstRef &layer) override
 	{
-		if (_tool && _tool->layerDelegations().contains(layer))
-			_tool->drawLayer(painter, layer);
+		if (mTool && mTool->layerDelegations().contains(layer))
+			mTool->drawLayer(painter, layer);
 		else
 			LayerRenderer::drawLayer(painter, layer);
 	}
 
 	void renderChildren(Malachite::SurfacePainter *painter, const LayerConstRef &parent) override
 	{
-		if (!_tool || _tool->layerInsertions().isEmpty()) {
+		if (!mTool || mTool->layerInsertions().isEmpty()) {
 			LayerRenderer::renderChildren(painter, parent);
 		} else {
 			auto originalLayers = parent->children();
 			auto layers = originalLayers;
 
-			for (auto insertion : _tool->layerInsertions()) {
+			for (auto insertion : mTool->layerInsertions()) {
 				if (insertion.parent == parent) {
 					int index = insertion.index;
 					auto layer = insertion.layer;
@@ -64,7 +62,7 @@ protected:
 
 private:
 
-	Tool *_tool = 0;
+	Tool *mTool = 0;
 };
 
 struct CanvasViewport::Data
@@ -205,13 +203,11 @@ struct CanvasViewport::Data
 		// render layers
 		Malachite::Surface surface;
 		{
-			CanvasRenderer renderer;
-			renderer.setTool(mTool);
-
+			CanvasRenderer renderer(mTool);
 			surface = renderer.renderToSurface({mCanvas->document()->layerScene()->rootLayer()}, keys, rectForKeys);
 		}
 
-		auto documentRect = QRect(QPoint(), mCanvas->document()->size());
+		auto documentRect = QRect(QPoint(), mState.documentSize);
 
 		const Malachite::Pixel whitePixel(1.f);
 		auto blendOp = Malachite::BlendMode(Malachite::BlendMode::DestinationOver).op();
@@ -275,12 +271,12 @@ QSize CanvasViewport::viewSize() const
 	return size;
 }
 
-void CanvasViewport::setUpdateEnabled(bool x)
+void CanvasViewport::setCanvasUpdatesEnabled(bool x)
 {
 	d->mUpdateEnabled = x;
 }
 
-bool CanvasViewport::isUpdateEnabled() const
+bool CanvasViewport::isCanvasUpdatesEnabled() const
 {
 	return d->mUpdateEnabled;
 }
@@ -295,7 +291,7 @@ static const QString toolCursorId = "paintfield.canvas.tool";
 
 void CanvasViewport::enterEvent(QEvent *)
 {
-	setFocus();
+	d->activate();
 	appController()->cursorStack()->add(toolCursorId, d->mToolCursor);
 }
 
@@ -372,25 +368,28 @@ CanvasViewport::CanvasViewport(Canvas *canvas, QWidget *parent) :
 
 	// setup scrollbars
 	{
-		d->mScrollBarX = new VanishingScrollBar(Qt::Horizontal, this);
-		d->mScrollBarY = new VanishingScrollBar(Qt::Vertical, this);
+		auto sx = new VanishingScrollBar(Qt::Horizontal, this);
+		auto sy = new VanishingScrollBar(Qt::Vertical, this);
 
 		auto onScrollBarXChanged = [this](int x) {
-			if (d->mCanvas->isRetinaMode())
+			if (d->mState.retinaMode)
 				x *= 2;
 			d->mCanvas->setTranslationX(d->mCanvas->maxAbsoluteTranslation().x() - x);
 		};
 
 		auto onScrollBarYChanged = [this](int y) {
-			if (d->mCanvas->isRetinaMode())
+			if (d->mState.retinaMode)
 				y *= 2;
 			d->mCanvas->setTranslationY(d->mCanvas->maxAbsoluteTranslation().y() - y);
 		};
 
-		connect(d->mScrollBarX, &VanishingScrollBar::sliderMoved, this, onScrollBarXChanged);
-		connect(d->mScrollBarY, &VanishingScrollBar::sliderMoved, this, onScrollBarYChanged);
-		connect(d->mScrollBarX, SIGNAL(valueChanged(int)), d->mScrollBarY, SLOT(wakeUp()));
-		connect(d->mScrollBarY, SIGNAL(valueChanged(int)), d->mScrollBarX, SLOT(wakeUp()));
+		connect(sx, &VanishingScrollBar::sliderMoved, this, onScrollBarXChanged);
+		connect(sy, &VanishingScrollBar::sliderMoved, this, onScrollBarYChanged);
+		connect(sx, SIGNAL(valueChanged(int)), sy, SLOT(wakeUp()));
+		connect(sy, SIGNAL(valueChanged(int)), sx, SLOT(wakeUp()));
+
+		d->mScrollBarX = sx;
+		d->mScrollBarY = sy;
 
 		d->moveWidgets();
 	}
@@ -407,20 +406,23 @@ CanvasViewport::CanvasViewport(Canvas *canvas, QWidget *parent) :
 		connect(canvas, &Canvas::toolChanged, this, onToolChanged);
 		onToolChanged(canvas->tool());
 
-		connect(this, SIGNAL(viewSizeChanged(QSize)), canvas, SLOT(setViewSize(QSize)));
+		connect(this, &CanvasViewport::viewSizeChanged, canvas, &Canvas::setViewSize);
 		canvas->setViewSize(this->viewSize());
-		connect(canvas, &Canvas::retinaModeChanged, this, std::bind(&Data::setRetinaMode, d.data(), _1));
 
+		connect(canvas, &Canvas::retinaModeChanged, this, std::bind(&Data::setRetinaMode, d.data(), _1));
+		d->setRetinaMode(canvas->isRetinaMode());
+
+		connect(canvas->document(), &Document::sizeChanged, this, std::bind(&Data::setDocumentSize, d.data(), _1));
 		d->setDocumentSize(canvas->document()->size());
 
 		connect(canvas, SIGNAL(shouldBeDeleted(Canvas*)), this, SLOT(deleteLater()));
 
-		connect(canvas->workspace(), &Workspace::currentCanvasChanged, this, [this](Canvas *canvas) {
+		auto setFocusIfCanvasSame = [this](Canvas *canvas) {
 			if (d->mCanvas == canvas)
 				setFocus();
-		});
-		if (canvas == canvas->workspace()->currentCanvas())
-			setFocus();
+		};
+		connect(canvas->workspace(), &Workspace::currentCanvasChanged, this, setFocusIfCanvasSame);
+		setFocusIfCanvasSame(canvas->workspace()->currentCanvas());
 	}
 	connect(canvas->document()->layerScene(), &LayerScene::tilesUpdated, this, std::bind(&Data::updateTilesWithSet, d.data(), _1));
 	d->updateTilesWithSet(canvas->document()->tileKeys());

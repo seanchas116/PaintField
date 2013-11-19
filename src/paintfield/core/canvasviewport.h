@@ -12,6 +12,8 @@ class Canvas;
 class CanvasViewport : public QWidget
 {
 	Q_OBJECT
+	Q_PROPERTY(bool canvasUpdatesEnabled READ isCanvasUpdatesEnabled WRITE setCanvasUpdatesEnabled)
+
 public:
 	explicit CanvasViewport(Canvas *canvas, QWidget *parent = 0);
 	~CanvasViewport();
@@ -20,8 +22,8 @@ public:
 
 	QSize viewSize() const;
 
-	void setUpdateEnabled(bool x);
-	bool isUpdateEnabled() const;
+	void setCanvasUpdatesEnabled(bool x);
+	bool isCanvasUpdatesEnabled() const;
 
 signals:
 
