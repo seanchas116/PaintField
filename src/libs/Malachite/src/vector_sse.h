@@ -82,7 +82,7 @@ public:
 	typedef iterator Iterator;
 	typedef const_iterator ConstIterator;
 	
-	Vector() {}
+	Vector() = default;
 	
 	Vector(ValueType s)
 	{
@@ -90,21 +90,15 @@ public:
 		_data = _mm_unpacklo_pd(_data, _data);
 	}
 	
-	Vector(std::array<ValueType, 2> &array)
-	{
-		_array = array;
-	}
+	Vector(const std::array<ValueType, 2> &array) : _array(array) {}
 	
 	Vector(std::initializer_list<ValueType> list)
 	{
-		if (list.size() != size())
-			return;
+		Q_ASSERT(list.size() == size());
 		std::copy(list.begin(), list.end(), _array.begin());
 	}
 	
-	Vector(__m128d data) { _data = data; }
-	
-	Vector(const Vector<ValueType, 2> &other) { _v = other._v; }
+	Vector(__m128d data) : _data(data) {}
 	
 	// attributes
 	
@@ -229,9 +223,7 @@ protected:
 	};
 };
 
-typedef Vector<double, 2> Vector_double_2;
-
-ML_IMPL_VECTOR_OPERATORS_GLOBAL(inline Vector_double_2, Vector_double_2, double)
+ML_IMPL_VECTOR_OPERATORS_GLOBAL(inline, Vector<double BOOST_PP_COMMA() 2>, double)
 
 template<>
 class Vector<float, 4>
@@ -248,8 +240,8 @@ public:
 	typedef iterator Iterator;
 	typedef const_iterator ConstIterator;
 	
-	Vector() {}
-	
+	Vector() = default;
+
 	Vector(ValueType s)
 	{
 		_array[0] = s;
@@ -257,22 +249,16 @@ public:
 		_data = _mm_unpacklo_ps(_data, _data);
 	}
 	
-	Vector(std::array<ValueType, 4> &array)
-	{
-		_array = array;
-	}
+	Vector(const std::array<ValueType, 4> &array) : _array(array) {}
 	
 	Vector(std::initializer_list<ValueType> list)
 	{
-		if (list.size() != size())
-			return;
+		Q_ASSERT(list.size() == size());
 		std::copy(list.begin(), list.end(), _array.begin());
 	}
 	
-	Vector(__m128 data) { _data = data; }
-	
-	Vector(const Vector<ValueType, 4> &other) { _v = other._v; }
-	
+	Vector(__m128d data) : _data(data) {}
+
 	// attributes
 	
 	constexpr static size_t size() { return 4; }
@@ -437,8 +423,6 @@ protected:
 	};
 };
 
-typedef Vector<float, 4> Vector_float_4;
-
-ML_IMPL_VECTOR_OPERATORS_GLOBAL(inline Vector_float_4, Vector_float_4, float)
+ML_IMPL_VECTOR_OPERATORS_GLOBAL(inline, Vector<float BOOST_PP_COMMA() 4>, double)
 
 }

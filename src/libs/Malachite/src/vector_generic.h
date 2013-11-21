@@ -1,5 +1,6 @@
 #pragma once
 
+#include <boost/preprocessor/comma.hpp>
 #include <initializer_list>
 #include <array>
 #include <cstddef>
@@ -16,15 +17,15 @@
 	SELF_TYPE &operator/=( VALUE_TYPE s ) { return operator/=(SELF_TYPE(s)); } \
 	bool operator!=( const SELF_TYPE &other ) const { return !(*this == other); }
 
-#define ML_IMPL_VECTOR_OPERATORS_GLOBAL(RETURN_TYPE, SELF_TYPE, VALUE_TYPE) \
-	RETURN_TYPE operator+(const SELF_TYPE &v, VALUE_TYPE s) { return v + SELF_TYPE(s); } \
-	RETURN_TYPE operator-(const SELF_TYPE &v, VALUE_TYPE s) { return v - SELF_TYPE(s); } \
-	RETURN_TYPE operator*(const SELF_TYPE &v, VALUE_TYPE s) { return v * SELF_TYPE(s); } \
-	RETURN_TYPE operator/(const SELF_TYPE &v, VALUE_TYPE s) { return v / SELF_TYPE(s); } \
-	RETURN_TYPE operator+(VALUE_TYPE s, const SELF_TYPE &v) { return SELF_TYPE(s) + v; } \
-	RETURN_TYPE operator-(VALUE_TYPE s, const SELF_TYPE &v) { return SELF_TYPE(s) - v; } \
-	RETURN_TYPE operator*(VALUE_TYPE s, const SELF_TYPE &v) { return SELF_TYPE(s) * v; } \
-	RETURN_TYPE operator/(VALUE_TYPE s, const SELF_TYPE &v) { return SELF_TYPE(s) / v; }
+#define ML_IMPL_VECTOR_OPERATORS_GLOBAL(PREFIX, SELF_TYPE, VALUE_TYPE) \
+	PREFIX SELF_TYPE operator+(const SELF_TYPE &v, VALUE_TYPE s) { return v + SELF_TYPE(s); } \
+	PREFIX SELF_TYPE operator-(const SELF_TYPE &v, VALUE_TYPE s) { return v - SELF_TYPE(s); } \
+	PREFIX SELF_TYPE operator*(const SELF_TYPE &v, VALUE_TYPE s) { return v * SELF_TYPE(s); } \
+	PREFIX SELF_TYPE operator/(const SELF_TYPE &v, VALUE_TYPE s) { return v / SELF_TYPE(s); } \
+	PREFIX SELF_TYPE operator+(VALUE_TYPE s, const SELF_TYPE &v) { return SELF_TYPE(s) + v; } \
+	PREFIX SELF_TYPE operator-(VALUE_TYPE s, const SELF_TYPE &v) { return SELF_TYPE(s) - v; } \
+	PREFIX SELF_TYPE operator*(VALUE_TYPE s, const SELF_TYPE &v) { return SELF_TYPE(s) * v; } \
+	PREFIX SELF_TYPE operator/(VALUE_TYPE s, const SELF_TYPE &v) { return SELF_TYPE(s) / v; }
 
 namespace Malachite
 {
@@ -44,24 +45,20 @@ public:
 	typedef iterator Iterator;
 	typedef const_iterator ConstIterator;
 	
-	Vector() {}
+	Vector() = default;
 	
 	Vector(T s)
 	{
-		for (auto iter = _array.begin(); iter != _array.end(); ++iter)
-			*iter = s;
+		std::fill(begin(), end(), s);
 	}
 	
-	Vector(std::array<T, N> &array) { _array = array; }
+	Vector(const std::array<T, N> &array) : _array(array) {}
 	
 	Vector(std::initializer_list<T> list)
 	{
-		if (list.size() != size())
-			return;
-		std::copy(list.begin(), list.end(), _array.begin());
+		Q_ASSERT(list.size() == size());
+		std::copy(list.begin(), list.end(), begin());
 	}
-	
-	Vector(const Vector &other) { _array = other._array; }
 	
 	// attributes
 	
@@ -93,14 +90,7 @@ public:
 	static Vector operate(const Vector &v1, const Vector &v2, Operation op)
 	{
 		Vector r;
-		
-		auto iter1 = v1.begin();
-		auto iter2 = v2.begin();
-		auto iterR = r.begin();
-		
-		while (iterR != r.end())
-			*iterR++ = op(*iter1++, *iter2++);
-		
+		std::transform(v1.begin(), v1.end(), v2.begin(), r.begin(), op);
 		return r;
 	}
 	
@@ -145,14 +135,7 @@ public:
 	static Vector<bool, N> compare(const Vector &v1, const Vector &v2, Compare cmp)
 	{
 		Vector<bool, N> r;
-		
-		auto iter1 = v1.begin();
-		auto iter2 = v2.begin();
-		auto iterR = r.begin();
-		
-		while (iterR != r.end())
-			*iterR++ = cmp(*iter1++, *iter2++);
-		
+		std::transform(v1.begin(), v1.end(), v2.begin(), r.begin(), cmp);
 		return r;
 	}
 	
@@ -210,14 +193,7 @@ private:
 	std::array<T, N> _array;
 };
 
-template <typename T, size_t N> inline Vector<T, N> operator+(const Vector<T, N> &v, T s) { return v + SELF_TYPE(s); }
-template <typename T, size_t N> inline Vector<T, N> operator-(const Vector<T, N> &v, T s) { return v - SELF_TYPE(s); }
-template <typename T, size_t N> inline Vector<T, N> operator*(const Vector<T, N> &v, T s) { return v * SELF_TYPE(s); }
-template <typename T, size_t N> inline Vector<T, N> operator/(const Vector<T, N> &v, T s) { return v / SELF_TYPE(s); }
-template <typename T, size_t N> inline Vector<T, N> operator+(T s, const Vector<T, N> &v) { return SELF_TYPE(s) + v; }
-template <typename T, size_t N> inline Vector<T, N> operator-(T s, const Vector<T, N> &v) { return SELF_TYPE(s) - v; }
-template <typename T, size_t N> inline Vector<T, N> operator*(T s, const Vector<T, N> &v) { return SELF_TYPE(s) * v; }
-template <typename T, size_t N> inline Vector<T, N> operator/(T s, const Vector<T, N> &v) { return SELF_TYPE(s) / v; }
+ML_IMPL_VECTOR_OPERATORS_GLOBAL(template <typename T BOOST_PP_COMMA() size_t N>, Vector<T BOOST_PP_COMMA() N>, T)
 
 }
 

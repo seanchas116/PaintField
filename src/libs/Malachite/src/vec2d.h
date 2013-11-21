@@ -82,7 +82,7 @@ public:
 	ML_IMPL_VECTOR_OPERATORS(Vec2D, double)
 };
 
-ML_IMPL_VECTOR_OPERATORS_GLOBAL(inline Vec2D, Vec2D, double)
+ML_IMPL_VECTOR_OPERATORS_GLOBAL(inline, Vec2D, double)
 
 inline Vec2D operator*(const Vec2D &v, const QTransform &transform)
 {
