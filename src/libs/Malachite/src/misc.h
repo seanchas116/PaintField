@@ -2,20 +2,13 @@
 
 //ExportName: Misc
 
-#include <QVector>
+#include "global.h"
 #include <QSet>
 #include <QPoint>
-#include <QString>
 #include <QSize>
 #include <QTransform>
 #include <cmath>
 #include <cstring>
-#include "global.h"
-
-#include <cstdlib>
-#ifdef __MINGW32__
-#include <malloc.h>
-#endif
 
 typedef QList<QPoint>	QPointList;
 typedef QSet<QPoint>	QPointSet;

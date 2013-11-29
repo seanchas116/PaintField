@@ -94,7 +94,7 @@ void drawWithSpreadType(T_Rasterizer *ras, Bitmap<Pixel> *bitmap, BlendOp *blend
 		}
 		else
 		{
-			drawTransformedImageBrush<T_Rasterizer, T_SpreadType, Bitmap<Pixel> >(ras, bitmap, blendOp, brush.image().constBitmap(), opacity, fillShapeTransform.inverted(), state.imageTransformType);
+			drawTransformedImageBrush<T_Rasterizer, T_SpreadType, Bitmap<const Pixel> >(ras, bitmap, blendOp, brush.image().constBitmap(), opacity, fillShapeTransform.inverted(), state.imageTransformType);
 			return;
 		}
 	}

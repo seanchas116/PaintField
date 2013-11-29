@@ -345,7 +345,7 @@ bool OpenRasterFormatSupport::write(QIODevice *device, const QList<LayerConstRef
 
 			// thumbnail
 			{
-				auto qimage = surface.crop(QRect(QPoint(), size)).toImageU8().wrapInQImage();
+				auto qimage = Malachite::wrapInQImage(surface.crop(QRect(QPoint(), size)).toImageU8());
 				auto scaledImage = qimage.scaled(256, 256, Qt::KeepAspectRatio, Qt::SmoothTransformation);
 
 				QByteArray data;

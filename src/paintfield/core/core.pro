@@ -97,7 +97,8 @@ HEADERS += \
     canvastooleventfilter.h \
     canvasnavigatoreventfilter.h \
     canvasview.h \
-    canvasupdatemanager.h
+    canvasupdatemanager.h \
+    selectionsurface.h
 
 FORMS +=
 SOURCES += \
@@ -179,7 +180,8 @@ SOURCES += \
     canvasnavigatoreventfilter.cpp \
     canvastooleventfilter.cpp \
     canvasview.cpp \
-    canvasupdatemanager.cpp
+    canvasupdatemanager.cpp \
+    selectionsurface.cpp
 
 RESOURCES += \
     resources/resource-paintfield-core.qrc

@@ -27,7 +27,6 @@ HEADERS += bitmap.h \
            global.h \
            image.h \
            imageio.h \
-           memory.h \
            misc.h \
            paintable.h \
            paintengine.h \
@@ -62,7 +61,9 @@ HEADERS += bitmap.h \
     mat2d.h \
     affine2d.h \
     genericsurface.h \
-    blendtraits.h
+    blendtraits.h \
+    pixeliterator.h \
+    pixelarray.h
 SOURCES += blendmode.cpp \
            blendop.cpp \
            brush.cpp \

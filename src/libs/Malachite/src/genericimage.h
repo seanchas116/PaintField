@@ -3,6 +3,7 @@
 //ExportName: GenericImage
 
 #include "bitmap.h"
+#include "pixelarray.h"
 #include <QRect>
 #include <QSharedDataPointer>
 #include <boost/operators.hpp>
@@ -11,138 +12,97 @@
 namespace Malachite
 {
 
-template <typename T_Pixel>
+template <typename TPixel>
 class GenericImageData : public QSharedData
 {
 public:
 	
-	typedef T_Pixel PixelType;
+	typedef TPixel PixelType;
 	
-	GenericImageData(const QSize &size, int bytesPerLine) :
-		bitmap(Pointer<PixelType>(), size, bytesPerLine),
-		ownsData(true)
+	GenericImageData(const QSize &size)
 	{
-		bitmap.setBits(new PixelType[bitmap.byteCount()], bitmap.byteCount());
+		initWithNewData(size);
 	}
 	
-	GenericImageData(void *bits, const QSize &size, int bytesPerLine) :
-		bitmap(Pointer<PixelType>(), size, bytesPerLine),
-		ownsData(false)
+	GenericImageData(PixelType *bits, const QSize &size) :
+		mBitmap(makePixelIterator(bits, bits + size.width() * size.height()), size)
 	{
-		bitmap.setBits(bits, bitmap.byteCount());
 	}
 	
 	GenericImageData(const GenericImageData &other) :
-		QSharedData(other),
-		bitmap(other.bitmap),
-		ownsData(true)
+		QSharedData(other)
 	{
-		bitmap.setBits(new PixelType[bitmap.byteCount()], bitmap.byteCount());
-		bitmap.bits().pasteByte(other.bitmap.constBits(), other.bitmap.byteCount());
+		initWithNewData(other.mBitmap.size());
+		std::copy(other.mBitmap.begin(), other.mBitmap.end(), mBitmap.begin());
 	}
-	
-	~GenericImageData()
+
+	void initWithNewData(const QSize &size)
 	{
-		if (ownsData)
-			delete[] bitmap.bits();
+		auto area = size.width() * size.height();
+		mData = PixelArray<PixelType>(area);
+		mBitmap = Bitmap<PixelType>(mData.begin(), size);
 	}
-	
-	Bitmap<PixelType> bitmap;
-	const bool ownsData;
+
+	PixelArray<PixelType> mData;
+	Bitmap<PixelType> mBitmap;
 };
 
 template <class TPixel>
 class MALACHITESHARED_EXPORT GenericImage :
 	public ImageSizeAccessible<GenericImage<TPixel>>,
-	public BitsAccessible<GenericImage<TPixel>, TPixel>,
-	private boost::equality_comparable<GenericImage<TPixel>>
+	public ImagePixelsAccessible<GenericImage<TPixel>, PixelIterator<TPixel>, ConstPixelIterator<TPixel>>,
+	boost::equality_comparable<GenericImage<TPixel>>
 {
 public:
 	
-	/**
-	 * Pixel type
-	 */
-	typedef TPixel PixelType;
+	using Self = GenericImage<TPixel>;
+	using Data = GenericImageData<TPixel>;
+	using PixelType = TPixel;
+	using value_type = TPixel;
+	using iterator = PixelIterator<value_type>;
+	using const_iterator = ConstPixelIterator<value_type>;
 	
-	typedef GenericImage<PixelType> SelfType;
-	
-	/**
-	 * Constructs an empty image.
-	 */
 	GenericImage() = default;
 	
-	/**
-	 * Constructs an image with a size and byte count per line.
-	 * @param size
-	 * @param bytesPerLine
-	 */
-	GenericImage(const QSize &size, int bytesPerLine)
+	GenericImage(const QSize &size)
 	{
 		if (!size.isEmpty())
-			p = new GenericImageData<PixelType>(size, bytesPerLine);
+			p = new Data(size);
 	}
 	
-	/**
-	 * Constructs an image with a size.
-	 * bytePerLine will be size.width() * sizeof(PixelType).
-	 * @param size
-	 */
-	GenericImage(const QSize &size) : GenericImage(size, size.width() * sizeof(PixelType)) {}
-	
-	/**
-	 * Constructs an image with a size and byte count per line.
-	 * @param width
-	 * @param height
-	 * @param bytesPerLine
-	 */
-	GenericImage(int width, int height, int bytesPerLine) : GenericImage(QSize(width, height), bytesPerLine) {}
-	
-	/**
-	 * Constructs an image with a size.
-	 * bytePerLine will be width * sizeof(PixelType).
-	 * @param width
-	 * @param height
-	 */
-	GenericImage(int width, int height) : GenericImage(QSize(width, height), width * sizeof(PixelType)) {}
+	GenericImage(int width, int height) : GenericImage(QSize(width, height)) {}
 	
 	/**
 	 * Wraps existing data.
 	 * The GenericImage will not take ownership of data.
 	 * @param data
 	 * @param size
-	 * @param bytesPerLine
 	 * @return 
 	 */
-	static GenericImage wrap(void *data, const QSize &size, int bytesPerLine)
+	static GenericImage wrap(value_type *data, const QSize &size)
 	{
 		GenericImage r;
 		if (!size.isEmpty())
-			r.p = new GenericImageData<PixelType>(data, size, bytesPerLine);
+			r.p = new Data(data, size);
 		return r;
 	}
-	
-	static GenericImage wrap(void *data, const QSize &size) { return wrap(data, size, size.width() * sizeof(PixelType)); }
-	
-	static const GenericImage wrap(const void *data, const QSize &size, int bytesPerLine)
-	{
-		return wrap(const_cast<void *>(data), size, bytesPerLine);
-	}
-	
-	static const GenericImage wrap(const void *data, const QSize &size) { return wrap(data, size, size.width() * sizeof(PixelType)); }
 	
 	void detach() { p.detach(); }
 	bool isValid() const { return p; }
 	
-	QSize size() const { return p ? p->bitmap.size() : QSize(); }
+	QSize size() const { return p ? p->mBitmap.size() : QSize(); }
 
-	Bitmap<PixelType> bitmap() { return p ? p->bitmap : Bitmap<PixelType>(); }
-	const Bitmap<PixelType> constBitmap() const { return p ? p->bitmap : Bitmap<PixelType>(); }
-	int bytesPerLine() const { Q_ASSERT(p); return p->bitmap.bytesPerLine(); }
-	
-	Pointer<PixelType> bits()
-		{ Q_ASSERT(p); return p->bitmap.bits(); }
-	Pointer<const PixelType> constBits() const
-		{ Q_ASSERT(p); return p->bitmap.constBits(); }
+	Bitmap<value_type> bitmap() { return p ? p->mBitmap : Bitmap<value_type>(); }
+	Bitmap<const value_type> constBitmap() const { return p ? p->mBitmap : Bitmap<const value_type>(); }
+
+	iterator scanline(int y) { Q_ASSERT(p); return p->mBitmap.scanline(y); }
+	const_iterator constScanline(int y) const { Q_ASSERT(p); return p->mBitmap.constScanline(y); }
+	iterator begin() { Q_ASSERT(p); return p->mBitmap.begin(); }
+	iterator end() { Q_ASSERT(p); return p->mBitmap.end(); }
+	const_iterator cbegin() const { Q_ASSERT(p); return p->mBitmap.cbegin(); }
+	const_iterator cend() const { Q_ASSERT(p); return p->mBitmap.cend(); }
+	const_iterator begin() const { return cbegin(); }
+	const_iterator end() const { return cend(); }
 
 	void clear()
 	{
@@ -150,37 +110,28 @@ public:
 	}
 	
 	template <class NewPixel>
-	GenericImage<NewPixel> convert()
+	GenericImage<NewPixel> convert() const
 	{
 		if (!p)
 			return GenericImage<NewPixel>();
 		
 		GenericImage<NewPixel> newImage(size());
-		return newImage.paste(*this);
+		std::copy(this->cbegin(), this->cend(), newImage.begin());
+		return newImage;
 	}
 	
 	bool operator==(const GenericImage &other) const
 	{
-		if (p == other.p)
+		if (this->p == other.p)
 			return true;
 		
-		if (isValid() != other.isValid())
+		if (this->isValid() != other.isValid())
 			return false;
 		
-		Q_ASSERT(p);
-		
-		QSize size = p->bitmap.size();
-		
-		if (size != other.p->bitmap.size())
+		if (this->size() != other.size())
 			return false;
-		
-		for (int y = 0; y < size.height(); ++y)
-		{
-			if (memcmp(p->bitmap.constScanline(y), other.p->bitmap.constScanline(y), size.width() * sizeof(PixelType)))
-				return false;
-		}
-		
-		return true;
+
+		return std::equal(this->begin(), this->end(), other.begin());
 	}
 	
 	bool referenceIsEqualTo(const GenericImage &other) const
@@ -189,7 +140,7 @@ public:
 	}
 	
 private:
-	QSharedDataPointer<GenericImageData<PixelType> > p;
+	QSharedDataPointer<Data> p;
 };
 
 }

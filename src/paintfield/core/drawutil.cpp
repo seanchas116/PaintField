@@ -21,7 +21,7 @@ void drawMLSurface(QPainter *painter, const QPoint &point, const Surface &surfac
 void drawMLImage(QPainter *painter, const QPoint &point, const Image &image)
 {
 	ImageU8 imageU8 = image.toImageU8();
-	painter->drawImage(point, imageU8.wrapInQImage());
+	painter->drawImage(point, wrapInQImage(imageU8));
 }
 
 }

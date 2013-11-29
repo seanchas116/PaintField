@@ -76,11 +76,11 @@ private:
 };
 
 template <Malachite::SpreadType T_SpreadType>
-class SourceWrapper<Bitmap<Pixel>, T_SpreadType>
+class SourceWrapper<Bitmap<const Pixel>, T_SpreadType>
 {
 public:
 	
-	SourceWrapper(const Bitmap<Pixel> *src) : _src(src) {}
+	SourceWrapper(const Bitmap<const Pixel> *src) : _src(src) {}
 	
 	Pixel pixel(const QPoint &p) const
 	{
@@ -94,7 +94,7 @@ public:
 	
 private:
 	
-	const Bitmap<Pixel> *_src;
+	const Bitmap<const Pixel> *_src;
 };
 
 template <class T_Source, Malachite::SpreadType T_SpreadType>

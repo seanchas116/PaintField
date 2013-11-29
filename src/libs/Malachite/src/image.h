@@ -13,69 +13,25 @@ namespace Malachite
 
 class Image;
 
+using ImageU8 = GenericImage<BgraPremultU8>;
+using ConstImageU8 = GenericImage<const BgraPremultU8>;
+
 /**
- * Bgra 8bit-per-channel unsigned int Image
- * Compatible with QImage
+ * Wraps the image into a 32bit premultiplied QImage.
+ * Do not delete the original image until the returned image is detached.
  */
-class MALACHITESHARED_EXPORT ImageU8 : public GenericImage<BgraPremultU8>
-{
-public:
-	
-	typedef GenericImage<BgraPremultU8> super;
-	
-	ImageU8() : super() {}
-	
-	ImageU8(const super &other) : super(other) {}
-	
-	ImageU8(const QSize &size) : super(size) {}
-	
-	ImageU8(int w, int h) : super(w, h) {}
-	
-	/**
-	 * Wraps this into a 32bit premultiplied QImage.
-	 * Do not delete the original image until the returned image is detached.
-	 * @return 
-	 */
-	QImage wrapInQImage() const;
-	
-	/**
-	 * Wraps a QImage.
-	 * The QImage must be 32bit premultiplied.
-	 * Do not delete the original image until the returned image is detached.
-	 * @param image
-	 * @return 
-	 */
-	static ImageU8 wrapQImage(const QImage &image);
-	
-	template <ImagePasteInversionMode InversionMode = ImagePasteNotInverted>
-	void paste(const ImageU8 &image, const QPoint &point = QPoint())
-	{
-		QRect r = rect() & QRect(point, image.size());
-		
-		for (int y = r.top(); y <= r.bottom(); ++y)
-		{
-			PixelType *dp;
-			
-			if (InversionMode & ImagePasteDestinationInverted)
-				dp = invertedScanline(y);
-			else
-				dp = scanline(y);
-			
-			dp += r.left();
-			
-			const PixelType *sp;
-			
-			if (InversionMode & ImagePasteSourceInverted)
-				sp = image.invertedConstScanline(y - point.y());
-			else
-				sp = image.constScanline(y - point.y());
-			
-			sp += (r.left() - point.x());
-			
-			memcpy(dp, sp, r.width() * sizeof(PixelType));
-		}
-	}
-};
+QImage wrapInQImage(const ImageU8 &image);
+
+/**
+ * Wraps a QImage.
+ * The QImage must be 32bit premultiplied.
+ * Do not delete the original image until the returned image is detached.
+ * @param image
+ * @return
+ */
+ConstImageU8 wrapQImage(const QImage &image);
+
+ImageU8 wrapQImage(QImage &image);
 
 /**
  * Bgra 32bit-per-channel float Image

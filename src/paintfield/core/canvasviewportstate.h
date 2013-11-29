@@ -108,7 +108,7 @@ void drawViewport(const QRect &windowRepaintRect, CanvasViewportState *state, co
 			if ((sceneRect & QRect(QPoint(), state->documentSize)).isEmpty())
 				drawBackground(toWindowRect(viewRect));
 			else
-				drawImage(toWindowRect(viewRect), cropSurface(sceneRect).wrapInQImage());
+				drawImage(toWindowRect(viewRect), Malachite::wrapInQImage(cropSurface(sceneRect)));
 		};
 		
 		drawDivided(repaintRect, drawInViewRect);
@@ -131,7 +131,7 @@ void drawViewport(const QRect &windowRepaintRect, CanvasViewportState *state, co
 					imagePainter.setRenderHint(QPainter::SmoothPixmapTransform);
 				
 				imagePainter.setTransform( state->transforms->mipmapToView * QTransform::fromTranslate(-viewRect.left(), -viewRect.top()) );
-				imagePainter.drawImage(sceneRect.topLeft(), croppedImage.wrapInQImage());
+				imagePainter.drawImage(sceneRect.topLeft(), wrapInQImage(croppedImage));
 			}
 			
 			if ((sceneRect & QRect(QPoint(), state->documentSize)).isEmpty())

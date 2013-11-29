@@ -11,7 +11,7 @@ static float loadComponent(const uint8_t *data);
 template <int bpp, int channel>
 static void loadData(Malachite::Image &image, const QByteArray &data)
 {
-	auto pixelP = image.bits();
+	auto pixelP = image.begin();
 	auto dataP = reinterpret_cast<const uint8_t *>(data.data());
 	int count = image.area();
 
@@ -93,7 +93,7 @@ Malachite::Image load(const QVector<SP<PsdChannelData> > &channeldDataList, cons
 
 	// premultiply pixels
 	{
-		auto p = image.bits();
+		auto p = image.begin();
 		for (int i = 0; i < count; ++i)
 		{
 			auto a = p->a();

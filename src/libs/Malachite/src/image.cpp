@@ -8,28 +8,33 @@
 namespace Malachite
 {
 
-QImage ImageU8::wrapInQImage() const
+QImage wrapInQImage(const ImageU8 &image)
 {
-	return QImage(reinterpret_cast<const uint8_t *>((const PixelType *)this->constBits()), this->width(), this->height(), QImage::Format_ARGB32_Premultiplied);
+	return QImage(
+		reinterpret_cast<const uint8_t *>((const BgraPremultU8 *)image.cbegin()),
+		image.width(), image.height(),
+		QImage::Format_ARGB32_Premultiplied);
 }
 
-ImageU8 ImageU8::wrapQImage(const QImage &image)
+ConstImageU8 wrapQImage(const QImage &image)
 {
-	return ImageU8::wrap(image.constBits(), image.size());
+	return ConstImageU8::wrap(
+		reinterpret_cast<const BgraPremultU8 *>(image.constBits()),
+		image.size());
+}
+
+ImageU8 wrapQImage(QImage &image)
+{
+	return ImageU8::wrap(
+		reinterpret_cast<BgraPremultU8 *>(image.bits()),
+		image.size());
 }
 
 bool Image::isBlank() const
 {
-	int count = area();
-	const Pixel *p = constBits();
-	
-	for (int i = 0; i < count; ++i)
-	{
-		if (p->a()) return false;
-		p++;
-	}
-	
-	return true;
+	return std::find_if(begin(), end(), [](const Pixel &p){
+		return p.a() != 0;
+	}) == end();
 }
 
 Image Image::toOpaqueImage() const
@@ -143,7 +148,7 @@ static void copyColorFast(int count, BgraPremultU8 *dst, const Pixel *src)
 ImageU8 Image::toImageU8() const
 {
 	ImageU8 result(this->size());
-	copyColorFast(this->area(), result.bits(), this->constBits());
+	copyColorFast(this->area(), (ImageU8::value_type *)result.begin(), (const Image::value_type *)this->begin());
 	return result;
 }
 
@@ -201,34 +206,23 @@ Image &Image::operator*=(float factor)
 		return *this;
 	
 	PixelVec vfactor(factor);
-	QSize size = this->size();
-	
-	for (int y = 0; y < size.height(); ++y)
-	{
-		Pixel *p = scanline(y);
-		
-		for (int x = 0; x < size.width(); ++x)
-			(p++)->rv() *= vfactor;
+
+	for (auto &p : *this) {
+		p.rv() *= vfactor;
 	}
-	
+
 	return *this;
 }
 
 QDataStream &operator<<(QDataStream &out, const Image &image)
 {
 	out << int32_t(image.width()) << int32_t(image.height());
-	
-	int count = image.width() * image.height();
-	
-	Pointer<const Pixel> p = image.constBits();
-	
-	for (int i = 0; i < count; ++i)
-	{
-		out << p->a();
-		out << p->r();
-		out << p->g();
-		out << p->b();
-		p++;
+
+	for (auto p : image) {
+		out << p.a();
+		out << p.r();
+		out << p.g();
+		out << p.b();
 	}
 	
 	return out;
@@ -240,17 +234,12 @@ QDataStream &operator>>(QDataStream &in, Image &image)
 	in >> w >> h;
 	
 	Image result(w, h);
-	int count = w * h;
 	
-	Pointer<Pixel> p = result.bits();
-	
-	for (int i = 0; i < count; ++i)
-	{
-		in >> p->ra();
-		in >> p->rr();
-		in >> p->rg();
-		in >> p->rb();
-		p++;
+	for (auto &p : image) {
+		in >> p.ra();
+		in >> p.rr();
+		in >> p.rg();
+		in >> p.rb();
 	}
 	
 	image = result;

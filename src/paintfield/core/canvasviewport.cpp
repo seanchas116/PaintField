@@ -102,7 +102,7 @@ struct CanvasViewport::Data
 		// update scroll bar value
 		{
 			mScrollBarX->setValue(maxAbsTranslation.x() - transforms->translation.x());
-			mScrollBarY->setValue(maxAbsTranslation.y() - transforms->translation.x());
+			mScrollBarY->setValue(maxAbsTranslation.y() - transforms->translation.y());
 		}
 
 		mSelf->update();
@@ -173,8 +173,8 @@ struct CanvasViewport::Data
 		int barWidthX = mScrollBarX->totalBarWidth();
 		int barWidthY = mScrollBarY->totalBarWidth();
 
-		auto scrollBarXRect = widgetRect.adjusted(0, widgetRect.height() - barWidthY, -barWidthX, 0);
-		auto scrollBarYRect = widgetRect.adjusted(widgetRect.width() - barWidthX, 0, 0, -barWidthY);
+		auto scrollBarXRect = widgetRect.adjusted(0, widgetRect.height() - barWidthX, -barWidthY, 0);
+		auto scrollBarYRect = widgetRect.adjusted(widgetRect.width() - barWidthY, 0, 0, -barWidthX);
 
 		mScrollBarX->setGeometry(scrollBarXRect);
 		mScrollBarY->setGeometry(scrollBarYRect);
@@ -222,7 +222,7 @@ struct CanvasViewport::Data
 			auto absoluteRect = relativeRect.translated(key * Malachite::Surface::tileWidth());
 
 			auto image = surface.crop(absoluteRect);
-			blendOp->blend(image.area(), image.bits(), whitePixel);
+			blendOp->blend(image.area(), image.begin(), whitePixel);
 
 			auto imageU8 = image.toImageU8();
 			mState.mipmap.replace(imageU8, key, relativeRect);

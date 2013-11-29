@@ -103,8 +103,8 @@ void Test::test_blend()
 			correctResultPixels[i] = correctBlend(correctResultPixels[i], srcPixels[i]);
 		
 		auto resultPixels = dstPixels;
-		auto dst = wrapPointer(resultPixels.data(), pixelCount);
-		auto src = wrapPointer(srcPixels.data(), pixelCount);
+		auto dst = makePixelIterator(resultPixels.data(), pixelCount);
+		auto src = makePixelIterator(srcPixels.data(), pixelCount);
 		
 		blendOp->blend(pixelCount, dst, src);
 		
@@ -124,9 +124,9 @@ void Test::test_blend()
 		}
 		
 		auto resultPixels = dstPixels;
-		auto dst = wrapPointer(resultPixels.data(), pixelCount);
-		auto src = wrapPointer(srcPixels.data(), pixelCount);
-		auto mask = wrapPointer(maskPixels.data(), pixelCount);
+		auto dst = makePixelIterator(resultPixels.data(), pixelCount);
+		auto src = makePixelIterator(srcPixels.data(), pixelCount);
+		auto mask = makePixelIterator(maskPixels.data(), pixelCount);
 		
 		blendOp->blend(srcPixels.size(), dst, src, mask);
 		
@@ -146,9 +146,9 @@ void Test::test_blend()
 		}
 		
 		auto resultPixels = dstPixels;
-		auto dst = wrapPointer(resultPixels.data(), pixelCount);
-		auto src = wrapPointer(srcPixels.data(), pixelCount);
-		auto mask = wrapPointer(masks.data(), pixelCount);
+		auto dst = makePixelIterator(resultPixels.data(), pixelCount);
+		auto src = makePixelIterator(srcPixels.data(), pixelCount);
+		auto mask = makePixelIterator(masks.data(), pixelCount);
 		
 		blendOp->blend(srcPixels.size(), dst, src, mask);
 		
@@ -168,8 +168,8 @@ void Test::test_blend()
 		}
 		
 		auto resultPixels = dstPixels;
-		auto dst = wrapPointer(resultPixels.data(), pixelCount);
-		auto src = wrapPointer(srcPixels.data(), pixelCount);
+		auto dst = makePixelIterator(resultPixels.data(), pixelCount);
+		auto src = makePixelIterator(srcPixels.data(), pixelCount);
 		
 		blendOp->blend(srcPixels.size(), dst, src, mask);
 		
@@ -189,8 +189,8 @@ void Test::test_blend()
 		}
 		
 		auto resultPixels = dstPixels;
-		auto dst = wrapPointer(resultPixels.data(), pixelCount);
-		auto src = wrapPointer(srcPixels.data(), pixelCount);
+		auto dst = makePixelIterator(resultPixels.data(), pixelCount);
+		auto src = makePixelIterator(srcPixels.data(), pixelCount);
 		
 		blendOp->blend(srcPixels.size(), dst, src, opacity);
 		
@@ -207,8 +207,8 @@ void Test::test_blend()
 		}
 		
 		auto resultPixels = dstPixels;
-		auto dst = wrapPointer(resultPixels.data(), pixelCount);
-		auto src = wrapPointer(srcPixels.data(), pixelCount);
+		auto dst = makePixelIterator(resultPixels.data(), pixelCount);
+		auto src = makePixelIterator(srcPixels.data(), pixelCount);
 		
 		blendOp->blend(srcPixels.size(), dst, src[0]);
 		
@@ -228,9 +228,9 @@ void Test::test_blend()
 		}
 		
 		auto resultPixels = dstPixels;
-		auto dst = wrapPointer(resultPixels.data(), pixelCount);
-		auto src = wrapPointer(srcPixels.data(), pixelCount);
-		auto mask = wrapPointer(maskPixels.data(), pixelCount);
+		auto dst = makePixelIterator(resultPixels.data(), pixelCount);
+		auto src = makePixelIterator(srcPixels.data(), pixelCount);
+		auto mask = makePixelIterator(maskPixels.data(), pixelCount);
 		
 		blendOp->blend(srcPixels.size(), dst, src[0], mask);
 		
@@ -250,9 +250,9 @@ void Test::test_blend()
 		}
 		
 		auto resultPixels = dstPixels;
-		auto dst = wrapPointer(resultPixels.data(), pixelCount);
-		auto src = wrapPointer(srcPixels.data(), pixelCount);
-		auto mask = wrapPointer(masks.data(), pixelCount);
+		auto dst = makePixelIterator(resultPixels.data(), pixelCount);
+		auto src = makePixelIterator(srcPixels.data(), pixelCount);
+		auto mask = makePixelIterator(masks.data(), pixelCount);
 		
 		blendOp->blend(srcPixels.size(), dst, src[0], mask);
 		
@@ -269,8 +269,8 @@ void Test::test_blend()
 			correctResultPixels[i] = correctBlend(correctResultPixels[i], srcPixels[pixelCount - 1 - i]);
 		
 		auto resultPixels = dstPixels;
-		auto dst = wrapPointer(resultPixels.data(), pixelCount);
-		auto src = wrapPointer(srcPixels.data(), pixelCount);
+		auto dst = makePixelIterator(resultPixels.data(), pixelCount);
+		auto src = makePixelIterator(srcPixels.data(), pixelCount);
 		
 		blendOp->blendReversed(srcPixels.size(), dst, src);
 		
@@ -290,9 +290,9 @@ void Test::test_blend()
 		}
 		
 		auto resultPixels = dstPixels;
-		auto dst = wrapPointer(resultPixels.data(), pixelCount);
-		auto src = wrapPointer(srcPixels.data(), pixelCount);
-		auto mask = wrapPointer(maskPixels.data(), pixelCount);
+		auto dst = makePixelIterator(resultPixels.data(), pixelCount);
+		auto src = makePixelIterator(srcPixels.data(), pixelCount);
+		auto mask = makePixelIterator(maskPixels.data(), pixelCount);
 		
 		blendOp->blendReversed(srcPixels.size(), dst, src, mask);
 		
@@ -312,9 +312,9 @@ void Test::test_blend()
 		}
 		
 		auto resultPixels = dstPixels;
-		auto dst = wrapPointer(resultPixels.data(), pixelCount);
-		auto src = wrapPointer(srcPixels.data(), pixelCount);
-		auto mask = wrapPointer(masks.data(), pixelCount);
+		auto dst = makePixelIterator(resultPixels.data(), pixelCount);
+		auto src = makePixelIterator(srcPixels.data(), pixelCount);
+		auto mask = makePixelIterator(masks.data(), pixelCount);
 		
 		blendOp->blendReversed(srcPixels.size(), dst, src, mask);
 		
@@ -334,8 +334,8 @@ void Test::test_blend()
 		}
 		
 		auto resultPixels = dstPixels;
-		auto dst = wrapPointer(resultPixels.data(), pixelCount);
-		auto src = wrapPointer(srcPixels.data(), pixelCount);
+		auto dst = makePixelIterator(resultPixels.data(), pixelCount);
+		auto src = makePixelIterator(srcPixels.data(), pixelCount);
 		
 		blendOp->blendReversed(srcPixels.size(), dst, src, mask);
 		
@@ -355,8 +355,8 @@ void Test::test_blend()
 		}
 		
 		auto resultPixels = dstPixels;
-		auto dst = wrapPointer(resultPixels.data(), pixelCount);
-		auto src = wrapPointer(srcPixels.data(), pixelCount);
+		auto dst = makePixelIterator(resultPixels.data(), pixelCount);
+		auto src = makePixelIterator(srcPixels.data(), pixelCount);
 		
 		blendOp->blendReversed(srcPixels.size(), dst, src, opacity);
 		

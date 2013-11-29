@@ -3,7 +3,7 @@
 //ExportName: BlendOp
 
 #include "color.h"
-#include "memory.h"
+#include "pixeliterator.h"
 
 namespace Malachite
 {
@@ -22,20 +22,20 @@ public:
 	
 	Q_DECLARE_FLAGS(TileCombination, Tile)
 	
-	virtual void blend(int count, Pointer<Pixel> dst, Pointer<const Pixel> src) = 0;
-	virtual void blend(int count, Pointer<Pixel> dst, Pointer<const Pixel> src, Pointer<const Pixel> masks) = 0;
-	virtual void blend(int count, Pointer<Pixel> dst, Pointer<const Pixel> src, Pointer<const float> opacities) = 0;
-	virtual void blend(int count, Pointer<Pixel> dst, Pointer<const Pixel> src, const Pixel &mask) = 0;
-	virtual void blend(int count, Pointer<Pixel> dst, Pointer<const Pixel> src, float opacity) = 0;
-	virtual void blend(int count, Pointer<Pixel> dst, const Pixel &src) = 0;
-	virtual void blend(int count, Pointer<Pixel> dst, const Pixel &src, Pointer<const Pixel> masks) = 0;
-	virtual void blend(int count, Pointer<Pixel> dst, const Pixel &src, Pointer<const float> opacities) = 0;
+	virtual void blend(int count, PixelIterator<Pixel> dst, PixelIterator<const Pixel> src) = 0;
+	virtual void blend(int count, PixelIterator<Pixel> dst, PixelIterator<const Pixel> src, PixelIterator<const Pixel> masks) = 0;
+	virtual void blend(int count, PixelIterator<Pixel> dst, PixelIterator<const Pixel> src, PixelIterator<const float> opacities) = 0;
+	virtual void blend(int count, PixelIterator<Pixel> dst, PixelIterator<const Pixel> src, const Pixel &mask) = 0;
+	virtual void blend(int count, PixelIterator<Pixel> dst, PixelIterator<const Pixel> src, float opacity) = 0;
+	virtual void blend(int count, PixelIterator<Pixel> dst, const Pixel &src) = 0;
+	virtual void blend(int count, PixelIterator<Pixel> dst, const Pixel &src, PixelIterator<const Pixel> masks) = 0;
+	virtual void blend(int count, PixelIterator<Pixel> dst, const Pixel &src, PixelIterator<const float> opacities) = 0;
 	
-	virtual void blendReversed(int count, Pointer<Pixel> dst, Pointer<const Pixel> src) = 0;
-	virtual void blendReversed(int count, Pointer<Pixel> dst, Pointer<const Pixel> src, Pointer<const Pixel> masks) = 0;
-	virtual void blendReversed(int count, Pointer<Pixel> dst, Pointer<const Pixel> src, Pointer<const float> opacities) = 0;
-	virtual void blendReversed(int count, Pointer<Pixel> dst, Pointer<const Pixel> src, const Pixel &mask) = 0;
-	virtual void blendReversed(int count, Pointer<Pixel> dst, Pointer<const Pixel> src, float opacity) = 0;
+	virtual void blendReversed(int count, PixelIterator<Pixel> dst, PixelIterator<const Pixel> src) = 0;
+	virtual void blendReversed(int count, PixelIterator<Pixel> dst, PixelIterator<const Pixel> src, PixelIterator<const Pixel> masks) = 0;
+	virtual void blendReversed(int count, PixelIterator<Pixel> dst, PixelIterator<const Pixel> src, PixelIterator<const float> opacities) = 0;
+	virtual void blendReversed(int count, PixelIterator<Pixel> dst, PixelIterator<const Pixel> src, const Pixel &mask) = 0;
+	virtual void blendReversed(int count, PixelIterator<Pixel> dst, PixelIterator<const Pixel> src, float opacity) = 0;
 	
 	virtual TileCombination tileRequirement(TileCombination combination) = 0;
 };
@@ -44,7 +44,7 @@ template <typename TBlendTraits>
 class TemplateBlendOp : public BlendOp
 {
 public:
-	void blend(int count, Pointer<Pixel> dst, Pointer<const Pixel> src)
+	void blend(int count, PixelIterator<Pixel> dst, PixelIterator<const Pixel> src)
 	{
 		while (count--)
 		{
@@ -54,7 +54,7 @@ public:
 		}
 	}
 	
-	void blend(int count, Pointer<Pixel> dst, Pointer<const Pixel> src, Pointer<const Pixel> masks)
+	void blend(int count, PixelIterator<Pixel> dst, PixelIterator<const Pixel> src, PixelIterator<const Pixel> masks)
 	{
 		while (count--)
 		{
@@ -65,7 +65,7 @@ public:
 		}
 	}
 
-	void blend(int count, Pointer<Pixel> dst, Pointer<const Pixel> src, Pointer<const float> opacities)
+	void blend(int count, PixelIterator<Pixel> dst, PixelIterator<const Pixel> src, PixelIterator<const float> opacities)
 	{
 		while (count--)
 		{
@@ -76,7 +76,7 @@ public:
 		}
 	}
 
-	void blend(int count, Pointer<Pixel> dst, Pointer<const Pixel> src, const Pixel &mask)
+	void blend(int count, PixelIterator<Pixel> dst, PixelIterator<const Pixel> src, const Pixel &mask)
 	{
 		auto factor = mask.aV();
 		
@@ -88,7 +88,7 @@ public:
 		}
 	}
 
-	void blend(int count, Pointer<Pixel> dst, Pointer<const Pixel> src, float opacity)
+	void blend(int count, PixelIterator<Pixel> dst, PixelIterator<const Pixel> src, float opacity)
 	{
 		auto factor = PixelVec(opacity);
 		
@@ -100,7 +100,7 @@ public:
 		}
 	}
 	
-	void blend(int count, Pointer<Pixel> dst, const Pixel &src)
+	void blend(int count, PixelIterator<Pixel> dst, const Pixel &src)
 	{
 		while (count--)
 		{
@@ -109,7 +109,7 @@ public:
 		}
 	}
 	
-	void blend(int count, Pointer<Pixel> dst, const Pixel &src, Pointer<const Pixel> masks)
+	void blend(int count, PixelIterator<Pixel> dst, const Pixel &src, PixelIterator<const Pixel> masks)
 	{
 		while (count--)
 		{
@@ -119,7 +119,7 @@ public:
 		}
 	}
 	
-	void blend(int count, Pointer<Pixel> dst, const Pixel &src, Pointer<const float> opacities)
+	void blend(int count, PixelIterator<Pixel> dst, const Pixel &src, PixelIterator<const float> opacities)
 	{
 		while (count--)
 		{
@@ -130,7 +130,7 @@ public:
 	}
 	
 	
-	void blendReversed(int count, Pointer<Pixel> dst, Pointer<const Pixel> src)
+	void blendReversed(int count, PixelIterator<Pixel> dst, PixelIterator<const Pixel> src)
 	{
 		src += count - 1;
 		
@@ -142,7 +142,7 @@ public:
 		}
 	}
 	
-	void blendReversed(int count, Pointer<Pixel> dst, Pointer<const Pixel> src, Pointer<const Pixel> masks)
+	void blendReversed(int count, PixelIterator<Pixel> dst, PixelIterator<const Pixel> src, PixelIterator<const Pixel> masks)
 	{
 		src += count - 1;
 		
@@ -155,7 +155,7 @@ public:
 		}
 	}
 
-	void blendReversed(int count, Pointer<Pixel> dst, Pointer<const Pixel> src, Pointer<const float> opacities)
+	void blendReversed(int count, PixelIterator<Pixel> dst, PixelIterator<const Pixel> src, PixelIterator<const float> opacities)
 	{
 		src += count - 1;
 		
@@ -168,7 +168,7 @@ public:
 		}
 	}
 
-	void blendReversed(int count, Pointer<Pixel> dst, Pointer<const Pixel> src, const Pixel &mask)
+	void blendReversed(int count, PixelIterator<Pixel> dst, PixelIterator<const Pixel> src, const Pixel &mask)
 	{
 		src += count - 1;
 		
@@ -182,7 +182,7 @@ public:
 		}
 	}
 
-	void blendReversed(int count, Pointer<Pixel> dst, Pointer<const Pixel> src, float opacity)
+	void blendReversed(int count, PixelIterator<Pixel> dst, PixelIterator<const Pixel> src, float opacity)
 	{
 		src += count - 1;
 		

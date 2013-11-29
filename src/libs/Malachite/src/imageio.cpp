@@ -1,6 +1,6 @@
-#include <QFile>
 #include "imageio.h"
-
+#include <QFile>
+#include <boost/utility.hpp>
 #include <FreeImage.h>
 
 namespace Malachite
@@ -21,11 +21,9 @@ static unsigned writeToQIODevice(void *buffer, unsigned size, unsigned count, vo
 static int seekQIODevice(void *handle, long offset, int origin)
 {
 	auto ioDevice = static_cast<QIODevice *>(handle);
-	
 	bool succeeded = false;
 	
-	switch (origin)
-	{
+	switch (origin) {
 		case SEEK_SET:
 			succeeded = ioDevice->seek(offset);
 			break;
@@ -59,89 +57,138 @@ static void outputMessage(FREE_IMAGE_FORMAT fif, const char *message)
 	qWarning() << message;
 }
 
-
-template <class T_Image>
-static bool pasteFIBITMAPToImage(const QPoint &pos, T_Image *dst, FIBITMAP *src)
+struct FIBITMAPDeleter
 {
-	FREE_IMAGE_TYPE srcType = FreeImage_GetImageType(src);
-	QSize srcSize(FreeImage_GetWidth(src), FreeImage_GetHeight(src));
-	const uint8_t *srcBits = FreeImage_GetBits(src);
-	int srcPitch = FreeImage_GetPitch(src);
+	void operator()(FIBITMAP *bitmap) const
+	{
+		FreeImage_Unload(bitmap);
+	}
+};
+
+using FIBITMAPUniquePtr = std::unique_ptr<FIBITMAP, FIBITMAPDeleter>;
+
+template <class TPixel>
+class FIBITMAPWrapper :
+	public ImageSizeAccessible<FIBITMAPWrapper<TPixel>>,
+	public ImagePixelsAccessible<FIBITMAPWrapper<TPixel>, TPixel *, const TPixel *>
+{
+public:
+
+	using value_type = TPixel;
+	using iterator = TPixel *;
+	using const_iterator = const TPixel *;
+
+	FIBITMAPWrapper(const FIBITMAPUniquePtr &bitmap) :
+		mSize(FreeImage_GetWidth(bitmap.get()), FreeImage_GetHeight(bitmap.get())),
+		mPitch(FreeImage_GetPitch(bitmap.get())),
+		mBits(FreeImage_GetBits(bitmap.get()))
+	{
+		Q_ASSERT(mPitch >= mSize.width() * int(sizeof(TPixel)));
+	}
+
+	FIBITMAPWrapper(const FIBITMAPWrapper &) = delete;
+	FIBITMAPWrapper(FIBITMAPWrapper &&) = delete;
+	FIBITMAPWrapper &operator=(const FIBITMAPWrapper &) = delete;
+	FIBITMAPWrapper &operator=(FIBITMAPWrapper &&) = delete;
+
+	iterator scanline(int y)
+	{
+		Q_ASSERT(0 <= y && y < mSize.height());
+		y = mSize.height() - y - 1;
+		auto p = mBits + mPitch * y;
+		return reinterpret_cast<iterator>(p);
+	}
+
+	const_iterator constScanline(int y) const
+	{
+		Q_ASSERT(0 <= y && y < mSize.height());
+		y = mSize.height() - y - 1;
+		auto p = mBits + mPitch * y;
+		return reinterpret_cast<const_iterator>(p);
+	}
+
+	QSize size() const
+	{
+		return mSize;
+	}
+
+private:
+
+	QSize mSize;
+	int mPitch;
+	uint8_t *mBits;
+};
+
+template <class TImage>
+static bool pasteFIBITMAPToImage(const QPoint &pos, TImage &dst, const FIBITMAPUniquePtr &bitmap)
+{
+	auto type = FreeImage_GetImageType(bitmap.get());
 	
-	switch (srcType)
+	switch (type)
 	{
 		case FIT_BITMAP:
 		{
-			int bpp = FreeImage_GetBPP(src);
-			
+			int bpp = FreeImage_GetBPP(bitmap.get());
+
 			switch (bpp)
 			{
-				case 24:
-				{
-					auto wrapped = GenericImage<BgrU8>::wrap(srcBits, srcSize, srcPitch);
-					dst->template paste<ImagePasteSourceInverted>(wrapped, pos);
-					break;
-				}
 				case 32:
 				{
-					dst->template paste<ImagePasteSourceInverted>(GenericImage<BgraU8>::wrap(srcBits, srcSize, srcPitch), pos);
+					dst.paste(FIBITMAPWrapper<BgraU8>(bitmap), pos);
 					break;
 				}
 				default:
 				{
-					FIBITMAP *newBitmap = FreeImage_ConvertTo32Bits(src);	// converted to RGBA8
-					dst->template paste<ImagePasteSourceInverted>(GenericImage<BgraU8>::wrap(FreeImage_GetBits(newBitmap), srcSize, FreeImage_GetPitch(newBitmap)), pos);
-					FreeImage_Unload(newBitmap);
+					FIBITMAPUniquePtr newBitmap(FreeImage_ConvertTo32Bits(bitmap.get()));
+					dst.paste(FIBITMAPWrapper<BgraU8>(newBitmap), pos);
 					break;
 				}
 			}
-			
 			break;
 		}
 		case FIT_RGB16:
 		{
-			dst->template paste<ImagePasteSourceInverted>(GenericImage<RgbaU16>::wrap(srcBits, srcSize, srcPitch), pos);
+			dst.paste(FIBITMAPWrapper<RgbU16>(bitmap), pos);
 			break;
 		}
 		case FIT_RGBA16:
 		{
-			dst->template paste<ImagePasteSourceInverted>(GenericImage<RgbaU16>::wrap(srcBits, srcSize, srcPitch), pos);
+			dst.paste(FIBITMAPWrapper<RgbaU16>(bitmap), pos);
 			break;
 		}
 		default:
+		{
 			qWarning() << Q_FUNC_INFO << ": Unsupported data type";
 			return false;
+		}
 	}
 	
 	return true;
 }
 
-template <class T_Image>
-static bool pasteImageToFIBITMAP(const QPoint &pos, FIBITMAP *dst, const T_Image &src)
+template <class TImage>
+static bool pasteImageToFIBITMAP(const QPoint &pos, const FIBITMAPUniquePtr &bitmap, const TImage &src)
 {
-	FREE_IMAGE_TYPE dstType = FreeImage_GetImageType(dst);
-	QSize dstSize(FreeImage_GetWidth(dst), FreeImage_GetHeight(dst));
-	int dstPitch = FreeImage_GetPitch(dst);
-	uint8_t *dstBits = FreeImage_GetBits(dst);
+	auto type = FreeImage_GetImageType(bitmap.get());
 	
-	switch (dstType)
+	switch (type)
 	{
 		case FIT_BITMAP:
 		{
-			int bpp = FreeImage_GetBPP(dst);
+			int bpp = FreeImage_GetBPP(bitmap.get());
 			
 			switch (bpp)
 			{
 				case 24:
 				{
-					auto wrapper = GenericImage<BgrU8>::wrap(dstBits, dstSize, dstPitch);
-					wrapper.paste<ImagePasteDestinationInverted>(src, pos);
+					FIBITMAPWrapper<BgrU8> wrapper(bitmap);
+					wrapper.paste(src, pos);
 					break;
 				}
 				case 32:
 				{
-					auto wrapper = GenericImage<BgraU8>::wrap(dstBits, dstSize, dstPitch);
-					wrapper.paste<ImagePasteDestinationInverted>(src, pos);
+					FIBITMAPWrapper<BgraU8> wrapper(bitmap);
+					wrapper.paste(src, pos);
 					break;
 				}
 				default:
@@ -153,14 +200,14 @@ static bool pasteImageToFIBITMAP(const QPoint &pos, FIBITMAP *dst, const T_Image
 		}
 		case FIT_RGB16:
 		{
-			auto wrapper = GenericImage<RgbU16>::wrap(dstBits, dstSize, dstPitch);
-			wrapper.paste<ImagePasteDestinationInverted>(src, pos);
+			FIBITMAPWrapper<RgbU16> wrapper(bitmap);
+			wrapper.paste(src, pos);
 			break;
 		}
 		case FIT_RGBA16:
 		{
-			auto wrapper = GenericImage<RgbaU16>::wrap(dstBits, dstSize, dstPitch);
-			wrapper.paste<ImagePasteDestinationInverted>(src, pos);
+			FIBITMAPWrapper<RgbaU16> wrapper(bitmap);
+			wrapper.paste(src, pos);
 			break;
 		}
 		default:
@@ -174,22 +221,8 @@ static bool pasteImageToFIBITMAP(const QPoint &pos, FIBITMAP *dst, const T_Image
 
 struct ImageReader::Data
 {
-	FIBITMAP *bitmap = 0;
+	FIBITMAPUniquePtr bitmap;
 	QSize size;
-	
-	~Data()
-	{
-		deleteBitmap();
-	}
-	
-	void deleteBitmap()
-	{
-		if (bitmap)
-		{
-			FreeImage_Unload(bitmap);
-			bitmap = 0;
-		}
-	}
 };
 
 ImageReader::ImageReader() :
@@ -203,8 +236,6 @@ ImageReader::~ImageReader()
 
 bool ImageReader::read(QIODevice *device)
 {
-	d->deleteBitmap();
-	
 	FreeImage_SetOutputMessage(outputMessage);
 	
 	FreeImageIO io;
@@ -215,29 +246,22 @@ bool ImageReader::read(QIODevice *device)
 	
 	auto format = FreeImage_GetFileTypeFromHandle(&io, device);
 	
-	if (format != FIF_UNKNOWN)
-	{
+	if (format != FIF_UNKNOWN) {
 		int flags = 0;
-		
 		if (format == FIF_JPEG)
 			flags = JPEG_ACCURATE;
-		
-		d->bitmap = FreeImage_LoadFromHandle(format, &io, device, flags);
+		d->bitmap.reset(FreeImage_LoadFromHandle(format, &io, device, flags));
 	}
 	
-	if (d->bitmap)
-	{
-		int w = FreeImage_GetWidth(d->bitmap);
-		int h = FreeImage_GetHeight(d->bitmap);
-		
+	if (d->bitmap) {
+		int w = FreeImage_GetWidth(d->bitmap.get());
+		int h = FreeImage_GetHeight(d->bitmap.get());
 		d->size = QSize(w, h);
-	}
-	else
-	{
+	} else {
 		qWarning() << "Malachite::ImageImporter::load failed";
 	}
 	
-	return d->bitmap;
+	return bool(d->bitmap);
 }
 
 bool ImageReader::read(const QString &filepath)
@@ -252,7 +276,7 @@ bool ImageReader::read(const QString &filepath)
 
 bool ImageReader::isValid() const
 {
-	return d->bitmap;
+	return bool(d->bitmap);
 }
 
 QSize ImageReader::size() const
@@ -267,7 +291,7 @@ Image ImageReader::toImage() const
 	
 	Image image(size());
 	
-	pasteFIBITMAPToImage(QPoint(), &image, d->bitmap);
+	pasteFIBITMAPToImage(QPoint(), image, d->bitmap);
 	return image;
 }
 
@@ -277,7 +301,7 @@ Surface ImageReader::toSurface(const QPoint &p) const
 		return Surface();
 	
 	Surface surface;
-	pasteFIBITMAPToImage(p, &surface, d->bitmap);
+	pasteFIBITMAPToImage(p, surface, d->bitmap);
 	surface.squeeze();
 	return surface;
 }
@@ -291,11 +315,6 @@ QStringList ImageReader::readableExtensions()
 
 struct ImageWriter::Data
 {
-	~Data()
-	{
-		deleteBitmap();
-	}
-	
 	void setFormatString(const QString &formatString)
 	{
 		if (formatString == "bmp")
@@ -308,34 +327,22 @@ struct ImageWriter::Data
 			format = FIF_UNKNOWN;
 	}
 	
-	void deleteBitmap()
-	{
-		if (bitmap)
-		{
-			FreeImage_Unload(bitmap);
-			bitmap = 0;
-		}
-	}
-	
 	void allocate(const QSize &size)
 	{
-		deleteBitmap();
-		
-		switch (format)
-		{
+		switch (format) {
 			case FIF_PNG:
 				if (alphaEnabled)
-					bitmap = FreeImage_AllocateT(FIT_RGBA16, size.width(), size.height());
+					bitmap.reset(FreeImage_AllocateT(FIT_RGBA16, size.width(), size.height()));
 				else
-					bitmap = FreeImage_AllocateT(FIT_RGB16, size.width(), size.height());
+					bitmap.reset(FreeImage_AllocateT(FIT_RGB16, size.width(), size.height()));
 				break;
 			default:
-				bitmap = FreeImage_Allocate(size.width(), size.height(), 24);
+				bitmap.reset(FreeImage_Allocate(size.width(), size.height(), 24));
 		}
 	}
 	
 	QSize size;
-	FIBITMAP *bitmap = 0;
+	FIBITMAPUniquePtr bitmap;
 	FREE_IMAGE_FORMAT format;
 	int quality = 80;
 	bool alphaEnabled = true;
@@ -393,7 +400,7 @@ bool ImageWriter::write(QIODevice *device)
 	io.seek_proc = seekQIODevice;
 	io.tell_proc = tellQIODevice;
 	
-	return FreeImage_SaveToHandle(d->format, d->bitmap, &io, device, flags);
+	return FreeImage_SaveToHandle(d->format, d->bitmap.get(), &io, device, flags);
 }
 
 bool ImageWriter::write(const QString &filePath)
@@ -424,8 +431,7 @@ bool ImageWriter::setSurface(const Surface &surface, const QRect &rect)
 	
 	auto pos = rect.topLeft();
 	
-	for (const QPoint &key : Surface::rectToKeys(QRect(pos, size)))
-	{
+	for (const QPoint &key : Surface::rectToKeys(QRect(pos, size))) {
 		if (pasteImage(surface.tile(key), key * Surface::tileWidth() - pos) == false)
 			return false;
 	}

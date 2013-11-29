@@ -151,18 +151,16 @@ public:
 	
 	typedef Vector< ValueType, count() > VectorType;
 	
-	RgbPixel() {}
+	RgbPixel() = default;
 	
 	RgbPixel(const VectorType &v) : _v(v) {}
-	
+
 	RgbPixel(ValueType r, ValueType g, ValueType b, ValueType a)
 	{
 		setA(a); setR(r); setG(g); setB(b);
 	}
 	
 	RgbPixel(ValueType x) : _v(x) {}
-	
-	RgbPixel(const RgbPixel<T_Premult, T_Alpha, T_Index, T_Channel> &other) : _v(other._v) {}
 	
 	template <PixelParams::Premult Other_Premult, PixelParams::Alpha Other_Alpha, typename Other_Index, typename Other_Channel>
 	RgbPixel(const RgbPixel<Other_Premult, Other_Alpha, Other_Index, Other_Channel> &other)

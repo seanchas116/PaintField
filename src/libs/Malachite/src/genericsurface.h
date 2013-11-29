@@ -22,6 +22,7 @@ template <typename T_Image, typename T_TileTraits = GenericTileTraits<T_Image> >
 class GenericSurface
 {
 public:
+
 	
 	typedef T_Image ImageType;
 	typedef typename ImageType::PixelType PixelType;
@@ -70,6 +71,8 @@ public:
 	
 	ConstIterator begin() const { return _hash.begin(); }
 	ConstIterator end() const { return _hash.end(); }
+	ConstIterator cbegin() const { return begin(); }
+	ConstIterator cend() const { return end(); }
 	
 	PixelType pixel(const QPoint &pos) const
 	{
@@ -102,11 +105,11 @@ public:
 		_hash[key] = createTile();
 	}
 	
-	template <ImagePasteInversionMode T_InversionMode = ImagePasteNotInverted, typename OtherImage>
+	template <class OtherImage>
 	void paste(const OtherImage &image, const QPoint &pos = QPoint())
 	{
 		for (const QPoint &key : rectToKeys(QRect(pos, image.size())))
-			tileRef(key).template paste<T_InversionMode>(image, pos - key * tileWidth());
+			tileRef(key).paste(image, pos - key * tileWidth());
 	}
 	
 	template <typename OtherImage>

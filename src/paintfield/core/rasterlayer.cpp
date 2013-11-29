@@ -32,7 +32,7 @@ SP<RasterLayer> RasterLayer::createFromImageFile(const QString &path, QSize *ima
 SP<RasterLayer> RasterLayer::createFromImage(const QImage &image)
 {
 	Surface surface;
-	surface.paste(ImageU8::wrapQImage(image));
+	surface.paste(wrapQImage(image));
 	
 	auto layer = makeSP<RasterLayer>();
 	layer->setSurface(surface);

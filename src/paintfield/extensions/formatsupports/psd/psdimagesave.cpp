@@ -10,7 +10,7 @@ static SP<PsdChannelData> writeChannel(const Malachite::Image &image)
 	QByteArray data;
 	data.reserve(pixelCount * 4 * (bpp / 8));
 
-	auto p = image.constBits();
+	auto p = image.cbegin();
 
 	for (int i = 0; i < pixelCount; ++i)
 	{
@@ -100,7 +100,7 @@ void save(Malachite::Image &&image, QVector<SP<PsdChannelData>> &channelDatas, Q
 	int pixelCount = image.area();
 
 	{
-		auto p = image.bits();
+		auto p = image.begin();
 		for (int i = 0; i < pixelCount; ++i)
 		{
 			auto a = p->a();

@@ -50,7 +50,7 @@ void MinimapView::onThumbnailUpdated(const QPointSet &keys)
 		painter.setCompositionMode(QPainter::CompositionMode_Source);
 
 		for (const auto &key : keys)
-			painter.drawImage(key * surface.tileWidth(), surface.tile(key).wrapInQImage());
+			painter.drawImage(key * surface.tileWidth(), wrapInQImage(surface.tile(key)));
 	}
 
 	update();

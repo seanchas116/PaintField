@@ -15,19 +15,19 @@ public:
 		_argb(argb)
 	{}
 	
-	void fill(const QPoint &pos, int count, Pointer<Pixel> dst, Pointer<float> covers, BlendOp *blendOp)
+	void fill(const QPoint &pos, int count, PixelIterator<Pixel> dst, PixelIterator<float> covers, BlendOp *blendOp)
 	{
 		Q_UNUSED(pos);
 		blendOp->blend(count, dst, _argb, covers);
 	}
 	
-	void fill(const QPoint &pos, int count, Pointer<Pixel> dst, float cover, BlendOp *blendOp)
+	void fill(const QPoint &pos, int count, PixelIterator<Pixel> dst, float cover, BlendOp *blendOp)
 	{
 		Q_UNUSED(pos);
 		blendOp->blend(count, dst, _argb * cover);
 	}
 	
-	void fill(const QPoint &pos, int count, Pointer<Pixel> dst, BlendOp *blendOp)
+	void fill(const QPoint &pos, int count, PixelIterator<Pixel> dst, BlendOp *blendOp)
 	{
 		Q_UNUSED(pos);
 		blendOp->blend(count, dst, _argb);
@@ -45,10 +45,10 @@ class ImageFiller<Malachite::SpreadTypePad>
 {
 public:
 	
-	ImageFiller(const Bitmap<Pixel> &bitmap, const QPoint &offset) :
+	ImageFiller(const Bitmap<const Pixel> &bitmap, const QPoint &offset) :
 		_srcBitmap(bitmap), _offset(offset) {}
 	
-	void fill(const QPoint &pos, int count, Pointer<Pixel> dst, Pointer<float> covers, BlendOp *blendOp)
+	void fill(const QPoint &pos, int count, PixelIterator<Pixel> dst, PixelIterator<float> covers, BlendOp *blendOp)
 	{
 		QPoint srcPos = pos - _offset;
 		srcPos.ry() = qBound(0, srcPos.y(), _srcBitmap.height() - 1);
@@ -104,7 +104,7 @@ public:
 		}
 	}
 	
-	void fill(const QPoint &pos, int count, Pointer<Pixel> dst, float cover, BlendOp *blendOp)
+	void fill(const QPoint &pos, int count, PixelIterator<Pixel> dst, float cover, BlendOp *blendOp)
 	{
 		QPoint srcPos = pos - _offset;
 		srcPos.ry() = qBound(0, srcPos.y(), _srcBitmap.height() - 1);
@@ -158,7 +158,7 @@ public:
 		}
 	}
 	
-	void fill(const QPoint &pos, int count, Pointer<Pixel> dst, BlendOp *blendOp)
+	void fill(const QPoint &pos, int count, PixelIterator<Pixel> dst, BlendOp *blendOp)
 	{
 		QPoint srcPos = pos - _offset;
 		srcPos.ry() = qBound(0, srcPos.y(), _srcBitmap.height() - 1);
@@ -214,7 +214,7 @@ public:
 	
 private:
 	
-	const Bitmap<Pixel> _srcBitmap;
+	Bitmap<const Pixel> _srcBitmap;
 	QPoint _offset;
 };
 
@@ -223,10 +223,10 @@ class ImageFiller<Malachite::SpreadTypeRepeat>
 {
 public:
 	
-	ImageFiller(const Bitmap<Pixel> &bitmap, const QPoint &offset) :
+	ImageFiller(const Bitmap<const Pixel> &bitmap, const QPoint &offset) :
 		_srcBitmap(bitmap), _offset(offset) {}
 	
-	void fill(const QPoint &pos, int count, Pointer<Pixel> dst, Pointer<float> covers, BlendOp *blendOp)
+	void fill(const QPoint &pos, int count, PixelIterator<Pixel> dst, PixelIterator<float> covers, BlendOp *blendOp)
 	{
 		QPoint srcPos = pos - _offset;
 		IntDivision divX(srcPos.x(), _srcBitmap.width());
@@ -256,7 +256,7 @@ public:
 		blendOp->blend(count - i, dst + i, _srcBitmap.constPixelPointer(0, imageY), covers + i);
 	}
 	
-	void fill(const QPoint &pos, int count, Pointer<Pixel> dst, float cover, BlendOp *blendOp)
+	void fill(const QPoint &pos, int count, PixelIterator<Pixel> dst, float cover, BlendOp *blendOp)
 	{
 		QPoint srcPos = pos - _offset;
 		IntDivision divX(srcPos.x(), _srcBitmap.width());
@@ -286,7 +286,7 @@ public:
 		blendOp->blend(count - i, dst + i, _srcBitmap.constPixelPointer(0, imageY), cover);
 	}
 	
-	void fill(const QPoint &pos, int count, Pointer<Pixel> dst, BlendOp *blendOp)
+	void fill(const QPoint &pos, int count, PixelIterator<Pixel> dst, BlendOp *blendOp)
 	{
 		QPoint srcPos = pos - _offset;
 		IntDivision divX(srcPos.x(), _srcBitmap.width());
@@ -318,7 +318,7 @@ public:
 	
 private:
 	
-	const Bitmap<Pixel> _srcBitmap;
+	Bitmap<const Pixel> _srcBitmap;
 	QPoint _offset;
 };
 
@@ -327,10 +327,10 @@ class ImageFiller<Malachite::SpreadTypeReflective>
 {
 public:
 	
-	ImageFiller(const Bitmap<Pixel> &bitmap, const QPoint &offset) :
+	ImageFiller(const Bitmap<const Pixel> &bitmap, const QPoint &offset) :
 		_srcBitmap(bitmap), _offset(offset) {}
 	
-	void fill(const QPoint &pos, int count, Pointer<Pixel> dst, Pointer<float> covers, BlendOp *blendOp)
+	void fill(const QPoint &pos, int count, PixelIterator<Pixel> dst, PixelIterator<float> covers, BlendOp *blendOp)
 	{
 		QPoint srcPos = pos - _offset;
 		IntDivision divX(srcPos.x(),  _srcBitmap.width());
@@ -378,7 +378,7 @@ public:
 			blendOp->blend(count - i, dst + i, _srcBitmap.constPixelPointer(0, imageY), covers + i);
 	}
 	
-	void fill(const QPoint &pos, int count, Pointer<Pixel> dst, float cover, BlendOp *blendOp)
+	void fill(const QPoint &pos, int count, PixelIterator<Pixel> dst, float cover, BlendOp *blendOp)
 	{
 		QPoint srcPos = pos - _offset;
 		IntDivision divX(srcPos.x(),  _srcBitmap.width());
@@ -426,7 +426,7 @@ public:
 			blendOp->blend(count - i, dst + i, _srcBitmap.constPixelPointer(0, imageY), cover);
 	}
 	
-	void fill(const QPoint &pos, int count, Pointer<Pixel> dst, BlendOp *blendOp)
+	void fill(const QPoint &pos, int count, PixelIterator<Pixel> dst, BlendOp *blendOp)
 	{
 		QPoint srcPos = pos - _offset;
 		IntDivision divX(srcPos.x(),  _srcBitmap.width());
@@ -476,7 +476,7 @@ public:
 	
 private:
 	
-	const Bitmap<Pixel> _srcBitmap;
+	Bitmap<const Pixel> _srcBitmap;
 	QPoint _offset;
 };
 
@@ -489,52 +489,49 @@ public:
 		_transform(worldTransform)
 	{}
 	
-	void fill(const QPoint &pos, int count, Pointer<Pixel> dst, Pointer<float> covers, BlendOp *blendOp)
+	void fill(const QPoint &pos, int count, PixelIterator<Pixel> dst, PixelIterator<float> covers, BlendOp *blendOp)
 	{
-		Array<Pixel> fill(count);
+		PixelArray<Pixel> fill(count);
 		
 		Vec2D centerPos(pos.x(), pos.y());
 		centerPos += Vec2D(0.5, 0.5);
-		
-		for (int i = 0; i < count; ++i)
-		{
-			fill[i] = _generator->at(TransformEnabled ? centerPos * _transform : centerPos);
+
+		for (auto &p : fill) {
+			p = _generator->at(TransformEnabled ? centerPos * _transform : centerPos);
 			centerPos += Vec2D(1, 0);
 		}
 		
-		blendOp->blend(count, dst, fill.data(), covers);
+		blendOp->blend(count, dst, fill.begin(), covers);
 	}
 	
-	void fill(const QPoint &pos, int count, Pointer<Pixel> dst, float cover, BlendOp *blendOp)
+	void fill(const QPoint &pos, int count, PixelIterator<Pixel> dst, float cover, BlendOp *blendOp)
 	{
-		Array<Pixel> fill(count);
+		PixelArray<Pixel> fill(count);
 		
 		Vec2D centerPos(pos.x(), pos.y());
 		centerPos += Vec2D(0.5, 0.5);
 		
-		for (int i = 0; i < count; ++i)
-		{
-			fill[i] = _generator->at(TransformEnabled ? centerPos * _transform : centerPos);
+		for (auto &p : fill) {
+			p = _generator->at(TransformEnabled ? centerPos * _transform : centerPos);
 			centerPos += Vec2D(1, 0);
 		}
 		
-		blendOp->blend(count, dst, fill.data(), cover);
+		blendOp->blend(count, dst, fill.begin(), cover);
 	}
 	
-	void fill(const QPoint &pos, int count, Pointer<Pixel> dst, BlendOp *blendOp)
+	void fill(const QPoint &pos, int count, PixelIterator<Pixel> dst, BlendOp *blendOp)
 	{
-		Array<Pixel> fill(count);
+		PixelArray<Pixel> fill(count);
 		
 		Vec2D centerPos(pos.x(), pos.y());
 		centerPos += Vec2D(0.5, 0.5);
 		
-		for (int i = 0; i < count; ++i)
-		{
-			fill[i] = _generator->at(TransformEnabled ? centerPos * _transform : centerPos);
+		for (auto &p : fill) {
+			p = _generator->at(TransformEnabled ? centerPos * _transform : centerPos);
 			centerPos += Vec2D(1, 0);
 		}
 		
-		blendOp->blend(count, dst, fill.data());
+		blendOp->blend(count, dst, fill.begin());
 	}
 	
 private:

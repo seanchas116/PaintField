@@ -6,6 +6,7 @@
 #include "../curvesubdivision.h"
 #include "../bitmap.h"
 #include "../blendop.h"
+#include "../pixelarray.h"
 
 namespace Malachite
 {
@@ -55,7 +56,7 @@ public:
             if(span->len > 0)
             {
                 //_ren->blendRasterizerSpan(x, y,span->len, span->covers);
-				_ren->blendRasterizerSpan(x, y,span->len, Pointer<typename Scanline::cover_type>(span->covers, span->len * sizeof(typename Scanline::cover_type)));
+				_ren->blendRasterizerSpan(x, y, span->len, makePixelIterator(span->covers, span->len));
             }
             else
             {
@@ -94,7 +95,7 @@ public:
 		_filler(filler)
 	{}
 	
-	void blendRasterizerSpan(int x, int y, int count, Pointer<const uint8_t> covers)
+	void blendRasterizerSpan(int x, int y, int count, PixelIterator<const uint8_t> covers)
 	{
 		if (y < _bitmap.rect().top() || _bitmap.rect().bottom() < y)
 			return;
@@ -106,15 +107,13 @@ public:
 		if (newCount <= 0)
 			return;
 		
-		Array<float> newCovers(newCount);
-		
-		for (int i = 0; i < newCount; ++i)
-		{
-			newCovers[i] = (float)covers[i + start - x] * (1.f / 255.f);
-		}
-		
+		PixelArray<float> newCovers(newCount);
+		std::transform(covers + start - x, covers + end - x, newCovers.begin(), [](uint8_t x){
+			return x * (1.f / 255.f);
+		});
+
 		QPoint pos(start, y);
-		_filler->fill(pos, newCount, _bitmap.pixelPointer(pos), newCovers.data(), _blendOp);
+		_filler->fill(pos, newCount, _bitmap.pixelPointer(pos), newCovers.begin(), _blendOp);
 	}
 	
 	void blendRasterizerLine(int x, int y, int count, uint8_t cover)
@@ -150,7 +149,7 @@ public:
 		_filler(filler)
 	{}
 	
-	void blendRasterizerSpan(int x, int y, int count, Pointer<float> covers)
+	void blendRasterizerSpan(int x, int y, int count, PixelIterator<float> covers)
 	{
 		if (y < _bitmap.rect().top() || _bitmap.rect().bottom() < y)
 			return;
@@ -162,10 +161,10 @@ public:
 		if (newCount <= 0)
 			return;
 		
-		if (_opacity != 1)
-		{
-			for (int i = 0; i < count; ++i)
-				covers[i] *= _opacity;
+		if (_opacity != 1) {
+			std::transform(covers, covers + count, covers, [this](float x){
+				return x * _opacity;
+			});
 		}
 		
 		QPoint pos(start, y);

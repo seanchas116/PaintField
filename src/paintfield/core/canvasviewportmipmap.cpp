@@ -37,7 +37,7 @@ static void updateMipmap(CanvasViewportSurface &dst, const QRect &dstRect, const
 		
 		for (int xcount = 0; xcount < dstRect.width(); ++xcount)
 		{
-			auto s0 = srcScanline0[0], s1 = srcScanline0[1], s2 = srcScanline1[0], s3 = srcScanline1[1];
+			CanvasViewportSurface::PixelType s0 = srcScanline0[0], s1 = srcScanline0[1], s2 = srcScanline1[0], s3 = srcScanline1[1];
 			
 			int r = int(s0.r()) + int(s1.r()) + int(s2.r()) + int(s3.r());
 			int g = int(s0.g()) + int(s1.g()) + int(s2.g()) + int(s3.g());
