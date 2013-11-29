@@ -33,6 +33,8 @@ CanvasView::CanvasView(Canvas *canvas, QWidget *parent) :
 	d->mViewport = new CanvasViewport(canvas);
 	canvas->setView(this);
 	d->onMoved();
+	connect(canvas, SIGNAL(shouldBeDeleted(Canvas*)), this, SLOT(deleteLater()));
+	connect(canvas, SIGNAL(shouldBeDeleted(Canvas*)), d->mViewport, SLOT(deleteLater()));
 }
 
 CanvasView::~CanvasView()

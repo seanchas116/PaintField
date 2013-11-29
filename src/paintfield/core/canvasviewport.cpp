@@ -415,8 +415,6 @@ CanvasViewport::CanvasViewport(Canvas *canvas, QWidget *parent) :
 		connect(canvas->document(), &Document::sizeChanged, this, std::bind(&Data::setDocumentSize, d.data(), _1));
 		d->setDocumentSize(canvas->document()->size());
 
-		connect(canvas, SIGNAL(shouldBeDeleted(Canvas*)), this, SLOT(deleteLater()));
-
 		auto setFocusIfCanvasSame = [this](Canvas *canvas) {
 			if (d->mCanvas == canvas)
 				setFocus();
