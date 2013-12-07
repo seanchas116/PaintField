@@ -13,57 +13,15 @@
 #include "layerscene.h"
 #include "cursorstack.h"
 #include "widgets/vanishingscrollbar.h"
+#include "selection.h"
 
 #include <QTimer>
 #include <QPaintEvent>
 #include <QPainter>
 
+#include <boost/variant.hpp>
+
 namespace PaintField {
-
-class CanvasRenderer : public LayerRenderer
-{
-public:
-	CanvasRenderer(Tool *tool) : mTool(tool) {}
-
-protected:
-
-	void drawLayer(Malachite::SurfacePainter *painter, const LayerConstRef &layer) override
-	{
-		if (mTool && mTool->layerDelegations().contains(layer))
-			mTool->drawLayer(painter, layer);
-		else
-			LayerRenderer::drawLayer(painter, layer);
-	}
-
-	void renderChildren(Malachite::SurfacePainter *painter, const LayerConstRef &parent) override
-	{
-		if (!mTool || mTool->layerInsertions().isEmpty()) {
-			LayerRenderer::renderChildren(painter, parent);
-		} else {
-			auto originalLayers = parent->children();
-			auto layers = originalLayers;
-
-			for (auto insertion : mTool->layerInsertions()) {
-				if (insertion.parent == parent) {
-					int index = insertion.index;
-					auto layer = insertion.layer;
-					if (index == originalLayers.size()) {
-						layers << layer;
-					} else {
-						auto layerAt = originalLayers.at(index);
-						int trueIndex = layers.indexOf(layerAt);
-						layers.insert(trueIndex, layer);
-					}
-				}
-			}
-			renderLayers(painter, layers);
-		}
-	}
-
-private:
-
-	Tool *mTool = 0;
-};
 
 struct CanvasViewport::Data
 {
@@ -84,10 +42,7 @@ struct CanvasViewport::Data
 
 	void setTransforms(const SP<const CanvasTransforms> &transforms)
 	{
-		mState.mipmap.setCurrentLevel(transforms->mipmapLevel);
-		mState.transforms = transforms;
-		mState.translationOnly = (transforms->mipmapScale == 1.0 && transforms->rotation == 0.0 && !transforms->mirrored);
-		mState.translationToScene = QPointF(transforms->viewToMipmap.dx(), transforms->viewToMipmap.dy()).toPoint();
+		mState.setTransforms(transforms);
 
 		auto maxAbsTranslation = mCanvas->maxAbsoluteTranslation();
 		// update scroll bar range
@@ -111,36 +66,33 @@ struct CanvasViewport::Data
 	void setRetinaMode(bool mode)
 	{
 		emit mSelf->viewSizeChanged(mSelf->viewSize());
-		mState.retinaMode = mode;
+		mState.setRetinaMode(mode);
 		mSelf->update();
 	}
 
 	void setDocumentSize(const QSize &size)
 	{
-		mState.documentSize = size;
-		mState.mipmap.setSceneSize(size);
+		mState.setDocumentSize(size);
 	}
 
 	void setTool(Tool *tool)
 	{
 		mTool = tool;
+		mState.setTool(tool);
 
 		if (tool) {
 			auto requestUpdateSet = static_cast<void(Tool::*)(const QPointSet &)>(&Tool::requestUpdate);
 			auto requestUpdateHash = static_cast<void(Tool::*)(const QHash<QPoint,QRect> &)>(&Tool::requestUpdate);
 
 			using namespace std::placeholders;
-			connect(tool, requestUpdateSet, mSelf, std::bind(&Data::updateTilesWithSet, this, _1));
-			connect(tool, requestUpdateHash, mSelf, std::bind(&Data::updateTilesWithHash, this, _1));
+			connect(tool, requestUpdateSet, mSelf, std::bind(&Data::updateTiles, this, _1));
+			connect(tool, requestUpdateHash, mSelf, std::bind(&Data::updateTiles, this, _1));
 			connect(tool, &Tool::editingChanged, mSelf, std::bind(&Data::onStrokingOrToolEditingChanged, this));
 			onStrokingOrToolEditingChanged();
 
 			mToolCursor = tool->cursor();
 		}
 	}
-
-	void updateTilesWithSet(const QPointSet &keys) { updateTiles(keys, QHash<QPoint, QRect>()); }
-	void updateTilesWithHash(const QHash<QPoint, QRect> &rects) { updateTiles(QPointSet(), rects); }
 
 	void onClicked()
 	{
@@ -187,86 +139,28 @@ struct CanvasViewport::Data
 		mCanvas->workspace()->setCurrentCanvas(mCanvas);
 	}
 
-	void updateTiles(const QPointSet &keys, const QHash<QPoint, QRect> &rectForKeys)
+	void updateSelectionTiles(const SelectionSurface &surface, const QPointSet &keys)
 	{
-		if (!mUpdateEnabled)
-			return;
+		if (mUpdateEnabled)
+			mSelf->repaint(mState.updateSelectionTiles(surface, keys));
+	}
 
-		int keyCount = keys.size();
-		int rectForKeysCount = rectForKeys.size();
-		int rectCount = rectForKeysCount ? rectForKeysCount : keyCount;
-
-		QRect rectToBeRepainted;
-		QVector<QRect> rects;
-		rects.reserve(rectCount);
-
-		// render layers
-		Malachite::Surface surface;
-		{
-			CanvasRenderer renderer(mTool);
-			surface = renderer.renderToSurface({mCanvas->document()->layerScene()->rootLayer()}, keys, rectForKeys);
-		}
-
-		auto documentRect = QRect(QPoint(), mState.documentSize);
-
-		const Malachite::Pixel whitePixel(1.f);
-		auto blendOp = Malachite::BlendMode(Malachite::BlendMode::DestinationOver).op();
-
-		auto updateTile = [&](const QPoint &key, const QRect &unclippedRelativeRect) {
-
-			auto relativeDocumentRect = documentRect.translated(-key * Malachite::Surface::tileWidth());
-			auto relativeRect = unclippedRelativeRect & relativeDocumentRect;
-			if (relativeRect.isEmpty())
-				return;
-
-			auto absoluteRect = relativeRect.translated(key * Malachite::Surface::tileWidth());
-
-			auto image = surface.crop(absoluteRect);
-			blendOp->blend(image.area(), image.begin(), whitePixel);
-
-			auto imageU8 = image.toImageU8();
-			mState.mipmap.replace(imageU8, key, relativeRect);
-
-			rectToBeRepainted |= absoluteRect;
-			rects << absoluteRect;
-
-			if (rectCount == 1) {
-				mState.cacheAvailable = true;
-				mState.cacheRect = absoluteRect;
-				mState.cacheImage = imageU8;
-			} else {
-				mState.cacheAvailable = false;
-			}
-		};
-
-		if (rectForKeysCount) {
-			for (auto iter = rectForKeys.begin(); iter != rectForKeys.end(); ++iter)
-				updateTile(iter.key(), iter.value());
-		} else {
-			for (const QPoint &key : keys) {
-				const auto rect = QRect(QPoint(), Malachite::Surface::tileSize());
-				updateTile(key, rect);
-			}
-		}
-
-		auto viewRect = mState.transforms->sceneToView.mapRect(rectToBeRepainted);
-
-		if (mState.retinaMode)
-			viewRect = QRectF(viewRect.left() * 0.5, viewRect.top() * 0.5, viewRect.width() * 0.5, viewRect.height() * 0.5).toAlignedRect();
-
-		mSelf->repaint(viewRect);
+	void updateTiles(const boost::variant<QPointSet, QHash<QPoint, QRect>> &keysOrRectForKeys)
+	{
+		if (mUpdateEnabled)
+			mSelf->repaint(mState.updateTiles(keysOrRectForKeys));
 	}
 };
 
 CanvasViewportSurface CanvasViewport::mergedSurface() const
 {
-	return d->mState.mipmap.baseSurface();
+	return d->mState.mergedSurface();
 }
 
 QSize CanvasViewport::viewSize() const
 {
 	auto size = this->size();
-	if (d->mState.retinaMode)
+	if (d->mCanvas->isRetinaMode())
 		size = QSize(size.width() * 2, size.height() * 2);
 	return size;
 }
@@ -305,23 +199,7 @@ void CanvasViewport::paintEvent(QPaintEvent *event)
 	QPainter painter(this);
 	painter.setCompositionMode(QPainter::CompositionMode_Source);
 
-	QRect rect = event->rect();
-
-	// get rid of unnecessary state change for performance
-	if (!(rect & QRect(QPoint(), d->mState.documentSize)).isEmpty()) {
-		painter.setPen(Qt::NoPen);
-		painter.setBrush(QColor(128, 128, 128));
-	}
-
-	auto draw = [&](const QRect &rect, const QImage &image) {
-		painter.drawImage(rect, image);
-	};
-
-	auto drawBackground = [&](const QRect &rect) {
-		painter.drawRect(rect);
-	};
-
-	drawViewport(rect, &d->mState, draw, drawBackground);
+	d->mState.render(&painter, event->rect());
 }
 
 bool CanvasViewport::event(QEvent *event)
@@ -351,6 +229,7 @@ CanvasViewport::CanvasViewport(Canvas *canvas, QWidget *parent) :
 
 	d->mSelf = this;
 	d->mCanvas = canvas;
+	d->mState.setCanvas(canvas);
 
 	setAttribute(Qt::WA_NoSystemBackground);
 	setAttribute(Qt::WA_OpaquePaintEvent);
@@ -372,13 +251,13 @@ CanvasViewport::CanvasViewport(Canvas *canvas, QWidget *parent) :
 		auto sy = new VanishingScrollBar(Qt::Vertical, this);
 
 		auto onScrollBarXChanged = [this](int x) {
-			if (d->mState.retinaMode)
+			if (d->mCanvas->isRetinaMode())
 				x *= 2;
 			d->mCanvas->setTranslationX(d->mCanvas->maxAbsoluteTranslation().x() - x);
 		};
 
 		auto onScrollBarYChanged = [this](int y) {
-			if (d->mState.retinaMode)
+			if (d->mCanvas->isRetinaMode())
 				y *= 2;
 			d->mCanvas->setTranslationY(d->mCanvas->maxAbsoluteTranslation().y() - y);
 		};
@@ -421,9 +300,12 @@ CanvasViewport::CanvasViewport(Canvas *canvas, QWidget *parent) :
 		};
 		connect(canvas->workspace(), &Workspace::currentCanvasChanged, this, setFocusIfCanvasSame);
 		setFocusIfCanvasSame(canvas->workspace()->currentCanvas());
+
+		connect(canvas->document()->selection(), &Selection::surfaceChanged, this, std::bind(&Data::updateSelectionTiles, d.data(), _1, _2));
+		d->updateSelectionTiles(canvas->document()->selection()->surface(), canvas->document()->tileKeys());
 	}
-	connect(canvas->document()->layerScene(), &LayerScene::tilesUpdated, this, std::bind(&Data::updateTilesWithSet, d.data(), _1));
-	d->updateTilesWithSet(canvas->document()->tileKeys());
+	connect(canvas->document()->layerScene(), &LayerScene::tilesUpdated, this, std::bind(&Data::updateTiles, d.data(), _1));
+	d->updateTiles(canvas->document()->tileKeys());
 }
 
 CanvasViewport::~CanvasViewport()

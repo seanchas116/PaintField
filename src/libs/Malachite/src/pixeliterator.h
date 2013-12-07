@@ -72,6 +72,7 @@ PixelIterator<TPixel> makePixelIterator(TPixel *p, TPixel *end)
 #ifdef ML_DEBUG_MEMORY
 	return AssertedPixelIterator<TPixel>(p, end);
 #else
+	Q_UNUSED(end);
 	return p;
 #endif
 }

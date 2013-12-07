@@ -63,7 +63,8 @@ HEADERS += bitmap.h \
     genericsurface.h \
     blendtraits.h \
     pixeliterator.h \
-    pixelarray.h
+    pixelarray.h \
+    surfacemipmap.h
 SOURCES += blendmode.cpp \
            blendop.cpp \
            brush.cpp \

@@ -235,7 +235,7 @@ QDataStream &operator>>(QDataStream &in, Image &image)
 	
 	Image result(w, h);
 	
-	for (auto &p : image) {
+	for (auto &p : result) {
 		in >> p.ra();
 		in >> p.rr();
 		in >> p.rg();

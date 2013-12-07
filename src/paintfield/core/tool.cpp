@@ -18,6 +18,8 @@ struct Tool::Data
 	QScopedPointer<QGraphicsItem> graphicsItem;
 	
 	bool editing = false;
+
+	SelectionShowMode selectionShowMode = SelectionShowModeDotted;
 };
 
 Tool::Tool(Canvas *parent) :
@@ -28,7 +30,6 @@ Tool::Tool(Canvas *parent) :
 Tool::~Tool()
 {
 	clearLayerInsertions();
-	delete d;
 }
 
 LayerConstRef Tool::currentLayer()
@@ -93,6 +94,16 @@ void Tool::setEditing(bool editing)
 bool Tool::isEditing() const
 {
 	return d->editing;
+}
+
+SelectionShowMode Tool::selectionShowMode() const
+{
+	return d->selectionShowMode;
+}
+
+void Tool::setSelectionShowMode(SelectionShowMode mode)
+{
+	d->selectionShowMode = mode;
 }
 
 void Tool::toolEvent(QEvent *event)

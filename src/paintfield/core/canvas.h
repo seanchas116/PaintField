@@ -6,6 +6,7 @@
 
 #include "document.h"
 #include "extension.h"
+#include "canvastransforms.h"
 
 class QItemSelectionModel;
 
@@ -14,23 +15,6 @@ namespace PaintField
 
 class CanvasExtension;
 class Workspace;
-
-struct CanvasTransforms
-{
-	double scale = 1.0;
-	double rotation = 0.0;
-	QPoint translation;
-	bool mirrored = false;
-	bool retinaMode = false;
-	QSize sceneSize;
-	QSize viewSize;
-	
-	QTransform viewToScene, sceneToView, windowToScene, sceneToWindow, viewToMipmap, mipmapToView;
-	
-	double mipmapScale = 0;
-	int mipmapLevel = 0;
-	QSize mipmapSceneSize;
-};
 
 /**
  * The Canvas is a context of document editing, which is displayed in each tabs.
@@ -46,7 +30,7 @@ class Canvas : public QObject
 	Q_PROPERTY(bool retinaMode READ isRetinaMode WRITE setRetinaMode NOTIFY retinaModeChanged)
 	
 public:
-	
+
 	/**
 	 * Constructs a canvas.
 	 * @param document

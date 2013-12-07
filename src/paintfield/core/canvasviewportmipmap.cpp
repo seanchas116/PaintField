@@ -2,6 +2,7 @@
 
 namespace PaintField {
 
+/*
 static QRect alignedHalfRect(const QRect &rect)
 {
 	int xbegin = rect.left() / 2;
@@ -159,6 +160,6 @@ void CanvasViewportMipmap::extendSurfaceVector(int max)
 {
 	if (mSurfaces.size() <= max)
 		mSurfaces.resize(max + 1);
-}
+}*/
 
 } // namespace PaintField

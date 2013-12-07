@@ -76,7 +76,16 @@ inline bool isTransformSimilar(const QTransform &transform)
 	return transform.isIdentity() || (transform.isAffine() && transform.m12() == 0 && transform.m21() == 0 && transform.m11() == transform.m22());
 }
 
+inline QRect alignedHalfRect(const QRect &rect)
+{
+	int xbegin = rect.left() / 2;
+	int xend = (rect.left() + rect.width() + 1) / 2;
+	int ybegin = rect.top() / 2;
+	int yend = (rect.top() + rect.height() + 1) / 2;
+	return QRect(xbegin, ybegin, xend - xbegin, yend - ybegin);
 }
+
+} // namespace Malachite
 
 inline uint qHash(const QSize &key)
 {

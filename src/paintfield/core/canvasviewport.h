@@ -15,6 +15,7 @@ class CanvasViewport : public QWidget
 	Q_PROPERTY(bool canvasUpdatesEnabled READ isCanvasUpdatesEnabled WRITE setCanvasUpdatesEnabled)
 
 public:
+
 	explicit CanvasViewport(Canvas *canvas, QWidget *parent = 0);
 	~CanvasViewport();
 

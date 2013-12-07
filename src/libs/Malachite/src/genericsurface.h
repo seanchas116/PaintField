@@ -1,5 +1,7 @@
 #pragma once
 
+//ExportName: GenericSurface
+
 #include <QDebug>
 #include <QPoint>
 #include <QHash>
@@ -60,11 +62,14 @@ public:
 	}
 	
 	ImageType &tileRef(int x, int y) { return tileRef(QPoint(x, y)); }
+
+	ImageType &operator[](const QPoint &key) { return tileRef(key); }
+	ImageType operator[](const QPoint &key) const { return tile(key); }
 	
 	void setTile(const QPoint &key, const ImageType &image)
 	{
-		if (image.size() == tileSize())
-			_hash[key] = image;
+		Q_ASSERT(image.size() == tileSize());
+		_hash[key] = image;
 	}
 	
 	void setTile(int x, int y, const ImageType &image) { setTile(QPoint(x, y), image); }
@@ -73,7 +78,18 @@ public:
 	ConstIterator end() const { return _hash.end(); }
 	ConstIterator cbegin() const { return begin(); }
 	ConstIterator cend() const { return end(); }
-	
+
+	void replace(const GenericSurface &surface, const QPointSet &keys)
+	{
+		for (const auto &key : keys) {
+			if (surface._hash.contains(key)) {
+				_hash[key] = surface._hash[key];
+			} else {
+				_hash.remove(key);
+			}
+		}
+	}
+
 	PixelType pixel(const QPoint &pos) const
 	{
 		QPoint key, rem;
@@ -230,6 +246,19 @@ public:
 					   keyRight * tileWidth() + right,
 					   keyBottom * tileWidth() + bottom);
 		return rect;
+	}
+
+	bool hasTileInRect(const QRect &rect) const
+	{
+		auto topLeft = keyForPixel(rect.topLeft());
+		auto bottomRight = keyForPixel(rect.bottomRight());
+		for (int x = topLeft.x(); x <= bottomRight.x(); ++x) {
+			for (int y = topLeft.y(); y <= bottomRight.y(); ++y) {
+				if (_hash.contains(QPoint(x, y)))
+					return true;
+			}
+		}
+		return false;
 	}
 	
 	void squeeze(const QPointSet &keys)

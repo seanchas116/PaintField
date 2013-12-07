@@ -3,8 +3,7 @@
 #include <Qt>
 #include <QEvent>
 #include <QDebug>
-#include <amulet/range_extension.hh>
-#include <amulet/type_traits.hh>
+#include <amulet/dsl/extend_by_increment.hh>
 #include <memory>
 
 #if defined(PAINTFIELD_LIBRARY)
@@ -69,18 +68,6 @@ inline SP<T> constSPCast(const SP<U> &r)
 	return std::const_pointer_cast<T>(r);
 }
 
-/**
- * Postfix increment operator for ranges (containers) to wrap existing ranges in Amulet::RangeExtension wrapper.
- * Calls Amulet::extend. After this operator, you can use Amulet::RangeExtension methods for ranges.
- * (such as filter, map, unique...)
- */
-template <class TRange, class = typename std::enable_if<Amulet::IsRange<TRange>::value>::type>
-inline auto operator++(const TRange &range, int) -> decltype(Amulet::extend(range))
-{
-	return Amulet::extend(range);
-}
-
-
 enum LayerPropertyRole
 {
 	RoleName = Qt::UserRole,
@@ -144,6 +131,13 @@ enum StrokePosition
 	StrokePositionInside,
 	StrokePositionCenter,
 	StrokePositionOutside
+};
+
+enum SelectionShowMode
+{
+	SelectionShowModeNone,
+	SelectionShowModeColored,
+	SelectionShowModeDotted
 };
 
 /**

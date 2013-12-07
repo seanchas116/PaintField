@@ -25,6 +25,7 @@ class Tool : public QObject
 {
 	Q_OBJECT
 	Q_PROPERTY(QCursor cursor READ cursor)
+	Q_PROPERTY(bool editing READ isEditing NOTIFY editingChanged)
 	
 public:
 	
@@ -96,8 +97,8 @@ public:
 	
 	virtual void toolEvent(QEvent *event);
 	
-	void setEditing(bool editing);
 	bool isEditing() const;
+	SelectionShowMode selectionShowMode() const;
 	
 public slots:
 	
@@ -109,7 +110,9 @@ signals:
 	void editingChanged(bool editing);
 	
 protected:
-	
+
+	void setEditing(bool editing);
+	void setSelectionShowMode(SelectionShowMode mode);
 	void setCursor(const QCursor &cursor);
 	void setGraphicsItem(QGraphicsItem *item);
 	
@@ -120,7 +123,7 @@ protected:
 private:
 	
 	struct Data;
-	Data *d;
+	QScopedPointer<Data> d;
 };
 
 }

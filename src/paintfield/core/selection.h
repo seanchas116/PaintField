@@ -1,7 +1,7 @@
 #pragma once
 
+#include "selectionsurface.h"
 #include <QObject>
-#include <QVariant>
 
 namespace PaintField {
 
@@ -13,36 +13,23 @@ class Selection : public QObject
 	
 public:
 	
-	enum Type
-	{
-		TypeNoSelection,
-		TypeRect,
-		TypeEllipse,
-		TypePath,
-		TypeSurface
-	};
-	
 	Selection(Document *document);
 	~Selection();
-	
-	Type type() const;
-	QVariant value() const;
-	bool isInverted() const;
+
+	SelectionSurface surface() const;
 	
 public slots:
-	
-	void setSelection(Type type, const QVariant &value, bool inverted = false);
-	
+
+	void updateSurface(const SelectionSurface &surface, const QPointSet &keys);
+	void commitSurface();
 signals:
-	
-	void selectionChanged(Type type, const QVariant &value, bool inverted);
+
+	void surfaceChanged(const SelectionSurface &surface, const QPointSet &keys);
 	
 private:
 	
-	void setSelectionDirect(Type type, const QVariant &value, bool inverted);
-	
 	struct Data;
-	Data *d;
+	QScopedPointer<Data> d;
 };
 
 } // namespace PaintField

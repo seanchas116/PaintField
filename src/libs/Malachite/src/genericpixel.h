@@ -1,4 +1,7 @@
 #pragma once
+
+//ExportName: GenericPixel
+
 #include <cmath>
 #include "vector_sse.h"
 

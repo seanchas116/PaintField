@@ -1,82 +1,69 @@
-#include "document.h"
-
 #include "selection.h"
+
+#include "document.h"
+#include "closureundocommand.h"
+#include <QUndoCommand>
 
 namespace PaintField {
 
-class SelectCommand : public QUndoCommand
-{
-public:
-	
-	SelectCommand(Selection *selection, Selection::Type type, const QVariant &value, bool inverted, QUndoCommand *parent = 0) :
-		QUndoCommand(parent),
-		_selection(selection),
-		_type(type),
-		_value(value),
-		_inverted(inverted)
-	{}
-	
-	void redo() { swap(); }
-	void undo() { swap(); }
-	
-public:
-	
-	void swap()
-	{
-		auto type = _selection->type();
-		auto value = _selection->value();
-		auto inverted = _selection->isInverted();
-		
-		_selection->setSelection(_type, _value, _inverted);
-		
-		_type = type;
-		_value = value;
-		_inverted = inverted;
-	}
-	
-	Selection *_selection;
-	Selection::Type _type;
-	QVariant _value;
-	bool _inverted;
-};
-
 struct Selection::Data
 {
-	Document *document = 0;
-	
-	Type type = TypeNoSelection;
-	QVariant value;
-	bool inverted;
+	Document *mDocument = 0;
+	SelectionSurface mSurface, mOriginalSurface;
+	QPointSet mModifiedKeys;
 };
 
 Selection::Selection(Document *document) :
 	QObject(document),
 	d(new Data)
 {
-	d->document = document;
+	d->mDocument = document;
+
+	/*
+	auto &tile = d->mSurface.tileRef(QPoint());
+	{
+		QPainter painter(&tile.qimage());
+		painter.drawEllipse(tile.rect());
+	}
+	d->mOriginalSurface = d->mSurface;
+	*/
 }
 
 Selection::~Selection()
 {
-	delete d;
 }
 
-void Selection::setSelection(Type type, const QVariant &value, bool inverted)
+SelectionSurface Selection::surface() const
 {
-	d->document->undoStack()->push(new SelectCommand(this, type, value, inverted));
+	return d->mSurface;
 }
 
-Selection::Type Selection::type() const { return d->type; }
-QVariant Selection::value() const { return d->value; }
-bool Selection::isInverted() const { return d->inverted; }
-
-void Selection::setSelectionDirect(Type type, const QVariant &value, bool inverted)
+void Selection::updateSurface(const SelectionSurface &surface, const QPointSet &keys)
 {
-	d->type = type;
-	d->value = value;
-	d->inverted = inverted;
-	
-	emit selectionChanged(type, value, inverted);
+	for (const auto &key : keys) {
+		d->mSurface[key] = surface[key];
+	}
+	d->mModifiedKeys |= keys;
+	emit surfaceChanged(surface, keys);
 }
+
+void Selection::commitSurface()
+{
+	d->mSurface.squeeze();
+
+	auto before = d->mOriginalSurface;
+	auto after = d->mSurface;
+
+	auto command = new ClosureUndoCommand(
+		[=](){
+			d->mSurface = after;
+		},
+		[=](){
+			d->mSurface = before;
+		});
+	d->mDocument->undoStack()->push(command);
+}
+
+
 
 } // namespace PaintField

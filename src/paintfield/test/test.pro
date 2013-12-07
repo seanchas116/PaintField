@@ -15,7 +15,8 @@ SOURCES += main.cpp \
     test_documentio.cpp \
     test_document.cpp \
     autotest.cpp \
-    test_zipunzip.cpp
+    test_zipunzip.cpp \
+    test_selectionimage.cpp
 
 HEADERS += \
     testutil.h \
@@ -27,4 +28,5 @@ HEADERS += \
     test_documentio.h \
     test_document.h \
     autotest.h \
-    test_zipunzip.h
+    test_zipunzip.h \
+    test_selectionimage.h

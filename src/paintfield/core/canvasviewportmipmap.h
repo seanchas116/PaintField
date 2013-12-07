@@ -1,38 +1,34 @@
 #pragma once
 
+#include <Malachite/SurfaceMipmap>
 #include "canvasviewportsurface.h"
 
 namespace PaintField {
 
-class CanvasViewportMipmap
+struct CanvasViewportMipmapPixelTraits
 {
-public:
-	CanvasViewportMipmap();
-	
-	void setSceneSize(const QSize &size);
-	
-	void setCurrentLevel(int level);
-	int currentLevel() const { return mCurrentLevel; }
-	
-	void replace(const Malachite::ImageU8 &image, const QPoint &key, const QRect &rect);
-	
-	CanvasViewportSurface surface() const;
-	CanvasViewportSurface baseSurface() const;
-	
-private:
-	
-	void replace(const Malachite::ImageU8 &image, const QPoint &key, const QRect &rect, int maxLevel);
-	void update(int maxLevel);
-	
-	int indexFromKey(const QPoint &key) { return key.y() * mTileCountX + key.x(); }
-	void extendSurfaceVector(int max);
-	
-	int mCurrentLevel = 0;
-	
-	int mTileCountX = 0, mTileCountY = 0;
-	
-	QVector<uint8_t> mMaxUpToDateLevels;
-	QVector<CanvasViewportSurface> mSurfaces;
+	static Malachite::BgraPremultU8 average(const std::array<Malachite::BgraPremultU8, 4> &pixels)
+	{
+		int r = 0;
+		int g = 0;
+		int b = 0;
+		for (const auto &pixel : pixels) {
+			r += int(pixel.r());
+			g += int(pixel.g());
+			b += int(pixel.b());
+		}
+		r /= 4;
+		g /= 4;
+		b /= 4;
+		Malachite::BgraPremultU8 result;
+		result.setA(255);
+		result.setR(r);
+		result.setG(g);
+		result.setB(b);
+		return result;
+	}
 };
+
+using CanvasViewportMipmap = Malachite::SurfaceMipmap<CanvasViewportSurface, CanvasViewportMipmapPixelTraits>;
 
 } // namespace PaintField

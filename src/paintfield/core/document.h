@@ -1,8 +1,7 @@
 #pragma once
 
-#include <QUndoStack>
-
 #include "layer.h"
+#include <QUndoStack>
 
 namespace PaintField {
 

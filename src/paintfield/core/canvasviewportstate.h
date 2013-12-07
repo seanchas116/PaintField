@@ -1,34 +1,58 @@
 #pragma once
 
-#include <QRect>
-#include <QImage>
-#include <QPainter>
-#include "canvas.h"
-
+#include "selectionsurface.h"
 #include "canvasviewportmipmap.h"
+#include "canvastransforms.h"
+#include <QRect>
+#include <boost/variant.hpp>
 
 namespace PaintField
 {
 
-struct CanvasViewportState
+class Canvas;
+class Tool;
+
+class CanvasViewportState
 {
-	QSize documentSize;
+public:
+
+	void render(QPainter *painter, const QRect &windowRepaintRect);
+
+	void setCanvas(Canvas *canvas) { this->mCanvas = canvas; }
+	void setTool(Tool *tool) { this->mTool = tool; }
+
+	void setTransforms(const SP<const CanvasTransforms> &transforms);
+	void setRetinaMode(bool mode) { this->mRetinaMode = mode; }
+	void setDocumentSize(const QSize &size);
+
+	QRect updateTiles(const boost::variant<QPointSet, QHash<QPoint, QRect>> &keysOrRectForKeys);
+	QRect updateSelectionTiles(const SelectionSurface &surface, const QPointSet &keys);
+
+	CanvasViewportSurface mergedSurface() const { return this->mMipmap.baseSurface(); }
+
+private:
+
+	Canvas *mCanvas = 0;
+	Tool *mTool = 0;
+
+	QSize mDocumentSize;
 	
-	//CanvasViewportSurface surface;
-	CanvasViewportMipmap mipmap;
+	CanvasViewportMipmap mMipmap;
+	SelectionMipmap mSelectionMipmap;
 	
-	SP<const CanvasTransforms> transforms;
+	SP<const CanvasTransforms> mTransforms;
 	
-	bool translationOnly = false;
-	QPoint translationToScene;
+	bool mTranslationOnly = false;
+	QPoint mTranslationToScene;
 	
-	bool retinaMode = false;
+	bool mRetinaMode = false;
 	
-	bool cacheAvailable = false;
-	QRect cacheRect;
-	Malachite::ImageU8 cacheImage;
+	bool mCacheAvailable = false;
+	QRect mCacheRect;
+	Malachite::ImageU8 mCacheImage;
 };
 
+/*
 template <typename TFunction>
 void drawDivided(const QRect &viewRect, const TFunction &drawFunc)
 {
@@ -62,7 +86,7 @@ void drawDivided(const QRect &viewRect, const TFunction &drawFunc)
 template <typename TDrawImageFunction, typename TDrawBackgroundFunction>
 void drawViewport(const QRect &windowRepaintRect, CanvasViewportState *state, const TDrawImageFunction &drawImage, const TDrawBackgroundFunction &drawBackground)
 {
-	bool retinaMode = state->retinaMode;
+	bool retinaMode = state->mRetinaMode;
 	
 	auto fromWindowRect = [retinaMode](const QRect &rect)->QRect
 	{
@@ -81,36 +105,37 @@ void drawViewport(const QRect &windowRepaintRect, CanvasViewportState *state, co
 	};
 	
 	auto repaintRect = fromWindowRect(windowRepaintRect);
-	auto surface = state->mipmap.surface();
-	
+	auto surface = state->mMipmap.surface();
+	auto selectionSurface = state->mSelectionMipmap.surface();
+
 	auto cropSurface = [&](const QRect &rect)
 	{
 		//PAINTFIELD_DEBUG << state->cacheRect << rect;
-		if (state->cacheAvailable && state->cacheRect == rect)
-		{
+		if (state->mCacheAvailable && state->mCacheRect == rect) {
 			//PAINTFIELD_DEBUG << "cached";
-			return state->cacheImage;
-		}
-		else
-		{
+			return state->mCacheImage;
+		} else {
 			return surface.crop(rect);
 		}
 	};
 	
-	if (state->translationOnly) // easy, view is only translated
+	if (state->mTranslationOnly) // easy, view is only translated
 	{
 		//PAINTFIELD_DEBUG << "translation only";
 		
 		auto drawInViewRect = [&](const QRect &viewRect)
 		{
-			auto sceneRect = viewRect.translated(state->translationToScene);
+			auto sceneRect = viewRect.translated(state->mTranslationToScene);
+			auto windowRect = toWindowRect(viewRect);
 			
-			if ((sceneRect & QRect(QPoint(), state->documentSize)).isEmpty())
-				drawBackground(toWindowRect(viewRect));
-			else
-				drawImage(toWindowRect(viewRect), Malachite::wrapInQImage(cropSurface(sceneRect)));
+			if ((sceneRect & QRect(QPoint(), state->mDocumentSize)).isEmpty()) {
+				drawBackground(windowRect);
+			} else {
+				drawImage(windowRect, Malachite::wrapInQImage(cropSurface(sceneRect)));
+				drawImage(windowRect, selectionSurface.crop(sceneRect).toQImageARGBPremult(qRgb(255, 0, 0)));
+			}
 		};
-		
+
 		drawDivided(repaintRect, drawInViewRect);
 	}
 	else
@@ -119,7 +144,7 @@ void drawViewport(const QRect &windowRepaintRect, CanvasViewportState *state, co
 		
 		auto drawInViewRect = [&](const QRect &viewRect)
 		{
-			auto sceneRect = state->transforms->viewToMipmap.mapRect(QRectF(viewRect)).toAlignedRect();
+			auto sceneRect = state->mTransforms->viewToMipmap.mapRect(QRectF(viewRect)).toAlignedRect();
 			auto croppedImage = cropSurface(sceneRect);
 			
 			QImage image(viewRect.size(), QImage::Format_ARGB32_Premultiplied);
@@ -127,14 +152,14 @@ void drawViewport(const QRect &windowRepaintRect, CanvasViewportState *state, co
 				QPainter imagePainter(&image);
 				imagePainter.setCompositionMode(QPainter::CompositionMode_Source);
 				
-				if (state->transforms->scale < 2.0)
+				if (state->mTransforms->scale < 2.0)
 					imagePainter.setRenderHint(QPainter::SmoothPixmapTransform);
 				
-				imagePainter.setTransform( state->transforms->mipmapToView * QTransform::fromTranslate(-viewRect.left(), -viewRect.top()) );
+				imagePainter.setTransform( state->mTransforms->mipmapToView * QTransform::fromTranslate(-viewRect.left(), -viewRect.top()) );
 				imagePainter.drawImage(sceneRect.topLeft(), wrapInQImage(croppedImage));
 			}
 			
-			if ((sceneRect & QRect(QPoint(), state->documentSize)).isEmpty())
+			if ((sceneRect & QRect(QPoint(), state->mDocumentSize)).isEmpty())
 				drawBackground(toWindowRect(viewRect));
 			else
 				drawImage(toWindowRect(viewRect), image);
@@ -142,6 +167,6 @@ void drawViewport(const QRect &windowRepaintRect, CanvasViewportState *state, co
 		
 		drawDivided(repaintRect, drawInViewRect);
 	}
-}
+}*/
 
 }
