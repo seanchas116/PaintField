@@ -2,7 +2,7 @@
 #include <QTabletEvent>
 #include <QPointer>
 #include <Malachite/Vec2D>
-#include "tabletevent.h"
+#include "canvascursorevent.h"
 #include "tool.h"
 #include "canvas.h"
 #include "application.h"
@@ -93,16 +93,16 @@ bool CanvasToolEventFilter::Data::sendCanvasTabletEvent(QTabletEvent *event)
 		{
 			default:
 			case QEvent::TabletMove:
-				return EventCanvasTabletMove;
+				return EventCanvasCursorMove;
 			case QEvent::TabletPress:
-				return EventCanvasTabletPress;
+				return EventCanvasCursorPress;
 			case QEvent::TabletRelease:
-				return EventCanvasTabletRelease;
+				return EventCanvasCursorRelease;
 		}
 	};
 
 	TabletInputData data(event->posF() * this->transforms->windowToScene, event->pressure(), event->rotation(), event->tangentialPressure(), Vec2D(event->xTilt(), event->yTilt()));
-	CanvasTabletEvent canvasEvent(toCanvasEventType(event->type()), event->globalPosF(), event->globalPos(), event->posF(), event->pos(), data, event->modifiers());
+	CanvasCursorEvent canvasEvent(toCanvasEventType(event->type()), event->globalPosF(), event->globalPos(), event->posF(), event->pos(), data, event->modifiers());
 
 	this->tool->toolEvent(&canvasEvent);
 
@@ -123,26 +123,26 @@ bool CanvasToolEventFilter::Data::sendCanvasTabletEvent(QMouseEvent *mouseEvent)
 		{
 			default:
 			case QEvent::MouseMove:
-				return EventCanvasTabletMove;
+				return EventCanvasCursorMove;
 			case QEvent::MouseButtonPress:
-				return EventCanvasTabletPress;
+				return EventCanvasCursorPress;
 			case QEvent::MouseButtonRelease:
-				return EventCanvasTabletRelease;
+				return EventCanvasCursorRelease;
 		}
 	};
 	
 	int type = toCanvasEventType(mouseEvent->type());
 	
-	if (type == EventCanvasTabletPress)
+	if (type == EventCanvasCursorPress)
 		this->mousePressure = 1.0;
-	if (type == EventCanvasTabletRelease)
+	if (type == EventCanvasCursorRelease)
 		this->mousePressure = 0.0;
 	
 	auto pos = mouseEvent->pos();
 	auto posF = Vec2D(pos);
 	
 	TabletInputData data(posF * this->transforms->windowToScene, this->mousePressure, 0, 0, Vec2D(0));
-	CanvasTabletEvent tabletEvent(type, mouseEvent->globalPos(), mouseEvent->globalPos(), posF, pos, data, mouseEvent->modifiers());
+	CanvasCursorEvent tabletEvent(type, mouseEvent->globalPos(), mouseEvent->globalPos(), posF, pos, data, mouseEvent->modifiers());
 	this->tool->toolEvent(&tabletEvent);
 	return tabletEvent.isAccepted();
 }

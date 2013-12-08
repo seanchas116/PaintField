@@ -98,18 +98,9 @@ enum LayerPropertyRole
 
 enum EventType
 {
-	EventCanvasTabletMove = QEvent::User,
-	EventCanvasTabletPress,
-	EventCanvasTabletRelease,
-	
-	EventWidgetTabletMove,
-	EventWidgetTabletPress,
-	EventWidgetTabletRelease,
-	
-	EventCanvasMouseMove,
-	EventCanvasMousePress,
-	EventCanvasMouseRelease,
-	EventCanvasMouseDoubleClick
+	EventCanvasCursorMove = QEvent::User,
+	EventCanvasCursorPress,
+	EventCanvasCursorRelease
 };
 
 enum ThumbnailSize

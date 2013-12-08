@@ -7,7 +7,7 @@
 #include "paintfield/core/canvas.h"
 #include "paintfield/core/workspace.h"
 #include "paintfield/core/palettemanager.h"
-#include "paintfield/core/tabletevent.h"
+#include "paintfield/core/canvascursorevent.h"
 #include "paintfield/core/widgets/simplebutton.h"
 #include "paintfield/core/rasterlayer.h"
 #include "paintfield/core/canvasviewport.h"
@@ -60,7 +60,7 @@ QRect BrushTool::customCursorRect(const Vec2D &pos)
 	return QRectF(pos.x() - radius, pos.y() - radius, radius * 2, radius * 2).toAlignedRect();
 }
 
-void BrushTool::tabletPressEvent(CanvasTabletEvent *event)
+int BrushTool::cursorPressEvent(CanvasCursorEvent *event)
 {
 	event->accept();
 	
@@ -79,10 +79,13 @@ void BrushTool::tabletPressEvent(CanvasTabletEvent *event)
 			_lastEndData = boost::make_optional(event->data);
 		}
 	}
+
+	return 0;
 }
 
-void BrushTool::tabletMoveEvent(CanvasTabletEvent *event)
+void BrushTool::cursorMoveEvent(CanvasCursorEvent *event, int id)
 {
+	Q_UNUSED(id);
 	PAINTFIELD_DEBUG << "press" << "pressure:" << event->data.pressure;
 	
 	if (event->data.pressure && !_isStroking)
@@ -95,8 +98,9 @@ void BrushTool::tabletMoveEvent(CanvasTabletEvent *event)
 	event->accept();
 }
 
-void BrushTool::tabletReleaseEvent(CanvasTabletEvent *event)
+void BrushTool::cursorReleaseEvent(CanvasCursorEvent *event, int id)
 {
+	Q_UNUSED(id);
 	PAINTFIELD_DEBUG << "release" << "pressure:" << event->data.pressure;
 	endStroke(event->data);
 	event->accept();

@@ -5,7 +5,7 @@
 #include <QIcon>
 #include <Malachite/Painter>
 #include "document.h"
-#include "tabletevent.h"
+#include "canvascursorevent.h"
 #include "canvasview.h"
 #include "canvas.h"
 #include "layerrenderer.h"
@@ -34,6 +34,11 @@ public:
 		LayerConstRef parent;
 		int index;
 		LayerRef layer;
+	};
+
+	enum CursorId
+	{
+		CursorIdDefault = -1
 	};
 	
 	explicit Tool(Canvas *parent = 0);
@@ -82,15 +87,10 @@ public:
 	QList<LayerConstRef> layerDelegations() const;
 	
 	QCursor cursor() const;
-	
-	virtual void mouseMoveEvent(CanvasMouseEvent *event) { event->ignore(); return; }
-	virtual void mousePressEvent(CanvasMouseEvent *event) { event->ignore(); return; }
-	virtual void mouseReleaseEvent(CanvasMouseEvent *event) { event->ignore(); return; }
-	virtual void mouseDoubleClickEvent(CanvasMouseEvent *event) { event->ignore(); return; }
-	
-	virtual void tabletMoveEvent(CanvasTabletEvent *event) { event->ignore(); return; }
-	virtual void tabletPressEvent(CanvasTabletEvent *event) { event->ignore(); return; }
-	virtual void tabletReleaseEvent(CanvasTabletEvent *event) { event->ignore(); return; }
+
+	virtual int cursorPressEvent(CanvasCursorEvent *event) = 0;
+	virtual void cursorMoveEvent(CanvasCursorEvent *event, int id) = 0;
+	virtual void cursorReleaseEvent(CanvasCursorEvent *event, int id) = 0;
 	
 	virtual void keyPressEvent(QKeyEvent *event) { event->ignore(); return; }
 	virtual void keyReleaseEvent(QKeyEvent *event) { event->ignore(); return; }
@@ -119,6 +119,8 @@ protected:
 	Canvas *canvas() { return static_cast<Canvas *>(parent()); }
 	Document *document() { return canvas()->document(); }
 	LayerScene *layerScene() { return document()->layerScene(); }
+
+	int currentCursorId() const;
 	
 private:
 	

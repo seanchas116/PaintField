@@ -1,7 +1,7 @@
 #include <QKeySequence>
 #include <QMouseEvent>
 #include <QTabletEvent>
-#include "tabletevent.h"
+#include "canvascursorevent.h"
 #include "canvas.h"
 #include "keytracker.h"
 #include "appcontroller.h"

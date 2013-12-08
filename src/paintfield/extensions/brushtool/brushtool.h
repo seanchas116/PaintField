@@ -39,9 +39,9 @@ public slots:
 	
 protected:
 	
-	void tabletPressEvent(CanvasTabletEvent *event);
-	void tabletMoveEvent(CanvasTabletEvent *event);
-	void tabletReleaseEvent(CanvasTabletEvent *event);
+	int cursorPressEvent(CanvasCursorEvent *event) override;
+	void cursorMoveEvent(CanvasCursorEvent *event, int id) override;
+	void cursorReleaseEvent(CanvasCursorEvent *event, int id) override;
 	
 private slots:
 	

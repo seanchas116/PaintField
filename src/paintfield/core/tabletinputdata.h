@@ -1,8 +1,8 @@
 #pragma once
 
+#include "global.h"
 #include <Malachite/Vec2D>
 #include <QTransform>
-#include "paintfield/core/global.h"
 
 namespace PaintField {
 

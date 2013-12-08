@@ -333,10 +333,10 @@ void RectTool::keyPressEvent(QKeyEvent *event)
 	}
 }
 
-void RectTool::tabletPressEvent(CanvasTabletEvent *event)
+int RectTool::cursorPressEvent(CanvasCursorEvent *event)
 {
 	if (d->mode != NoOperation)
-		return;
+		return 0;
 	
 	// pass event to the graphics item
 	
@@ -344,7 +344,7 @@ void RectTool::tabletPressEvent(CanvasTabletEvent *event)
 	if (item && item != d->frameItem)
 	{
 		event->ignore();
-		return;
+		return 0;
 	}
 	
 	d->updateManager->setEnabled(true);
@@ -382,15 +382,19 @@ void RectTool::tabletPressEvent(CanvasTabletEvent *event)
 	
 	// there is nothing to do
 	if (d->mode == NoOperation)
-		return;
+		return 0;
 	
 	// save drag origin
 	d->dragDistanceEnough = false;
 	d->dragStartPos = event->data.pos;
+
+	return 0;
 }
 
-void RectTool::tabletMoveEvent(CanvasTabletEvent *event)
+void RectTool::cursorMoveEvent(CanvasCursorEvent *event, int id)
 {
+	Q_UNUSED(id);
+
 	if (d->mode == NoOperation)
 	{
 		event->ignore();
@@ -476,9 +480,10 @@ void RectTool::tabletMoveEvent(CanvasTabletEvent *event)
 	}
 }
 
-void RectTool::tabletReleaseEvent(CanvasTabletEvent *event)
+void RectTool::cursorReleaseEvent(CanvasCursorEvent *event, int id)
 {
-	Q_UNUSED(event)
+	Q_UNUSED(event);
+	Q_UNUSED(id);
 	
 	if (d->mode == NoOperation)
 	{

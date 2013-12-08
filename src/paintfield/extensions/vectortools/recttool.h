@@ -51,9 +51,9 @@ public:
 protected:
 	
 	void keyPressEvent(QKeyEvent *event);
-	void tabletMoveEvent(CanvasTabletEvent *event) override;
-	void tabletPressEvent(CanvasTabletEvent *event) override;
-	void tabletReleaseEvent(CanvasTabletEvent *event) override;
+	void cursorMoveEvent(CanvasCursorEvent *event, int id) override;
+	int cursorPressEvent(CanvasCursorEvent *event) override;
+	void cursorReleaseEvent(CanvasCursorEvent *event, int id) override;
 	
 private slots:
 	

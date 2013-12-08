@@ -1,7 +1,7 @@
 #include <Malachite/Division>
 
 #include "paintfield/core/layerscene.h"
-#include "paintfield/core/tabletevent.h"
+#include "paintfield/core/canvascursorevent.h"
 #include "paintfield/core/layer.h"
 #include "paintfield/core/widgets/simplebutton.h"
 #include "paintfield/core/rasterlayer.h"
@@ -24,8 +24,9 @@ void LayerMoveTool::drawLayer(SurfacePainter *painter, const LayerConstRef &laye
 	painter->drawSurface(_offset, rasterLayer->surface());
 }
 
-void LayerMoveTool::tabletMoveEvent(CanvasTabletEvent *event)
+void LayerMoveTool::cursorMoveEvent(CanvasCursorEvent *event, int id)
 {
+	Q_UNUSED(id);
 	if (!_layerIsDragged) return;
 	
 	_offset = event->data.pos.toQPoint() - _dragStartPoint;
@@ -35,7 +36,7 @@ void LayerMoveTool::tabletMoveEvent(CanvasTabletEvent *event)
 	_lastKeys = keys;
 }
 
-void LayerMoveTool::tabletPressEvent(CanvasTabletEvent *event)
+int LayerMoveTool::cursorPressEvent(CanvasCursorEvent *event)
 {
 	PAINTFIELD_DEBUG << "pressed";
 	_layer = currentLayer();
@@ -48,8 +49,9 @@ void LayerMoveTool::tabletPressEvent(CanvasTabletEvent *event)
 	}
 }
 
-void LayerMoveTool::tabletReleaseEvent(CanvasTabletEvent *event)
+void LayerMoveTool::cursorReleaseEvent(CanvasCursorEvent *event, int id)
 {
+	Q_UNUSED(id);
 	PAINTFIELD_DEBUG << "released";
 	if (_layerIsDragged)
 	{

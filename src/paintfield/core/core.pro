@@ -19,7 +19,6 @@ HEADERS += \
            layerrenderer.h \
            palettemanager.h \
            randomstring.h \
-           tabletevent.h \
            tabletinputdata.h \
            thumbnail.h \
            tool.h \
@@ -100,7 +99,8 @@ HEADERS += \
     canvasupdatemanager.h \
     selectionsurface.h \
     closureundocommand.h \
-    canvastransforms.h
+    canvastransforms.h \
+    canvascursorevent.h
 
 FORMS +=
 SOURCES += \
@@ -167,7 +167,6 @@ SOURCES += \
     serializationutil.cpp \
     widgets/abstractlayerpropertyeditor.cpp \
     json.cpp \
-    canvasviewportmipmap.cpp \
     blendmodetexts.cpp \
     formatsupport.cpp \
     singlelayerformatsupport.cpp \

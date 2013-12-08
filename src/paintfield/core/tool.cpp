@@ -10,16 +10,18 @@ namespace PaintField
 
 struct Tool::Data
 {
-	QList<LayerConstRef> layerDelegations;
+	QList<LayerConstRef> mLayerDelegations;
 	
-	QList<LayerInsertion> layerInsertions;
+	QList<LayerInsertion> mLayerInsertions;
 	
-	QCursor cursor;
-	QScopedPointer<QGraphicsItem> graphicsItem;
+	QCursor mCursor;
+	QScopedPointer<QGraphicsItem> mGraphicsItem;
 	
-	bool editing = false;
+	bool mEditing = false;
 
-	SelectionShowMode selectionShowMode = SelectionShowModeDotted;
+	SelectionShowMode mSelectionShowMode = SelectionShowModeDotted;
+
+	int mCurrentCursorId = CursorIdDefault;
 };
 
 Tool::Tool(Canvas *parent) :
@@ -39,71 +41,71 @@ LayerConstRef Tool::currentLayer()
 
 void Tool::clearLayerInsertions()
 {
-	d->layerInsertions.clear();
+	d->mLayerInsertions.clear();
 }
 
 QList<Tool::LayerInsertion> Tool::layerInsertions() const
 {
-	return d->layerInsertions;
+	return d->mLayerInsertions;
 }
 
 void Tool::addLayerDelegation(const LayerConstRef &layer)
 {
-	d->layerDelegations << layer;
+	d->mLayerDelegations << layer;
 }
 
 void Tool::clearLayerDelegation()
 {
-	d->layerDelegations.clear();
+	d->mLayerDelegations.clear();
 }
 
 QList<LayerConstRef> Tool::layerDelegations() const
 {
-	return d->layerDelegations;
+	return d->mLayerDelegations;
 }
 
 QCursor Tool::cursor() const
 {
-	return d->cursor;
+	return d->mCursor;
 }
 
 void Tool::setCursor(const QCursor &cursor)
 {
-	d->cursor = cursor;
+	d->mCursor = cursor;
 }
 
 QGraphicsItem *Tool::graphicsItem()
 {
-	return d->graphicsItem.data();
+	return d->mGraphicsItem.data();
 }
 
 void Tool::setGraphicsItem(QGraphicsItem *item)
 {
-	d->graphicsItem.reset(item);
+	d->mGraphicsItem.reset(item);
 }
 
 void Tool::setEditing(bool editing)
 {
-	if (d->editing != editing)
+	if (d->mEditing != editing)
 	{
-		d->editing = editing;
+		d->mEditing = editing;
 		emit editingChanged(editing);
 	}
 }
 
 bool Tool::isEditing() const
 {
-	return d->editing;
+	return d->mEditing;
 }
 
 SelectionShowMode Tool::selectionShowMode() const
 {
-	return d->selectionShowMode;
+	return d->mSelectionShowMode;
 }
 
 void Tool::setSelectionShowMode(SelectionShowMode mode)
 {
-	d->selectionShowMode = mode;
+	d->mSelectionShowMode = mode;
 }
 
 void Tool::toolEvent(QEvent *event)
@@ -116,26 +118,14 @@ void Tool::toolEvent(QEvent *event)
 		case QEvent::KeyRelease:
 			keyReleaseEvent(static_cast<QKeyEvent *>(event));
 			return;
-		case EventCanvasMouseMove:
-			mouseMoveEvent(static_cast<CanvasMouseEvent *>(event));
+		case EventCanvasCursorPress:
+			d->mCurrentCursorId = cursorPressEvent(static_cast<CanvasCursorEvent *>(event));
 			return;
-		case EventCanvasMousePress:
-			mousePressEvent(static_cast<CanvasMouseEvent *>(event));
+		case EventCanvasCursorMove:
+			cursorMoveEvent(static_cast<CanvasCursorEvent *>(event), d->mCurrentCursorId);
 			return;
-		case EventCanvasMouseRelease:
-			mouseReleaseEvent(static_cast<CanvasMouseEvent *>(event));
-			return;
-		case EventCanvasMouseDoubleClick:
-			mouseDoubleClickEvent(static_cast<CanvasMouseEvent *>(event));
-			return;
-		case EventCanvasTabletMove:
-			tabletMoveEvent(static_cast<CanvasTabletEvent *>(event));
-			return;
-		case EventCanvasTabletPress:
-			tabletPressEvent(static_cast<CanvasTabletEvent *>(event));
-			return;
-		case EventCanvasTabletRelease:
-			tabletReleaseEvent(static_cast<CanvasTabletEvent *>(event));
+		case EventCanvasCursorRelease:
+			cursorReleaseEvent(static_cast<CanvasCursorEvent *>(event), d->mCurrentCursorId);
 			return;
 		default:
 			return;
@@ -144,8 +134,16 @@ void Tool::toolEvent(QEvent *event)
 
 void Tool::addLayerInsertion(const LayerConstRef &parent, int index, const LayerRef &layer)
 {
-	LayerInsertion insertion = { .parent = parent, .index = index, .layer = layer };
-	d->layerInsertions << insertion;
+	LayerInsertion insertion;
+	insertion.parent = parent;
+	insertion.index = index;
+	insertion.layer = layer;
+	d->mLayerInsertions << insertion;
+}
+
+int Tool::currentCursorId() const
+{
+	return d->mCurrentCursorId;
 }
 
 }
