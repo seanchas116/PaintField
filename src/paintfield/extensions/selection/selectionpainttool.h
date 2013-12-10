@@ -7,7 +7,14 @@ class SelectionPaintTool : public Tool
 {
 	Q_OBJECT
 public:
-	explicit SelectionPaintTool(Canvas *parent = 0);
+
+	enum Type
+	{
+		TypeBrush,
+		TypeEraser
+	};
+
+	explicit SelectionPaintTool(Type type, Canvas *parent = 0);
 	~SelectionPaintTool();
 
 	int cursorPressEvent(CanvasCursorEvent *event) override;

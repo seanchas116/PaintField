@@ -8,12 +8,14 @@ namespace PaintField {
 struct SelectionPaintTool::Data
 {
 	QScopedPointer<SelectionStroker> mStroker;
+	Type mType;
 };
 
-SelectionPaintTool::SelectionPaintTool(Canvas *parent) :
+SelectionPaintTool::SelectionPaintTool(Type type, Canvas *parent) :
 	Tool(parent),
 	d(new Data)
 {
+	d->mType = type;
 }
 
 SelectionPaintTool::~SelectionPaintTool()
@@ -22,7 +24,7 @@ SelectionPaintTool::~SelectionPaintTool()
 
 int SelectionPaintTool::cursorPressEvent(CanvasCursorEvent *event)
 {
-	d->mStroker.reset(new SelectionStroker(document()->selection()));
+	d->mStroker.reset(new SelectionStroker(document()->selection(), d->mType == TypeEraser));
 	d->mStroker->moveTo(event->data);
 	return 0;
 }

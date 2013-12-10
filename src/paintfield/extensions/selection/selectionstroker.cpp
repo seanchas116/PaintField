@@ -3,8 +3,9 @@
 
 namespace PaintField {
 
-SelectionStroker::SelectionStroker(Selection *selection) :
-	mSelection(selection)
+SelectionStroker::SelectionStroker(Selection *selection, bool isEraser) :
+	mSelection(selection),
+	mEraser(isEraser)
 {
 }
 
@@ -63,6 +64,8 @@ void SelectionStroker::drawPath(const QPainterPath &path)
 		QPainter painter(&tile.qimage());
 		painter.setPen(Qt::NoPen);
 		painter.translate(-key * Malachite::Surface::tileWidth());
+		if (mEraser)
+			painter.setCompositionMode(QPainter::CompositionMode_DestinationOut);
 		painter.drawPath(path);
 	}
 

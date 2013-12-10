@@ -9,7 +9,7 @@ class Selection;
 class SelectionStroker : public Stroker
 {
 public:
-	SelectionStroker(Selection *selection);
+	SelectionStroker(Selection *selection, bool isEraser);
 
 protected:
 
@@ -23,6 +23,7 @@ private:
 	void drawPath(const QPainterPath &path);
 
 	Selection *mSelection = 0;
+	bool mEraser = false;
 };
 
 } // namespace PaintField
