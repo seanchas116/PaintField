@@ -10,17 +10,16 @@ SelectionStroker::SelectionStroker(Selection *selection) :
 
 void SelectionStroker::drawFirst(const TabletInputData &data)
 {
-	Q_UNUSED(data);
+	double radius = data.pressure * radiusBase();
+	QPainterPath path;
+	path.addEllipse(data.pos, radius, radius);
+	this->drawPath(path);
 }
 
 void SelectionStroker::drawInterval(
 	const Malachite::Polygon &polygon, const QVector<double> &lengths, double totalLength,
 	const TabletInputData &dataStart, const TabletInputData &dataEnd)
 {
-	PAINTFIELD_DEBUG;
-
-	auto surface = mSelection->surface();
-
 	double pressureNormalized = (dataEnd.pressure - dataStart.pressure) / totalLength;
 	double pressure = dataStart.pressure;
 
@@ -43,6 +42,13 @@ void SelectionStroker::drawInterval(
 		path.addPolygon(quad);
 		path.addEllipse(polygon.at(i), radius, radius);
 	}
+
+	this->drawPath(path);
+}
+
+void SelectionStroker::drawPath(const QPainterPath &path)
+{
+	auto surface = mSelection->surface();
 
 	auto keys = Malachite::Surface::rectToKeys(path.boundingRect().toAlignedRect());
 	for (const QPoint &key : keys) {

@@ -20,6 +20,8 @@ protected:
 
 private:
 
+	void drawPath(const QPainterPath &path);
+
 	Selection *mSelection = 0;
 };
 
