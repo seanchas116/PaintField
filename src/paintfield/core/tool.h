@@ -89,8 +89,8 @@ public:
 	QCursor cursor() const;
 
 	virtual int cursorPressEvent(CanvasCursorEvent *event) = 0;
-	virtual void cursorMoveEvent(CanvasCursorEvent *event, int id) = 0;
-	virtual void cursorReleaseEvent(CanvasCursorEvent *event, int id) = 0;
+	virtual void cursorMoveEvent(CanvasCursorEvent *event, int type) = 0;
+	virtual void cursorReleaseEvent(CanvasCursorEvent *event, int type) = 0;
 	
 	virtual void keyPressEvent(QKeyEvent *event) { event->ignore(); return; }
 	virtual void keyReleaseEvent(QKeyEvent *event) { event->ignore(); return; }

@@ -47,6 +47,7 @@ int LayerMoveTool::cursorPressEvent(CanvasCursorEvent *event)
 		_dragStartPoint = event->data.pos.toQPoint();
 		_lastKeys = _layer->tileKeys();
 	}
+	return 0;
 }
 
 void LayerMoveTool::cursorReleaseEvent(CanvasCursorEvent *event, int id)

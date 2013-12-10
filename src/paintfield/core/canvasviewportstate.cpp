@@ -309,20 +309,16 @@ QRect CanvasViewportState::updateTiles(const boost::variant<QPointSet, QHash<QPo
 		}
 	}
 
-	auto viewRect = this->mTransforms->sceneToView.mapRect(rectToBeRepainted);
-
-	if (this->mRetinaMode)
-		viewRect = QRectF(viewRect.left() * 0.5, viewRect.top() * 0.5, viewRect.width() * 0.5, viewRect.height() * 0.5).toAlignedRect();
-
-	return viewRect;
+	return this->mTransforms->sceneToWindow.mapRect(rectToBeRepainted);
 }
 
 QRect CanvasViewportState::updateSelectionTiles(const SelectionSurface &surface, const QPointSet &keys)
 {
 	this->mSelectionMipmap.replace(surface, keys);
-	return keys++.foldLeft(QRect(), [](const QRect &memo, const QPoint &key) {
-		return memo | QRect(key * SelectionSurface::tileWidth(), SelectionSurface::tileSize());
+	auto sceneRect = keys++.foldLeft(QRect(), [](const QRect &memo, const QPoint &key) {
+		return memo | SelectionSurface::keyToRect(key);
 	});
+	return this->mTransforms->sceneToWindow.mapRect(sceneRect);
 }
 
 } // namespace PaintField

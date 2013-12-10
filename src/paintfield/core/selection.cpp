@@ -19,14 +19,12 @@ Selection::Selection(Document *document) :
 {
 	d->mDocument = document;
 
-	/*
 	auto &tile = d->mSurface.tileRef(QPoint());
 	{
 		QPainter painter(&tile.qimage());
 		painter.drawEllipse(tile.rect());
 	}
 	d->mOriginalSurface = d->mSurface;
-	*/
 }
 
 Selection::~Selection()

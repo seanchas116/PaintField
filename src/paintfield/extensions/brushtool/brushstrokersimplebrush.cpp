@@ -24,7 +24,9 @@ void BrushStrokerSimpleBrush::drawFirst(const TabletInputData &data)
 	drawDab(data.pos, data.pressure);
 }
 
-void BrushStrokerSimpleBrush::drawInterval(const Malachite::Polygon &polygon, const TabletInputData &dataStart, const TabletInputData &dataEnd)
+void BrushStrokerSimpleBrush::drawInterval(
+	const Polygon &polygon, const QVector<double> &polygonLengths, double totalLength,
+	const TabletInputData &dataStart, const TabletInputData &dataEnd)
 {
 	int count = polygon.size() - 1;
 	
@@ -41,16 +43,13 @@ void BrushStrokerSimpleBrush::drawInterval(const Malachite::Polygon &polygon, co
 		return;
 	}
 	
-	double totalLen;
-	QVector<double> lengths = calcLength(polygon, &totalLen);
-	
-	double pressureNormalized = (dataEnd.pressure - dataStart.pressure) / totalLen;
+	double pressureNormalized = (dataEnd.pressure - dataStart.pressure) / totalLength;
 	
 	double pressure = dataStart.pressure;
 	double carryOver = mCarryOver;
 	
 	for (int i = 0; i < count; ++i)
-		carryOver = drawSegment(polygon[i], polygon[i+1], lengths[i], pressure, pressureNormalized, carryOver);
+		carryOver = drawSegment(polygon[i], polygon[i+1], polygonLengths[i], pressure, pressureNormalized, carryOver);
 	
 	mCarryOver = carryOver;
 }

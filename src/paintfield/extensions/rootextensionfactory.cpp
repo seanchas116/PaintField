@@ -7,6 +7,7 @@
 #include "toolui/tooluiextension.h"
 #include "vectortools/vectortoolsextension.h"
 #include "formatsupports/formatsupportsextension.h"
+#include "selection/selectionextension.h"
 
 #include "rootextensionfactory.h"
 
@@ -24,6 +25,7 @@ RootExtensionFactory::RootExtensionFactory(QObject *parent) :
 	addSubExtensionFactory(new ToolUIExtensionFactory(this));
 	//addSubExtensionFactory(new VectorToolsExtensionFactory(this));
 	addSubExtensionFactory(new FormatSupportsExtensionFactory(this));
+	addSubExtensionFactory(new SelectionExtensionFactory(this));
 }
 
 void RootExtensionFactory::initialize(AppController *app)

@@ -21,7 +21,7 @@ inline void drawMLImage(QPainter *painter, int x, int y, const Malachite::Image 
 	drawMLImage(painter, QPoint(x, y), image);
 }
 
-}
+} // namespace DrawUtil
 
-}
+} // namespace PaintField
 

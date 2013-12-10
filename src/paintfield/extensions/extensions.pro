@@ -56,7 +56,11 @@ HEADERS += aboutdialog/aboutdialog.h \
     brushtool/brusheditorview.h \
     brushtool/custombrusheditor.h \
     brushtool/brushpresetdatabase.h \
-    brushtool/brushpresetitem.h
+    brushtool/brushpresetitem.h \
+    selection/selectionpainttool.h \
+    brushtool/stroker.h \
+    selection/selectionstroker.h \
+    selection/selectionextension.h
 FORMS += aboutdialog/aboutdialog.ui \
     formatsupports/jpegexportform.ui \
     formatsupports/pngexportform.ui
@@ -108,6 +112,10 @@ SOURCES += aboutdialog/aboutdialog.cpp \
     brushtool/brusheditorview.cpp \
     brushtool/custombrusheditor.cpp \
     brushtool/brushpresetdatabase.cpp \
-    brushtool/brushpresetitem.cpp
+    brushtool/brushpresetitem.cpp \
+    selection/selectionpainttool.cpp \
+    brushtool/stroker.cpp \
+    selection/selectionstroker.cpp \
+    selection/selectionextension.cpp
 
 TRANSLATIONS += extensions_ja.ts

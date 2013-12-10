@@ -96,6 +96,8 @@ public:
 
 	void replace(const typename TSurface::ImageType &image, const QPoint &key, const QPoint &relativePos = QPoint())
 	{
+		if (!checkKey(key)) return;
+
 		auto size = image.size();
 		if (size == TSurface::tileSize() && relativePos == QPoint()) {
 			mSurfaces[0].setTile(key, image);
@@ -114,6 +116,7 @@ public:
 	{
 		mSurfaces[0].replace(surface, keys);
 		for (const auto &key : keys) {
+			if (!checkKey(key)) continue;
 			auto rect = QRect(key * TSurface::tileWidth(), TSurface::tileSize());
 			update(rect, 0, mCurrentLevel);
 			mMaxUpToDateLevels[indexFromKey(key)] = mCurrentLevel;
@@ -131,6 +134,11 @@ public:
 	}
 
 private:
+
+	bool checkKey(const QPoint &key) const
+	{
+		return 0 <= key.x() && key.x() < mTileCountX && 0 <= key.y() && key.y() < mTileCountY;
+	}
 
 	void update(const QRect &rect, int alreadyUpToDateLevel, int maxLevel)
 	{

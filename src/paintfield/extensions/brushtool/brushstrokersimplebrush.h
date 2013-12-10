@@ -17,8 +17,10 @@ public:
 	
 protected:
 	
-	void drawFirst(const TabletInputData &data);
-	void drawInterval(const Malachite::Polygon &polygon, const TabletInputData &dataStart, const TabletInputData &dataEnd);
+	void drawFirst(const TabletInputData &data) override;
+	void drawInterval(
+		const Malachite::Polygon &polygon, const QVector<double> &polygonLengths, double totalLength,
+		const TabletInputData &dataStart, const TabletInputData &dataEnd) override;
 	
 private:
 	
