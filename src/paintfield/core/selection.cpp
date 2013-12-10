@@ -51,13 +51,16 @@ void Selection::commitSurface()
 
 	auto before = d->mOriginalSurface;
 	auto after = d->mSurface;
+	auto keys = d->mModifiedKeys;
 
 	auto command = new ClosureUndoCommand(
 		[=](){
 			d->mSurface = after;
+			emit surfaceChanged(after, keys);
 		},
 		[=](){
 			d->mSurface = before;
+			emit surfaceChanged(before, keys);
 		});
 	d->mDocument->undoStack()->push(command);
 }
