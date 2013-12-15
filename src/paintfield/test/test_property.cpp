@@ -24,7 +24,7 @@ void Test_Property::test_bindTransform()
 	auto a = new QSpinBox();
 	auto b = new QSpinBox();
 	Property::bind(
-		a, "value", [](int x){return x * 2;},
+		a, "value", [](const int &x){return x * 2;},
 		b, "value", [](int x){return x / 2;});
 	a->setValue(10);
 	QCOMPARE(5, b->value());

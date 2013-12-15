@@ -67,13 +67,17 @@ using FirstArgumentType = typename FirstArgument<PointerToMemberFunction>::type;
 template <class F>
 class VariantFunctionWrapper
 {
-	using ArgumentType = FirstArgumentType<decltype(&F::operator())>;
+	using ArgumentType = typename std::remove_const<
+		typename std::remove_reference<
+			FirstArgumentType<decltype(&F::operator())>
+		>::type
+	>::type;
 public:
 	VariantFunctionWrapper(F f) : mF(f) {}
 
 	QVariant operator()(const QVariant &x) const
 	{
-		return mF(x.value<ArgumentType>());
+		return QVariant::fromValue(mF(x.value<ArgumentType>()));
 	}
 
 private:
@@ -88,8 +92,16 @@ VariantFunctionWrapper<F> makeVariantFunctionWrapper(F f)
 
 } // namespace detail
 
+/**
+ * Binds the two properties bidirectionally.
+ * Both properties are initialized with the second one when this function is called.
+ */
 void bind(QObject *obj1, const QByteArray &propertyName1, QObject *obj2, const QByteArray &propertyName2);
 
+/**
+ * Binds the two properties with two unary transform functions.
+ * Their argument types must be convertible from QVariant and return types must be convertible to QVariant.
+ */
 template <class F1, class F2>
 void bind(QObject *obj1, const QByteArray &propertyName1, F1 transformTo1, QObject *obj2, const QByteArray &propertyName2, F2 transformTo2)
 {

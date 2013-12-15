@@ -22,7 +22,6 @@ BindObject::BindObject(QObject *obj1, const QByteArray &propertyName1, QObject *
 	mProperty2 = getMetaProperty(obj2, propertyName2);
 	connect(obj1, mProperty1.notifySignal(), this, getMethod(this, "on1Changed()"));
 	connect(obj2, mProperty2.notifySignal(), this, getMethod(this, "on2Changed()"));
-	on1Changed();
 	on2Changed();
 	connect(obj1, SIGNAL(destroyed()), this, SLOT(deleteLater()));
 	connect(obj2, SIGNAL(destroyed()), this, SLOT(deleteLater()));
