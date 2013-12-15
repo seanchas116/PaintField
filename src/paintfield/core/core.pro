@@ -100,7 +100,8 @@ HEADERS += \
     selectionsurface.h \
     closureundocommand.h \
     canvastransforms.h \
-    canvascursorevent.h
+    canvascursorevent.h \
+    property.h
 
 FORMS +=
 SOURCES += \
@@ -183,7 +184,8 @@ SOURCES += \
     canvasview.cpp \
     canvasupdatemanager.cpp \
     selectionsurface.cpp \
-    canvasviewportstate.cpp
+    canvasviewportstate.cpp \
+    property.cpp
 
 RESOURCES += \
     resources/resource-paintfield-core.qrc
