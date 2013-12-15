@@ -35,10 +35,10 @@ void Selection::updateSurface(const SelectionSurface &surface, const QPointSet &
 		d->mSurface[key] = surface[key];
 	}
 	d->mModifiedKeys |= keys;
-	emit surfaceChanged(surface, keys);
+	emit updated(keys);
 }
 
-void Selection::commitSurface()
+void Selection::commitUpdates()
 {
 	d->mSurface.squeeze();
 
@@ -49,11 +49,11 @@ void Selection::commitSurface()
 	auto command = new ClosureUndoCommand(
 		[=](){
 			d->mSurface = after;
-			emit surfaceChanged(after, keys);
+			emit updated(keys);
 		},
 		[=](){
 			d->mSurface = before;
-			emit surfaceChanged(before, keys);
+			emit updated(keys);
 		});
 	d->mDocument->undoStack()->push(command);
 }

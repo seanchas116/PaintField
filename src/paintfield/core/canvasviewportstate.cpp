@@ -3,6 +3,7 @@
 #include "layerrenderer.h"
 #include "canvas.h"
 #include "document.h"
+#include "selection.h"
 #include "layerscene.h"
 #include "tool.h"
 #include <QImage>
@@ -88,6 +89,12 @@ void drawDivided(const QRect &viewRect, const TFunction &drawFunc)
 }
 
 } // anonymous namespace
+
+void CanvasViewportState::setCanvas(Canvas *canvas)
+{
+	this->mCanvas = canvas;
+	this->mSelection = canvas->document()->selection();
+}
 
 void CanvasViewportState::render(QPainter *painter, const QRect &windowRepaintRect)
 {
@@ -312,9 +319,9 @@ QRect CanvasViewportState::updateTiles(const boost::variant<QPointSet, QHash<QPo
 	return this->mTransforms->sceneToWindow.mapRect(rectToBeRepainted);
 }
 
-QRect CanvasViewportState::updateSelectionTiles(const SelectionSurface &surface, const QPointSet &keys)
+QRect CanvasViewportState::updateSelectionTiles(const QPointSet &keys)
 {
-	this->mSelectionMipmap.replace(surface, keys);
+	this->mSelectionMipmap.replace(this->mSelection->surface(), keys);
 	auto sceneRect = keys++.foldLeft(QRect(), [](const QRect &memo, const QPoint &key) {
 		return memo | SelectionSurface::keyToRect(key);
 	});

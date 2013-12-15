@@ -202,4 +202,14 @@ struct SelectionMipmapPixelTraits
 
 using SelectionMipmap = Malachite::SurfaceMipmap<SelectionSurface, SelectionMipmapPixelTraits>;
 
+
+namespace SelectionDrawUtil {
+
+QPointSet drawPath(SelectionSurface &surface, const QPainterPath &path,
+	QPainter::CompositionMode compositionMode = QPainter::CompositionMode_SourceOver);
+
+SelectionImage filledTile();
+
+}
+
 } // namespace PaintField

@@ -139,10 +139,10 @@ struct CanvasViewport::Data
 		mCanvas->workspace()->setCurrentCanvas(mCanvas);
 	}
 
-	void updateSelectionTiles(const SelectionSurface &surface, const QPointSet &keys)
+	void updateSelectionTiles(const QPointSet &keys)
 	{
 		if (mUpdateEnabled)
-			mSelf->repaint(mState.updateSelectionTiles(surface, keys));
+			mSelf->repaint(mState.updateSelectionTiles(keys));
 	}
 
 	void updateTiles(const boost::variant<QPointSet, QHash<QPoint, QRect>> &keysOrRectForKeys)
@@ -301,8 +301,8 @@ CanvasViewport::CanvasViewport(Canvas *canvas, QWidget *parent) :
 		connect(canvas->workspace(), &Workspace::currentCanvasChanged, this, setFocusIfCanvasSame);
 		setFocusIfCanvasSame(canvas->workspace()->currentCanvas());
 
-		connect(canvas->document()->selection(), &Selection::surfaceChanged, this, std::bind(&Data::updateSelectionTiles, d.data(), _1, _2));
-		d->updateSelectionTiles(canvas->document()->selection()->surface(), canvas->document()->tileKeys());
+		connect(canvas->document()->selection(), &Selection::updated, this, std::bind(&Data::updateSelectionTiles, d.data(), _1));
+		d->updateSelectionTiles(canvas->document()->tileKeys());
 	}
 	connect(canvas->document()->layerScene(), &LayerScene::tilesUpdated, this, std::bind(&Data::updateTiles, d.data(), _1));
 	d->updateTiles(canvas->document()->tileKeys());

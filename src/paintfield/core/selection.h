@@ -21,10 +21,10 @@ public:
 public slots:
 
 	void updateSurface(const SelectionSurface &surface, const QPointSet &keys);
-	void commitSurface();
+	void commitUpdates();
 signals:
 
-	void surfaceChanged(const SelectionSurface &surface, const QPointSet &keys);
+	void updated(const QPointSet &keys);
 	
 private:
 	

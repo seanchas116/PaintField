@@ -41,7 +41,7 @@ void SelectionPaintTool::cursorReleaseEvent(CanvasCursorEvent *event, int id)
 	Q_UNUSED(id); Q_UNUSED(event);
 	if (!d->mStroker) return;
 	d->mStroker->end();
-	document()->selection()->commitSurface();
+	document()->selection()->commitUpdates();
 }
 
 

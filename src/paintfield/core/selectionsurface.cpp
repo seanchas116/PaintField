@@ -52,4 +52,51 @@ QImage SelectionImage::toQImageARGBPremult(QRgb rgbOne, QRgb rgbZero) const
 }
 
 
+namespace SelectionDrawUtil {
+
+QPointSet drawPath(SelectionSurface &surface, const QPainterPath &path, QPainter::CompositionMode compositionMode)
+{
+	auto keys = SelectionSurface::rectToKeys(path.boundingRect().toAlignedRect());
+
+	for (const QPoint &key : keys) {
+
+		auto rect = SelectionSurface::keyToRect(key);
+		if (path.contains(rect)) {
+			surface[key] = filledTile();
+			continue;
+		}
+
+		QPainterPath rectPath;
+		rectPath.addRect(rect);
+		auto dividedPath = path & rectPath;
+
+		if (dividedPath.isEmpty())
+			continue;
+
+		auto &tile = surface.tileRef(key);
+		QPainter painter(&tile.qimage());
+		painter.setPen(Qt::NoPen);
+		painter.translate(-key * SelectionSurface::tileWidth());
+		painter.setCompositionMode(compositionMode);
+		painter.drawPath(path);
+	}
+	return keys;
+}
+
+static SelectionImage makeFilledTile()
+{
+	SelectionImage tile(SelectionSurface::tileSize());
+	tile.fill(true);
+	return tile;
+}
+
+static SelectionImage filledTile_ = makeFilledTile();
+
+SelectionImage filledTile()
+{
+	return filledTile_;
+}
+
+}
+
 } // namespace PaintField

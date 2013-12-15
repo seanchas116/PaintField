@@ -11,6 +11,7 @@ namespace PaintField
 
 class Canvas;
 class Tool;
+class Selection;
 
 class CanvasViewportState
 {
@@ -18,7 +19,7 @@ public:
 
 	void render(QPainter *painter, const QRect &windowRepaintRect);
 
-	void setCanvas(Canvas *canvas) { this->mCanvas = canvas; }
+	void setCanvas(Canvas *canvas);
 	void setTool(Tool *tool) { this->mTool = tool; }
 
 	void setTransforms(const SP<const CanvasTransforms> &transforms);
@@ -26,7 +27,7 @@ public:
 	void setDocumentSize(const QSize &size);
 
 	QRect updateTiles(const boost::variant<QPointSet, QHash<QPoint, QRect>> &keysOrRectForKeys);
-	QRect updateSelectionTiles(const SelectionSurface &surface, const QPointSet &keys);
+	QRect updateSelectionTiles(const QPointSet &keys);
 
 	CanvasViewportSurface mergedSurface() const { return this->mMipmap.baseSurface(); }
 
@@ -34,6 +35,7 @@ private:
 
 	Canvas *mCanvas = 0;
 	Tool *mTool = 0;
+	Selection *mSelection = 0;
 
 	QSize mDocumentSize;
 	

@@ -50,25 +50,8 @@ void SelectionStroker::drawInterval(
 void SelectionStroker::drawPath(const QPainterPath &path)
 {
 	auto surface = mSelection->surface();
-
-	auto keys = Malachite::Surface::rectToKeys(path.boundingRect().toAlignedRect());
-	for (const QPoint &key : keys) {
-		QPainterPath rectPath;
-		rectPath.addRect(Malachite::Surface::keyToRect(key));
-		auto dividedPath = path & rectPath;
-
-		if (dividedPath.isEmpty())
-			continue;
-
-		auto &tile = surface.tileRef(key);
-		QPainter painter(&tile.qimage());
-		painter.setPen(Qt::NoPen);
-		painter.translate(-key * Malachite::Surface::tileWidth());
-		if (mEraser)
-			painter.setCompositionMode(QPainter::CompositionMode_DestinationOut);
-		painter.drawPath(path);
-	}
-
+	auto compositionMode = mEraser ? QPainter::CompositionMode_DestinationOut : QPainter::CompositionMode_SourceOver;
+	auto keys = SelectionDrawUtil::drawPath(surface, path, compositionMode);
 	mSelection->updateSurface(surface, keys);
 }
 
