@@ -32,6 +32,9 @@ using SP = std::shared_ptr<T>;
 template <class T>
 using WP = std::weak_ptr<T>;
 
+template <class T>
+using UP = std::unique_ptr<T>;
+
 /**
  * Alias for std::make_shared
  */
@@ -39,6 +42,12 @@ template <class T, class... Args>
 inline SP<T> makeSP(Args&&... args)
 {
 	return std::make_shared<T>(std::forward<Args>(args)...);
+}
+
+template <class T, class... Args>
+inline UP<T> makeUP(Args&&... args)
+{
+	return UP<T>(new T(std::forward<Args>(args)...));
 }
 
 /**

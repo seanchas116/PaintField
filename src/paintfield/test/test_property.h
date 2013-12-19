@@ -14,6 +14,7 @@ public:
 private slots:
 	void test_bind();
 	void test_bindTransform();
+	void test_bindCustomProperty();
 
 };
 

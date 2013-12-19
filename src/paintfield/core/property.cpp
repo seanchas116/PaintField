@@ -1,43 +1,25 @@
 #include "property.h"
+#include "property_p.h"
 #include <QMetaProperty>
 
 namespace PaintField {
 
-namespace Property {
+namespace PropertyDetail {
 
-namespace detail {
-
-BindObject::BindObject(QObject *obj1, const QByteArray &propertyName1, QObject *obj2, const QByteArray &propertyName2) :
-	mObj1(obj1),
-	mObj2(obj2)
+BindObject::BindObject(UP<Property> &&p1, UP<Property> &&p2) :
+	mProperty1(std::move(p1)),
+	mProperty2(std::move(p2))
 {
-	auto getMetaProperty = [](QObject *obj, const QByteArray &name) {
-		return obj->metaObject()->property(obj->metaObject()->indexOfProperty(name.data()));
+	auto getSlot = [](const char *name) {
+		// SLOT macro prepends "1" to method name
+		return staticMetaObject.method(staticMetaObject.indexOfSlot(name + 1));
 	};
-	auto getMethod = [](QObject *obj, const char *name) {
-		return obj->metaObject()->method(obj->metaObject()->indexOfMethod(name));
-	};
-
-	mProperty1 = getMetaProperty(obj1, propertyName1);
-	mProperty2 = getMetaProperty(obj2, propertyName2);
-	connect(obj1, mProperty1.notifySignal(), this, getMethod(this, "on1Changed()"));
-	connect(obj2, mProperty2.notifySignal(), this, getMethod(this, "on2Changed()"));
-	on2Changed();
-	connect(obj1, SIGNAL(destroyed()), this, SLOT(deleteLater()));
-	connect(obj2, SIGNAL(destroyed()), this, SLOT(deleteLater()));
-}
-
-
-void BindObject::on1Changed()
-{
-	auto value = mProperty1.read(mObj1);
-	mProperty2.write(mObj2, value);
-}
-
-void BindObject::on2Changed()
-{
-	auto value = mProperty2.read(mObj2);
-	mProperty1.write(mObj1, value);
+	if (mProperty1->notifyObject()) {
+		connect(mProperty1->notifyObject(), mProperty1->notifySignal(), this, getSlot(SLOT(on1Changed())));
+	}
+	if (mProperty2->notifyObject()) {
+		connect(mProperty2->notifyObject(), mProperty2->notifySignal(), this, getSlot(SLOT(on2Changed())));
+	}
 }
 
 BindTransformObject::BindTransformObject(
@@ -66,13 +48,40 @@ void BindTransformObject::emitValueChanged(Channel ch)
 		emit value2Changed(mValue[ch]);
 }
 
-} // namespace detail
+} // namespace PropertyDetail
 
-void bind(QObject *obj1, const QByteArray &propertyName1, QObject *obj2, const QByteArray &propertyName2)
+void Property::bind(UP<Property> &&p1, UP<Property> &&p2)
 {
-	new detail::BindObject(obj1, propertyName1, obj2, propertyName2);
+	new PropertyDetail::BindObject(std::move(p1), std::move(p2));
 }
 
-} // namespace Property
+void Property::bind(QObject *object1, const QByteArray &propertyName1, QObject *object2, const QByteArray &propertyName2)
+{
+	new PropertyDetail::BindObject(qtProperty(object1, propertyName1), qtProperty(object2, propertyName2));
+}
+
+void Property::bind(UP<Property> &&p1, const std::function<QVariant (const QVariant &)> &transformTo1, UP<Property> &&p2, const std::function<QVariant (const QVariant &)> &transformTo2)
+{
+	auto t = new PropertyDetail::BindTransformObject(transformTo1, transformTo2);
+	auto b = new PropertyDetail::BindObject(qtProperty(t, "value1"), std::move(p1));
+	new PropertyDetail::BindObject(qtProperty(t, "value2"), std::move(p2));
+	t->setParent(b);
+}
+
+QtProperty::QtProperty(QObject *object, const QByteArray &propertyName)
+{
+	auto m = object->metaObject();
+	mProperty = m->property(m->indexOfProperty(propertyName.data()));
+	setNotify(object, mProperty.notifySignal());
+}
+
+CustomProperty::CustomProperty(
+	std::function<void (const QVariant &)> setter, std::function<QVariant ()> getter,
+	QObject *object, const QMetaMethod &notifySignal) :
+	mSetter(setter),
+	mGetter(getter)
+{
+	setNotify(object, notifySignal);
+}
 
 } // namespace PaintField

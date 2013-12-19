@@ -101,7 +101,8 @@ HEADERS += \
     closureundocommand.h \
     canvastransforms.h \
     canvascursorevent.h \
-    property.h
+    property.h \
+    property_p.h
 
 FORMS +=
 SOURCES += \

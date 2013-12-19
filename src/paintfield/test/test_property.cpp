@@ -32,6 +32,23 @@ void Test_Property::test_bindTransform()
 	QCOMPARE(20, a->value());
 }
 
+void Test_Property::test_bindCustomProperty()
+{
+	auto a = new QSpinBox();
+	auto b = new QSpinBox();
+	auto setA = [a](int x){
+		a->setValue(x);
+	};
+	auto getA = [a](){
+		return a->value();
+	};
+	Property::bind(customProperty(setA, getA, a, SIGNAL(valueChanged(int))), qtProperty(b, "value"));
+	a->setValue(24);
+	QCOMPARE(24, b->value());
+	b->setValue(12);
+	QCOMPARE(12, a->value());
+}
+
 PF_ADD_TESTCLASS(Test_Property)
 
 } // namespace PaintField

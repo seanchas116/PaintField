@@ -6,78 +6,36 @@
 
 namespace PaintField {
 
-namespace Property {
-
-namespace detail {
-
-class BindObject : public QObject
-{
-	Q_OBJECT
-public:
-	BindObject(QObject *obj1, const QByteArray &propertyName1, QObject *obj2, const QByteArray &propertyName2);
-
-private slots:
-	void on1Changed();
-	void on2Changed();
-
-private:
-	QObject *mObj1, *mObj2;
-	QMetaProperty mProperty1, mProperty2;
-};
-
-class BindTransformObject : public QObject
-{
-	Q_OBJECT
-	Q_PROPERTY(QVariant value1 READ value1 WRITE setValue1 NOTIFY value1Changed)
-	Q_PROPERTY(QVariant value2 READ value2 WRITE setValue2 NOTIFY value2Changed)
-
-	enum Channel { Channel1, Channel2 };
-
-public:
-	BindTransformObject(std::function<QVariant(const QVariant &)> to1, std::function<QVariant(const QVariant &)> to2);
-	void setValue1(const QVariant &x) { setValue(x, Channel1); }
-	void setValue2(const QVariant &x) { setValue(x, Channel2); }
-	QVariant value1() const { return mValue[Channel1]; }
-	QVariant value2() const { return mValue[Channel2]; }
-
-signals:
-	void value1Changed(const QVariant &);
-	void value2Changed(const QVariant &);
-
-private:
-	static Channel opposite(Channel c) { return c == Channel1 ? Channel2 : Channel1; }
-	void setValue(const QVariant &value, Channel ch);
-	void emitValueChanged(Channel ch);
-
-	std::array<QVariant, 2> mValue;
-	std::array<std::function<QVariant(const QVariant &)>, 2> mTo;
-};
+namespace PropertyDetail {
 
 template <class T>
-struct FirstArgument;
+struct UnaryMemberFunctionArgument;
 
 template <class T, class A, class R>
-struct FirstArgument<R (T::*)(A) const> {
+struct UnaryMemberFunctionArgument<R (T::*)(A) const>
+{
 	using type = A;
 };
 
-template <class PointerToMemberFunction>
-using FirstArgumentType = typename FirstArgument<PointerToMemberFunction>::type;
+template <class T>
+using RemoveConstReferenceType = typename std::remove_const<
+	typename std::remove_reference<T>::type
+>::type;
+
+template <class F>
+using ArgumentType = RemoveConstReferenceType<
+	typename UnaryMemberFunctionArgument<decltype(&F::operator())>::type
+>;
 
 template <class F>
 class VariantFunctionWrapper
 {
-	using ArgumentType = typename std::remove_const<
-		typename std::remove_reference<
-			FirstArgumentType<decltype(&F::operator())>
-		>::type
-	>::type;
 public:
-	VariantFunctionWrapper(F f) : mF(f) {}
+	VariantFunctionWrapper(const F &f) : mF(f) {}
 
 	QVariant operator()(const QVariant &x) const
 	{
-		return QVariant::fromValue(mF(x.value<ArgumentType>()));
+		return QVariant::fromValue(mF(x.value<ArgumentType<F>>()));
 	}
 
 private:
@@ -85,32 +43,187 @@ private:
 };
 
 template <class F>
-VariantFunctionWrapper<F> makeVariantFunctionWrapper(F f)
+class VariantSetterWrapper
+{
+public:
+	VariantSetterWrapper(const F &f) : mF(f) {}
+
+	void operator()(const QVariant &x) const
+	{
+		mF(x.value<ArgumentType<F>>());
+	}
+
+private:
+	F mF;
+};
+
+template <class F>
+class VariantGetterWrapper
+{
+public:
+	VariantGetterWrapper(const F &f) : mF(f) {}
+
+	QVariant operator()() const
+	{
+		return QVariant::fromValue(mF());
+	}
+
+private:
+	F mF;
+};
+
+
+template <class F>
+std::function<QVariant (const QVariant &)> toVariantFunction(const F &f)
 {
 	return VariantFunctionWrapper<F>(f);
 }
 
-} // namespace detail
-
-/**
- * Binds the two properties bidirectionally.
- * Both properties are initialized with the second one when this function is called.
- */
-void bind(QObject *obj1, const QByteArray &propertyName1, QObject *obj2, const QByteArray &propertyName2);
-
-/**
- * Binds the two properties with two unary transform functions.
- * Their argument types must be convertible from QVariant and return types must be convertible to QVariant.
- */
-template <class F1, class F2>
-void bind(QObject *obj1, const QByteArray &propertyName1, F1 transformTo1, QObject *obj2, const QByteArray &propertyName2, F2 transformTo2)
+template <class F>
+std::function<void (const QVariant &)> toVariantSetter(const F &f)
 {
-	auto t = new detail::BindTransformObject(detail::makeVariantFunctionWrapper(transformTo1), detail::makeVariantFunctionWrapper(transformTo2));
-	auto b = new detail::BindObject(t, "value1", obj1, propertyName1);
-	new detail::BindObject(t, "value2", obj2, propertyName2);
-	t->setParent(b);
+	return VariantSetterWrapper<F>(f);
 }
 
-} // namespace Property
+template <class F>
+std::function<QVariant ()> toVariantGetter(const F &f)
+{
+	return VariantGetterWrapper<F>(f);
+}
+
+
+} // namespace PropertyDetail
+
+class Property
+{
+public:
+
+	/**
+	 * Binds the two properties bidirectionally.
+	 * Both properties are initialized with the second one when this function is called.
+	 * @return A QObject that is used to bind properties
+	 */
+	static void bind(UP<Property> &&p1, UP<Property> &&p2);
+	static void bind(QObject *object1, const QByteArray &propertyName1, QObject *object2, const QByteArray &propertyName2);
+
+	/**
+	 * Binds the two properties with two unary transform functions.
+	 * Their argument types must be convertible from QVariant and return types must be convertible to QVariant.
+	 */
+	template <class F1, class F2>
+	static void bind(UP<Property> &&p1, const F1 &transformTo1, UP<Property> &&p2, const F2 &transformTo2)
+	{
+		bind(
+			std::move(p1), PropertyDetail::toVariantFunction(transformTo1),
+			std::move(p2), PropertyDetail::toVariantFunction(transformTo2));
+	}
+
+	template <class F1, class F2>
+	static void bind(
+		QObject *object1, const QByteArray &propertyName1, const F1 &transformTo1,
+		QObject *object2, const QByteArray &propertyName2, const F2 &transformTo2);
+
+	static void bind(
+		UP<Property> &&p1, const std::function<QVariant (const QVariant &)> &transformTo1,
+		UP<Property> &&p2, const std::function<QVariant (const QVariant &)> &transformTo2);
+
+	Property(const Property &) = delete;
+	Property& operator=(const Property &) = delete;
+
+	virtual void set(const QVariant &value) = 0;
+	virtual QVariant get() const = 0;
+	QObject *notifyObject() const { return mNotifyObject; }
+	QMetaMethod notifySignal() const { return mNotifySignal; }
+
+protected:
+	void setNotify(QObject *object, const QMetaMethod &signal)
+	{
+		mNotifyObject = object;
+		mNotifySignal = signal;
+	}
+
+	Property() = default;
+
+private:
+	QObject *mNotifyObject = 0;
+	QMetaMethod mNotifySignal;
+};
+
+class QtProperty : public Property
+{
+public:
+	QtProperty(QObject *object, const QByteArray &propertyName);
+
+	void set(const QVariant &value) override
+	{
+		mProperty.write(notifyObject(), value);
+	}
+	QVariant get() const override
+	{
+		return mProperty.read(notifyObject());
+	}
+
+private:
+	QMetaProperty mProperty;
+};
+
+inline UP<Property> qtProperty(QObject *object, const QByteArray &propertyName)
+{
+	return makeUP<QtProperty>(object, propertyName);
+}
+
+class CustomProperty : public Property
+{
+public:
+	CustomProperty(
+		std::function<void(const QVariant &)> setter, std::function<QVariant()> getter,
+		QObject *object, const QMetaMethod &notifySignal);
+
+	void set(const QVariant &value) override
+	{
+		mSetter(value);
+	}
+
+	QVariant get() const override
+	{
+		return mGetter();
+	}
+
+private:
+	std::function<void(const QVariant &)> mSetter;
+	std::function<QVariant()> mGetter;
+};
+
+template <class F1, class F2>
+inline UP<Property> customProperty(
+	const F1 &setter, const F2 &getter,
+	QObject *object, const QMetaMethod &notifySignal
+)
+{
+	return makeUP<CustomProperty>(
+		PropertyDetail::toVariantSetter(setter), PropertyDetail::toVariantGetter(getter),
+		object, notifySignal);
+}
+
+template <class F1, class F2>
+inline UP<Property> customProperty(
+	const F1 &setter, const F2 &getter,
+	QObject *object, const char *notifySignal
+)
+{
+	auto metaObject = object->metaObject();
+	return customProperty(setter, getter, object,
+		metaObject->method(metaObject->indexOfSignal(notifySignal + 1)));
+}
+
+template <class F1, class F2>
+void Property::bind(
+	QObject *object1, const QByteArray &propertyName1, const F1 &transformTo1,
+	QObject *object2, const QByteArray &propertyName2, const F2 &transformTo2)
+{
+	Property::bind(
+		qtProperty(object1, propertyName1), transformTo1,
+		qtProperty(object2, propertyName2), transformTo2);
+}
 
 } // namespace PaintField
