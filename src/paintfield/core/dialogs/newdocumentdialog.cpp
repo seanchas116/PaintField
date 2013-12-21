@@ -36,12 +36,12 @@ NewDocumentDialog::NewDocumentDialog(QWidget *parent) :
 		auto layout = new QFormLayout();
 		
 		d->widthSpin = new QSpinBox();
-		d->widthSpin->setRange(0, 99999);
+		d->widthSpin->setRange(1, 99999);
 		layout->addRow(tr("Width"), d->widthSpin);
 		connect(d->widthSpin, SIGNAL(valueChanged(int)), this, SLOT(onWidthChanged(int)));
 		
 		d->heightSpin = new QSpinBox();
-		d->heightSpin->setRange(0, 99999);
+		d->heightSpin->setRange(1, 99999);
 		layout->addRow(tr("Height"), d->heightSpin);
 		connect(d->heightSpin, SIGNAL(valueChanged(int)), this, SLOT(onHeightChanged(int)));
 		
