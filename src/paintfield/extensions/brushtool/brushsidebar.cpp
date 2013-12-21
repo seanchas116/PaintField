@@ -80,7 +80,7 @@ BrushSideBar::BrushSideBar(BrushPresetManager *presetManager, QWidget *parent) :
 		else
 			title = rawTitle;
 
-		presetLabel->setText(QString("<b>%1</b>").arg(title));
+		presetLabel->setText(QString("<b>%1</b>").arg(title.toHtmlEscaped()));
 	};
 
 	connect(presetManager, &BrushPresetManager::titleChanged, this, setTitle);
