@@ -61,7 +61,8 @@ HEADERS += aboutdialog/aboutdialog.h \
     brushtool/stroker.h \
     selection/selectionstroker.h \
     selection/selectionextension.h \
-    selection/selectionrecttool.h
+    selection/selectionrecttool.h \
+    brushtool/brushsidebarviewmodel.h
 FORMS += aboutdialog/aboutdialog.ui \
     formatsupports/jpegexportform.ui \
     formatsupports/pngexportform.ui
@@ -118,6 +119,7 @@ SOURCES += aboutdialog/aboutdialog.cpp \
     brushtool/stroker.cpp \
     selection/selectionstroker.cpp \
     selection/selectionextension.cpp \
-    selection/selectionrecttool.cpp
+    selection/selectionrecttool.cpp \
+    brushtool/brushsidebarviewmodel.cpp
 
 TRANSLATIONS += extensions_ja.ts

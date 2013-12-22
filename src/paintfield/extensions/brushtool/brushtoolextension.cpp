@@ -17,6 +17,7 @@
 #include "brushstrokerpen.h"
 #include "brushstrokersimplebrush.h"
 #include "brusheditorview.h"
+#include "brushsidebarviewmodel.h"
 
 #include "brushtoolextension.h"
 
@@ -43,7 +44,8 @@ BrushToolExtension::BrushToolExtension(BrushPresetDatabase *presetDatabase, Work
 	}
 	{
 		// brush sidebar
-		auto brushSideBar = new BrushSideBar(mPresetManager);
+		auto brushSideBar = new BrushSideBar;
+		brushSideBar->setViewModel(new BrushSidebarViewModel(mPresetManager));
 		addSideBar(brushSideBarName, brushSideBar);
 	}
 

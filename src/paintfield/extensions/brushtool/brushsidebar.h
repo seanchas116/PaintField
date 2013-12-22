@@ -1,20 +1,14 @@
 #pragma once
 
-#include <QWidget>
-
-class QLabel;
+#include "paintfield/core/mvvmview.h"
 
 namespace PaintField {
 
-class BrushPresetManager;
-
-class BrushSideBar : public QWidget
+class BrushSideBar : public MVVMView
 {
 	Q_OBJECT
 public:
-	explicit BrushSideBar(BrushPresetManager *presetManager, QWidget *parent = 0);
-	
-private:
+	explicit BrushSideBar(QWidget *parent = 0);
 };
 
 } // namespace PaintField

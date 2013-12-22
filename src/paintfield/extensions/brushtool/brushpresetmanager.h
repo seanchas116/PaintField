@@ -12,6 +12,9 @@ class ObservableVariantMap;
 class BrushPresetManager : public QObject
 {
 	Q_OBJECT
+	Q_PROPERTY(QString title READ title WRITE setTitle NOTIFY titleChanged)
+	Q_PROPERTY(QString stroker READ stroker WRITE setStroker NOTIFY strokerChanged)
+
 public:
 	explicit BrushPresetManager(QObject *parent = 0);
 	~BrushPresetManager();
