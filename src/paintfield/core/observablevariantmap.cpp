@@ -19,8 +19,9 @@ QVariantMap ObservableVariantMap::map() const
 
 void ObservableVariantMap::setValue(const QString &key, const QVariant &value)
 {
-	if (mMap[key] != value) {
-		mMap[key] = value;
+	auto &ref = mMap[key];
+	if (ref != value) {
+		ref = value;
 		emit valueChanged(key, value);
 		emit mapChanged(mMap);
 	}
@@ -38,6 +39,17 @@ void ObservableVariantMap::setMap(const QVariantMap &map)
 		emit valueChanged(i.key(), i.value());
 	}
 	emit mapChanged(mMap);
+}
+
+SP<Property> ObservableVariantMap::customProperty(const QString &key)
+{
+	auto setter = [=](const QVariant &x) {
+		this->setValue(key, x);
+	};
+	auto getter = [=]() {
+		return this->value(key);
+	};
+	return PaintField::customProperty(setter, getter, this, SIGNAL(valueChanged(QString,QVariant)));
 }
 
 } // namespace PaintField

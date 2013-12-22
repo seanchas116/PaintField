@@ -102,7 +102,9 @@ HEADERS += \
     canvastransforms.h \
     canvascursorevent.h \
     property.h \
-    property_p.h
+    property_p.h \
+    mvvmview.h \
+    mvvmviewmodel.h
 
 FORMS +=
 SOURCES += \
@@ -186,7 +188,9 @@ SOURCES += \
     canvasupdatemanager.cpp \
     selectionsurface.cpp \
     canvasviewportstate.cpp \
-    property.cpp
+    property.cpp \
+    mvvmview.cpp \
+    mvvmviewmodel.cpp
 
 RESOURCES += \
     resources/resource-paintfield-core.qrc

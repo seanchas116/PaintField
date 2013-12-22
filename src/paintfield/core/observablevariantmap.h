@@ -1,5 +1,6 @@
 #pragma once
 
+#include "property.h"
 #include <QObject>
 #include <QVariant>
 #include <type_traits>
@@ -14,6 +15,8 @@ public:
 
 	QVariant value(const QString &key) const;
 	QVariantMap map() const;
+
+	SP<Property> customProperty(const QString &key);
 
 	template <class TFuncArg, class TObject, class TSignal>
 	void setValueOn(const QString &key, TObject *obj, TSignal signal)
