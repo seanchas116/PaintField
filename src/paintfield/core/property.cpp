@@ -13,17 +13,14 @@ BindObject::BindObject(const SP<Property> &p1, const SP<Property> &p2, Mode mode
 		// SLOT macro prepends "1" to method name
 		return staticMetaObject.method(staticMetaObject.indexOfSlot(name + 1));
 	};
-	if (mode == ModeSingly) {
-		Q_ASSERT(p1->hasSetter());
-		Q_ASSERT(p2->hasGetter() && p2->hasNotifySignal());
-	} else {
-		Q_ASSERT(p1->isComplete());
-		Q_ASSERT(p2->isComplete());
-	}
 	if (mode == ModeDoubly) {
-		connect(p1->notifyObject(), p1->notifySignal(), this, getSlot(SLOT(on1Changed())));
+		if (p1->isNotifiable()) {
+			connect(p1->notifyObject(), p1->notifySignal(), this, getSlot(SLOT(on1Changed())));
+		}
 	}
-	connect(p2->notifyObject(), p2->notifySignal(), this, getSlot(SLOT(on2Changed())));
+	if (p2->isNotifiable()) {
+		connect(p2->notifyObject(), p2->notifySignal(), this, getSlot(SLOT(on2Changed())));
+	}
 	p1->set(p2->get());
 }
 
@@ -103,14 +100,9 @@ Property::Connection Property::sync(const SP<Property> &p1, const PropertyDetail
 	return Connection(c);
 }
 
-bool Property::hasNotifySignal() const
+bool Property::isNotifiable() const
 {
-	return mNotifyObject && mNotifySignal.isValid() && mNotifySignal.methodType() == QMetaMethod::Signal;
-}
-
-bool Property::isComplete() const
-{
-	return hasNotifySignal() && hasSetter() && hasGetter();
+	return hasGetter() && mNotifyObject && mNotifySignal.isValid() && mNotifySignal.methodType() == QMetaMethod::Signal;
 }
 
 QtProperty::QtProperty(QObject *object, const QByteArray &propertyName)

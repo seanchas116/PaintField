@@ -171,10 +171,9 @@ public:
 	QObject *notifyObject() const { return mNotifyObject; }
 	QMetaMethod notifySignal() const { return mNotifySignal; }
 
-	bool hasNotifySignal() const;
+	bool isNotifiable() const;
 	virtual bool hasSetter() const = 0;
 	virtual bool hasGetter() const = 0;
-	bool isComplete() const;
 
 protected:
 	void setNotify(QObject *object, const QMetaMethod &signal)
