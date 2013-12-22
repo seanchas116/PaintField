@@ -11,46 +11,42 @@ class BindObject : public QObject
 {
 	Q_OBJECT
 public:
-	BindObject(UP<Property> &&property1, UP<Property> &&property2);
 
-private slots:
-	void on1Changed()
-	{
-		mProperty2->set(mProperty1->get());
-	}
-	void on2Changed()
-	{
-		mProperty1->set(mProperty2->get());
-	}
-
-private:
-	UP<Property> mProperty1, mProperty2;
-};
-
-class BindTransformObject : public QObject
-{
-	Q_OBJECT
-	Q_PROPERTY(QVariant value1 READ value1 WRITE setValue1 NOTIFY value1Changed)
-	Q_PROPERTY(QVariant value2 READ value2 WRITE setValue2 NOTIFY value2Changed)
-
+	enum Mode { ModeSingly, ModeDoubly };
 	enum Channel { Channel1, Channel2 };
 
-public:
-	BindTransformObject(std::function<QVariant(const QVariant &)> to1, std::function<QVariant(const QVariant &)> to2);
-	void setValue1(const QVariant &x) { setValue(x, Channel1); }
-	void setValue2(const QVariant &x) { setValue(x, Channel2); }
-	QVariant value1() const { return mValue[Channel1]; }
-	QVariant value2() const { return mValue[Channel2]; }
+	BindObject(const SP<Property> &property1, const SP<Property> &property2, Mode mode = ModeDoubly);
 
-signals:
-	void value1Changed(const QVariant &);
-	void value2Changed(const QVariant &);
+	static Channel opposite(Channel c) { return c == Channel1 ? Channel2 : Channel1; }
+protected:
+	const SP<Property> &property(Channel channel) { return mProperty[channel]; }
+
+	virtual void onChanged(Channel channel)
+	{
+		mProperty[opposite(channel)]->set(mProperty[channel]->get());
+	}
+
+protected slots:
+	void on1Changed() { onChanged(Channel1); }
+	void on2Changed() { onChanged(Channel2); }
 
 private:
-	static Channel opposite(Channel c) { return c == Channel1 ? Channel2 : Channel1; }
-	void setValue(const QVariant &value, Channel ch);
-	void emitValueChanged(Channel ch);
+	std::array<SP<Property>, 2> mProperty;
+};
 
+class BindTransformObject : public BindObject
+{
+	Q_OBJECT
+
+public:
+	BindTransformObject(const SP<Property> &property1, const SP<Property> &property2,
+		const Transform &to1, const Transform &to2,
+		Mode mode = ModeDoubly);
+
+protected:
+	void onChanged(Channel channel) override;
+
+private:
 	std::array<QVariant, 2> mValue;
 	std::array<std::function<QVariant(const QVariant &)>, 2> mTo;
 };

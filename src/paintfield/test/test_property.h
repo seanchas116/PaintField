@@ -15,6 +15,9 @@ private slots:
 	void test_bind();
 	void test_bindTransform();
 	void test_bindCustomProperty();
+	void test_sync();
+	void test_syncTransform();
+	void test_syncCustomProperty();
 
 };
 

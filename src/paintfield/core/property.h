@@ -28,10 +28,10 @@ using ArgumentType = RemoveConstReferenceType<
 >;
 
 template <class F>
-class VariantFunctionWrapper
+class VariantTransformWrapper
 {
 public:
-	VariantFunctionWrapper(const F &f) : mF(f) {}
+	VariantTransformWrapper(const F &f) : mF(f) {}
 
 	QVariant operator()(const QVariant &x) const
 	{
@@ -72,21 +72,24 @@ private:
 	F mF;
 };
 
+using Transform = std::function<QVariant (const QVariant &)>;
+using Setter = std::function<void (const QVariant &)>;
+using Getter = std::function<QVariant ()>;
 
 template <class F>
-std::function<QVariant (const QVariant &)> toVariantFunction(const F &f)
+Transform toVariantTransform(const F &f)
 {
-	return VariantFunctionWrapper<F>(f);
+	return VariantTransformWrapper<F>(f);
 }
 
 template <class F>
-std::function<void (const QVariant &)> toVariantSetter(const F &f)
+Setter toVariantSetter(const F &f)
 {
 	return VariantSetterWrapper<F>(f);
 }
 
 template <class F>
-std::function<QVariant ()> toVariantGetter(const F &f)
+Getter toVariantGetter(const F &f)
 {
 	return VariantGetterWrapper<F>(f);
 }
@@ -94,38 +97,71 @@ std::function<QVariant ()> toVariantGetter(const F &f)
 
 } // namespace PropertyDetail
 
+
 class Property
 {
 public:
 
+	class Connection
+	{
+		friend class Property;
+	public:
+		bool isValid() const { return mObject; }
+		explicit operator bool() const { return isValid(); }
+		void disconnect();
+
+	private:
+		explicit Connection(QObject *object);
+		QObject *mObject;
+	};
+
+	/**
+	 * Binds the first property with the second property.
+	 * @param p2 Must not be read-only
+	 */
+	static Connection bind(const SP<Property> &p1, const SP<Property> &p2);
+	static Connection bind(QObject *object1, const QByteArray &propertyName1, QObject *object2, const QByteArray &propertyName2);
+
+	template <class F1>
+	static Connection bind(
+		QObject *object1, const QByteArray &propertyName1, const F1 &transformTo1,
+		QObject *object2, const QByteArray &propertyName2);
+
+	template <class F1>
+	static Connection bind(const SP<Property> &p1, const F1 &transformTo1, const SP<Property> &p2)
+	{
+		return bind(p1, PropertyDetail::toVariantTransform(transformTo1), p2);
+	}
+
+	static Connection bind(const SP<Property> &p1, const PropertyDetail::Transform &transformTo1, const SP<Property> &p2);
+
 	/**
 	 * Binds the two properties bidirectionally.
 	 * Both properties are initialized with the second one when this function is called.
-	 * @return A QObject that is used to bind properties
 	 */
-	static void bind(UP<Property> &&p1, UP<Property> &&p2);
-	static void bind(QObject *object1, const QByteArray &propertyName1, QObject *object2, const QByteArray &propertyName2);
+	static Connection sync(const SP<Property> &p1, const SP<Property> &p2);
+	static Connection sync(QObject *object1, const QByteArray &propertyName1, QObject *object2, const QByteArray &propertyName2);
 
 	/**
 	 * Binds the two properties with two unary transform functions.
 	 * Their argument types must be convertible from QVariant and return types must be convertible to QVariant.
 	 */
 	template <class F1, class F2>
-	static void bind(UP<Property> &&p1, const F1 &transformTo1, UP<Property> &&p2, const F2 &transformTo2)
+	static Connection sync(const SP<Property> &p1, const F1 &transformTo1, const SP<Property> &p2, const F2 &transformTo2)
 	{
-		bind(
-			std::move(p1), PropertyDetail::toVariantFunction(transformTo1),
-			std::move(p2), PropertyDetail::toVariantFunction(transformTo2));
+		return sync(
+			p1, PropertyDetail::toVariantTransform(transformTo1),
+			p2, PropertyDetail::toVariantTransform(transformTo2));
 	}
 
 	template <class F1, class F2>
-	static void bind(
+	static Connection sync(
 		QObject *object1, const QByteArray &propertyName1, const F1 &transformTo1,
 		QObject *object2, const QByteArray &propertyName2, const F2 &transformTo2);
 
-	static void bind(
-		UP<Property> &&p1, const std::function<QVariant (const QVariant &)> &transformTo1,
-		UP<Property> &&p2, const std::function<QVariant (const QVariant &)> &transformTo2);
+	static Connection sync(
+		const SP<Property> &p1, const PropertyDetail::Transform &transformTo1,
+		const SP<Property> &p2, const PropertyDetail::Transform &transformTo2);
 
 	Property(const Property &) = delete;
 	Property& operator=(const Property &) = delete;
@@ -134,6 +170,11 @@ public:
 	virtual QVariant get() const = 0;
 	QObject *notifyObject() const { return mNotifyObject; }
 	QMetaMethod notifySignal() const { return mNotifySignal; }
+
+	bool hasNotifySignal() const;
+	virtual bool hasSetter() const = 0;
+	virtual bool hasGetter() const = 0;
+	bool isComplete() const;
 
 protected:
 	void setNotify(QObject *object, const QMetaMethod &signal)
@@ -149,6 +190,7 @@ private:
 	QMetaMethod mNotifySignal;
 };
 
+
 class QtProperty : public Property
 {
 public:
@@ -162,66 +204,111 @@ public:
 	{
 		return mProperty.read(notifyObject());
 	}
+	bool hasSetter() const override
+	{
+		return mProperty.isWritable();
+	}
+	bool hasGetter() const override
+	{
+		return mProperty.isReadable();
+	}
 
 private:
 	QMetaProperty mProperty;
 };
 
-inline UP<Property> qtProperty(QObject *object, const QByteArray &propertyName)
+inline SP<Property> qtProperty(QObject *object, const QByteArray &propertyName)
 {
-	return makeUP<QtProperty>(object, propertyName);
+	return makeSP<QtProperty>(object, propertyName);
 }
 
 class CustomProperty : public Property
 {
 public:
+
 	CustomProperty(
-		std::function<void(const QVariant &)> setter, std::function<QVariant()> getter,
+		const PropertyDetail::Setter &setter, const PropertyDetail::Getter &getter,
 		QObject *object, const QMetaMethod &notifySignal);
 
 	void set(const QVariant &value) override
 	{
 		mSetter(value);
 	}
-
 	QVariant get() const override
 	{
 		return mGetter();
 	}
+	bool hasSetter() const override
+	{
+		return bool(mSetter);
+	}
+	bool hasGetter() const override
+	{
+		return bool(mGetter);
+	}
 
 private:
-	std::function<void(const QVariant &)> mSetter;
-	std::function<QVariant()> mGetter;
+	PropertyDetail::Setter mSetter;
+	PropertyDetail::Getter mGetter;
 };
 
 template <class F1, class F2>
-inline UP<Property> customProperty(
+inline SP<Property> customProperty(
 	const F1 &setter, const F2 &getter,
-	QObject *object, const QMetaMethod &notifySignal
-)
+	QObject *object, const QMetaMethod &notifySignal)
 {
-	return makeUP<CustomProperty>(
+	return makeSP<CustomProperty>(
 		PropertyDetail::toVariantSetter(setter), PropertyDetail::toVariantGetter(getter),
 		object, notifySignal);
 }
 
 template <class F1, class F2>
-inline UP<Property> customProperty(
+inline SP<Property> customProperty(
 	const F1 &setter, const F2 &getter,
-	QObject *object, const char *notifySignal
-)
+	QObject *object, const char *notifySignal)
 {
 	auto metaObject = object->metaObject();
 	return customProperty(setter, getter, object,
 		metaObject->method(metaObject->indexOfSignal(notifySignal + 1)));
 }
 
+template <class F>
+inline SP<Property> customProperty(
+	const F &getter, QObject *object, const QMetaMethod &notifySignal)
+{
+	return customProperty(PropertyDetail::Setter(), getter, object, notifySignal);
+}
+
+template <class F>
+inline SP<Property> customProperty(
+	const F &getter, QObject *object, const char *notifySignal)
+{
+	return customProperty(PropertyDetail::Setter(), getter, object, notifySignal);
+}
+
+template <class F>
+inline SP<Property> customProperty(const F &setter)
+{
+	return customProperty(setter, PropertyDetail::Getter(), nullptr, QMetaMethod());
+}
+
+
+template <class F1>
+Property::Connection Property::bind(
+	QObject *object1, const QByteArray &propertyName1, const F1 &transformTo1,
+	QObject *object2, const QByteArray &propertyName2)
+{
+	return Property::bind(
+		qtProperty(object1, propertyName1), transformTo1,
+		qtProperty(object2, propertyName2));
+}
+
 template <class F1, class F2>
-void Property::bind(
+Property::Connection Property::sync(
 	QObject *object1, const QByteArray &propertyName1, const F1 &transformTo1,
 	QObject *object2, const QByteArray &propertyName2, const F2 &transformTo2)
 {
-	Property::bind(
+	return Property::sync(
 		qtProperty(object1, propertyName1), transformTo1,
 		qtProperty(object2, propertyName2), transformTo2);
 }
