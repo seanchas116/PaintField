@@ -321,7 +321,18 @@ QRect CanvasViewportState::updateTiles(const boost::variant<QPointSet, QHash<QPo
 
 QRect CanvasViewportState::updateSelectionTiles(const QPointSet &keys)
 {
-	this->mSelectionMipmap.replace(this->mSelection->surface(), keys);
+	auto surface = this->mSelection->surface();
+	auto documentRect = QRect(QPoint(), this->mDocumentSize);
+	for (const auto &key : keys) {
+
+		auto keyRect = QRect(QPoint(), SelectionSurface::tileSize());
+		auto rect = documentRect.translated(-key * SelectionSurface::tileWidth()) & keyRect;
+
+		SelectionImage image;
+		image.qimage() = surface.tile(key).qimage().copy(rect);
+
+		this->mSelectionMipmap.replace(image, key, rect.topLeft());
+	}
 	auto sceneRect = keys++.foldLeft(QRect(), [](const QRect &memo, const QPoint &key) {
 		return memo | SelectionSurface::keyToRect(key);
 	});
