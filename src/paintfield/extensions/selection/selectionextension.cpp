@@ -1,9 +1,12 @@
 #include "selectionextension.h"
 #include "selectionpainttool.h"
 #include "selectionrecttool.h"
+#include "selectionbrushsidebarviewmodel.h"
 #include "paintfield/core/appcontroller.h"
 #include "paintfield/core/settingsmanager.h"
 #include "paintfield/core/widgets/simplebutton.h"
+#include "paintfield/core/observablevariantmap.h"
+
 
 namespace PaintField {
 
@@ -19,15 +22,30 @@ const QString ellipseToolName = "paintfield.tool.selectionEllipse";
 SelectionExtension::SelectionExtension(Workspace *workspace, QObject *parent) :
 	WorkspaceExtension(workspace, parent)
 {
-
+	mBrushState = new ObservableVariantMap(this);
+	mBrushState->setValue("size", 10);
+	mBrushSidebarViewModel = new SelectionBrushSidebarViewModel(mBrushState, this);
 }
 
 Tool *SelectionExtension::createTool(const QString &name, Canvas *canvas)
 {
+	auto createSelectionPaintTool = [&](SelectionPaintTool::Type type) {
+		auto tool = new SelectionPaintTool(type, canvas);
+		Property::sync(qtProperty(tool, "brushSize"), mBrushState->customProperty("size"));
+		QString title;
+		if (type == SelectionPaintTool::TypeBrush) {
+			title = tr("Selection Painting");
+		} else {
+			title = tr("Selection Eraser");
+		}
+		mBrushSidebarViewModel->setProperty("title", title);
+		return tool;
+	};
+
 	if (name == paintToolName) {
-		return new SelectionPaintTool(SelectionPaintTool::TypeBrush, canvas);
+		return createSelectionPaintTool(SelectionPaintTool::TypeBrush);
 	} else if (name == eraserToolName) {
-		return new SelectionPaintTool(SelectionPaintTool::TypeEraser, canvas);
+		return createSelectionPaintTool(SelectionPaintTool::TypeEraser);
 	} else if (name == rectToolName) {
 		return new SelectionRectTool(SelectionRectTool::TypeRect, canvas);
 	} else if (name == ellipseToolName) {
@@ -35,7 +53,6 @@ Tool *SelectionExtension::createTool(const QString &name, Canvas *canvas)
 	}
 	return 0;
 }
-
 
 SelectionExtensionFactory::SelectionExtensionFactory(QObject *parent) :
 	ExtensionFactory(parent)
@@ -49,7 +66,6 @@ void SelectionExtensionFactory::initialize(AppController *app)
 		auto icon = SimpleButton::createIcon(":/icons/24x24/selectPaint.svg");
 		app->settingsManager()->declareTool(paintToolName, text, icon, {});
 	}
-
 	{
 		{
 			auto text = tr("Selection Eraser");

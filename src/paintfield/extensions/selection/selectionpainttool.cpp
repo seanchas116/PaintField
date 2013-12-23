@@ -8,6 +8,7 @@ namespace PaintField {
 struct SelectionPaintTool::Data
 {
 	QScopedPointer<SelectionStroker> mStroker;
+	double mBrushSize = 10;
 	Type mType;
 };
 
@@ -44,5 +45,17 @@ void SelectionPaintTool::cursorReleaseEvent(CanvasCursorEvent *event, int id)
 	document()->selection()->commitUpdates();
 }
 
+void SelectionPaintTool::setBrushSize(double size)
+{
+	if (d->mBrushSize != size) {
+		d->mBrushSize = size;
+		emit brushSizeChanged(size);
+	}
+}
+
+double SelectionPaintTool::brushSize() const
+{
+	return d->mBrushSize;
+}
 
 } // namespace PaintField

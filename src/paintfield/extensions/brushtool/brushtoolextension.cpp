@@ -6,6 +6,7 @@
 #include "paintfield/core/widgets/simplebutton.h"
 #include "paintfield/core/palettemanager.h"
 #include "paintfield/core/observablevariantmap.h"
+#include "paintfield/core/toolmanager.h"
 
 #include "brushpresetitem.h"
 #include "brushpresetdatabase.h"
@@ -20,6 +21,8 @@
 #include "brushsidebarviewmodel.h"
 
 #include "brushtoolextension.h"
+
+#include "paintfield/extensions/selection/selectionextension.h"
 
 namespace PaintField {
 
@@ -45,7 +48,20 @@ BrushToolExtension::BrushToolExtension(BrushPresetDatabase *presetDatabase, Work
 	{
 		// brush sidebar
 		auto brushSideBar = new BrushSideBar;
-		brushSideBar->setViewModel(new BrushSidebarViewModel(mPresetManager));
+		auto viewModel = new BrushSidebarViewModel(mPresetManager, this);
+		brushSideBar->setViewModel(viewModel);
+		connect(workspace->toolManager(), &ToolManager::currentToolChanged, brushSideBar, [=](const QString &name) {
+			if (name == "paintfield.tool.selectionPaint" || name == "paintfield.tool.selectionEraser") {
+				for (auto extension : workspace->extensions()) {
+					auto selectionExtension = qobject_cast<SelectionExtension *>(extension);
+					if (selectionExtension) {
+						brushSideBar->setViewModel(selectionExtension->brushSidebarViewModel());
+						return;
+					}
+				}
+			}
+			brushSideBar->setViewModel(viewModel);
+		});
 		addSideBar(brushSideBarName, brushSideBar);
 	}
 

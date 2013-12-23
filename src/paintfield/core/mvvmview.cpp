@@ -6,6 +6,7 @@ namespace PaintField {
 struct MVVMView::Data
 {
 	QHash<QByteArray, SP<Property>> mRouteHash;
+	MVVMViewModel *mViewModel = nullptr;
 };
 
 MVVMView::MVVMView(QWidget *parent) :
@@ -20,7 +21,11 @@ MVVMView::~MVVMView()
 
 void MVVMView::setViewModel(MVVMViewModel *viewModel)
 {
-	viewModel->setParent(viewModel);
+	if (d->mViewModel == viewModel)
+		return;
+
+	d->mViewModel = viewModel;
+	viewModel->setParent(this);
 
 	auto vmRouteHash = viewModel->routeHash();
 	auto begin = d->mRouteHash.begin();

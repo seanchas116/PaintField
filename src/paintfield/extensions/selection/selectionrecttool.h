@@ -14,7 +14,7 @@ public:
 		TypeEllipse
 	};
 
-	explicit SelectionRectTool(Type type, Canvas *parent = 0);
+	explicit SelectionRectTool(Type type, Canvas *parent);
 	~SelectionRectTool();
 
 	int cursorPressEvent(CanvasCursorEvent *event) override;

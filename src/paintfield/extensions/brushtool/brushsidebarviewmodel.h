@@ -9,7 +9,7 @@ class BrushSidebarViewModel : public MVVMViewModel
 {
 	Q_OBJECT
 public:
-	explicit BrushSidebarViewModel(BrushPresetManager *presetManager, QObject *parent = 0);
+	explicit BrushSidebarViewModel(BrushPresetManager *presetManager, QObject *parent);
 
 private:
 	BrushPresetManager *mPresetManager = nullptr;
