@@ -48,5 +48,9 @@
         <file>icons/16x16/strokeInside.svg</file>
         <file>icons/16x16/strokeOutside.svg</file>
         <file>icons/24x24/folder.png</file>
+        <file>icons/24x24/selectEllipse.svg</file>
+        <file>icons/24x24/selectRect.svg</file>
+        <file>icons/24x24/selectErase.svg</file>
+        <file>icons/24x24/selectPaint.svg</file>
     </qresource>
 </RCC>

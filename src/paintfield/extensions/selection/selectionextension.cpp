@@ -46,28 +46,28 @@ void SelectionExtensionFactory::initialize(AppController *app)
 {
 	{
 		auto text = tr("Selection Painting");
-		auto icon = SimpleButton::createIcon(":/icons/24x24/brush.svg");
+		auto icon = SimpleButton::createIcon(":/icons/24x24/selectPaint.svg");
 		app->settingsManager()->declareTool(paintToolName, text, icon, {});
 	}
 
 	{
 		{
 			auto text = tr("Selection Eraser");
-			auto icon = SimpleButton::createIcon(":/icons/24x24/brush.svg");
+			auto icon = SimpleButton::createIcon(":/icons/24x24/selectErase.svg");
 			app->settingsManager()->declareTool(eraserToolName, text, icon, {});
 		}
 	}
 	{
 		{
 			auto text = tr("Rectangle Selection");
-			auto icon = SimpleButton::createIcon(":/icons/24x24/rect.svg");
+			auto icon = SimpleButton::createIcon(":/icons/24x24/selectRect.svg");
 			app->settingsManager()->declareTool(rectToolName, text, icon, {});
 		}
 	}
 	{
 		{
 			auto text = tr("Ellipse Selection");
-			auto icon = SimpleButton::createIcon(":/icons/24x24/ellipse.svg");
+			auto icon = SimpleButton::createIcon(":/icons/24x24/selectEllipse.svg");
 			app->settingsManager()->declareTool(ellipseToolName, text, icon, {});
 		}
 	}
