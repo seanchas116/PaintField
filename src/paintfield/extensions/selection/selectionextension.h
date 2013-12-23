@@ -16,6 +16,9 @@ public:
 	MVVMViewModel *brushSidebarViewModel() { return mBrushSidebarViewModel; }
 	Tool *createTool(const QString &name, Canvas *canvas) override;
 
+	void loadState(const QVariantMap &state) override;
+	QVariantMap saveState() override;
+
 private:
 	ObservableVariantMap *mBrushState = nullptr;
 	MVVMViewModel *mBrushSidebarViewModel = nullptr;

@@ -59,7 +59,7 @@ BrushSideBar::BrushSideBar(QWidget *parent) :
 		presetLabel->setText(QString("<b>%1</b>").arg(title));
 	};
 
-	this->route(customProperty(setTitle), "title");
+	this->route(customProperty(this, setTitle), "title");
 }
 
 } // namespace PaintField

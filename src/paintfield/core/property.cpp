@@ -15,13 +15,25 @@ BindObject::BindObject(const SP<Property> &p1, const SP<Property> &p2, Mode mode
 	};
 	if (mode == ModeDoubly) {
 		if (p1->isNotifiable()) {
-			connect(p1->notifyObject(), p1->notifySignal(), this, getSlot(SLOT(on1Changed())));
+			connect(p1->object(), p1->notifySignal(), this, getSlot(SLOT(on1Changed())));
 		}
 	}
 	if (p2->isNotifiable()) {
-		connect(p2->notifyObject(), p2->notifySignal(), this, getSlot(SLOT(on2Changed())));
+		connect(p2->object(), p2->notifySignal(), this, getSlot(SLOT(on2Changed())));
 	}
 	p1->set(p2->get());
+
+	for (const auto p : mProperty) {
+		connect(p->object(), SIGNAL(destroyed()), this, SLOT(deleteBinding()));
+	}
+}
+
+void BindObject::deleteBinding()
+{
+	this->deleteLater();
+	for (const auto p : mProperty) {
+		disconnect(p->object(), nullptr, this, nullptr);
+	}
 }
 
 BindTransformObject::BindTransformObject(const SP<Property> &property1, const SP<Property> &property2,
@@ -52,7 +64,7 @@ Property::Connection::Connection(QObject *object) :
 
 void Property::Connection::disconnect()
 {
-	mObject->deleteLater();
+	delete mObject;
 	mObject = nullptr;
 }
 
@@ -102,7 +114,7 @@ Property::Connection Property::sync(const SP<Property> &p1, const PropertyDetail
 
 bool Property::isNotifiable() const
 {
-	return hasGetter() && mNotifyObject && mNotifySignal.isValid() && mNotifySignal.methodType() == QMetaMethod::Signal;
+	return hasGetter() && mObject && mNotifySignal.isValid() && mNotifySignal.methodType() == QMetaMethod::Signal;
 }
 
 QtProperty::QtProperty(QObject *object, const QByteArray &propertyName)

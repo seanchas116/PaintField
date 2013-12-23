@@ -1,4 +1,5 @@
 #include <QWidget>
+#include <QVariant>
 
 #include "extension.h"
 
@@ -65,6 +66,16 @@ Tool *Extension::createTool(const QString &, Canvas *)
 
 void Extension::updateToolBar(QToolBar *, const QString &)
 {
+}
+
+QVariantMap Extension::saveState()
+{
+	return QVariantMap();
+}
+
+void Extension::loadState(const QVariantMap &state)
+{
+	Q_UNUSED(state);
 }
 
 AppExtensionList ExtensionFactory::createAppExtensions(AppController *, QObject *)

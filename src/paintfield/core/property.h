@@ -168,7 +168,7 @@ public:
 
 	virtual void set(const QVariant &value) = 0;
 	virtual QVariant get() const = 0;
-	QObject *notifyObject() const { return mNotifyObject; }
+	QObject *object() const { return mObject; }
 	QMetaMethod notifySignal() const { return mNotifySignal; }
 
 	bool isNotifiable() const;
@@ -178,14 +178,14 @@ public:
 protected:
 	void setNotify(QObject *object, const QMetaMethod &signal)
 	{
-		mNotifyObject = object;
+		mObject = object;
 		mNotifySignal = signal;
 	}
 
 	Property() = default;
 
 private:
-	QObject *mNotifyObject = 0;
+	QObject *mObject = 0;
 	QMetaMethod mNotifySignal;
 };
 
@@ -197,11 +197,11 @@ public:
 
 	void set(const QVariant &value) override
 	{
-		mProperty.write(notifyObject(), value);
+		mProperty.write(object(), value);
 	}
 	QVariant get() const override
 	{
-		return mProperty.read(notifyObject());
+		return mProperty.read(object());
 	}
 	bool hasSetter() const override
 	{
@@ -253,8 +253,8 @@ private:
 
 template <class F1, class F2>
 inline SP<Property> customProperty(
-	const F1 &setter, const F2 &getter,
-	QObject *object, const QMetaMethod &notifySignal)
+	QObject *object, const F1 &setter, const F2 &getter,
+	const QMetaMethod &notifySignal)
 {
 	return makeSP<CustomProperty>(
 		PropertyDetail::toVariantSetter(setter), PropertyDetail::toVariantGetter(getter),
@@ -263,32 +263,32 @@ inline SP<Property> customProperty(
 
 template <class F1, class F2>
 inline SP<Property> customProperty(
-	const F1 &setter, const F2 &getter,
-	QObject *object, const char *notifySignal)
+	QObject *object, const F1 &setter, const F2 &getter,
+	const char *notifySignal)
 {
 	auto metaObject = object->metaObject();
-	return customProperty(setter, getter, object,
+	return customProperty(object, setter, getter,
 		metaObject->method(metaObject->indexOfSignal(notifySignal + 1)));
 }
 
 template <class F>
 inline SP<Property> customProperty(
-	const F &getter, QObject *object, const QMetaMethod &notifySignal)
+	QObject *object, const F &getter, const QMetaMethod &notifySignal)
 {
-	return customProperty(PropertyDetail::Setter(), getter, object, notifySignal);
+	return customProperty(object, PropertyDetail::Setter(), getter, notifySignal);
 }
 
 template <class F>
 inline SP<Property> customProperty(
-	const F &getter, QObject *object, const char *notifySignal)
+	QObject *object, const F &getter, const char *notifySignal)
 {
-	return customProperty(PropertyDetail::Setter(), getter, object, notifySignal);
+	return customProperty(object, PropertyDetail::Setter(), getter, notifySignal);
 }
 
 template <class F>
-inline SP<Property> customProperty(const F &setter)
+inline SP<Property> customProperty(QObject *object, const F &setter)
 {
-	return customProperty(setter, PropertyDetail::Getter(), nullptr, QMetaMethod());
+	return customProperty(object, setter, PropertyDetail::Getter(), QMetaMethod());
 }
 
 

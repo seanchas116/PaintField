@@ -49,7 +49,7 @@ void Test_Property::test_bindCustomProperty()
 	auto getB = [b](){
 		return b->value();
 	};
-	Property::bind(customProperty(setA), customProperty(getB, b, SIGNAL(valueChanged(int))));
+	Property::bind(customProperty(a, setA), customProperty(b, getB, SIGNAL(valueChanged(int))));
 	b->setValue(20);
 	QCOMPARE(20, a->value());
 }
@@ -92,7 +92,7 @@ void Test_Property::test_syncCustomProperty()
 	auto getA = [a](){
 		return a->value();
 	};
-	Property::sync(customProperty(setA, getA, a, SIGNAL(valueChanged(int))), qtProperty(b, "value"));
+	Property::sync(customProperty(a, setA, getA, SIGNAL(valueChanged(int))), qtProperty(b, "value"));
 	a->setValue(24);
 	QCOMPARE(24, b->value());
 	b->setValue(12);

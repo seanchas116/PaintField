@@ -26,6 +26,7 @@ SelectionPaintTool::~SelectionPaintTool()
 int SelectionPaintTool::cursorPressEvent(CanvasCursorEvent *event)
 {
 	d->mStroker.reset(new SelectionStroker(document()->selection(), d->mType == TypeEraser));
+	d->mStroker->setRadiusBase(d->mBrushSize * 0.5);
 	d->mStroker->moveTo(event->data);
 	return 0;
 }

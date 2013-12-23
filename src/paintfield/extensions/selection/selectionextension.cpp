@@ -25,6 +25,7 @@ SelectionExtension::SelectionExtension(Workspace *workspace, QObject *parent) :
 	mBrushState = new ObservableVariantMap(this);
 	mBrushState->setValue("size", 10);
 	mBrushSidebarViewModel = new SelectionBrushSidebarViewModel(mBrushState, this);
+	setObjectName("paintfield.extension.selection");
 }
 
 Tool *SelectionExtension::createTool(const QString &name, Canvas *canvas)
@@ -52,6 +53,18 @@ Tool *SelectionExtension::createTool(const QString &name, Canvas *canvas)
 		return new SelectionRectTool(SelectionRectTool::TypeEllipse, canvas);
 	}
 	return 0;
+}
+
+void SelectionExtension::loadState(const QVariantMap &state)
+{
+	mBrushState->setMap(state["brush"].toMap());
+}
+
+QVariantMap SelectionExtension::saveState()
+{
+	QVariantMap state;
+	state["brush"] = mBrushState->map();
+	return state;
 }
 
 SelectionExtensionFactory::SelectionExtensionFactory(QObject *parent) :

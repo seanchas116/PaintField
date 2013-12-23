@@ -73,6 +73,7 @@ Workspace::Workspace(const QVariantMap &state, QObject *parent) :
 	}
 }
 
+
 Workspace::~Workspace()
 {
 	delete d;
@@ -105,8 +106,12 @@ WorkspaceView *Workspace::view()
 
 void Workspace::addExtensions(const QList<WorkspaceExtension *> &extensions)
 {
-	for (auto extension : extensions)
+	for (auto extension : extensions) {
 		addActions(extension->actions());
+		auto state = d->state[extension->objectName()].toMap();
+		PAINTFIELD_DEBUG << state;
+		extension->loadState(state);
+	}
 	
 	d->extensions += extensions;
 }
@@ -294,12 +299,19 @@ QVariantMap Workspace::saveState()
 	
 	QVariantList paletteColors;
 	
-	for (auto &color : d->paletteManager->colors())
-	{
+	for (auto &color : d->paletteManager->colors()) {
 		paletteColors << SerializationUtil::mapFromBrush(color);
 	}
 	
 	state["palette"] = paletteColors;
+
+	for (auto extension : d->extensions) {
+		auto extensionState = extension->saveState();
+		if (!extensionState.isEmpty()) {
+			PAINTFIELD_DEBUG << extension->objectName() << extensionState;
+			state[extension->objectName()] = extensionState;
+		}
+	}
 	
 	return state;
 }

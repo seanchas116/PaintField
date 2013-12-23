@@ -63,6 +63,10 @@ public:
 	 */
 	QWidget *sideBar(const QString &id);
 	void addSideBar(const QString &id, QWidget *sideBar);
+
+	// TODO: saving & loading states are not supported except for workspace extensions
+	virtual QVariantMap saveState();
+	virtual void loadState(const QVariantMap &state);
 	
 private:
 	

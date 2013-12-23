@@ -49,7 +49,7 @@ SP<Property> ObservableVariantMap::customProperty(const QString &key)
 	auto getter = [=]() {
 		return this->value(key);
 	};
-	return PaintField::customProperty(setter, getter, this, SIGNAL(valueChanged(QString,QVariant)));
+	return PaintField::customProperty(this, setter, getter, SIGNAL(valueChanged(QString,QVariant)));
 }
 
 } // namespace PaintField

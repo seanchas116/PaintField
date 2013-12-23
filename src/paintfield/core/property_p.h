@@ -30,6 +30,9 @@ protected slots:
 	void on1Changed() { onChanged(Channel1); }
 	void on2Changed() { onChanged(Channel2); }
 
+private slots:
+	void deleteBinding();
+
 private:
 	std::array<SP<Property>, 2> mProperty;
 };

@@ -7,6 +7,7 @@ struct MVVMView::Data
 {
 	QHash<QByteArray, SP<Property>> mRouteHash;
 	MVVMViewModel *mViewModel = nullptr;
+	QList<Property::Connection> mConnections;
 };
 
 MVVMView::MVVMView(QWidget *parent) :
@@ -24,6 +25,11 @@ void MVVMView::setViewModel(MVVMViewModel *viewModel)
 	if (d->mViewModel == viewModel)
 		return;
 
+	for (auto &connection : d->mConnections) {
+		connection.disconnect();
+	}
+	d->mConnections.clear();
+
 	d->mViewModel = viewModel;
 	viewModel->setParent(this);
 
@@ -32,7 +38,8 @@ void MVVMView::setViewModel(MVVMViewModel *viewModel)
 	auto end = d->mRouteHash.end();
 	for (auto i = begin; i != end; ++i) {
 		if (vmRouteHash.contains(i.key())) {
-			Property::sync(i.value(), vmRouteHash.value(i.key()));
+			auto connection = Property::sync(i.value(), vmRouteHash.value(i.key()));
+			d->mConnections << connection;
 		}
 	}
 }
