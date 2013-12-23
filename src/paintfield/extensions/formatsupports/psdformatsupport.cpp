@@ -142,11 +142,18 @@ static void writeLayers(QList<SP<PsdLayerRecord>> &layerRecords, const QList<Lay
 			auto surface = rasterLayer->surface();
 			QRect rect = surface.boundingRect();
 
-			PsdImageSave::save(surface.crop(rect), record->channelDatas, record->channelInfos, bpp);
-			record->rectTop = rect.top();
-			record->rectBottom = rect.top() + rect.height();
-			record->rectLeft = rect.left();
-			record->rectRight = rect.left() + rect.width();
+			if (rect.isEmpty())
+			{
+				PsdImageSave::saveEmpty(record->channelDatas, record->channelInfos);
+			}
+			else
+			{
+				PsdImageSave::save(surface.crop(rect), record->channelDatas, record->channelInfos, bpp);
+				record->rectTop = rect.top();
+				record->rectBottom = rect.top() + rect.height();
+				record->rectLeft = rect.left();
+				record->rectRight = rect.left() + rect.width();
+			}
 		}
 		else
 		{
