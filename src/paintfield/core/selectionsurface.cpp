@@ -54,7 +54,7 @@ QImage SelectionImage::toQImageARGBPremult(QRgb rgbOne, QRgb rgbZero) const
 
 namespace SelectionDrawUtil {
 
-QPointSet drawPath(SelectionSurface &surface, const QPainterPath &path, QPainter::CompositionMode compositionMode)
+QPointSet drawPath(SelectionSurface &surface, const QPainterPath &path, Mode mode)
 {
 	auto keys = SelectionSurface::rectToKeys(path.boundingRect().toAlignedRect());
 
@@ -62,7 +62,8 @@ QPointSet drawPath(SelectionSurface &surface, const QPainterPath &path, QPainter
 
 		auto rect = SelectionSurface::keyToRect(key);
 		if (path.contains(rect)) {
-			surface[key] = filledTile();
+			surface[key] =
+				(mode == Mode::Draw) ? filledTile() : SelectionSurface::defaultTile();
 			continue;
 		}
 
@@ -77,7 +78,10 @@ QPointSet drawPath(SelectionSurface &surface, const QPainterPath &path, QPainter
 		QPainter painter(&tile.qimage());
 		painter.setPen(Qt::NoPen);
 		painter.translate(-key * SelectionSurface::tileWidth());
-		painter.setCompositionMode(compositionMode);
+		painter.setCompositionMode(
+			(mode == Mode::Draw)
+				? QPainter::CompositionMode_SourceOver
+				: QPainter::CompositionMode_DestinationOut);
 		painter.drawPath(path);
 	}
 	return keys;

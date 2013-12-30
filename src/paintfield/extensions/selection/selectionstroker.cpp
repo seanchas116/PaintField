@@ -50,8 +50,8 @@ void SelectionStroker::drawInterval(
 void SelectionStroker::drawPath(const QPainterPath &path)
 {
 	auto surface = mSelection->surface();
-	auto compositionMode = mEraser ? QPainter::CompositionMode_DestinationOut : QPainter::CompositionMode_SourceOver;
-	auto keys = SelectionDrawUtil::drawPath(surface, path, compositionMode);
+	auto mode = mEraser ? SelectionDrawUtil::Mode::Erase : SelectionDrawUtil::Mode::Draw;
+	auto keys = SelectionDrawUtil::drawPath(surface, path, mode);
 	mSelection->updateSurface(surface, keys);
 }
 

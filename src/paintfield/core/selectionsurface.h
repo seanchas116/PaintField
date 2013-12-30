@@ -205,8 +205,11 @@ using SelectionMipmap = Malachite::SurfaceMipmap<SelectionSurface, SelectionMipm
 
 namespace SelectionDrawUtil {
 
-QPointSet drawPath(SelectionSurface &surface, const QPainterPath &path,
-	QPainter::CompositionMode compositionMode = QPainter::CompositionMode_SourceOver);
+enum class Mode {
+	Draw, Erase
+};
+
+QPointSet drawPath(SelectionSurface &surface, const QPainterPath &path, Mode mode = Mode::Draw);
 
 SelectionImage filledTile();
 
