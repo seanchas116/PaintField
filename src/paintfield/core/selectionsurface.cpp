@@ -33,7 +33,7 @@ bool SelectionImage::isBlank() const
 	return true;
 }
 
-QImage SelectionImage::toQImageARGBPremult(QRgb rgbOne, QRgb rgbZero) const
+QImage SelectionImage::toQImageArgbPremult(QRgb rgbOne, QRgb rgbZero) const
 {
 	auto size = this->size();
 	QImage image(size, QImage::Format_ARGB32_Premultiplied);
@@ -45,6 +45,40 @@ QImage SelectionImage::toQImageARGBPremult(QRgb rgbOne, QRgb rgbZero) const
 		auto src = this->constScanline(y);
 		while (dst != dstEnd) {
 			*dst++ = rgbs[*src++];
+		}
+	}
+
+	return image;
+}
+
+QImage SelectionImage::toDottedQImage(int width, const QPoint &offset) const
+{
+	auto size = this->size();
+	QImage image(size.width() - 2, size.height() - 2, QImage::Format_ARGB32_Premultiplied);
+	image.fill(qRgba(0,0,0,0));
+	std::array<uint32_t, 2> blackWhite = {{ qRgb(0, 0, 0), qRgb(255, 255, 255) }};
+
+	for (int y = 1; y < size.height() - 1; ++y) {
+
+		auto top = this->constScanline(y - 1) + 1;
+		auto left = this->constScanline(y);
+		auto center = left + 1;
+		auto right = center + 1;
+		auto bottom = this->constScanline(y + 1) + 1;
+
+		auto dst = reinterpret_cast<QRgb *>(image.scanLine(y - 1));
+
+		for (int x = 1; x < size.width() - 1; ++x) {
+			if (*center && !(*top && *bottom && *left && *right)) {
+				auto pos = QPoint(x, y) + offset;
+				*dst = blackWhite[(pos.x() + pos.y()) / width % 2];
+			}
+			++center;
+			++top;
+			++left;
+			++right;
+			++bottom;
+			++dst;
 		}
 	}
 

@@ -40,6 +40,8 @@ struct CanvasViewport::Data
 
 	VanishingScrollBar *mScrollBarX = 0, *mScrollBarY = 0;
 
+	QTimer *mSelectionShiftTimer = 0;
+
 	void setTransforms(const SP<const CanvasTransforms> &transforms)
 	{
 		mState.setTransforms(transforms);
@@ -111,8 +113,10 @@ struct CanvasViewport::Data
 			if (strokingOrToolEditing) {
 				mCanvas->document()->layerScene()->abortThumbnailUpdate();
 				mCanvas->disableUndoRedo();
+				mSelectionShiftTimer->stop();
 			} else {
 				mCanvas->enableUndoRedo();
+				mSelectionShiftTimer->start();
 			}
 			mStrokingOrToolEditing = strokingOrToolEditing;
 		}
@@ -306,6 +310,23 @@ CanvasViewport::CanvasViewport(Canvas *canvas, QWidget *parent) :
 	}
 	connect(canvas->document()->layerScene(), &LayerScene::tilesUpdated, this, std::bind(&Data::updateTiles, d.data(), _1));
 	d->updateTiles(canvas->document()->tileKeys());
+
+	// selection update timer
+	{
+		auto timer = new QTimer(this);
+		timer->setInterval(100);
+		connect(timer, &QTimer::timeout, [=](){
+			d->mState.shiftSelectionDots();
+			auto keys = d->mCanvas->document()->selection()->surface().keys();
+			QRect sceneRect;
+			for (const auto &key : keys) {
+				sceneRect |= SelectionSurface::keyToRect(key);
+			}
+			return this->repaint(d->mCanvas->transforms()->sceneToWindow.mapRect(sceneRect));
+		});
+		timer->start();
+		d->mSelectionShiftTimer = timer;
+	}
 }
 
 CanvasViewport::~CanvasViewport()

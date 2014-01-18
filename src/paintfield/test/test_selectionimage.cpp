@@ -47,7 +47,7 @@ void Test_SelectionImage::test_toQImageARGBPremult()
 	image.setPixel(10, 10, false);
 	auto rgb0 = qRgb(0,10,20);
 	auto rgb1 = qRgb(30,40,50);
-	auto qimage = image.toQImageARGBPremult(rgb1, rgb0);
+	auto qimage = image.toQImageArgbPremult(rgb1, rgb0);
 	QCOMPARE(qimage.format(), QImage::Format_ARGB32_Premultiplied);
 	QCOMPARE(qimage.size(), image.size());
 	QCOMPARE(qimage.pixel(1,1), rgb1);

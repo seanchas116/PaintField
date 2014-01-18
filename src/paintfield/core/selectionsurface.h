@@ -177,7 +177,10 @@ public:
 	QImage &qimage() { return mImage; }
 	const QImage &qimage() const { return mImage; }
 
-	QImage toQImageARGBPremult(QRgb rgbOne, QRgb rgbZero = 0) const;
+	QImage toQImageArgbPremult(QRgb rgbOne, QRgb rgbZero = 0) const;
+
+	// result image is narrowed by 1px
+	QImage toDottedQImage(int width, const QPoint &offset) const;
 
 	bool operator==(const SelectionImage &other) const { return mImage == other.mImage; }
 
@@ -210,7 +213,6 @@ enum class Mode {
 };
 
 QPointSet drawPath(SelectionSurface &surface, const QPainterPath &path, Mode mode = Mode::Draw);
-
 SelectionImage filledTile();
 
 }

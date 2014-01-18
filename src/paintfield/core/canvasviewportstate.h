@@ -26,8 +26,12 @@ public:
 	void setRetinaMode(bool mode) { this->mRetinaMode = mode; }
 	void setDocumentSize(const QSize &size);
 
+	void setSelectionShowMode(SelectionShowMode mode) { mSelectionShowMode = mode; }
+
 	QRect updateTiles(const boost::variant<QPointSet, QHash<QPoint, QRect>> &keysOrRectForKeys);
 	QRect updateSelectionTiles(const QPointSet &keys);
+
+	void shiftSelectionDots();
 
 	CanvasViewportSurface mergedSurface() const { return this->mMipmap.baseSurface(); }
 
@@ -48,6 +52,10 @@ private:
 	QPoint mTranslationToScene;
 	
 	bool mRetinaMode = false;
+
+	SelectionShowMode mSelectionShowMode = SelectionShowModeDotted;
+	int mSelectionDotShift = 0;
+	int mSelectionDotWidth = 4;
 	
 	bool mCacheAvailable = false;
 	QRect mCacheRect;

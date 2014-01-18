@@ -156,24 +156,28 @@ void CanvasViewportState::render(QPainter *painter, const QRect &windowRepaintRe
 			if ((sceneRect & QRect(QPoint(), this->mDocumentSize)).isEmpty()) {
 				painter->drawRect(windowRect);
 			} else {
-				painter->drawImage(windowRect, Malachite::wrapInQImage(cropSurface(sceneRect)));
+				auto image = cropSurface(sceneRect);
+				auto qimage = Malachite::wrapInQImage(image);
+				if (hasSelection) {
+					QImage selection;
+
+					if (this->mSelectionShowMode == SelectionShowModeColored) {
+						selection = selectionSurface.crop(sceneRect).toQImageArgbPremult(selectionRgb);
+					} else {
+						auto cropped = selectionSurface.crop(sceneRect.adjusted(-1, -1, 1, 1));
+						auto shift = this->mSelectionDotShift;
+						selection = cropped.toDottedQImage(
+							this->mSelectionDotWidth, viewRect.topLeft() + QPoint(shift, shift));
+					}
+
+					QPainter imagePainter(&qimage);
+					imagePainter.drawImage(QPoint(), selection);
+				}
+				painter->drawImage(windowRect.topLeft(), qimage);
 			}
 		};
 
-		auto drawSelectionInViewRect = [&](const QRect &viewRect) {
-			auto sceneRect = viewRectToSceneRect(viewRect);
-			if (!selectionSurface.hasTileInRect(sceneRect))
-				return;
-			auto windowRect = toWindowRect(viewRect);
-			painter->drawImage(windowRect, selectionSurface.crop(sceneRect).toQImageARGBPremult(selectionRgb));
-		};
-
 		drawDivided(repaintRect, drawInViewRect);
-
-		if (hasSelection) {
-			painter->setCompositionMode(QPainter::CompositionMode_SourceOver);
-			drawDivided(repaintRect, drawSelectionInViewRect);
-		}
 	}
 	else
 	{
@@ -195,8 +199,26 @@ void CanvasViewportState::render(QPainter *painter, const QRect &windowRepaintRe
 				if (this->mTransforms->scale < 2.0)
 					imagePainter.setRenderHint(QPainter::SmoothPixmapTransform);
 
-				imagePainter.setTransform( this->mTransforms->mipmapToView * QTransform::fromTranslate(-viewRect.left(), -viewRect.top()) );
+				auto imageTransform = this->mTransforms->mipmapToView * QTransform::fromTranslate(-viewRect.left(), -viewRect.top());
+
+				imagePainter.setTransform(imageTransform);
 				imagePainter.drawImage(sceneRect.topLeft(), wrapInQImage(croppedImage));
+
+				if (hasSelection) {
+					auto croppedSelection = selectionSurface.crop(sceneRect);
+
+					SelectionImage selection(viewRect.size());
+					{
+						QPainter selectionPainter(&selection.qimage());
+						selectionPainter.setCompositionMode(QPainter::CompositionMode_Source);
+						selectionPainter.setTransform(imageTransform);
+						selectionPainter.drawImage(sceneRect.topLeft(), croppedSelection.qimage());
+					}
+
+					imagePainter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+					imagePainter.setTransform(QTransform());
+					imagePainter.drawImage(QPoint(), selection.toQImageArgbPremult(selectionRgb));
+				}
 			}
 
 			if ((sceneRect & QRect(QPoint(), this->mDocumentSize)).isEmpty())
@@ -205,30 +227,7 @@ void CanvasViewportState::render(QPainter *painter, const QRect &windowRepaintRe
 				painter->drawImage(toWindowRect(viewRect), image);
 		};
 
-		auto drawSelectionInViewRect = [&](const QRect &viewRect) {
-
-			auto sceneRect = viewRectToSceneRect(viewRect);
-			if (!selectionSurface.hasTileInRect(sceneRect))
-				return;
-			auto croppedImage = selectionSurface.crop(sceneRect);
-
-			SelectionImage image(viewRect.size());
-			{
-				QPainter imagePainter(&image.qimage());
-				imagePainter.setCompositionMode(QPainter::CompositionMode_Source);
-				imagePainter.setTransform( this->mTransforms->mipmapToView * QTransform::fromTranslate(-viewRect.left(), -viewRect.top()) );
-				imagePainter.drawImage(sceneRect.topLeft(), croppedImage.qimage());
-			}
-
-			painter->drawImage(toWindowRect(viewRect), image.toQImageARGBPremult(selectionRgb));
-		};
-
 		drawDivided(repaintRect, drawInViewRect);
-
-		if (hasSelection) {
-			painter->setCompositionMode(QPainter::CompositionMode_SourceOver);
-			drawDivided(repaintRect, drawSelectionInViewRect);
-		}
 	}
 }
 
@@ -337,6 +336,11 @@ QRect CanvasViewportState::updateSelectionTiles(const QPointSet &keys)
 		return memo | SelectionSurface::keyToRect(key);
 	});
 	return this->mTransforms->sceneToWindow.mapRect(sceneRect);
+}
+
+void CanvasViewportState::shiftSelectionDots()
+{
+	mSelectionDotShift = (mSelectionDotShift + 1) % mSelectionDotWidth;
 }
 
 } // namespace PaintField
