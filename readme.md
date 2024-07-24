@@ -1,7 +1,7 @@
 PaintField - A Cross-platform Digital Painting Tool
 ========
 
-[Website](http://iofg2100.github.io/PaintField/)
+[Website](http://seanchas116.github.io/PaintField/)
 
 This app is currently under development. The source files are licensed under LGPL (see copying file).
 
